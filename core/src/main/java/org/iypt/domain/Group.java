@@ -22,6 +22,11 @@ public class Group {
         jury.setGroup(this);
     }
 
+    @Override
+    public String toString() {
+        return "Group " + name + " (" + round + ")"; 
+    }
+
     /**
      * Get the value of jury
      *
