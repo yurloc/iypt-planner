@@ -22,7 +22,7 @@ public class Juror {
     @Override
     public String toString() {
 //        return String.format("%s (%s)", id, country.getCode());
-        return String.format("%s (%s)", id, country);
+        return String.format("(%s)", country);
     }
 
     /**
