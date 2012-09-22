@@ -1,22 +1,55 @@
 package org.iypt.domain;
 
+import org.drools.planner.api.domain.entity.PlanningEntity;
+import org.drools.planner.api.domain.variable.PlanningVariable;
+import org.drools.planner.api.domain.variable.ValueRange;
+import org.drools.planner.api.domain.variable.ValueRangeType;
+
 /**
  *
  * @author jlocker
  */
+@PlanningEntity
 public class JuryMembership {
-    
-    private Juror juror;
-    private Jury jury;
+
+    private Jury jury; // fixed
+    private Juror juror; // planning variable
 
     public JuryMembership() {
     }
 
-    public JuryMembership(Juror juror, Jury jury) {
-        this.juror = juror;
+    public JuryMembership(Jury jury, Juror juror) {
         this.jury = jury;
+        this.juror = juror;
     }
 
+    /**
+     * Get the value of juror
+     *
+     * @return the value of juror
+     */
+    @PlanningVariable
+    @ValueRange(type = ValueRangeType.FROM_SOLUTION_PROPERTY, solutionProperty = "jurors")
+    public Juror getJuror() {
+        return juror;
+    }
+
+    @Override
+    public String toString() {
+        return jury + " juror: " + juror;
+    }
+    
+    public JuryMembership clone() {
+        JuryMembership clone = new JuryMembership();
+        clone.jury = jury;
+        clone.juror = juror;
+        return clone;
+    }
+
+    //=========================================================================================================================
+    // Getters & Setters
+    //=========================================================================================================================
+    
     /**
      * Get the value of jury
      *
@@ -36,15 +69,6 @@ public class JuryMembership {
     }
 
     /**
-     * Get the value of juror
-     *
-     * @return the value of juror
-     */
-    public Juror getJuror() {
-        return juror;
-    }
-
-    /**
      * Set the value of juror
      *
      * @param juror new value of juror
@@ -52,5 +76,4 @@ public class JuryMembership {
     public void setJuror(Juror juror) {
         this.juror = juror;
     }
-
 }

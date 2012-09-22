@@ -20,6 +20,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
     private Collection<Group> groups;
     private Collection<Jury> juries;
     private Collection<Juror> jurors;
+    private Collection<JuryMembership> juryMemberships; // planning entity
     private Collection<DayOff> dayOffs;
     private Collection<Conflict> conflicts;
 
@@ -29,6 +30,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
         groups = new LinkedHashSet<Group>();
         juries = new LinkedHashSet<Jury>();
         jurors = new LinkedHashSet<Juror>();
+        juryMemberships = new LinkedHashSet<JuryMembership>();
         dayOffs = new LinkedHashSet<DayOff>();
         conflicts = new LinkedHashSet<Conflict>();
     }
@@ -46,26 +48,50 @@ public class Tournament implements Solution<HardAndSoftScore> {
         facts.addAll(rounds);
         facts.addAll(teams);
         facts.addAll(groups);
+        facts.addAll(juries);
         facts.addAll(jurors);
         facts.addAll(dayOffs);
         facts.addAll(conflicts);
-        // All planning entities are automatically inserted into the Drools working memory, not adding juries
+        // All planning entities are automatically inserted into the Drools working memory
+        // using @PlanningEntityCollectionProperty
         return facts;
     }
 
     public Solution<HardAndSoftScore> cloneSolution() {
         Tournament clone = new Tournament();
+        clone.score = score;
         clone.rounds = rounds;
         clone.groups = groups;
-        clone.juries = new LinkedHashSet<Jury>(juries.size());
-        for (Jury j : juries) {
-            clone.juries.add(j.clone());
-        }
+        clone.juries = juries;
         clone.jurors = jurors;
         clone.teams = teams;
         clone.dayOffs = dayOffs;
         clone.conflicts = conflicts;
+        
+        // deep-clone the planning entity
+        for (JuryMembership membership : juryMemberships) {
+            clone.juryMemberships.add(membership.clone());
+        }
         return clone;
+    }
+
+    /**
+     * Get the value of juryMemberships
+     *
+     * @return the value of juryMemberships
+     */
+    @PlanningEntityCollectionProperty
+    public Collection<JuryMembership> getJuryMemberships() {
+        return juryMemberships;
+    }
+
+    /**
+     * Set the value of juryMemberships
+     *
+     * @param juryMemberships new value of juryMemberships
+     */
+    public void setJuryMemberships(Collection<JuryMembership> juryMemberships) {
+        this.juryMemberships = juryMemberships;
     }
 
     public Collection<Round> getRounds() {
@@ -100,7 +126,6 @@ public class Tournament implements Solution<HardAndSoftScore> {
         this.groups = groups;
     }
 
-    @PlanningEntityCollectionProperty
     public Collection<Jury> getJuries() {
         return juries;
     }
@@ -134,12 +159,25 @@ public class Tournament implements Solution<HardAndSoftScore> {
             }
         }
     }
-    
+
     public void addJurors(Juror... jurors) {
         Collections.addAll(this.jurors, jurors);
     }
-    
+
     public void addDayOffs(DayOff... dayOffs) {
         Collections.addAll(this.dayOffs, dayOffs);
+    }
+
+    public void createJuries(Round round, int juryCapacity) {
+        for (Group g : round.getGroups()) {
+            Jury jury = new Jury();
+            jury.setCapacity(juryCapacity);
+            jury.setGroup(g);
+            g.setJury(jury);
+            for (int i = 0; i < juryCapacity; i++) {
+                // no need to initialize the planning variable (Jury), will be done by construction heuristic
+                this.juryMemberships.add(new JuryMembership(jury, null));
+            }
+        }
     }
 }

@@ -7,7 +7,7 @@ import org.iypt.domain.Country;
 import org.iypt.domain.DayOff;
 import org.iypt.domain.Group;
 import org.iypt.domain.Juror;
-import org.iypt.domain.Jury;
+import org.iypt.domain.JuryMembership;
 import org.iypt.domain.Round;
 import org.iypt.domain.Team;
 import org.iypt.domain.Tournament;
@@ -76,14 +76,26 @@ public class App {
         Group g3B = new Group(tB, tD, tI);
         Group g3C = new Group(tC, tE, tG);
         r3.addGroups(g3A, g3B, g3C);
+
+        g1A.setName("A");
+        g2A.setName("A");
+        g3A.setName("A");
+        g1B.setName("B");
+        g2B.setName("B");
+        g3B.setName("B");
+        g1C.setName("C");
+        g2C.setName("C");
+        g3C.setName("C");
         
         // tournament
         Tournament t = new Tournament();
         t.addRounds(r1, r2, r3);
-        t.addJurors(jA, jB, jC);
+        t.addJurors(jA, jB, jC, jD, jE, jF, jG, jH, jG, jI, jJ, jK);
         t.addDayOffs(new DayOff(jA, r1.getDay()), new DayOff(jA, r3.getDay()));
-        // FIXME temporary dirty way to set jury size
-        for (Jury j : t.getJuries()) j.setCapacity(3);
+        
+        t.createJuries(r1, 2);
+        t.createJuries(r2, 2);
+        t.createJuries(r3, 2);
         
         return t;
     }
@@ -91,9 +103,9 @@ public class App {
     private static String toDisplayString(Tournament tournament) {
         StringBuilder re = new StringBuilder(1024);
         for (Round r : tournament.getRounds()) {
-            re.append(r).append("=========");
-            re.append(" group             | jury");
-            //         A: CZE,SVK,GER     | ...
+            re.append(r).append("\n=========\n");
+            re.append(" group       | jury\n");
+            //         A: A B C D | ...
             for (Group g : r.getGroups()) {
                 re.append(g.getName()).append(": ");
                 for (Team t : g.getTeams()) {
@@ -101,9 +113,13 @@ public class App {
                 }
                 if (g.getSize() == 3) re.append("    ");
                 re.append("| ");
-                for (Juror j : g.getJury().getMembers()) {
-                    re.append(j.getCountry());
+                for (JuryMembership m : tournament.getJuryMemberships()) {
+                    if (m.getJury().equals(g.getJury())) {
+                        Juror juror = m.getJuror();
+                        re.append(juror == null ? "[---]" : juror.getCountry());
+                    }
                 }
+                re.append('\n');
             }
         }
         return re.toString();

@@ -10,6 +10,8 @@ import org.iypt.domain.Country;
 import org.iypt.domain.DayOff;
 import org.iypt.domain.Group;
 import org.iypt.domain.Juror;
+import org.iypt.domain.Jury;
+import org.iypt.domain.JuryMembership;
 import org.iypt.domain.Round;
 import org.iypt.domain.Team;
 import org.iypt.domain.Tournament;
@@ -20,20 +22,48 @@ global HardAndSoftScoreHolder scoreHolder;
 // Hard constraints
 // ############################################################################
 
-rule "teamAndJurorSameCountry"
+rule "multipleMembershipsInRound"
+    enabled true
 when
-    $g : Group()
-    $j : Juror( $g.jury.members.contains(this), $country : country )
-    $t : Team( $g.teams.contains(this), country == $country )
+    $r : Round()
+    $m1 : JuryMembership( $juror : juror != null, jury.group.round == $r )
+    $m2 : JuryMembership( juror ==  $juror, jury.group.round == $r)
 then
+    //System.out.println("double membership of " + $juror + " in round " + $r);
+    insertLogical(new IntConstraintOccurrence("multipleMembershipsInRound",
+        ConstraintType.NEGATIVE_HARD, 1, $juror, $m1, $m2 ));
+end
+    
+
+rule "juryNotFull" // broken?
+    enabled false
+    //salience 10 // populate juries first
+when
+    $membership : JuryMembership( juror == null, $jury : jury )
+then
+    System.out.println("juror missing");
+    insertLogical(new IntConstraintOccurrence("juryNotFull",
+        ConstraintType.NEGATIVE_HARD, 1, $membership));
+        //ConstraintType.NEGATIVE_HARD, 1));
+end
+
+rule "teamAndJurorSameCountry"
+    enabled true
+when
+    JuryMembership( $jury : jury, $juror : juror )
+    $team : Team( country == $juror.country, $jury.group.teams.contains(this) )
+    // or $jury.group.countries.contains($juror.country) ?
+then
+    System.out.println("same country");
     insertLogical(new IntConstraintOccurrence("teamAndJurorSameCountry",
-        ConstraintType.NEGATIVE_HARD, 1, $j, $t));
+        ConstraintType.NEGATIVE_HARD, 1, $juror, $team));
 end
 
 // ############################################################################
 // Soft constraints
 // ############################################################################
 
+// TODO
 
 // ############################################################################
 // Calculate score
