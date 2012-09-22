@@ -1,8 +1,15 @@
 package org.iypt.core;
 
+import java.util.Iterator;
+import org.drools.ClassObjectFilter;
+import org.drools.WorkingMemory;
 import org.drools.planner.config.SolverFactory;
 import org.drools.planner.config.XmlSolverFactory;
 import org.drools.planner.core.Solver;
+import org.drools.planner.core.score.Score;
+import org.drools.planner.core.score.constraint.ConstraintOccurrence;
+import org.drools.planner.core.score.director.ScoreDirector;
+import org.drools.planner.core.score.director.drools.DroolsScoreDirector;
 import org.iypt.domain.Country;
 import org.iypt.domain.DayOff;
 import org.iypt.domain.Group;
@@ -29,6 +36,20 @@ public class App {
 
         // Display the result
         System.out.println("\nSolved Tournament:\n" + toDisplayString(solved));
+        ScoreDirector scoreDirector = solver.getScoreDirectorFactory().buildScoreDirector();
+        scoreDirector.setWorkingSolution(solved);
+        Score finalScore = scoreDirector.calculateScore();
+        System.out.println("Final score: " + finalScore);
+        System.out.println("Explanation:\n");
+        
+        WorkingMemory workingMemory = ((DroolsScoreDirector) scoreDirector).getWorkingMemory();
+        
+        @SuppressWarnings("unchecked")
+        Iterator<ConstraintOccurrence> it = (Iterator<ConstraintOccurrence>) workingMemory.iterateObjects(
+                new ClassObjectFilter(ConstraintOccurrence.class));
+        while (it.hasNext()) {
+            System.out.println(it.next().toString());
+        }
     }
 
     private static Tournament createTournament() {
@@ -50,11 +71,18 @@ public class App {
         Juror jD = new Juror(Country.D);
         Juror jE = new Juror(Country.E);
         Juror jF = new Juror(Country.F);
-        Juror jG = new Juror(Country.G);
-        Juror jH = new Juror(Country.H);
-        Juror jI = new Juror(Country.I);
-        Juror jJ = new Juror(Country.J);
-        Juror jK = new Juror(Country.K);
+        Juror jG = new Juror(Country.C);
+        Juror jH = new Juror(Country.C);
+        Juror jI = new Juror(Country.A); // 9
+        Juror jJ = new Juror(Country.A);
+        Juror jK = new Juror(Country.B);
+        Juror jL = new Juror(Country.B); //12
+        Juror jM = new Juror(Country.B);
+        Juror jN = new Juror(Country.C);
+        Juror jO = new Juror(Country.D); //15
+        Juror jP = new Juror(Country.A);
+        Juror jQ = new Juror(Country.A);
+        Juror jR = new Juror(Country.A); //18
         
         // round 1
         Group g1A = new Group(tA, tB, tC);
@@ -90,12 +118,13 @@ public class App {
         // tournament
         Tournament t = new Tournament();
         t.addRounds(r1, r2, r3);
-        t.addJurors(jA, jB, jC, jD, jE, jF, jG, jH, jG, jI, jJ, jK);
+        t.addJurors(jA, jB, jC, jD, jE, jF, jG, jH, jG, jI, jJ, jK, jL);
+        t.addJurors(jM, jN, jO, jP, jQ, jR);
         t.addDayOffs(new DayOff(jA, r1.getDay()), new DayOff(jA, r3.getDay()));
         
-        t.createJuries(r1, 2);
-        t.createJuries(r2, 2);
-        t.createJuries(r3, 2);
+        t.createJuries(r1, 6);
+        t.createJuries(r2, 6);
+        t.createJuries(r3, 6);
         
         return t;
     }
