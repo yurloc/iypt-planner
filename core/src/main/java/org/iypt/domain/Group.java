@@ -19,6 +19,7 @@ public class Group {
         this.teams = new ArrayList<Team>();
         Collections.addAll(this.teams, teams);
         jury = new Jury();
+        jury.setGroup(this);
     }
 
     /**
