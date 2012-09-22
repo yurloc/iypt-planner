@@ -156,6 +156,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
             for (Group g : r.getGroups()) {
                 groups.add(g);
                 juries.add(g.getJury());
+                teams.addAll(g.getTeams());
             }
         }
     }

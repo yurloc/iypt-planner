@@ -27,11 +27,11 @@ rule "multipleMembershipsInRound"
 when
     $r : Round()
     $m1 : JuryMembership( $juror : juror != null, jury.group.round == $r )
-    $m2 : JuryMembership( juror ==  $juror, jury.group.round == $r)
+    $m2 : JuryMembership( this != $m1, juror ==  $juror, jury.group.round == $r)
 then
     //System.out.println("double membership of " + $juror + " in round " + $r);
     insertLogical(new IntConstraintOccurrence("multipleMembershipsInRound",
-        ConstraintType.NEGATIVE_HARD, 1, $juror, $m1, $m2 ));
+        ConstraintType.NEGATIVE_HARD, 10, $juror, $m1, $m2 ));
 end
     
 
@@ -50,13 +50,13 @@ end
 rule "teamAndJurorSameCountry"
     enabled true
 when
-    JuryMembership( $jury : jury, $juror : juror )
-    $team : Team( country == $juror.country, $jury.group.teams.contains(this) )
+    $m : JuryMembership( $jury : jury, $juror : juror != null )
+    $team : Team( country == $juror.country, $jury.group.teams contains this )
     // or $jury.group.countries.contains($juror.country) ?
 then
-    System.out.println("same country");
+    //System.out.println("same country");
     insertLogical(new IntConstraintOccurrence("teamAndJurorSameCountry",
-        ConstraintType.NEGATIVE_HARD, 1, $juror, $team));
+        ConstraintType.NEGATIVE_HARD, 1, $m, $team));
 end
 
 // ############################################################################
