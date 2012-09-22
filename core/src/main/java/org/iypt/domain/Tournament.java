@@ -1,0 +1,145 @@
+package org.iypt.domain;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import org.drools.planner.api.domain.solution.PlanningEntityCollectionProperty;
+import org.drools.planner.core.score.buildin.hardandsoft.HardAndSoftScore;
+import org.drools.planner.core.solution.Solution;
+
+/**
+ *
+ * @author jlocker
+ */
+public class Tournament implements Solution<HardAndSoftScore> {
+
+    private HardAndSoftScore score;
+    private Collection<Round> rounds;
+    private Collection<Team> teams;
+    private Collection<Group> groups;
+    private Collection<Jury> juries;
+    private Collection<Juror> jurors;
+    private Collection<DayOff> dayOffs;
+    private Collection<Conflict> conflicts;
+
+    public Tournament() {
+        rounds = new LinkedHashSet<Round>();
+        teams = new LinkedHashSet<Team>();
+        groups = new LinkedHashSet<Group>();
+        juries = new LinkedHashSet<Jury>();
+        jurors = new LinkedHashSet<Juror>();
+        dayOffs = new LinkedHashSet<DayOff>();
+        conflicts = new LinkedHashSet<Conflict>();
+    }
+
+    public HardAndSoftScore getScore() {
+        return score;
+    }
+
+    public void setScore(HardAndSoftScore score) {
+        this.score = score;
+    }
+
+    public Collection<? extends Object> getProblemFacts() {
+        ArrayList<Object> facts = new ArrayList<Object>();
+        facts.addAll(rounds);
+        facts.addAll(teams);
+        facts.addAll(groups);
+        facts.addAll(jurors);
+        facts.addAll(dayOffs);
+        facts.addAll(conflicts);
+        // All planning entities are automatically inserted into the Drools working memory, not adding juries
+        return facts;
+    }
+
+    public Solution<HardAndSoftScore> cloneSolution() {
+        Tournament clone = new Tournament();
+        clone.rounds = rounds;
+        clone.groups = groups;
+        clone.juries = new LinkedHashSet<Jury>(juries.size());
+        for (Jury j : juries) {
+            clone.juries.add(j.clone());
+        }
+        clone.jurors = jurors;
+        clone.teams = teams;
+        clone.dayOffs = dayOffs;
+        clone.conflicts = conflicts;
+        return clone;
+    }
+
+    public Collection<Round> getRounds() {
+        return rounds;
+    }
+
+    public void setRounds(Collection<Round> rounds) {
+        this.rounds = rounds;
+    }
+
+    public Collection<Team> getTeams() {
+        return teams;
+    }
+
+    public void setTeams(Collection<Team> teams) {
+        this.teams = teams;
+    }
+
+    public Collection<Juror> getJurors() {
+        return jurors;
+    }
+
+    public void setJurors(Collection<Juror> jurors) {
+        this.jurors = jurors;
+    }
+
+    public Collection<Group> getGroups() {
+        return groups;
+    }
+
+    public void setGroups(Collection<Group> groups) {
+        this.groups = groups;
+    }
+
+    @PlanningEntityCollectionProperty
+    public Collection<Jury> getJuries() {
+        return juries;
+    }
+
+    public void setJuries(Collection<Jury> juries) {
+        this.juries = juries;
+    }
+
+    public Collection<DayOff> getDayOffs() {
+        return dayOffs;
+    }
+
+    public void setDayOffs(Collection<DayOff> dayOffs) {
+        this.dayOffs = dayOffs;
+    }
+
+    public Collection<Conflict> getConflicts() {
+        return conflicts;
+    }
+
+    public void setConflicts(Collection<Conflict> conflicts) {
+        this.conflicts = conflicts;
+    }
+
+    public void addRounds(Round... rounds) {
+        for (Round r : rounds) {
+            this.rounds.add(r);
+            for (Group g : r.getGroups()) {
+                groups.add(g);
+                juries.add(g.getJury());
+            }
+        }
+    }
+    
+    public void addJurors(Juror... jurors) {
+        Collections.addAll(this.jurors, jurors);
+    }
+    
+    public void addDayOffs(DayOff... dayOffs) {
+        Collections.addAll(this.dayOffs, dayOffs);
+    }
+}

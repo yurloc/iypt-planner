@@ -1,0 +1,64 @@
+package org.iypt.core;
+    dialect "java"
+
+import org.drools.planner.core.score.buildin.hardandsoft.HardAndSoftScoreHolder;
+import org.drools.planner.core.score.constraint.IntConstraintOccurrence;
+import org.drools.planner.core.score.constraint.ConstraintType;
+
+import org.iypt.domain.Conflict;
+import org.iypt.domain.Country;
+import org.iypt.domain.DayOff;
+import org.iypt.domain.Group;
+import org.iypt.domain.Juror;
+import org.iypt.domain.Round;
+import org.iypt.domain.Team;
+import org.iypt.domain.Tournament;
+
+global HardAndSoftScoreHolder scoreHolder;
+
+// ############################################################################
+// Hard constraints
+// ############################################################################
+
+rule "teamAndJurorSameCountry"
+when
+    $g : Group()
+    $j : Juror( $g.jury.members.contains(this), $country : country )
+    $t : Team( $g.teams.contains(this), country == $country )
+then
+    insertLogical(new IntConstraintOccurrence("teamAndJurorSameCountry",
+        ConstraintType.NEGATIVE_HARD, 1, $j, $t));
+end
+
+// ############################################################################
+// Soft constraints
+// ############################################################################
+
+
+// ############################################################################
+// Calculate score
+// ############################################################################
+
+// Accumulate hard constraints
+rule "hardConstraintsBroken"
+        salience -1 // Do the other rules first (optional, for performance)
+    when
+        $hardTotal : Number() from accumulate(
+            IntConstraintOccurrence(constraintType == ConstraintType.NEGATIVE_HARD, $weight : weight),
+            sum($weight) // Vote for http://jira.jboss.com/jira/browse/JBRULES-1075
+        )
+    then
+        scoreHolder.setHardConstraintsBroken($hardTotal.intValue());
+end
+
+// Accumulate soft constraints
+rule "softConstraintsBroken"
+        salience -1 // Do the other rules first (optional, for performance)
+    when
+        $softTotal : Number() from accumulate(
+            IntConstraintOccurrence(constraintType == ConstraintType.NEGATIVE_SOFT, $weight : weight),
+            sum($weight) // Vote for http://jira.jboss.com/jira/browse/JBRULES-1075
+        )
+    then
+        scoreHolder.setSoftConstraintsBroken($softTotal.intValue());
+end
