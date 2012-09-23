@@ -6,11 +6,11 @@ package org.iypt.domain;
  */
 public class DayOff {
     private Juror juror;
-    private int dayIndex;
+    private int day;
 
-    public DayOff(Juror juror, int dayIndex) {
+    public DayOff(Juror juror, int day) {
         this.juror = juror;
-        this.dayIndex = dayIndex;
+        this.day = day;
     }
 
     public Juror getJuror() {
@@ -21,12 +21,12 @@ public class DayOff {
         this.juror = juror;
     }
 
-    public int getDayIndex() {
-        return dayIndex;
+    public int getDay() {
+        return day;
     }
 
-    public void setDayIndex(int dayIndex) {
-        this.dayIndex = dayIndex;
+    public void setDay(int day) {
+        this.day = day;
     }
-    
+
 }
