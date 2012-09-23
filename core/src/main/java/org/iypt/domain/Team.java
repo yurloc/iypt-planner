@@ -13,6 +13,11 @@ public class Team {
         this.country = country;
     }
 
+    @Override
+    public String toString() {
+        return String.format("Team (%s)", country);
+    }
+
     public Team(int id, Country country) {
         this.id = id;
         this.country = country;
