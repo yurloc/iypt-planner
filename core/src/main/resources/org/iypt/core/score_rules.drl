@@ -29,8 +29,11 @@ when
     $m1 : JuryMembership( juror == $juror, jury.group.round == $r )
     $m2 : JuryMembership( juror == $juror, jury.group.round == $r, this != $m1 )
 then
-    insertLogical(new IntConstraintOccurrence("multipleMembershipsInRound",
-        ConstraintType.NEGATIVE_HARD, 10, $juror, $m1, $m2 ));
+    insertLogical( new IntConstraintOccurrence(
+        drools.getRule().getName(),
+        ConstraintType.NEGATIVE_HARD, 10,
+        $juror, $m1, $m2
+    ));
 end
 
 rule "juryNotFull"
@@ -39,9 +42,11 @@ when
     $membership : JuryMembership( juror == null, $jury : jury )
 then
     System.out.println("juror missing");
-    insertLogical(new IntConstraintOccurrence("juryNotFull",
-        ConstraintType.NEGATIVE_HARD, 1, $membership));
-        //ConstraintType.NEGATIVE_HARD, 1));
+    insertLogical( new IntConstraintOccurrence(
+        drools.getRule().getName(),
+        ConstraintType.NEGATIVE_HARD, 1,
+        $membership
+    ));
 end
 
 rule "teamAndJurorSameCountry"
@@ -50,8 +55,11 @@ when
     $team : Team( country == $juror.country, $jury.group.teams contains this )
     // or $jury.group.countries.contains($juror.country) ?
 then
-    insertLogical(new IntConstraintOccurrence("teamAndJurorSameCountry",
-        ConstraintType.NEGATIVE_HARD, 1, $m, $team));
+    insertLogical( new IntConstraintOccurrence(
+        drools.getRule().getName(),
+        ConstraintType.NEGATIVE_HARD, 1,
+        $m, $team
+    ));
 end
 
 // ############################################################################
