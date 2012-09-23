@@ -17,12 +17,7 @@ import org.drools.planner.core.score.buildin.hardandsoft.HardAndSoftScore;
 import org.drools.planner.core.score.buildin.hardandsoft.HardAndSoftScoreHolder;
 import org.drools.planner.core.score.holder.ScoreHolder;
 import org.drools.runtime.StatefulKnowledgeSession;
-import org.iypt.domain.Country;
-import org.iypt.domain.Group;
-import org.iypt.domain.Juror;
 import org.iypt.domain.JuryMembership;
-import org.iypt.domain.Round;
-import org.iypt.domain.Team;
 import org.iypt.domain.Tournament;
 import org.iypt.domain.util.DefaultTournamentFactory;
 import org.junit.BeforeClass;
@@ -31,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.hamcrest.CoreMatchers.*;
+import static org.iypt.core.TestFacts.*;
 import static org.junit.Assert.*;
 import static org.junit.matchers.JUnitMatchers.*;
 
@@ -40,62 +36,6 @@ import static org.junit.matchers.JUnitMatchers.*;
  */
 public class ScoringRulesTest {
 
-    // teams
-    private Team tA = new Team(Country.A);
-    private Team tB = new Team(Country.B);
-    private Team tC = new Team(Country.C);
-    private Team tD = new Team(Country.D);
-    private Team tE = new Team(Country.E);
-    private Team tF = new Team(Country.F);
-    private Team tG = new Team(Country.G);
-    private Team tH = new Team(Country.H);
-    private Team tI = new Team(Country.I);
-    // jurors
-    private Juror jA1 = new Juror(Country.A);
-    private Juror jA2 = new Juror(Country.A);
-    private Juror jA3 = new Juror(Country.A);
-    private Juror jA4 = new Juror(Country.A);
-    private Juror jA5 = new Juror(Country.A);
-    private Juror jB1 = new Juror(Country.B);
-    private Juror jB2 = new Juror(Country.B);
-    private Juror jB3 = new Juror(Country.B);
-    private Juror jB4 = new Juror(Country.B);
-    private Juror jC1 = new Juror(Country.C);
-    private Juror jC2 = new Juror(Country.C);
-    private Juror jC3 = new Juror(Country.C);
-    private Juror jD1 = new Juror(Country.D);
-    private Juror jD2 = new Juror(Country.D);
-    private Juror jE1 = new Juror(Country.E);
-    private Juror jF1 = new Juror(Country.F);
-    private Juror jG1 = new Juror(Country.G);
-    private Juror jH1 = new Juror(Country.H);
-    private Juror jI1 = new Juror(Country.I);
-    private Juror jJ1 = new Juror(Country.J);
-    private Juror jK1 = new Juror(Country.K);
-    private Juror jL1 = new Juror(Country.L);
-    // group permutation #1
-    private Group gABC = new Group(tA, tB, tC);
-    private Group gDEF = new Group(tD, tE, tF);
-    private Group gGHI = new Group(tG, tH, tI);
-    // group permutation #2
-    private Group gADG = new Group(tA, tD, tG);
-    private Group gBEH = new Group(tB, tE, tH);
-    private Group gCFI = new Group(tC, tF, tI);
-    // group permutation #3
-    private Group gAEI = new Group(tA, tE, tI);
-    private Group gBFG = new Group(tB, tF, tG);
-    private Group gCDH = new Group(tC, tD, tH);
-    // group permutation #4
-    private Group gAFH = new Group(tA, tF, tH);
-    private Group gBDI = new Group(tB, tD, tI);
-    private Group gCEG = new Group(tC, tE, tG);
-    // rounds
-    private Round round1 = new Round(1, 1);
-    private Round round2 = new Round(2, 2);
-    private Round round3 = new Round(3, 3);
-    private Round round4 = new Round(4, 4);
-    private Round round5 = new Round(5, 5);
-    
     private static final Logger log = LoggerFactory.getLogger(ScoringRulesTest.class);
     private static final String SCORE_DRL = "org/iypt/core/score_rules.drl";
     private static final String SCORE_HOLDER_NAME = "scoreHolder";
