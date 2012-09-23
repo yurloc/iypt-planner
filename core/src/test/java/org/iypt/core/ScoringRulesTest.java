@@ -100,6 +100,7 @@ public class ScoringRulesTest {
     private static final String RULE_HARD = "hardConstraintsBroken";
     private static final String RULE_SOFT = "softConstraintsBroken";
     private static final String RULE_multipleMembershipsInRound = "multipleMembershipsInRound";
+    private static final String RULE_teamAndJurorSameCountry = "teamAndJurorSameCountry";
     private static int ACTIVATION_LISTENER_VERBOSITY = ActivationListener.VERBOSITY_RULES;
     private static KnowledgeBase kbase;
 
@@ -140,6 +141,22 @@ public class ScoringRulesTest {
 
         assertThat(listener.getFireCount(RULE_multipleMembershipsInRound), is(2));
         assertThat(listener.getTotalFireCount(), is(2));
+    }
+    
+    @Test
+    public void testTeamAndJurorSameCountry() {
+        DefaultTournamentFactory f = new DefaultTournamentFactory();
+        f.setJuryCapacity(1);
+        f.createRound(1, tA, tB, tC);
+        f.addJurors(jA1);
+        Tournament t = f.newTournament();
+        for (JuryMembership m : t.getJuryMemberships()) {
+            m.setJuror(jA1);
+        }
+        ActivationListener listener = calculateScore(t);
+
+        assertThat(listener.getFireCount(RULE_teamAndJurorSameCountry), is(1));
+        assertThat(listener.getTotalFireCount(), is(1));
     }
     
     public ActivationListener calculateScore(Tournament t) {
