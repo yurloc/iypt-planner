@@ -23,21 +23,18 @@ global HardAndSoftScoreHolder scoreHolder;
 // ############################################################################
 
 rule "multipleMembershipsInRound"
-    enabled true
 when
     $r : Round()
-    $m1 : JuryMembership( $juror : juror != null, jury.group.round == $r )
-    $m2 : JuryMembership( this != $m1, juror ==  $juror, jury.group.round == $r)
+    $juror : Juror()
+    $m1 : JuryMembership( juror == $juror, jury.group.round == $r )
+    $m2 : JuryMembership( juror == $juror, jury.group.round == $r, this != $m1 )
 then
-    //System.out.println("double membership of " + $juror + " in round " + $r);
     insertLogical(new IntConstraintOccurrence("multipleMembershipsInRound",
         ConstraintType.NEGATIVE_HARD, 10, $juror, $m1, $m2 ));
 end
-    
 
-rule "juryNotFull" // broken?
-    enabled false
-    //salience 10 // populate juries first
+rule "juryNotFull"
+    enabled false // probably not needed
 when
     $membership : JuryMembership( juror == null, $jury : jury )
 then
@@ -48,13 +45,11 @@ then
 end
 
 rule "teamAndJurorSameCountry"
-    enabled true
 when
     $m : JuryMembership( $jury : jury, $juror : juror != null )
     $team : Team( country == $juror.country, $jury.group.teams contains this )
     // or $jury.group.countries.contains($juror.country) ?
 then
-    //System.out.println("same country");
     insertLogical(new IntConstraintOccurrence("teamAndJurorSameCountry",
         ConstraintType.NEGATIVE_HARD, 1, $m, $team));
 end
