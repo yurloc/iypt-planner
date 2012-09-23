@@ -18,14 +18,27 @@ public class Group {
     public Group(Team... teams) {
         this.teams = new ArrayList<Team>();
         Collections.addAll(this.teams, teams);
-        jury = new Jury();
-        jury.setGroup(this);
+    }
+
+    public Group(String name) {
+        this.name = name;
     }
 
     @Override
     public String toString() {
         return "Group " + name + " (" + round + ")"; 
     }
+
+    public Jury createJury(int juryCapacity) {
+        jury = new Jury();
+        jury.setGroup(this);
+        jury.setCapacity(juryCapacity);
+        return jury;
+    }
+    
+    //-------------------------------------------------------------------------------------------------------------------------
+    // Getters & Setters
+    //-------------------------------------------------------------------------------------------------------------------------
 
     /**
      * Get the value of jury

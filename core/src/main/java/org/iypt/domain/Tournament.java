@@ -1,6 +1,7 @@
 package org.iypt.domain;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -60,11 +61,8 @@ public class Tournament implements Solution<HardAndSoftScore> {
     public Solution<HardAndSoftScore> cloneSolution() {
         Tournament clone = new Tournament();
         clone.score = score;
-        clone.rounds = rounds;
-        clone.groups = groups;
-        clone.juries = juries;
+        clone.setRounds(rounds);
         clone.jurors = jurors;
-        clone.teams = teams;
         clone.dayOffs = dayOffs;
         clone.conflicts = conflicts;
         
@@ -100,6 +98,13 @@ public class Tournament implements Solution<HardAndSoftScore> {
 
     public void setRounds(Collection<Round> rounds) {
         this.rounds = rounds;
+        for (Round r : rounds) {
+            for (Group g : r.getGroups()) {
+                groups.add(g);
+                juries.add(g.getJury());
+                teams.addAll(g.getTeams());
+            }
+        }
     }
 
     public Collection<Team> getTeams() {
@@ -151,14 +156,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
     }
 
     public void addRounds(Round... rounds) {
-        for (Round r : rounds) {
-            this.rounds.add(r);
-            for (Group g : r.getGroups()) {
-                groups.add(g);
-                juries.add(g.getJury());
-                teams.addAll(g.getTeams());
-            }
-        }
+        setRounds(Arrays.asList(rounds));
     }
 
     public void addJurors(Juror... jurors) {
@@ -169,6 +167,8 @@ public class Tournament implements Solution<HardAndSoftScore> {
         Collections.addAll(this.dayOffs, dayOffs);
     }
 
+    // FIXME
+    @Deprecated
     public void createJuries(Round round, int juryCapacity) {
         for (Group g : round.getGroups()) {
             Jury jury = new Jury();

@@ -1,6 +1,5 @@
 package org.iypt.domain;
 
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -20,8 +19,14 @@ public class Round {
         this.groups = new LinkedHashSet<Group>(7);
     }
     
+    public Group createGroup(String name) {
+        Group group = new Group(name);
+        group.setRound(this);
+        groups.add(group);
+        return group;
+    }
+    
     public void addGroups(Group... groups) {
-//        Collections.addAll(this.groups, groups);
         for (Group g : groups) {
             this.groups.add(g);
             g.setRound(this);
