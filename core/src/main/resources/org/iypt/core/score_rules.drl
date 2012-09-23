@@ -62,6 +62,19 @@ then
     ));
 end
 
+rule "dayOff"
+when
+    $r : Round( $day : day)
+    $m : JuryMembership( jury.group.round == $r, $juror : juror != null )
+    $dayOff : DayOff( juror == $juror, day == $day )
+then
+    insertLogical( new IntConstraintOccurrence(
+        drools.getRule().getName(),
+        ConstraintType.NEGATIVE_HARD, 1,
+        $m, $dayOff
+    ));
+end
+
 // ############################################################################
 // Soft constraints
 // ############################################################################

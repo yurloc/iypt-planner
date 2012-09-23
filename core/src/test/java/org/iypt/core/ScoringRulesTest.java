@@ -17,7 +17,9 @@ import org.drools.planner.core.score.buildin.hardandsoft.HardAndSoftScore;
 import org.drools.planner.core.score.buildin.hardandsoft.HardAndSoftScoreHolder;
 import org.drools.planner.core.score.holder.ScoreHolder;
 import org.drools.runtime.StatefulKnowledgeSession;
+import org.iypt.domain.DayOff;
 import org.iypt.domain.JuryMembership;
+import org.iypt.domain.Round;
 import org.iypt.domain.Tournament;
 import org.iypt.domain.util.DefaultTournamentFactory;
 import org.junit.BeforeClass;
@@ -43,6 +45,7 @@ public class ScoringRulesTest {
     private static final String RULE_SOFT = "softConstraintsBroken";
     private static final String RULE_multipleMembershipsInRound = "multipleMembershipsInRound";
     private static final String RULE_teamAndJurorSameCountry = "teamAndJurorSameCountry";
+    private static final String RULE_dayOff = "dayOff";
     private static int ACTIVATION_LISTENER_VERBOSITY = ActivationListener.VERBOSITY_RULES;
     private static KnowledgeBase kbase;
 
@@ -99,6 +102,22 @@ public class ScoringRulesTest {
         
         ScoringResult result = calculateScore(t);
         assertThat(result.getFireCount(RULE_teamAndJurorSameCountry), is(1));
+        assertThat(result.getTotalFireCount(), is(1));
+        assertFalse(result.getScore().isFeasible());
+    }
+    
+    @Test
+    public void testDayOffRule() {
+        DefaultTournamentFactory f = new DefaultTournamentFactory();
+        f.setJuryCapacity(1);
+        Round r1 = f.createRound(1, tA, tB, tC);
+        f.addJurors(jD1);
+        Tournament t = f.newTournament();
+        t.getJuryMemberships().iterator().next().setJuror(jD1);
+        t.addDayOffs(new DayOff(jD1, r1.getDay()));
+        
+        ScoringResult result = calculateScore(t);
+        assertThat(result.getFireCount(RULE_dayOff), is(1));
         assertThat(result.getTotalFireCount(), is(1));
         assertFalse(result.getScore().isFeasible());
     }
