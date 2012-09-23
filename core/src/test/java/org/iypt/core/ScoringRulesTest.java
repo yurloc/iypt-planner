@@ -13,7 +13,9 @@ import org.drools.definition.rule.Rule;
 import org.drools.event.rule.AfterActivationFiredEvent;
 import org.drools.event.rule.DefaultAgendaEventListener;
 import org.drools.io.ResourceFactory;
+import org.drools.planner.core.score.buildin.hardandsoft.HardAndSoftScore;
 import org.drools.planner.core.score.buildin.hardandsoft.HardAndSoftScoreHolder;
+import org.drools.planner.core.score.holder.ScoreHolder;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.iypt.domain.Country;
 import org.iypt.domain.Group;
@@ -137,10 +139,11 @@ public class ScoringRulesTest {
         for (JuryMembership m : t.getJuryMemberships()) {
             m.setJuror(jD1);
         }
-        ActivationListener listener = calculateScore(t);
-
-        assertThat(listener.getFireCount(RULE_multipleMembershipsInRound), is(2));
-        assertThat(listener.getTotalFireCount(), is(2));
+        
+        ScoringResult result = calculateScore(t);
+        assertThat(result.getFireCount(RULE_multipleMembershipsInRound), is(2));
+        assertThat(result.getTotalFireCount(), is(2));
+        assertFalse(result.getScore().isFeasible());
     }
     
     @Test
@@ -153,13 +156,14 @@ public class ScoringRulesTest {
         for (JuryMembership m : t.getJuryMemberships()) {
             m.setJuror(jA1);
         }
-        ActivationListener listener = calculateScore(t);
-
-        assertThat(listener.getFireCount(RULE_teamAndJurorSameCountry), is(1));
-        assertThat(listener.getTotalFireCount(), is(1));
+        
+        ScoringResult result = calculateScore(t);
+        assertThat(result.getFireCount(RULE_teamAndJurorSameCountry), is(1));
+        assertThat(result.getTotalFireCount(), is(1));
+        assertFalse(result.getScore().isFeasible());
     }
     
-    public ActivationListener calculateScore(Tournament t) {
+    private ScoringResult calculateScore(Tournament t) {
         // create ksession
         StatefulKnowledgeSession ksession = kbase.newStatefulKnowledgeSession();
         
@@ -184,8 +188,11 @@ public class ScoringRulesTest {
         // fire the scoring rules
         ksession.fireAllRules();
         
-        // activation listener will be queried by the testMultiMembership
-        return activationListener;
+        // return a ScoringResult that will be queried by the test
+        ScoringResult scoringResult = new ScoringResult();
+        scoringResult.setKnowledgeSession(ksession);
+        scoringResult.setActivationListener(activationListener);
+        return scoringResult;
     }
     
     /**
@@ -233,6 +240,36 @@ public class ScoringRulesTest {
 
         public void setVerbosity(int verbosity) {
             this.verbosity = verbosity;
+        }
+        
+    }
+    
+    private static class ScoringResult {
+        private ActivationListener activationListener;
+        private StatefulKnowledgeSession ksession;
+        private HardAndSoftScore score;
+        
+        public int getTotalFireCount() {
+            return activationListener.getTotalFireCount();
+        }
+
+        public int getFireCount(String ruleName) {
+            return activationListener.getFireCount(ruleName);
+        }
+
+        public HardAndSoftScore getScore() {
+            return score;
+        }
+
+        public void setActivationListener(ActivationListener activationListener) {
+            this.activationListener = activationListener;
+        }
+
+        public void setKnowledgeSession(StatefulKnowledgeSession ksession) {
+            this.ksession = ksession;
+            ScoreHolder holder = (ScoreHolder) ksession.getGlobal(SCORE_HOLDER_NAME);
+            score = (HardAndSoftScore) holder.extractScore();
+            log.debug(score.toString());
         }
         
     }
