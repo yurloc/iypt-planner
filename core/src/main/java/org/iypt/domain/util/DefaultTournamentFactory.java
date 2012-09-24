@@ -18,7 +18,7 @@ import org.iypt.domain.Tournament;
  */
 public class DefaultTournamentFactory {
     
-    private int juryCapacity;
+    private int juryCapacity = 0;
     private List<Juror> jurors = new ArrayList<Juror>();
     private List<Round> rounds = new ArrayList<Round>();
     private List<JuryMembership> memberships = new ArrayList<JuryMembership>();
@@ -49,6 +49,7 @@ public class DefaultTournamentFactory {
      * @return the created round with initialized groups
      */
     public Round createRound(int number, Team... teams) {
+        if (juryCapacity < 1) throw new IllegalStateException("Must set juryCapacity prior to creating any round!");
         
         Round r = new Round(number, number);
         
@@ -67,6 +68,23 @@ public class DefaultTournamentFactory {
                 memberships.add(new JuryMembership(jury, null));
             }
             next += caps[i];
+        }
+        rounds.add(r);
+        return r;
+    }
+
+    public Round createRound(int number, Group... groups) {
+        // FIXME remove duplicate code
+        if (juryCapacity < 1) throw new IllegalStateException("Must set juryCapacity prior to creating any round!");
+        Round r = new Round(number, number);
+        r.addGroups(groups);
+        char name = 65;
+        for (Group group : groups) {
+            group.setName(String.valueOf(name++));
+            Jury jury = group.createJury(juryCapacity);
+            for (int c = 0; c < juryCapacity; c++) {
+                memberships.add(new JuryMembership(jury, null));
+            }
         }
         rounds.add(r);
         return r;

@@ -29,6 +29,7 @@ public class TestFacts {
     static final Juror jA3 = new Juror(Country.A);
     static final Juror jA4 = new Juror(Country.A);
     static final Juror jA5 = new Juror(Country.A);
+    static final Juror jA6 = new Juror(Country.A);
     static final Juror jB1 = new Juror(Country.B);
     static final Juror jB2 = new Juror(Country.B);
     static final Juror jB3 = new Juror(Country.B);
@@ -36,6 +37,7 @@ public class TestFacts {
     static final Juror jC1 = new Juror(Country.C);
     static final Juror jC2 = new Juror(Country.C);
     static final Juror jC3 = new Juror(Country.C);
+    static final Juror jC4 = new Juror(Country.C);
     static final Juror jD1 = new Juror(Country.D);
     static final Juror jD2 = new Juror(Country.D);
     static final Juror jE1 = new Juror(Country.E);
