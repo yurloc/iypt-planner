@@ -16,31 +16,26 @@ public class ConflictsTest extends TestCase {
      * Test of addConflict method, of class Conflicts.
      */
     public void testAddConflict() {
-        System.out.println("addConflict");
-//        Country CZE = new Country("CZE", "Czech Republic");
-//        Country SVK = new Country("SVK", "Slovakia");
-//        Country GER = new Country("GER", "Germany");
+        assertFalse("Empty conflicts test failed", Conflicts.isConflict(CountryCode.CZ, CountryCode.SK));
         
-        assertFalse("Empty conflicts test failed", Conflicts.isConflict(Country.CZE, Country.SVK));
+        assertTrue("Adding cz-sk conflict should succeed", Conflicts.addConflict(CountryCode.CZ, CountryCode.SK));
+        assertFalse("Adding cz-sk conflict should not succeed", Conflicts.addConflict(CountryCode.CZ, CountryCode.SK));
+        assertFalse("Adding sk-cz conflict should not succeed", Conflicts.addConflict(CountryCode.SK, CountryCode.CZ));
         
-        assertTrue("Adding cze-svk conflict should succeed", Conflicts.addConflict(Country.CZE, Country.SVK));
-        assertFalse("Adding cze-svk conflict should not succeed", Conflicts.addConflict(Country.CZE, Country.SVK));
-        assertFalse("Adding svk-cze conflict should not succeed", Conflicts.addConflict(Country.SVK, Country.CZE));
+        assertTrue(Conflicts.isConflict(CountryCode.CZ, CountryCode.SK));
+        assertTrue(Conflicts.isConflict(CountryCode.SK, CountryCode.CZ));
         
-        assertTrue(Conflicts.isConflict(Country.CZE, Country.SVK));
-        assertTrue(Conflicts.isConflict(Country.SVK, Country.CZE));
+        assertFalse(Conflicts.isConflict(CountryCode.CZ, CountryCode.CZ));
+        assertFalse(Conflicts.isConflict(CountryCode.CZ, CountryCode.DE));
+        assertFalse(Conflicts.isConflict(CountryCode.SK, CountryCode.DE));
+        assertFalse(Conflicts.isConflict(CountryCode.DE, CountryCode.DE));
         
-        assertFalse(Conflicts.isConflict(Country.CZE, Country.CZE));
-        assertFalse(Conflicts.isConflict(Country.CZE, Country.GER));
-        assertFalse(Conflicts.isConflict(Country.SVK, Country.GER));
-        assertFalse(Conflicts.isConflict(Country.GER, Country.GER));
+        assertTrue(Conflicts.addConflict(CountryCode.DE, CountryCode.SK));
         
-        assertTrue(Conflicts.addConflict(Country.GER, Country.SVK));
-        
-        assertTrue(Conflicts.isConflict(Country.GER, Country.SVK));
-        assertTrue(Conflicts.isConflict(Country.GER, Country.CZE));
-        assertTrue(Conflicts.isConflict(Country.SVK, Country.GER));
-        assertTrue(Conflicts.isConflict(Country.CZE, Country.GER));
+        assertTrue(Conflicts.isConflict(CountryCode.DE, CountryCode.SK));
+        assertTrue(Conflicts.isConflict(CountryCode.DE, CountryCode.CZ));
+        assertTrue(Conflicts.isConflict(CountryCode.SK, CountryCode.DE));
+        assertTrue(Conflicts.isConflict(CountryCode.CZ, CountryCode.DE));
     }
 
     /**
@@ -48,12 +43,12 @@ public class ConflictsTest extends TestCase {
      */
     public void xtestIsConflict() {
         System.out.println("isConflict");
-        Country c1 = null;
-        Country c2 = null;
+        CountryCode c1 = null;
+        CountryCode c2 = null;
         boolean expResult = false;
         boolean result = Conflicts.isConflict(c1, c2);
         assertEquals(expResult, result);
-        // Country.TODO review the generated test code and remove the default call to fail.
+        // CountryCode.TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
     }
 }

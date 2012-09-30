@@ -1,8 +1,7 @@
 package org.iypt.domain;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
+import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.Set;
 
 /**
@@ -11,22 +10,17 @@ import java.util.Set;
  */
 public class Conflict {
     
-    private Set<Country> countries;
+    private Set<CountryCode> countries;
 
-    public Conflict() {
-        this.countries = new LinkedHashSet<Country>();
+    public Conflict(CountryCode c1, CountryCode c2) {
+        countries = EnumSet.of(c1, c2);
     }
 
-    public Conflict(Set<Country> countries) {
-        this.countries = countries;
+    public Conflict(CountryCode... countries) {
+        this.countries = EnumSet.of(countries[0], Arrays.copyOfRange(countries, 1, countries.length));
     }
 
-    public Conflict(Country... countries) {
-        this.countries = new LinkedHashSet<Country>(countries.length);
-        Collections.addAll(this.countries, countries);
-    }
-
-    public boolean contains(Country c1, Country c2) {
+    public boolean contains(CountryCode c1, CountryCode c2) {
         return countries.contains(c1) && countries.contains(c2);
     }
     /**
@@ -34,7 +28,7 @@ public class Conflict {
      *
      * @return the value of countries
      */
-    public Set<Country> getCountries() {
+    public Set<CountryCode> getCountries() {
         return countries;
     }
 
@@ -43,7 +37,7 @@ public class Conflict {
      *
      * @param countries new value of countries
      */
-    public void setCountries(Set<Country> countries) {
+    public void setCountries(Set<CountryCode> countries) {
         this.countries = countries;
     }
 

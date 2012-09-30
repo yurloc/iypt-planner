@@ -7,21 +7,20 @@ package org.iypt.domain;
 public class Juror {
 
     private final String id;
-    private final Country country;
+    private final CountryCode country;
 
-    public Juror(Country country) {
+    public Juror(CountryCode country) {
         this.id = null;
         this.country = country;
     }
 
-    public Juror(String id, Country country) {
+    public Juror(String id, CountryCode country) {
         this.id = id;
         this.country = country;
     }
 
     @Override
     public String toString() {
-//        return String.format("%s (%s)", id, country.getCode());
         return String.format("(%s)", country);
     }
 
@@ -39,7 +38,7 @@ public class Juror {
      *
      * @return the value of country
      */
-    public Country getCountry() {
+    public CountryCode getCountry() {
         return country;
     }
 

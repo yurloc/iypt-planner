@@ -7,9 +7,9 @@ package org.iypt.domain;
 public class Team {
 
     private int id;
-    private Country country;
+    private CountryCode country;
 
-    public Team(Country country) {
+    public Team(CountryCode country) {
         this.country = country;
     }
 
@@ -18,7 +18,7 @@ public class Team {
         return String.format("Team (%s)", country);
     }
 
-    public Team(int id, Country country) {
+    public Team(int id, CountryCode country) {
         this.id = id;
         this.country = country;
     }
@@ -46,7 +46,7 @@ public class Team {
      *
      * @return the value of country
      */
-    public Country getCountry() {
+    public CountryCode getCountry() {
         return country;
     }
 
@@ -55,7 +55,7 @@ public class Team {
      *
      * @param country new value of country
      */
-    public void setCountry(Country country) {
+    public void setCountry(CountryCode country) {
         this.country = country;
     }
 }

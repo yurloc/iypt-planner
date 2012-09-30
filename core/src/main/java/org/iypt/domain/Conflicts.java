@@ -1,7 +1,7 @@
 package org.iypt.domain;
 
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -11,13 +11,11 @@ import java.util.Set;
  */
 public class Conflicts {
 
-    private static Map<Country, Set<Country>> conflicts = new HashMap<Country, Set<Country>>();
+    private static Map<CountryCode, Set<CountryCode>> conflicts = new EnumMap<CountryCode, Set<CountryCode>>(CountryCode.class);
     
-    public static boolean addConflict(Country c1, Country c2) {
+    public static boolean addConflict(CountryCode c1, CountryCode c2) {
         if (!conflicts.containsKey(c1) && !conflicts.containsKey(c2)) {
-            HashSet<Country> group = new HashSet<Country>();
-            group.add(c1);
-            group.add(c2);
+            EnumSet<CountryCode> group = EnumSet.of(c1, c2);
             conflicts.put(c1, group);
             conflicts.put(c2, group);
             return true;
@@ -32,7 +30,7 @@ public class Conflicts {
         }
     }
     
-    public static boolean isConflict(Country c1, Country c2) {
+    public static boolean isConflict(CountryCode c1, CountryCode c2) {
         if (c1.equals(c2)) return false;
         if (!conflicts.containsKey(c1)) return false;
         return conflicts.get(c1).contains(c2);
