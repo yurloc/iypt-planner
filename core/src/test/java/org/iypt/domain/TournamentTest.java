@@ -3,7 +3,7 @@ package org.iypt.domain;
 import org.iypt.domain.util.DefaultTournamentFactory;
 import org.junit.Test;
 
-import static org.iypt.core.TestFacts.*;
+import static org.iypt.domain.util.SampleFacts.*;
 import static org.junit.Assert.*;
 
 /**

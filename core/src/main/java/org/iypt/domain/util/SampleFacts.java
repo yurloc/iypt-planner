@@ -1,4 +1,4 @@
-package org.iypt.core;
+package org.iypt.domain.util;
 
 import org.iypt.domain.CountryCode;
 import org.iypt.domain.Group;
@@ -10,7 +10,7 @@ import org.iypt.domain.Team;
  *
  * @author jlocker
  */
-public class TestFacts {
+public class SampleFacts {
 
     // teams
     public static final Team tA = new Team(CountryCode.AT);

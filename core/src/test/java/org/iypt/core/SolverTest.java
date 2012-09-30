@@ -9,7 +9,7 @@ import org.iypt.domain.util.DefaultTournamentFactory;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.*;
-import static org.iypt.core.TestFacts.*;
+import static org.iypt.domain.util.SampleFacts.*;
 import static org.junit.Assert.*;
 import static org.junit.matchers.JUnitMatchers.*;
 
