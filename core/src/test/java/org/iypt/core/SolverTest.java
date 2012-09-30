@@ -28,9 +28,6 @@ public class SolverTest extends AbstractSolverTest {
     @Override
     TerminationConfig getTerminationConfig() {
         TerminationConfig config = new TerminationConfig();
-        config.setTerminationCompositionStyle(TerminationConfig.TerminationCompositionStyle.OR);
-        config.setMaximumSecondsSpend(2L);
-//        config.setScoreAttained(null);
         return config;
     }
 
@@ -44,8 +41,10 @@ public class SolverTest extends AbstractSolverTest {
         Tournament t = factory.newTournament();
 
         // TODO should be handled by the Factory?
-        t.addJurors(jA1, jB1, jC1, jD1, jE1, jF1, jC2, jC3, jC2, jA2, jA3, jB2, jB3);
-        t.addJurors(jB4, jC4, jD2, jA4, jA5, jA6);
+        t.addJurors(jA1, jA2, jA3, jA4, jA5, jA6);
+        t.addJurors(jB1, jB2, jB3, jB4);
+        t.addJurors(jC1, jC2, jC3, jC4);
+        t.addJurors(jD1, jD2, jE1, jF1, jG1);
         t.addDayOffs(new DayOff(jE1, r1.getDay()), new DayOff(jE1, r3.getDay()));
         
         return t;
