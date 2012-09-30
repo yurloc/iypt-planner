@@ -26,7 +26,7 @@ public class Group {
 
     @Override
     public String toString() {
-        return "Group " + name + " (" + round + ")"; 
+        return round + "/" + name; 
     }
 
     public Jury createJury(int juryCapacity) {

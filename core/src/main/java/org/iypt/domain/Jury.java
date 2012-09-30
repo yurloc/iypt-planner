@@ -12,7 +12,7 @@ public class Jury {
 
     @Override
     public String toString() {
-        return "Jury for " + group;
+        return group.toString();
     }
 
     //=========================================================================================================================
