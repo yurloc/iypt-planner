@@ -1,10 +1,11 @@
-package org.iypt.domain;
+package org.iypt.planner.domain;
 
+import org.iypt.planner.domain.Conflicts;
 import org.junit.Test;
 
-import static org.iypt.domain.CountryCode.CZ;
-import static org.iypt.domain.CountryCode.DE;
-import static org.iypt.domain.CountryCode.SK;
+import static org.iypt.planner.domain.CountryCode.CZ;
+import static org.iypt.planner.domain.CountryCode.DE;
+import static org.iypt.planner.domain.CountryCode.SK;
 import static org.junit.Assert.*;
 
 /**

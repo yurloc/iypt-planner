@@ -1,4 +1,4 @@
-package org.iypt.core;
+package org.iypt.planner.solver;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -15,12 +15,12 @@ import org.drools.planner.core.score.constraint.ConstraintOccurrence;
 import org.drools.planner.core.score.director.ScoreDirector;
 import org.drools.planner.core.score.director.drools.DroolsScoreDirector;
 import org.drools.planner.core.solution.Solution;
-import org.iypt.domain.Group;
-import org.iypt.domain.Juror;
-import org.iypt.domain.JuryMembership;
-import org.iypt.domain.Round;
-import org.iypt.domain.Team;
-import org.iypt.domain.Tournament;
+import org.iypt.planner.domain.Group;
+import org.iypt.planner.domain.Juror;
+import org.iypt.planner.domain.JuryMembership;
+import org.iypt.planner.domain.Round;
+import org.iypt.planner.domain.Team;
+import org.iypt.planner.domain.Tournament;
 import org.junit.Assert;
 import org.junit.Before;
 import org.slf4j.Logger;
@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractSolverTest {
 
     private static final Logger log = LoggerFactory.getLogger(AbstractSolverTest.class);
-    private String xmlConfig = "/org/iypt/core/test_config.xml";
+    private String xmlConfig = "/org/iypt/planner/solver/test_config.xml";
     private Tournament solved;
     private List<ConstraintOccurrence> constraintList;
     

@@ -1,15 +1,15 @@
-package org.iypt.core;
+package org.iypt.planner.solver;
 
 import java.util.Collections;
 import org.drools.planner.config.termination.TerminationConfig;
-import org.iypt.domain.DayOff;
-import org.iypt.domain.Round;
-import org.iypt.domain.Tournament;
-import org.iypt.domain.util.DefaultTournamentFactory;
+import org.iypt.planner.domain.DayOff;
+import org.iypt.planner.domain.Round;
+import org.iypt.planner.domain.Tournament;
+import org.iypt.planner.domain.util.DefaultTournamentFactory;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.*;
-import static org.iypt.domain.util.SampleFacts.*;
+import static org.iypt.planner.domain.util.SampleFacts.*;
 import static org.junit.Assert.*;
 import static org.junit.matchers.JUnitMatchers.*;
 

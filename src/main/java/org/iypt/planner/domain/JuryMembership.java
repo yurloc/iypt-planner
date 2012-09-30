@@ -1,4 +1,4 @@
-package org.iypt.domain;
+package org.iypt.planner.domain;
 
 import org.drools.planner.api.domain.entity.PlanningEntity;
 import org.drools.planner.api.domain.variable.PlanningVariable;

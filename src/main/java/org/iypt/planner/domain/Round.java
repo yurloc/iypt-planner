@@ -1,4 +1,4 @@
-package org.iypt.domain;
+package org.iypt.planner.domain;
 
 import java.util.LinkedHashSet;
 import java.util.Set;

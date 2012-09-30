@@ -1,4 +1,4 @@
-package org.iypt.domain;
+package org.iypt.planner.domain;
 
 import java.util.Arrays;
 import java.util.EnumSet;

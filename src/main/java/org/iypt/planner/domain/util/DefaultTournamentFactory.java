@@ -1,16 +1,16 @@
-package org.iypt.domain.util;
+package org.iypt.planner.domain.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.iypt.domain.Group;
-import org.iypt.domain.Juror;
-import org.iypt.domain.Jury;
-import org.iypt.domain.JuryMembership;
-import org.iypt.domain.Round;
-import org.iypt.domain.Team;
-import org.iypt.domain.Tournament;
+import org.iypt.planner.domain.Group;
+import org.iypt.planner.domain.Juror;
+import org.iypt.planner.domain.Jury;
+import org.iypt.planner.domain.JuryMembership;
+import org.iypt.planner.domain.Round;
+import org.iypt.planner.domain.Team;
+import org.iypt.planner.domain.Tournament;
 
 /**
  *

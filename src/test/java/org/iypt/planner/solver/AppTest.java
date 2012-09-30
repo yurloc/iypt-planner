@@ -1,4 +1,4 @@
-package org.iypt.core;
+package org.iypt.planner.solver;
 
 import junit.framework.Test;
 import junit.framework.TestCase;

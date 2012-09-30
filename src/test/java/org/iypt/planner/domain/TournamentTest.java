@@ -1,9 +1,12 @@
-package org.iypt.domain;
+package org.iypt.planner.domain;
 
-import org.iypt.domain.util.DefaultTournamentFactory;
+import org.iypt.planner.domain.DayOff;
+import org.iypt.planner.domain.Round;
+import org.iypt.planner.domain.Tournament;
+import org.iypt.planner.domain.util.DefaultTournamentFactory;
 import org.junit.Test;
 
-import static org.iypt.domain.util.SampleFacts.*;
+import static org.iypt.planner.domain.util.SampleFacts.*;
 import static org.junit.Assert.*;
 
 /**

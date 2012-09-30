@@ -1,4 +1,4 @@
-package org.iypt.core;
+package org.iypt.planner.solver;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -17,18 +17,18 @@ import org.drools.planner.core.score.buildin.hardandsoft.HardAndSoftScore;
 import org.drools.planner.core.score.buildin.hardandsoft.HardAndSoftScoreHolder;
 import org.drools.planner.core.score.holder.ScoreHolder;
 import org.drools.runtime.StatefulKnowledgeSession;
-import org.iypt.domain.DayOff;
-import org.iypt.domain.JuryMembership;
-import org.iypt.domain.Round;
-import org.iypt.domain.Tournament;
-import org.iypt.domain.util.DefaultTournamentFactory;
+import org.iypt.planner.domain.DayOff;
+import org.iypt.planner.domain.JuryMembership;
+import org.iypt.planner.domain.Round;
+import org.iypt.planner.domain.Tournament;
+import org.iypt.planner.domain.util.DefaultTournamentFactory;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.hamcrest.CoreMatchers.*;
-import static org.iypt.domain.util.SampleFacts.*;
+import static org.iypt.planner.domain.util.SampleFacts.*;
 import static org.junit.Assert.*;
 import static org.junit.matchers.JUnitMatchers.*;
 
@@ -39,7 +39,7 @@ import static org.junit.matchers.JUnitMatchers.*;
 public class ScoringRulesTest {
 
     private static final Logger log = LoggerFactory.getLogger(ScoringRulesTest.class);
-    private static final String SCORE_DRL = "org/iypt/core/score_rules.drl";
+    private static final String SCORE_DRL = "org/iypt/planner/solver/score_rules.drl";
     private static final String SCORE_HOLDER_NAME = "scoreHolder";
     private static final String RULE_HARD = "hardConstraintsBroken";
     private static final String RULE_SOFT = "softConstraintsBroken";

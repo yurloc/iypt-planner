@@ -1,10 +1,10 @@
-package org.iypt.domain.util;
+package org.iypt.planner.domain.util;
 
-import org.iypt.domain.CountryCode;
-import org.iypt.domain.Group;
-import org.iypt.domain.Juror;
-import org.iypt.domain.Round;
-import org.iypt.domain.Team;
+import org.iypt.planner.domain.CountryCode;
+import org.iypt.planner.domain.Group;
+import org.iypt.planner.domain.Juror;
+import org.iypt.planner.domain.Round;
+import org.iypt.planner.domain.Team;
 
 /**
  *

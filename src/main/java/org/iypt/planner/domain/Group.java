@@ -1,4 +1,4 @@
-package org.iypt.domain;
+package org.iypt.planner.domain;
 
 import java.util.ArrayList;
 import java.util.Collections;

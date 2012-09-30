@@ -4,13 +4,13 @@
   <!--<environmentMode>TRACE</environmentMode>-->
 
   <!-- Domain model configuration -->
-  <solutionClass>org.iypt.domain.Tournament</solutionClass>
-  <planningEntityClass>org.iypt.domain.JuryMembership</planningEntityClass>
+  <solutionClass>org.iypt.planner.domain.Tournament</solutionClass>
+  <planningEntityClass>org.iypt.planner.domain.JuryMembership</planningEntityClass>
 
   <!-- Score configuration -->
   <scoreDirectorFactory>
     <scoreDefinitionType>HARD_AND_SOFT</scoreDefinitionType>
-    <scoreDrl>/org/iypt/core/score_rules.drl</scoreDrl>
+    <scoreDrl>/org/iypt/planner/solver/score_rules.drl</scoreDrl>
   </scoreDirectorFactory>
 
   <!-- Optimization algorithms configuration -->
