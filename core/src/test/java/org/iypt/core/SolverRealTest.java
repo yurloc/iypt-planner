@@ -1,5 +1,6 @@
 package org.iypt.core;
 
+import java.util.Collections;
 import org.drools.planner.config.termination.TerminationConfig;
 import org.iypt.domain.DayOff;
 import org.iypt.domain.Round;
@@ -7,7 +8,9 @@ import org.iypt.domain.Tournament;
 import org.iypt.domain.util.DefaultTournamentFactory;
 import org.junit.Test;
 
+import static org.hamcrest.CoreMatchers.*;
 import static org.iypt.core.TestFacts.*;
+import static org.junit.Assert.*;
 
 /**
  *
@@ -17,6 +20,7 @@ public class SolverRealTest extends AbstractSolverTest {
     
     @Test
     public void test() {
+        assertThat(getConstraintList(), is(Collections.EMPTY_LIST));
     }
 
     @Override

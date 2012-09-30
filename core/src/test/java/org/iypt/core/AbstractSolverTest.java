@@ -1,6 +1,8 @@
 package org.iypt.core;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import org.drools.ClassObjectFilter;
 import org.drools.WorkingMemory;
 import org.drools.planner.config.EnvironmentMode;
@@ -33,6 +35,7 @@ public abstract class AbstractSolverTest {
     private static final Logger log = LoggerFactory.getLogger(AbstractSolverTest.class);
     private String xmlConfig = "/org/iypt/core/test_config.xml";
     private Tournament solved;
+    private List<ConstraintOccurrence> constraintList;
     
     /**
      * Set a custom solver configuration file. Production configuration is used by default.
@@ -44,6 +47,10 @@ public abstract class AbstractSolverTest {
     
     Tournament getBestSolution() {
         return solved;
+    }
+
+    public List<ConstraintOccurrence> getConstraintList() {
+        return constraintList;
     }
     
     abstract TerminationConfig getTerminationConfig();
@@ -71,12 +78,15 @@ public abstract class AbstractSolverTest {
         solver.setPlanningProblem(unsolved);
         solver.solve();
         solved = (Tournament) solver.getBestSolution();
+        constraintList = getConstraintList(solver, solved);
 
         // Display the result
         log.info("Solved Tournament:\n{}", toDisplayString(solved));
         log.info("Final score: {}", solved.getScore());
-        log.info("Explanation:\n{}", getConstraintsAsLines(solver, solved));
-        
+        log.info("Explanation:");
+        for (ConstraintOccurrence co : constraintList) {
+            log.info(co.toString());
+        }
     }
 
     private static String toDisplayString(Tournament tournament) {
@@ -104,17 +114,17 @@ public abstract class AbstractSolverTest {
         return sb.toString();
     }
     
-    private static String getConstraintsAsLines(Solver solver, Solution<?> solution) {
+    private static List<ConstraintOccurrence> getConstraintList(Solver solver, Solution<?> solution) {
         ScoreDirector scoreDirector = solver.getScoreDirectorFactory().buildScoreDirector();
         scoreDirector.setWorkingSolution(solution.cloneSolution());
         scoreDirector.calculateScore();
-        
+
         WorkingMemory workingMemory = ((DroolsScoreDirector) scoreDirector).getWorkingMemory();
         Iterator<?> it = workingMemory.iterateObjects(new ClassObjectFilter(ConstraintOccurrence.class));
-        StringBuilder sb = new StringBuilder(1024);
+        ArrayList<ConstraintOccurrence> arrayList = new ArrayList<ConstraintOccurrence>();
         while (it.hasNext()) {
-            sb.append(it.next()).append('\n');
+            arrayList.add((ConstraintOccurrence) it.next());
         }
-        return sb.toString();
+        return arrayList;
     }
 }
