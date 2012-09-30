@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import org.drools.planner.api.domain.solution.PlanningEntityCollectionProperty;
 import org.drools.planner.core.score.buildin.hardandsoft.HardAndSoftScore;
 import org.drools.planner.core.solution.Solution;
@@ -16,14 +18,18 @@ import org.drools.planner.core.solution.Solution;
 public class Tournament implements Solution<HardAndSoftScore> {
 
     private HardAndSoftScore score;
+    // planning entity
+    private Collection<JuryMembership> juryMemberships;
+    // facts
     private Collection<Round> rounds;
     private Collection<Team> teams;
     private Collection<Group> groups;
     private Collection<Jury> juries;
     private Collection<Juror> jurors;
-    private Collection<JuryMembership> juryMemberships; // planning entity
     private Collection<DayOff> dayOffs;
     private Collection<Conflict> conflicts;
+    // utils
+    private Map<Round, Integer> mapDayOffsPerRound;
 
     public Tournament() {
         rounds = new LinkedHashSet<Round>();
@@ -34,6 +40,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
         juryMemberships = new LinkedHashSet<JuryMembership>();
         dayOffs = new LinkedHashSet<DayOff>();
         conflicts = new LinkedHashSet<Conflict>();
+        mapDayOffsPerRound = new HashMap<Round, Integer>();
     }
 
     public HardAndSoftScore getScore() {
@@ -164,7 +171,37 @@ public class Tournament implements Solution<HardAndSoftScore> {
     }
 
     public void addDayOffs(DayOff... dayOffs) {
-        Collections.addAll(this.dayOffs, dayOffs);
+        for (DayOff dayOff : dayOffs) {
+            this.dayOffs.add(dayOff);
+            for (Round r : rounds) {
+                if (r.getDay() == dayOff.getDay()) {
+                    Integer dayOffsThisRound = mapDayOffsPerRound.get(r);
+                    mapDayOffsPerRound.put(r, dayOffsThisRound == null ? 1 : ++dayOffsThisRound);
+                    break;
+                }
+            }
+        }
+    }
+    
+    public int dayOffsPerRound(Round r) {
+        if (!mapDayOffsPerRound.containsKey(r)) return 0;
+        return mapDayOffsPerRound.get(r);
+    }
+
+    /**
+     * Performs a sanity-check on this tournament. Checks the included problem facts and indicates if some hard constraints
+     * obviously cannot be satisfied.
+     * @return <code>false</code> if a feasible solution certainly does not exist,
+     * <code>true</code> if a feasible solution <em>may</em> be found
+     */
+    public boolean isFeasibleSolutionPossible() {
+        for (Round r : rounds) {
+            // TODO (?) don't assume all juries have the same capacity
+            int jurorsNeeded = r.getGroups().size() * r.getGroups().iterator().next().getJury().getCapacity();
+            int jurorsAvailable = jurors.size() - dayOffsPerRound(r);
+            if (jurorsNeeded > jurorsAvailable) return false;
+        }
+        return true;
     }
 
     // FIXME
