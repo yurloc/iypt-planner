@@ -1,54 +1,47 @@
 package org.iypt.domain;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import static org.iypt.domain.CountryCode.CZ;
+import static org.iypt.domain.CountryCode.DE;
+import static org.iypt.domain.CountryCode.SK;
+import static org.junit.Assert.*;
 
 /**
  *
  * @author jlocker
  */
-public class ConflictsTest extends TestCase {
-    
-    public ConflictsTest(String testName) {
-        super(testName);
-    }
+public class ConflictsTest {
 
     /**
      * Test of addConflict method, of class Conflicts.
      */
+    @Test
     public void testAddConflict() {
-        assertFalse("Empty conflicts test failed", Conflicts.isConflict(CountryCode.CZ, CountryCode.SK));
-        
-        assertTrue("Adding cz-sk conflict should succeed", Conflicts.addConflict(CountryCode.CZ, CountryCode.SK));
-        assertFalse("Adding cz-sk conflict should not succeed", Conflicts.addConflict(CountryCode.CZ, CountryCode.SK));
-        assertFalse("Adding sk-cz conflict should not succeed", Conflicts.addConflict(CountryCode.SK, CountryCode.CZ));
-        
-        assertTrue(Conflicts.isConflict(CountryCode.CZ, CountryCode.SK));
-        assertTrue(Conflicts.isConflict(CountryCode.SK, CountryCode.CZ));
-        
-        assertFalse(Conflicts.isConflict(CountryCode.CZ, CountryCode.CZ));
-        assertFalse(Conflicts.isConflict(CountryCode.CZ, CountryCode.DE));
-        assertFalse(Conflicts.isConflict(CountryCode.SK, CountryCode.DE));
-        assertFalse(Conflicts.isConflict(CountryCode.DE, CountryCode.DE));
-        
-        assertTrue(Conflicts.addConflict(CountryCode.DE, CountryCode.SK));
-        
-        assertTrue(Conflicts.isConflict(CountryCode.DE, CountryCode.SK));
-        assertTrue(Conflicts.isConflict(CountryCode.DE, CountryCode.CZ));
-        assertTrue(Conflicts.isConflict(CountryCode.SK, CountryCode.DE));
-        assertTrue(Conflicts.isConflict(CountryCode.CZ, CountryCode.DE));
-    }
+        assertFalse("Empty conflicts test failed", Conflicts.isConflict(CZ, SK));
 
-    /**
-     * Test of isConflict method, of class Conflicts.
-     */
-    public void xtestIsConflict() {
-        System.out.println("isConflict");
-        CountryCode c1 = null;
-        CountryCode c2 = null;
-        boolean expResult = false;
-        boolean result = Conflicts.isConflict(c1, c2);
-        assertEquals(expResult, result);
-        // CountryCode.TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        assertTrue("Adding cz-sk conflict should succeed", Conflicts.addConflict(CZ, SK));
+        assertFalse("Adding cz-sk conflict should not succeed", Conflicts.addConflict(CZ, SK));
+        assertFalse("Adding sk-cz conflict should not succeed", Conflicts.addConflict(SK, CZ));
+
+        // conflict is symmetric
+        assertTrue(Conflicts.isConflict(CZ, SK));
+        assertTrue(Conflicts.isConflict(SK, CZ));
+
+        // conflict is not reflexive
+        assertFalse(Conflicts.isConflict(CZ, CZ));
+        assertFalse(Conflicts.isConflict(DE, DE));
+
+        // countries not in conflict
+        assertFalse(Conflicts.isConflict(CZ, DE));
+        assertFalse(Conflicts.isConflict(DE, SK));
+
+        assertTrue(Conflicts.addConflict(SK, DE));
+
+        // countries in conflict (and transitivity)
+        assertTrue(Conflicts.isConflict(DE, SK));
+        assertTrue(Conflicts.isConflict(DE, CZ));
+        assertTrue(Conflicts.isConflict(SK, DE));
+        assertTrue(Conflicts.isConflict(CZ, DE));
     }
 }
