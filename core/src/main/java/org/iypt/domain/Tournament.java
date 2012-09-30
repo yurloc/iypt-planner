@@ -204,18 +204,4 @@ public class Tournament implements Solution<HardAndSoftScore> {
         return true;
     }
 
-    // FIXME
-    @Deprecated
-    public void createJuries(Round round, int juryCapacity) {
-        for (Group g : round.getGroups()) {
-            Jury jury = new Jury();
-            jury.setCapacity(juryCapacity);
-            jury.setGroup(g);
-            g.setJury(jury);
-            for (int i = 0; i < juryCapacity; i++) {
-                // no need to initialize the planning variable (Jury), will be done by construction heuristic
-                this.juryMemberships.add(new JuryMembership(jury, null));
-            }
-        }
-    }
 }
