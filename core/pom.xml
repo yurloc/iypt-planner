@@ -9,19 +9,27 @@
   </parent>
   <groupId>org.iypt</groupId>
   <artifactId>core</artifactId>
-  <version>0.1-SNAPSHOT</version>
   <name>core</name>
   <url>http://maven.apache.org</url>
   
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <version.drools>5.4.0.Final</version.drools>
   </properties>
+  
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.drools.planner</groupId>
+        <artifactId>drools-planner-core</artifactId>
+        <version>5.4.0.Final</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+  
   <dependencies>
     <dependency>
       <groupId>org.drools.planner</groupId>
       <artifactId>drools-planner-core</artifactId>
-      <version>${version.drools}</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
