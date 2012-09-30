@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<solver>
+  <environmentMode>DEBUG</environmentMode>
+  <!--<environmentMode>TRACE</environmentMode>-->
+
+  <!-- Domain model configuration -->
+  <solutionClass>org.iypt.domain.Tournament</solutionClass>
+  <planningEntityClass>org.iypt.domain.JuryMembership</planningEntityClass>
+
+  <!-- Score configuration -->
+  <scoreDirectorFactory>
+    <scoreDefinitionType>HARD_AND_SOFT</scoreDefinitionType>
+    <scoreDrl>/org/iypt/core/score_rules.drl</scoreDrl>
+  </scoreDirectorFactory>
+
+  <!-- Optimization algorithms configuration -->
+  <termination>
+  </termination>
+  <constructionHeuristic>
+    <constructionHeuristicType>FIRST_FIT</constructionHeuristicType>
+  </constructionHeuristic>
+  <localSearch>
+    <termination>
+      <terminationCompositionStyle>OR</terminationCompositionStyle>
+      <maximumSecondsSpend>10</maximumSecondsSpend>
+      <!--<maximumStepCount>1000</maximumStepCount>-->
+      <scoreAttained>0hard/0soft</scoreAttained>
+    </termination>
+    <selector>
+      <selector>
+        <moveFactoryClass>org.drools.planner.core.move.generic.GenericSwapMoveFactory</moveFactoryClass>
+      </selector>
+    </selector>
+    <acceptor>
+      <solutionTabuSize>100000</solutionTabuSize>
+      <moveTabuSize>29</moveTabuSize>
+      <!--<planningEntityTabuSize>6</planningEntityTabuSize>-->
+    </acceptor>
+    <forager>
+      <!--<minimalAcceptedSelection>100000</minimalAcceptedSelection>-->
+      <pickEarlyType>FIRST_BEST_SCORE_IMPROVING</pickEarlyType>
+    </forager>
+  </localSearch>
+</solver>
+<!--
+      <selector>
+        <moveFactoryClass>org.drools.planner.core.move.generic.GenericChangeMoveFactory</moveFactoryClass>
+      </selector>
+-->

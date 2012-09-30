@@ -19,6 +19,7 @@ import org.iypt.domain.JuryMembership;
 import org.iypt.domain.Round;
 import org.iypt.domain.Team;
 import org.iypt.domain.Tournament;
+import org.junit.Assert;
 import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +31,7 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractSolverTest {
 
     private static final Logger log = LoggerFactory.getLogger(AbstractSolverTest.class);
-    private String xmlConfig = "/org/iypt/core/config.xml";
+    private String xmlConfig = "/org/iypt/core/test_config.xml";
     private Tournament solved;
     
     /**
@@ -64,6 +65,7 @@ public abstract class AbstractSolverTest {
 
         // Get the initial solution
         Tournament unsolved = getInitialSolution();
+        Assert.assertTrue(unsolved.isFeasibleSolutionPossible());
 
         // Solve the problem
         solver.setPlanningProblem(unsolved);
