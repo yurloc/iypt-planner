@@ -1,8 +1,5 @@
 package org.iypt.planner.domain;
 
-import org.iypt.planner.domain.DayOff;
-import org.iypt.planner.domain.Round;
-import org.iypt.planner.domain.Tournament;
 import org.iypt.planner.domain.util.DefaultTournamentFactory;
 import org.junit.Test;
 

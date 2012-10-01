@@ -1,0 +1,55 @@
+<iypt:PlannerWindow title="IYPT.org Jury Planner" maximized="true"
+                        xmlns:bxml="http://pivot.apache.org/bxml"
+                        xmlns:iypt="org.iypt.planner.gui"
+                        xmlns="org.apache.pivot.wtk">
+  <Border styles="{padding:10}">
+  <TablePane>
+    <columns>
+      <TablePane.Column width="-1"/>
+    </columns>
+    <TablePane.Row height="-1">
+      <BoxPane>
+        <PushButton bxml:id="nextButton" buttonData="Next step"/>
+        <PushButton bxml:id="terminateButton" buttonData="Terminate"/>
+      </BoxPane>
+    </TablePane.Row>
+    <TablePane.Row height="-1">
+      <Form>
+        <Form.Section>
+          <Label Form.label="Score" bxml:id="scoreLabel"/>
+        </Form.Section>
+      </Form>
+    </TablePane.Row>
+    <TablePane.Row height="1*">
+      <!--<ScrollPane horizontalScrollBarPolicy="fill">-->
+      <ScrollPane horizontalScrollBarPolicy="fill_to_capacity"
+                  verticalScrollBarPolicy="fill_to_capacity">
+        <TablePane bxml:id="roundHolder" styles="{verticalSpacing:1, showHorizontalGridLines:true,
+            horizontalSpacing:1, showVerticalGridLines:true}">
+          <columns>
+            <TablePane.Column width="1*"/>
+          </columns>
+        </TablePane>
+      </ScrollPane>
+    </TablePane.Row>
+    <!--      <TablePane>
+      <columns>
+        <TablePane.Column width="1*"/>
+        <TablePane.Column width="1*"/>
+      </columns>
+      <TablePane.Row height="-1">
+        <Border>
+          <BoxPane>
+            <Label text="Groups" preferredHeight="100"/>
+          </BoxPane>
+        </Border>
+        <Border>
+          <BoxPane>
+            <Label text="Juries" preferredHeight="100"/>
+          </BoxPane>
+        </Border>
+      </TablePane.Row>
+    </TablePane>-->
+  </TablePane>
+  </Border>
+</iypt:PlannerWindow>

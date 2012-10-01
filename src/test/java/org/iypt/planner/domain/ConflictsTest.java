@@ -1,6 +1,5 @@
 package org.iypt.planner.domain;
 
-import org.iypt.planner.domain.Conflicts;
 import org.junit.Test;
 
 import static org.iypt.planner.domain.CountryCode.CZ;
