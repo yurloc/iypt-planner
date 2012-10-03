@@ -35,7 +35,10 @@ public class GroupView extends TablePane implements Bindable {
 
         BoxPane teamPane = new BoxPane(Orientation.HORIZONTAL);
         for (Team team : group.getTeams()) {
-            teamPane.add(new ImageView(getImage(team.getCountry())));
+            ImageView teamFlag = new ImageView(getImage(team.getCountry()));
+            teamFlag.setTooltipText(team.getCountry().getName());
+            teamFlag.setTooltipDelay(300);
+            teamPane.add(teamFlag);
         }
 
         BoxPane juryPane = new BoxPane(Orientation.HORIZONTAL);
