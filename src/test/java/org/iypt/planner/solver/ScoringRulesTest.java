@@ -63,7 +63,7 @@ public class ScoringRulesTest {
         assertEquals("Unexpected ScoreHolder global name", SCORE_HOLDER_NAME, pkg.getGlobalVariables().iterator().next().getName());
         
         // verify we are using the correct rule names (to detect typos and fail fast if a rule is renamed in DRL and not here)
-        List<String> ruleNames = new ArrayList<String>();
+        List<String> ruleNames = new ArrayList<>();
         for (Rule rule : pkg.getRules()) {
             ruleNames.add(rule.getName());
         }
@@ -164,8 +164,8 @@ public class ScoringRulesTest {
         
         private int verbosity = VERBOSITY_RULES;
         private int totalFired = 0;
-        private Map<String, Integer> firedRules = new LinkedHashMap<String, Integer>();
-        private List<String> ignoredRules = new ArrayList<String>();
+        private Map<String, Integer> firedRules = new LinkedHashMap<>();
+        private List<String> ignoredRules = new ArrayList<>();
         
         public int getTotalFireCount() {
             return totalFired;

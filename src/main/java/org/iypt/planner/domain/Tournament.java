@@ -32,27 +32,30 @@ public class Tournament implements Solution<HardAndSoftScore> {
     private Map<Round, Integer> mapDayOffsPerRound;
 
     public Tournament() {
-        rounds = new LinkedHashSet<Round>();
-        teams = new LinkedHashSet<Team>();
-        groups = new LinkedHashSet<Group>();
-        juries = new LinkedHashSet<Jury>();
-        jurors = new LinkedHashSet<Juror>();
-        juryMemberships = new LinkedHashSet<JuryMembership>();
-        dayOffs = new LinkedHashSet<DayOff>();
-        conflicts = new LinkedHashSet<Conflict>();
-        mapDayOffsPerRound = new HashMap<Round, Integer>();
+        rounds = new LinkedHashSet<>();
+        teams = new LinkedHashSet<>();
+        groups = new LinkedHashSet<>();
+        juries = new LinkedHashSet<>();
+        jurors = new LinkedHashSet<>();
+        juryMemberships = new LinkedHashSet<>();
+        dayOffs = new LinkedHashSet<>();
+        conflicts = new LinkedHashSet<>();
+        mapDayOffsPerRound = new HashMap<>();
     }
 
+    @Override
     public HardAndSoftScore getScore() {
         return score;
     }
 
+    @Override
     public void setScore(HardAndSoftScore score) {
         this.score = score;
     }
 
+    @Override
     public Collection<? extends Object> getProblemFacts() {
-        ArrayList<Object> facts = new ArrayList<Object>();
+        ArrayList<Object> facts = new ArrayList<>();
         facts.addAll(rounds);
         facts.addAll(teams);
         facts.addAll(groups);
@@ -65,6 +68,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
         return facts;
     }
 
+    @Override
     public Solution<HardAndSoftScore> cloneSolution() {
         Tournament clone = new Tournament();
         clone.score = score;

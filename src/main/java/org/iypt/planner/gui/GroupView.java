@@ -31,6 +31,7 @@ public class GroupView extends TablePane implements Bindable {
     @BXML
     private Tournament tournament;
 
+    @Override
     public void initialize(Map<String, Object> namespace, URL location, Resources resources) {
 
         BoxPane teamPane = new BoxPane(Orientation.HORIZONTAL);

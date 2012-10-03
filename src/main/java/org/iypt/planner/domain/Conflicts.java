@@ -11,7 +11,7 @@ import java.util.Set;
  */
 public class Conflicts {
 
-    private static Map<CountryCode, Set<CountryCode>> conflicts = new EnumMap<CountryCode, Set<CountryCode>>(CountryCode.class);
+    private static Map<CountryCode, Set<CountryCode>> conflicts = new EnumMap<>(CountryCode.class);
     
     public static boolean addConflict(CountryCode c1, CountryCode c2) {
         if (!conflicts.containsKey(c1) && !conflicts.containsKey(c2)) {

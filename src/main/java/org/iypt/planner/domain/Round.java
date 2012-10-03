@@ -16,7 +16,7 @@ public class Round {
     public Round(int number, int day) {
         this.number = number;
         this.day = day;
-        this.groups = new LinkedHashSet<Group>(7);
+        this.groups = new LinkedHashSet<>(7);
     }
     
     public Group createGroup(String name) {

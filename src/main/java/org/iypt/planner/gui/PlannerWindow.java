@@ -47,8 +47,8 @@ public class PlannerWindow extends Window implements Bindable {
     @BXML private TablePane roundHolder;
     private Tournament tournament;
     private SolverTask solverTask;
-    private List<RoundView> roundViews = new ArrayList<RoundView>();
-    private BlockingQueue<Tournament> betterSolutionQueue = new ArrayBlockingQueue<Tournament>(1);
+    private List<RoundView> roundViews = new ArrayList<>();
+    private BlockingQueue<Tournament> betterSolutionQueue = new ArrayBlockingQueue<>(1);
 
     @Override
     public void initialize(Map<String, Object> namespace, URL location, Resources resources) {
@@ -86,12 +86,13 @@ public class PlannerWindow extends Window implements Bindable {
                     }
                 };
                 pullScore();
-                solverTask.execute(new TaskAdapter<String>(taskListener));
+                solverTask.execute(new TaskAdapter<>(taskListener));
             }
         });
 
         terminateButton.getButtonPressListeners().add(new ButtonPressListener() {
 
+            @Override
             public void buttonPressed(Button button) {
                 solverTask.terminate();
             }
@@ -116,7 +117,7 @@ public class PlannerWindow extends Window implements Bindable {
             }
         };
         // TODO maintain list of running tasks?
-        new PullSolutionTask().execute(new TaskAdapter<Tournament>(taskListener));
+        new PullSolutionTask().execute(new TaskAdapter<>(taskListener));
     }
 
     private Tournament getInitialSolution() {
@@ -151,9 +152,7 @@ public class PlannerWindow extends Window implements Bindable {
                             row.add(roundView);
                             roundHolder.getRows().add(row);
                             roundViews.add(roundView);
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            } catch (SerializationException ex) {
+            } catch (IOException | SerializationException ex) {
                 throw new RuntimeException(ex);
             }
 
@@ -173,6 +172,7 @@ public class PlannerWindow extends Window implements Bindable {
 
     private class SolverListener implements SolverEventListener {
 
+        @Override
         public void bestSolutionChanged(BestSolutionChangedEvent event) {
             tournament = (Tournament) event.getNewBestSolution();
             betterSolutionQueue.offer(tournament);

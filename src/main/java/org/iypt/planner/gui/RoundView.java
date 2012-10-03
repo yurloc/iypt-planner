@@ -29,8 +29,9 @@ public class RoundView extends BoxPane implements Bindable {
 
     // model?
     @BXML private Tournament tournament;
-    private List<GroupView> groupList = new ArrayList<GroupView>();
+    private List<GroupView> groupList = new ArrayList<>();
 
+    @Override
     public void initialize(Map<String, Object> namespace, URL location, Resources resources) {
         roundLabel.setText("Round #" + round.getNumber());
         roundLabel.setTooltipText("Day " + round.getDay());
@@ -44,9 +45,7 @@ public class RoundView extends BoxPane implements Bindable {
                 GroupView view = (GroupView) bxmlSerializer.readObject(RoundView.class, "group.bxml");
                 groupList.add(view); //redundant?
                 roundPane.add(view);
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            } catch (SerializationException ex) {
+            } catch (IOException | SerializationException ex) {
                 throw new RuntimeException(ex);
             }
         }

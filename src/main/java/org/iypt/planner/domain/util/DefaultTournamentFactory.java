@@ -19,9 +19,9 @@ import org.iypt.planner.domain.Tournament;
 public class DefaultTournamentFactory {
     
     private int juryCapacity = 0;
-    private List<Juror> jurors = new ArrayList<Juror>();
-    private List<Round> rounds = new ArrayList<Round>();
-    private List<JuryMembership> memberships = new ArrayList<JuryMembership>();
+    private List<Juror> jurors = new ArrayList<>();
+    private List<Round> rounds = new ArrayList<>();
+    private List<JuryMembership> memberships = new ArrayList<>();
 
     /**
      * Get the value of juryCapacity

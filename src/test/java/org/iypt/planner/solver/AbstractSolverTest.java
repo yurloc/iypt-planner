@@ -121,7 +121,7 @@ public abstract class AbstractSolverTest {
 
         WorkingMemory workingMemory = ((DroolsScoreDirector) scoreDirector).getWorkingMemory();
         Iterator<?> it = workingMemory.iterateObjects(new ClassObjectFilter(ConstraintOccurrence.class));
-        ArrayList<ConstraintOccurrence> arrayList = new ArrayList<ConstraintOccurrence>();
+        ArrayList<ConstraintOccurrence> arrayList = new ArrayList<>();
         while (it.hasNext()) {
             arrayList.add((ConstraintOccurrence) it.next());
         }

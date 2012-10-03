@@ -16,7 +16,7 @@ public class Group {
     private Jury jury;
 
     public Group(Team... teams) {
-        this.teams = new ArrayList<Team>();
+        this.teams = new ArrayList<>();
         Collections.addAll(this.teams, teams);
     }
 
