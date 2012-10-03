@@ -2,6 +2,8 @@ package org.iypt.planner.gui;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import org.apache.pivot.beans.BXML;
 import org.apache.pivot.beans.BXMLSerializer;
 import org.apache.pivot.beans.Bindable;
@@ -20,6 +22,9 @@ import org.apache.pivot.wtk.PushButton;
 import org.apache.pivot.wtk.TablePane;
 import org.apache.pivot.wtk.TaskAdapter;
 import org.apache.pivot.wtk.Window;
+import org.drools.planner.config.SolverFactory;
+import org.drools.planner.config.XmlSolverFactory;
+import org.drools.planner.core.Solver;
 import org.drools.planner.core.event.BestSolutionChangedEvent;
 import org.drools.planner.core.event.SolverEventListener;
 import org.drools.planner.core.phase.event.SolverPhaseLifecycleListenerAdapter;
@@ -43,6 +48,7 @@ public class PlannerWindow extends Window implements Bindable {
     private Tournament tournament;
     private SolverTask solverTask;
     private List<RoundView> roundViews = new ArrayList<RoundView>();
+    private BlockingQueue<Tournament> betterSolutionQueue = new ArrayBlockingQueue<Tournament>(1);
 
     @Override
     public void initialize(Map<String, Object> namespace, URL location, Resources resources) {
@@ -54,9 +60,6 @@ public class PlannerWindow extends Window implements Bindable {
         initRounds();
 
         terminateButton.setEnabled(false);
-//        for (SolverPhase phase : app.getPhases()) {
-//            phase.addSolverPhaseLifecycleListener(new );
-//        }
 
         nextButton.getButtonPressListeners().add(new ButtonPressListener() {
             @Override
@@ -64,8 +67,7 @@ public class PlannerWindow extends Window implements Bindable {
 //                Alert.alert(MessageType.INFO, "You clicked me!", PlannerWindow.this);
                 button.setEnabled(false);
                 terminateButton.setEnabled(true);
-                scoreLabel.setText("calculating...");
-                solverTask = new SolverTask();
+                solverTask = new SolverTask(newSolver(), tournament);
                 TaskListener<String> taskListener = new TaskListener<String>() {
                     @Override
                     public void taskExecuted(Task<String> task) {
@@ -83,6 +85,7 @@ public class PlannerWindow extends Window implements Bindable {
                         scoreLabel.setText(task.getFault().toString());
                     }
                 };
+                pullScore();
                 solverTask.execute(new TaskAdapter<String>(taskListener));
             }
         });
@@ -95,7 +98,28 @@ public class PlannerWindow extends Window implements Bindable {
         });
     }
 
-    Tournament getInitialSolution() {
+    private void pullScore() {
+        TaskListener<Tournament> taskListener = new TaskListener<Tournament>() {
+            @Override
+            public void taskExecuted(Task<Tournament> task) {
+                Tournament t = task.getResult();
+                if (t != null) {
+                    scoreLabel.setText(t.getScore().toString());
+                    tournament = t;
+                    initRounds();
+                }
+            }
+
+            @Override
+            public void executeFailed(Task<Tournament> task) {
+                scoreLabel.setText(task.getFault().toString());
+            }
+        };
+        // TODO maintain list of running tasks?
+        new PullSolutionTask().execute(new TaskAdapter<Tournament>(taskListener));
+    }
+
+    private Tournament getInitialSolution() {
         DefaultTournamentFactory factory = new DefaultTournamentFactory();
         factory.setJuryCapacity(6);
         Round r1 = factory.createRound(1, gABC, gDEF, gGHI);
@@ -136,10 +160,22 @@ public class PlannerWindow extends Window implements Bindable {
         }
     }
 
+    private Solver newSolver() {
+        SolverFactory solverFactory = new XmlSolverFactory("/org/iypt/planner/solver/config.xml");
+        Solver solver = solverFactory.buildSolver();
+        solver.addEventListener(new SolverListener());
+        return solver;
+    }
+
+    //=========================================================================================================================
+    // listeners
+    //=========================================================================================================================
+
     private class SolverListener implements SolverEventListener {
 
         public void bestSolutionChanged(BestSolutionChangedEvent event) {
-            throw new UnsupportedOperationException("Not supported yet.");
+            tournament = (Tournament) event.getNewBestSolution();
+            betterSolutionQueue.offer(tournament);
         }
 
     }
@@ -153,21 +189,45 @@ public class PlannerWindow extends Window implements Bindable {
 
     }
 
+    //=========================================================================================================================
+    // tasks
+    //=========================================================================================================================
+
+    private class PullSolutionTask extends Task<Tournament> {
+
+        @Override
+        public Tournament execute() throws TaskExecutionException {
+            try {
+                return betterSolutionQueue.take();
+            } catch (InterruptedException ex) {
+                // TODO process the exception
+            } finally {
+                pullScore();
+            }
+            return null;
+        }
+
+    }
     private class SolverTask extends Task<String> {
 
-//        private org.iypt.core.App app;
+        private final Solver solver;
+        private final Tournament tournament;
+
+        public SolverTask(Solver solver, Tournament tournament) {
+            this.solver = solver;
+            this.tournament = tournament;
+        }
 
         public void terminate() {
-//            app.getSolver().terminateEarly();
+            solver.terminateEarly();
         }
 
         @Override
         public String execute() throws TaskExecutionException {
-//            app = new org.iypt.core.App();
-//            app.setTournament(tournament);
-//            Tournament solved = app.solve();
-//            return solved.getScore().toString();
-            return null;
+            solver.setPlanningProblem(tournament);
+            solver.solve();
+            Tournament solved = (Tournament) solver.getBestSolution();
+            return solved.getScore().toString();
         }
 
     }
