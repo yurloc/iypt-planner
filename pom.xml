@@ -9,28 +9,29 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <pivot.version>2.0.2</pivot.version>
   </properties>
 
   <dependencies>
     <dependency>
       <groupId>org.apache.pivot</groupId>
       <artifactId>pivot-core</artifactId>
-      <version>2.0.2</version>
+      <version>${pivot.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.pivot</groupId>
       <artifactId>pivot-web</artifactId>
-      <version>2.0.2</version>
+      <version>${pivot.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.pivot</groupId>
       <artifactId>pivot-wtk</artifactId>
-      <version>2.0.2</version>
+      <version>${pivot.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.pivot</groupId>
       <artifactId>pivot-wtk-terra</artifactId>
-      <version>2.0.2</version>
+      <version>${pivot.version}</version>
     </dependency>
     <dependency>
       <groupId>org.drools.planner</groupId>
