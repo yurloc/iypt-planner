@@ -1,10 +1,6 @@
 package org.iypt.planner.gui;
 
 import java.net.URL;
-import org.apache.pivot.beans.BXML;
-import org.apache.pivot.beans.Bindable;
-import org.apache.pivot.collections.Map;
-import org.apache.pivot.util.Resources;
 import org.apache.pivot.util.concurrent.TaskExecutionException;
 import org.apache.pivot.wtk.ApplicationContext;
 import org.apache.pivot.wtk.BoxPane;
@@ -24,15 +20,17 @@ import org.iypt.planner.domain.Tournament;
  *
  * @author jlocker
  */
-public class GroupView extends TablePane implements Bindable {
+public class GroupView extends TablePane {
 
-    @BXML
-    private Group group;
-    @BXML
-    private Tournament tournament;
+    GroupView(Tournament tournament, Group group) {
+        super();
+        getColumns().add(new TablePane.Column());
+        getColumns().add(new TablePane.Column());
 
-    @Override
-    public void initialize(Map<String, Object> namespace, URL location, Resources resources) {
+        TablePane.Row header = new TablePane.Row();
+        header.add(new Label("Group " + group.getName()));
+        header.add(new Label("Jury"));
+        getRows().add(header);
 
         BoxPane teamPane = new BoxPane(Orientation.HORIZONTAL);
         for (Team team : group.getTeams()) {

@@ -1,16 +1,13 @@
 package org.iypt.planner.gui;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import org.apache.pivot.beans.BXML;
-import org.apache.pivot.beans.BXMLSerializer;
 import org.apache.pivot.beans.Bindable;
 import org.apache.pivot.collections.ArrayList;
 import org.apache.pivot.collections.List;
 import org.apache.pivot.collections.Map;
-import org.apache.pivot.serialization.SerializationException;
 import org.apache.pivot.util.Resources;
 import org.apache.pivot.util.concurrent.Task;
 import org.apache.pivot.util.concurrent.TaskExecutionException;
@@ -57,7 +54,7 @@ public class PlannerWindow extends Window implements Bindable {
         terminateButton = (PushButton) namespace.get("terminateButton");
         tournament = getInitialSolution();
 
-        initRounds();
+        updateRounds();
 
         terminateButton.setEnabled(false);
 
@@ -107,7 +104,7 @@ public class PlannerWindow extends Window implements Bindable {
                 if (t != null) {
                     scoreLabel.setText(t.getScore().toString());
                     tournament = t;
-                    initRounds();
+                    updateRounds();
                 }
             }
 
@@ -138,24 +135,16 @@ public class PlannerWindow extends Window implements Bindable {
         return t;
     }
 
-    private void initRounds() {
+    private void updateRounds() {
+        if (roundHolder.getRows().getLength() > 0)
+        roundHolder.getRows().remove(0, roundHolder.getRows().getLength());
         for (Round round : tournament.getRounds()) {
-            BXMLSerializer bxmlSerializer = new BXMLSerializer();
-            bxmlSerializer.getNamespace().put("round", round);
-            bxmlSerializer.getNamespace().put("tournament", tournament);
-            try {
-                RoundView roundView = ((RoundView) bxmlSerializer.readObject(PlannerWindow.class, "round.bxml"));
-                //            Rollup rollup = new Rollup(true);
-                //            rollup.setHeading(new Label("Rollup #" + round.getNumber()));
-                //            rollup.getHeading().setTooltipText("Day " + round.getDay());
-                            TablePane.Row row = new TablePane.Row();
-                            row.add(roundView);
-                            roundHolder.getRows().add(row);
-                            roundViews.add(roundView);
-            } catch (IOException | SerializationException ex) {
-                throw new RuntimeException(ex);
-            }
-
+            RoundView roundView = new RoundView();
+            TablePane.Row row = new TablePane.Row();
+            row.add(roundView);
+            roundHolder.getRows().add(row);
+            roundViews.add(roundView);
+            roundView.update(tournament, round);
         }
     }
 
