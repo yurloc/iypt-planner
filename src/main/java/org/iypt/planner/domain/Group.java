@@ -22,6 +22,7 @@ public class Group {
 
     public Group(String name) {
         this.name = name;
+        teams = new ArrayList<>(4);
     }
 
     @Override
@@ -119,5 +120,9 @@ public class Group {
      */
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void addTeam(Team team) {
+        teams.add(team);
     }
 }

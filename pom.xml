@@ -28,6 +28,11 @@
 
   <dependencies>
     <dependency>
+      <groupId>net.sf.opencsv</groupId>
+      <artifactId>opencsv</artifactId>
+      <version>2.3</version>
+    </dependency>
+    <dependency>
       <groupId>org.apache.pivot</groupId>
       <artifactId>pivot-core</artifactId>
       <version>${pivot.version}</version>

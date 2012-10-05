@@ -6,6 +6,8 @@ import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Team;
 
+import static org.iypt.planner.domain.JurorType.INDEPENDENT;
+
 /**
  *
  * @author jlocker
@@ -52,44 +54,44 @@ public class SampleFacts {
     public static final Team t26 = new Team(CountryCode.ZA);
 
     // jurors
-    public static final Juror jA1 = new Juror(CountryCode.AT);
-    public static final Juror jA2 = new Juror(CountryCode.AT);
-    public static final Juror jA3 = new Juror(CountryCode.AT);
-    public static final Juror jA4 = new Juror(CountryCode.AT);
-    public static final Juror jA5 = new Juror(CountryCode.AT);
-    public static final Juror jA6 = new Juror(CountryCode.AT);
-    public static final Juror jB1 = new Juror(CountryCode.BE);
-    public static final Juror jB2 = new Juror(CountryCode.BE);
-    public static final Juror jB3 = new Juror(CountryCode.BE);
-    public static final Juror jB4 = new Juror(CountryCode.BE);
-    public static final Juror jC1 = new Juror(CountryCode.CZ);
-    public static final Juror jC2 = new Juror(CountryCode.CZ);
-    public static final Juror jC3 = new Juror(CountryCode.CZ);
-    public static final Juror jC4 = new Juror(CountryCode.CZ);
-    public static final Juror jD1 = new Juror(CountryCode.DE);
-    public static final Juror jD2 = new Juror(CountryCode.DE);
-    public static final Juror jE1 = new Juror(CountryCode.ES);
-    public static final Juror jF1 = new Juror(CountryCode.FR);
-    public static final Juror jG1 = new Juror(CountryCode.GB);
-    public static final Juror jH1 = new Juror(CountryCode.HU);
-    public static final Juror jI1 = new Juror(CountryCode.IT);
-    public static final Juror jJ1 = new Juror(CountryCode.JP);
-    public static final Juror jK1 = new Juror(CountryCode.KR);
-    public static final Juror jL1 = new Juror(CountryCode.LV);
-    public static final Juror jM1 = new Juror(CountryCode.MM);
-    public static final Juror jM2 = new Juror(CountryCode.MM);
-    public static final Juror jM3 = new Juror(CountryCode.MM);
-    public static final Juror jM4 = new Juror(CountryCode.MM);
-    public static final Juror jM5 = new Juror(CountryCode.MM);
-    public static final Juror jM6 = new Juror(CountryCode.MM);
-    public static final Juror jN1 = new Juror(CountryCode.NL);
-    public static final Juror jN2 = new Juror(CountryCode.NL);
-    public static final Juror jN3 = new Juror(CountryCode.NL);
-    public static final Juror jN4 = new Juror(CountryCode.NL);
-    public static final Juror jN5 = new Juror(CountryCode.NL);
-    public static final Juror jN6 = new Juror(CountryCode.NL);
-    public static final Juror jY1 = new Juror(CountryCode.YE);
-    public static final Juror jZ1 = new Juror(CountryCode.ZA);
+    public static final Juror jA1 = new Juror(CountryCode.AT, INDEPENDENT);
+    public static final Juror jA2 = new Juror(CountryCode.AT, INDEPENDENT);
+    public static final Juror jA3 = new Juror(CountryCode.AT, INDEPENDENT);
+    public static final Juror jA4 = new Juror(CountryCode.AT, INDEPENDENT);
+    public static final Juror jA5 = new Juror(CountryCode.AT, INDEPENDENT);
+    public static final Juror jA6 = new Juror(CountryCode.AT, INDEPENDENT);
+    public static final Juror jB1 = new Juror(CountryCode.BE, INDEPENDENT);
+    public static final Juror jB2 = new Juror(CountryCode.BE, INDEPENDENT);
+    public static final Juror jB3 = new Juror(CountryCode.BE, INDEPENDENT);
+    public static final Juror jB4 = new Juror(CountryCode.BE, INDEPENDENT);
+    public static final Juror jC1 = new Juror(CountryCode.CZ, INDEPENDENT);
+    public static final Juror jC2 = new Juror(CountryCode.CZ, INDEPENDENT);
+    public static final Juror jC3 = new Juror(CountryCode.CZ, INDEPENDENT);
+    public static final Juror jC4 = new Juror(CountryCode.CZ, INDEPENDENT);
+    public static final Juror jD1 = new Juror(CountryCode.DE, INDEPENDENT);
+    public static final Juror jD2 = new Juror(CountryCode.DE, INDEPENDENT);
+    public static final Juror jE1 = new Juror(CountryCode.ES, INDEPENDENT);
+    public static final Juror jF1 = new Juror(CountryCode.FR, INDEPENDENT);
+    public static final Juror jG1 = new Juror(CountryCode.GB, INDEPENDENT);
+    public static final Juror jH1 = new Juror(CountryCode.HU, INDEPENDENT);
+    public static final Juror jI1 = new Juror(CountryCode.IT, INDEPENDENT);
+    public static final Juror jJ1 = new Juror(CountryCode.JP, INDEPENDENT);
+    public static final Juror jK1 = new Juror(CountryCode.KR, INDEPENDENT);
+    public static final Juror jL1 = new Juror(CountryCode.LV, INDEPENDENT);
+    public static final Juror jM1 = new Juror(CountryCode.MM, INDEPENDENT);
+    public static final Juror jM2 = new Juror(CountryCode.MM, INDEPENDENT);
+    public static final Juror jM3 = new Juror(CountryCode.MM, INDEPENDENT);
+    public static final Juror jM4 = new Juror(CountryCode.MM, INDEPENDENT);
+    public static final Juror jM5 = new Juror(CountryCode.MM, INDEPENDENT);
+    public static final Juror jM6 = new Juror(CountryCode.MM, INDEPENDENT);
+    public static final Juror jN1 = new Juror(CountryCode.NL, INDEPENDENT);
+    public static final Juror jN2 = new Juror(CountryCode.NL, INDEPENDENT);
+    public static final Juror jN3 = new Juror(CountryCode.NL, INDEPENDENT);
+    public static final Juror jN4 = new Juror(CountryCode.NL, INDEPENDENT);
+    public static final Juror jN5 = new Juror(CountryCode.NL, INDEPENDENT);
+    public static final Juror jN6 = new Juror(CountryCode.NL, INDEPENDENT);
+    public static final Juror jY1 = new Juror(CountryCode.YE, INDEPENDENT);
+    public static final Juror jZ1 = new Juror(CountryCode.ZA, INDEPENDENT);
     
     // group permutation #1
     public static final Group gABC = new Group(tA, tB, tC);

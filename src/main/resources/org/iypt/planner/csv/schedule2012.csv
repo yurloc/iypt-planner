@@ -1,0 +1,45 @@
+1;Group A;Li, Chuanyong;Regner, Ricky;Zealand, Kathryn;Cheng-Hsun, Nien;Mueller, Matthias;Balcombe, John
+1;Group B;Zadro, Kreso;Tan, Jong;Buehler, Fabian;Lobyshev, Valentin;Manyum, Prapun;Tu, Chenghou
+1;Group C;Kabelka, Heinz;Jung, Hong;Rajkovits, Zsuzsanna;Cao, Xuewei;Uno, Uno;Laskhishvili, George
+1;Group D;Freimann, Kim;Hogan, Kent;Vaterlaus, Andreas;Wharam, David;Illy, Judit;Yeo, Ye
+1;Group E;Martchenko, Ilya;Ostermaier, Florian;Kyuldjiev, Assen;O'Neill, Philip;Nadolny, Andrzej;Andersson, Mattias
+1;Group F;Byland, Samuel;Ibiapina, Rawlinson Medeiros;Kundracik, František;Bittner, Horst;Capuder, Rok;Park, Chan Oong
+1;Group G;Plesch, Martin;Tan, Joy;Kerner, Patrick;Massarek, Ilana;Soudan, Patrick;Deinlein, Christa
+1;Group H;Song, Feng;Izadi, Dina;Marti, Othmar;Ekwenta, Francis;Panosova, Dagmar;Borgieł, Władysław
+1;Group K;Antsipau, Ivan;Swaminathan, Francisco;Pussadee, Nirut;Bzdušek, Tomáš;Jennings, Gavin;Panos, Stanislav
+2;Group A;Balcombe, John;Wodzinski, Rita;Swaminathan, Francisco;Soudan, Patrick;Manyum, Prapun;Marti, Othmar
+2;Group B;Lobyshev, Valentin;Roeller, Klaus;Tan, Joy;O'Neill, Philip;Hogan, Kent;Deinlein, Christa
+2;Group C;Freimann, Kim;Bzdušek, Tomáš;Laskhishvili, George;Kyuldjiev, Assen;Ibiapina, Rawlinson Medeiros;Panos, Stanislav
+2;Group D;Allinson, Alan;Geckeler, Carsten;Massarek, Ilana;Rajkovits, Zsuzsanna;Capuder, Rok;Izadi, Dina
+2;Group E;Kabelka, Heinz;Heller, Karl;Panosova, Dagmar;Li, Chuanyong;Zealand, Kathryn;Park, Chan Oong
+2;Group F;Jung, Hong;Klein, Hermann;Jennings, Gavin;Borgieł, Władysław;Regner, Ricky;Ekwenta, Francis
+2;Group G;Song, Feng;Theis, Matthias;Zadro, Kreso;Pussadee, Nirut;Nadolny, Andrzej;Martchenko, Ilya
+2;Group H;Antsipau, Ivan;Inisheva, Olga;Voit, Eugen;Ivanova, Daniela;Kao, Hsien-chung;Sinzinger, Michael
+2;Group K;Kundracik, František;Adams, Steve;Chung, ByungHoon;Gachechiladze, Teimuraz;Chevalier, Nicolas;Tolan, Metin
+3;Group A;Zadro, Kreso;Heller, Karl;Hogan, Kent;Freimann, Kim;Regner, Ricky;Laskhishvili, George
+3;Group B;Byland, Samuel;Wharam, David;Rajkovits, Zsuzsanna;Manyum, Prapun;Jung, Hong;Izadi, Dina
+3;Group C;Jennings, Gavin;Park, Chan Oong;Ekwenta, Francis;Massarek, Ilana;Martchenko, Ilya;Nadolny, Andrzej
+3;Group D;Kundracik, František;Ostermaier, Florian;Pussadee, Nirut;Borgieł, Władysław;Swaminathan, Francisco;Soudan, Patrick
+3;Group E;Li, Chuanyong;Wodzinski, Rita;Bzdušek, Tomáš;O'Neill, Philip;Antsipau, Ivan;Ibiapina, Rawlinson Medeiros
+3;Group F;Lobyshev, Valentin;Kratzer, Andreas;Illy, Judit;Voit, Eugen;Chevalier, Nicolas;Tu, Chenghou
+3;Group G;Plesch, Martin;Ivanova, Daniela;Kerner, Patrick;Gachechiladze, Teimuraz;Inisheva, Olga;Adams, Steve
+3;Group H;Balcombe, John;Foesel, Angela;Vaterlaus, Andreas;Tan, Jong;Cao, Xuewei;Cheng-Hsun, Nien
+3;Group K;Song, Feng;Reineker, Peter;Andersson, Mattias;Chung, ByungHoon;Uno, Uno;Yeo, Ye
+4;Group A;Kabelka, Heinz;Kratzer, Andreas;Song, Feng;O'Neill, Philip;Nadolny, Andrzej;Laskhishvili, George
+4;Group B;Jung, Hong;Reineker, Peter;Uno, Uno;Pussadee, Nirut;Martchenko, Ilya;Izadi, Dina
+4;Group C;Lobyshev, Valentin;Soudan, Patrick;Rajkovits, Zsuzsanna;Capuder, Rok;Zadro, Kreso;Ibiapina, Rawlinson Medeiros
+4;Group D;Allinson, Alan;Sinzinger, Michael;Ivanova, Daniela;Adams, Steve;Panos, Stanislav;Voit, Eugen
+4;Group E;Balcombe, John;Foesel, Angela;Gachechiladze, Teimuraz;Cao, Xuewei;Tan, Jong;Marti, Othmar
+4;Group F;Li, Chuanyong;Gierling, Michael;Inisheva, Olga;Byland, Samuel;Zealand, Kathryn;Kyuldjiev, Assen
+4;Group G;Kundracik, František;Roeller, Klaus;Panosova, Dagmar;Illy, Judit;Chung, ByungHoon;Andersson, Mattias
+4;Group H;Freimann, Kim;Stolcic, Davor;Chevalier, Nicolas;Vaterlaus, Andreas;Tan, Joy;Deinlein, Christa
+4;Group K;Jennings, Gavin;Stadermann, Kirsten;Durst, Juergen;Kao, Hsien-chung;Tu, Chenghou;Yeo, Ye
+5;Group A;Kundracik, František;Geckeler, Carsten;Capuder, Rok;Freimann, Kim;Lobyshev, Valentin;Panosova, Dagmar
+5;Group B;Kabelka, Heinz;Buehler, Fabian;Hogan, Kent;Byland, Samuel;Bzdušek, Tomáš;Panos, Stanislav
+5;Group C;Antsipau, Ivan;Chevalier, Nicolas;Jung, Hong;Kyuldjiev, Assen;Tan, Jong;Manyum, Prapun
+5;Group D;Martchenko, Ilya;Mueller, Matthias;Regner, Ricky;Borgieł, Władysław;Adams, Steve;Ekwenta, Francis
+5;Group E;Plesch, Martin;Swaminathan, Francisco;Yeo, Ye;Massarek, Ilana;Bittner, Horst;Ivanova, Daniela
+5;Group F;Li, Chuanyong;Durst, Juergen;Gachechiladze, Teimuraz;Vaterlaus, Andreas;Illy, Judit;Chung, ByungHoon
+5;Group G;Zadro, Kreso;Klein, Hermann;Uno, Uno;Andersson, Mattias;Tan, Joy;Cao, Xuewei
+5;Group H;Jennings, Gavin;Girwidz, Raimund;Zealand, Kathryn;Marti, Othmar;Inisheva, Olga;Tu, Chenghou
+5;Group K;Balcombe, John;Leonhard, Martin;Stadermann, Kirsten;Cheng-Hsun, Nien;Deinlein, Christa;Park, Chan Oong
