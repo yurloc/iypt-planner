@@ -27,6 +27,8 @@ public class Tournament implements Solution<HardAndSoftScore> {
     private Collection<DayOff> dayOffs;
     private Collection<Conflict> conflicts;
 
+    private int juryCapacity = -1;
+
     public Tournament() {
         rounds = new LinkedHashSet<>();
         teams = new LinkedHashSet<>();
@@ -96,6 +98,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
                 groups.add(g);
                 teams.addAll(g.getTeams());
                 Jury jury = g.getJury();
+                if (juryCapacity > -1) jury.setCapacity(juryCapacity);
                 juries.add(jury);
 
                 // skip this when cloning, planning entities have to be deep-cloned
@@ -154,11 +157,16 @@ public class Tournament implements Solution<HardAndSoftScore> {
     }
 
     /**
-     * Sets or changes jury capacity for this tournament.
+     * Sets or changes jury capacity for this tournament. All juries contained in this tournament and all that will be added
+     * in future will have this capacity.
      * @param capacity number of jurors in each jury
-     * @return <code>true</code> if jury capacity has changed
+     * @return <code>true</code> if jury capacity change has affected any juries
      */
     public boolean changeJuryCapacity(int capacity) {
+        if (capacity < 1) {
+            throw new IllegalArgumentException("Capacity must be positive, got: " + capacity);
+        }
+        this.juryCapacity = capacity; // remember the new capacity
         if (juries.isEmpty()) return false;
 
         if (juries.iterator().next().getCapacity() == capacity) return false;
