@@ -1,5 +1,6 @@
 package org.iypt.planner.domain;
 
+import java.util.Collection;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.*;
@@ -50,24 +51,26 @@ public class TournamentTest {
         Group g2B = r2.createGroup("B").addTeams(tD, tB, tF);
 
         Tournament t = new Tournament();
-        assertFalse(t.changeJuryCapacity(Group.DEFAULT_JURY_CAPACITY - 1));
+        int newCapacity = Group.DEFAULT_JURY_CAPACITY - 1;
+        assertThat(t.changeJuryCapacity(newCapacity), is(false)); // affects no juries
 
         t.addRounds(r1, r2);
         // getRounds, getGroups, getTeams
         assertThat(t.getRounds(), hasItems(r1, r2));
         assertThat(t.getGroups(), hasItems(g1A, g1B, g2A, g2B));
+        assertThat(t.getGroups().size(), is(4));
         assertThat(t.getTeams(), hasItems(tA, tB, tC, tD, tE, tF));
         // getJuries
         assertThat(t.getJuries().size(), is(t.getGroups().size()));
         // getJuryMemberships
-        assertThat(t.getJuryMemberships().size(), is(t.getJuries().size() * Group.DEFAULT_JURY_CAPACITY));
+        assertThat(t.getJuryMemberships().size(), is(newCapacity * t.getJuries().size()));
 
         // changeJuryCapacity
-        assertFalse(t.changeJuryCapacity(Group.DEFAULT_JURY_CAPACITY));
-        int newCapacity = Group.DEFAULT_JURY_CAPACITY + 1;
-        assertTrue(t.changeJuryCapacity(newCapacity));
+        assertThat(t.changeJuryCapacity(Group.DEFAULT_JURY_CAPACITY), is(true));
+        newCapacity = Group.DEFAULT_JURY_CAPACITY + 1;
+        assertThat(t.changeJuryCapacity(newCapacity), is(true));
         assertThat(t.getJuries().size(), is(t.getGroups().size()));
-        assertThat(t.getJuryMemberships().size(), is(t.getJuries().size() * newCapacity));
+        assertThat(t.getJuryMemberships().size(), is(newCapacity * t.getJuries().size()));
 
         assertThat(t.getProblemFacts().size(),
                 is(t.getRounds().size()
@@ -115,6 +118,18 @@ public class TournamentTest {
 
         t.getDayOffs().clear();
         assertTrue(t.isFeasibleSolutionPossible());
+
+        // add one more round
+        Round r3 = new Round(3, 3);
+        Group g3A = r3.createGroup("A").addTeams(tA, tB, tF);
+        Group g3B = r3.createGroup("B").addTeams(tD, tE, tC);
+        t.addRounds(r3);
+        assertThat(t.getRounds(), hasItems(r1, r2, r3));
+        assertThat(t.getGroups(), hasItems(g1A, g1B, g2A, g2B, g3A, g3B));
+        assertThat(t.getGroups().size(), is(6));
+        assertThat(t.getTeams(), hasItems(tA, tB, tC, tD, tE, tF));
+        assertThat(t.getJuries().size(), is(t.getGroups().size()));
+        assertThat(t.getJuryMemberships().size(), is(newCapacity * t.getJuries().size()));
     }
 
     @Test
@@ -136,4 +151,55 @@ public class TournamentTest {
         assertThat(t.getDayOffsPerRound(r), is(1));
         assertFalse(t.isFeasibleSolutionPossible());
     }
+
+    @Test
+    public void testCloneSolution() {
+        Round r1 = new Round(1, 1);
+        r1.createGroup("A").addTeams(tA, tB, tC);
+        r1.createGroup("B").addTeams(tD, tE, tF);
+
+        Tournament t = new Tournament();
+        t.addRounds(r1);
+        testClone(t);
+
+        Round r2 = new Round(2, 2);
+        r2.createGroup("A").addTeams(tA, tB, tC);
+        r2.createGroup("B").addTeams(tD, tE, tF);
+        t.addRounds(r2);
+        testClone(t);
+
+        t.changeJuryCapacity(Group.DEFAULT_JURY_CAPACITY);
+        testClone(t);
+
+        t.addJurors(jA1, jB1, jC1);
+        t.addDayOffs(new DayOff(jA1, 1), new DayOff(jB1, 2));
+        // TODO add conflicts
+        testClone(t);
+    }
+
+    private void testClone(Tournament t) {
+        Tournament clone = (Tournament) t.cloneSolution();
+
+        // check ordinary getters
+        assertThat(clone.getRounds(), is(t.getRounds()));
+        assertThat(clone.getGroups(), is(t.getGroups()));
+        assertThat(clone.getTeams(), is(t.getTeams()));
+        assertThat(clone.getJuries(), is(t.getJuries()));
+        assertThat(clone.getJurors(), is(t.getJurors()));
+        assertThat(clone.getDayOffs(), is(t.getDayOffs()));
+        assertThat(clone.getConflicts(), is(t.getConflicts()));
+
+        // check getProblemFacts
+        @SuppressWarnings("unchecked")
+        Collection<Object> origFacts = (Collection<Object>) t.getProblemFacts();
+        @SuppressWarnings("unchecked")
+        Collection<Object> cloneFacts = (Collection<Object>) clone.getProblemFacts();
+        assertThat(cloneFacts, is(origFacts));
+
+        // same number of planning entities
+        assertThat(clone.getJuryMemberships().size(), is(t.getJuryMemberships().size()));
+        // no entities in common
+        assertThat(t.getJuryMemberships().removeAll(clone.getJuryMemberships()), is(false));
+    }
+
 }
