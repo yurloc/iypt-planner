@@ -8,35 +8,51 @@ import java.util.List;
  *
  * @author jlocker
  */
-public class Group {
+public final class Group {
 
+    public static final int DEFAULT_JURY_CAPACITY = 6;
     private String name;
-    private List<Team> teams; // no rep, opp, rev, obs because these change during stages of the round
+    private List<Team> teams;
     private Round round;
     private Jury jury;
 
-    public Group(Team... teams) {
-        this.teams = new ArrayList<>();
-        Collections.addAll(this.teams, teams);
-    }
-
-    public Group(String name) {
-        this.name = name;
+    private Group() {
+        jury = createJury(DEFAULT_JURY_CAPACITY);
         teams = new ArrayList<>(4);
     }
 
-    @Override
-    public String toString() {
-        return round + "/" + name; 
+    public Group(Team... teams) {
+        this();
+        addTeams(teams);
     }
 
-    public Jury createJury(int juryCapacity) {
+    public Group(String name) {
+        this();
+        this.name = name;
+    }
+
+    private Jury createJury(int juryCapacity) {
         jury = new Jury();
         jury.setGroup(this);
         jury.setCapacity(juryCapacity);
         return jury;
     }
-    
+
+    public Group addTeam(Team team) {
+        teams.add(team);
+        return this;
+    }
+
+    public Group addTeams(Team... teams) {
+        Collections.addAll(this.teams, teams);
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return round + "/" + name;
+    }
+
     //-------------------------------------------------------------------------------------------------------------------------
     // Getters & Setters
     //-------------------------------------------------------------------------------------------------------------------------
@@ -96,15 +112,6 @@ public class Group {
     }
 
     /**
-     * Set the value of teams
-     *
-     * @param teams new value of teams
-     */
-    public void setTeams(List<Team> teams) {
-        this.teams = teams;
-    }
-
-    /**
      * Get the value of name
      *
      * @return the value of name
@@ -122,7 +129,4 @@ public class Group {
         this.name = name;
     }
 
-    public void addTeam(Team team) {
-        teams.add(team);
-    }
 }

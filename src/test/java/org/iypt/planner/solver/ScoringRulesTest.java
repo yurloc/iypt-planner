@@ -75,10 +75,10 @@ public class ScoringRulesTest {
     @Test
     public void testMultiMembership() {
         DefaultTournamentFactory f = new DefaultTournamentFactory();
-        f.setJuryCapacity(2);
         f.createRound(1, tA, tB, tC);
         f.addJurors(jD1);
         Tournament t = f.newTournament();
+        t.changeJuryCapacity(2);
         for (JuryMembership m : t.getJuryMemberships()) {
             m.setJuror(jD1);
         }
@@ -92,10 +92,10 @@ public class ScoringRulesTest {
     @Test
     public void testTeamAndJurorSameCountry() {
         DefaultTournamentFactory f = new DefaultTournamentFactory();
-        f.setJuryCapacity(1);
         f.createRound(1, tA, tB, tC);
         f.addJurors(jA1);
         Tournament t = f.newTournament();
+        t.changeJuryCapacity(1);
         for (JuryMembership m : t.getJuryMemberships()) {
             m.setJuror(jA1);
         }
@@ -109,10 +109,10 @@ public class ScoringRulesTest {
     @Test
     public void testDayOffRule() {
         DefaultTournamentFactory f = new DefaultTournamentFactory();
-        f.setJuryCapacity(1);
         Round r1 = f.createRound(1, tA, tB, tC);
         f.addJurors(jD1);
         Tournament t = f.newTournament();
+        t.changeJuryCapacity(1);
         t.getJuryMemberships().iterator().next().setJuror(jD1);
         t.addDayOffs(new DayOff(jD1, r1.getDay()));
         

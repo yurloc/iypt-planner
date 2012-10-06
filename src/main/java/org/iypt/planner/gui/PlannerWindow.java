@@ -119,11 +119,11 @@ public class PlannerWindow extends Window implements Bindable {
 
     private Tournament getInitialSolution() {
         DefaultTournamentFactory factory = new DefaultTournamentFactory();
-        factory.setJuryCapacity(6);
         Round r1 = factory.createRound(1, gABC, gDEF, gGHI);
         Round r2 = factory.createRound(2, gADG, gBEH, gCFI);
         Round r3 = factory.createRound(3, gAFH, gBDI, gCEG);
         Tournament t = factory.newTournament();
+        t.changeJuryCapacity(6);
 
         // TODO should be handled by the Factory?
         t.addJurors(jA1, jA2, jA3, jA4, jA5, jA6);

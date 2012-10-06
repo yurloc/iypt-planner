@@ -16,7 +16,7 @@ public class Round {
     public Round(int number, int day) {
         this.number = number;
         this.day = day;
-        this.groups = new LinkedHashSet<>(7);
+        this.groups = new LinkedHashSet<>(10);
     }
     
     public Group createGroup(String name) {
@@ -39,21 +39,12 @@ public class Round {
     }
 
     /**
-     * Get the value of groups
+     * Get the value of number
      *
-     * @return the value of groups
+     * @return the value of number
      */
-    public Set<Group> getGroups() {
-        return groups;
-    }
-
-    /**
-     * Set the value of groups
-     *
-     * @param groups new value of groups
-     */
-    public void setGroups(Set<Group> groups) {
-        this.groups = groups;
+    public int getNumber() {
+        return number;
     }
 
     /**
@@ -75,20 +66,12 @@ public class Round {
     }
 
     /**
-     * Get the value of number
+     * Get the value of groups
      *
-     * @return the value of number
+     * @return the value of groups
      */
-    public int getNumber() {
-        return number;
+    public Set<Group> getGroups() {
+        return groups;
     }
 
-    /**
-     * Set the value of number
-     *
-     * @param number new value of number
-     */
-    public void setNumber(int number) {
-        this.number = number;
-    }
 }

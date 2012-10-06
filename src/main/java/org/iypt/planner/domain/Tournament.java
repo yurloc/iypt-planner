@@ -4,9 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.Map;
 import org.drools.planner.api.domain.solution.PlanningEntityCollectionProperty;
 import org.drools.planner.core.score.buildin.hardandsoft.HardAndSoftScore;
 import org.drools.planner.core.solution.Solution;
@@ -28,8 +26,6 @@ public class Tournament implements Solution<HardAndSoftScore> {
     private Collection<Juror> jurors;
     private Collection<DayOff> dayOffs;
     private Collection<Conflict> conflicts;
-    // utils
-    private Map<Round, Integer> mapDayOffsPerRound;
 
     public Tournament() {
         rounds = new LinkedHashSet<>();
@@ -40,7 +36,6 @@ public class Tournament implements Solution<HardAndSoftScore> {
         juryMemberships = new LinkedHashSet<>();
         dayOffs = new LinkedHashSet<>();
         conflicts = new LinkedHashSet<>();
-        mapDayOffsPerRound = new HashMap<>();
     }
 
     @Override
@@ -72,11 +67,11 @@ public class Tournament implements Solution<HardAndSoftScore> {
     public Solution<HardAndSoftScore> cloneSolution() {
         Tournament clone = new Tournament();
         clone.score = score;
-        clone.setRounds(rounds);
+        clone.setRounds(rounds, true);
         clone.jurors = jurors;
         clone.dayOffs = dayOffs;
         clone.conflicts = conflicts;
-        
+
         // deep-clone the planning entity
         for (JuryMembership membership : juryMemberships) {
             clone.juryMemberships.add(membership.clone());
@@ -108,22 +103,33 @@ public class Tournament implements Solution<HardAndSoftScore> {
     }
 
     public void setRounds(Collection<Round> rounds) {
+        setRounds(rounds, false);
+    }
+
+    private void setRounds(Collection<Round> rounds, boolean skipPlanningEntity) {
         this.rounds = rounds;
+        this.groups.clear();
+        this.juries.clear();
+        this.teams.clear();
+        this.juryMemberships.clear();
         for (Round r : rounds) {
             for (Group g : r.getGroups()) {
                 groups.add(g);
-                juries.add(g.getJury());
                 teams.addAll(g.getTeams());
+                Jury jury = g.getJury();
+                juries.add(jury);
+
+                if (!skipPlanningEntity) {
+                    for (int i = 0; i < jury.getCapacity(); i++) {
+                        juryMemberships.add(new JuryMembership(jury, null));
+                    }
+                }
             }
         }
     }
 
     public Collection<Team> getTeams() {
         return teams;
-    }
-
-    public void setTeams(Collection<Team> teams) {
-        this.teams = teams;
     }
 
     public Collection<Juror> getJurors() {
@@ -138,16 +144,8 @@ public class Tournament implements Solution<HardAndSoftScore> {
         return groups;
     }
 
-    public void setGroups(Collection<Group> groups) {
-        this.groups = groups;
-    }
-
     public Collection<Jury> getJuries() {
         return juries;
-    }
-
-    public void setJuries(Collection<Jury> juries) {
-        this.juries = juries;
     }
 
     public Collection<DayOff> getDayOffs() {
@@ -175,21 +173,15 @@ public class Tournament implements Solution<HardAndSoftScore> {
     }
 
     public void addDayOffs(DayOff... dayOffs) {
-        for (DayOff dayOff : dayOffs) {
-            this.dayOffs.add(dayOff);
-            for (Round r : rounds) {
-                if (r.getDay() == dayOff.getDay()) {
-                    Integer dayOffsThisRound = mapDayOffsPerRound.get(r);
-                    mapDayOffsPerRound.put(r, dayOffsThisRound == null ? 1 : ++dayOffsThisRound);
-                    break;
-                }
-            }
-        }
+        Collections.addAll(this.dayOffs, dayOffs);
     }
     
-    public int dayOffsPerRound(Round r) {
-        if (!mapDayOffsPerRound.containsKey(r)) return 0;
-        return mapDayOffsPerRound.get(r);
+    public int getDayOffsPerRound(Round r) {
+        int count = 0;
+        for (DayOff dayOff : dayOffs) {
+            if (dayOff.getDay() == r.getDay()) count++;
+        }
+        return count;
     }
 
     /**
@@ -202,10 +194,29 @@ public class Tournament implements Solution<HardAndSoftScore> {
         for (Round r : rounds) {
             // TODO (?) don't assume all juries have the same capacity
             int jurorsNeeded = r.getGroups().size() * r.getGroups().iterator().next().getJury().getCapacity();
-            int jurorsAvailable = jurors.size() - dayOffsPerRound(r);
+            int jurorsAvailable = jurors.size() - getDayOffsPerRound(r);
             if (jurorsNeeded > jurorsAvailable) return false;
         }
         return true;
     }
 
+    /**
+     * Sets or changes jury capacity for this tournament.
+     * @param capacity number of jurors in each jury
+     * @return <code>true</code> if jury capacity has changed
+     */
+    public boolean changeJuryCapacity(int capacity) {
+        if (juries.isEmpty()) return false;
+
+        if (juries.iterator().next().getCapacity() == capacity) return false;
+
+        juryMemberships.clear();
+        for (Jury jury : juries) {
+            jury.setCapacity(capacity);
+            for (int i = 0; i < capacity; i++) {
+                juryMemberships.add(new JuryMembership(jury, null));
+            }
+        }
+        return true;
+    }
 }

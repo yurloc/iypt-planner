@@ -32,13 +32,13 @@ public class SolverRealTest extends AbstractSolverTest {
     @Override
     Tournament getInitialSolution() {
         DefaultTournamentFactory factory = new DefaultTournamentFactory();
-        factory.setJuryCapacity(4);
         Round r1 = factory.createRound(1, t01, t02, t03, t04, t05, t06, t07, t08, t09, t10, t11, t12, t13, t14, t15, t16, t17, t18, t19, t20, t21, t22, t23, t24);
         Round r2 = factory.createRound(2, t21, t01, t23, t24, t04, t02, t03, t07, t05, t06, t10, t08, t09, t13, t11, t12, t16, t14, t15, t19, t17, t18, t22, t20);
         Round r3 = factory.createRound(3, t20, t15, t01, t23, t18, t04, t02, t21, t07, t05, t24, t10, t08, t03, t13, t11, t06, t16, t14, t09, t19, t17, t12, t22);
         Round r4 = factory.createRound(4, t09, t01, t17, t12, t04, t20, t15, t07, t23, t18, t10, t02, t21, t13, t05, t24, t16, t08, t03, t19, t11, t06, t22, t14);
         Round r5 = factory.createRound(5, t14, t24, t01, t17, t03, t04, t20, t06, t07, t23, t09, t10, t02, t12, t13, t05, t15, t16, t08, t18, t19, t11, t21, t22);
         Tournament t = factory.newTournament();
+        t.changeJuryCapacity(4);
 
         // TODO should be handled by the Factory?
         t.addJurors(jA1, jA2, jA3, jA4, jA5, jA6);
