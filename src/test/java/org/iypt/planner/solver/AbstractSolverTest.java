@@ -93,22 +93,23 @@ public abstract class AbstractSolverTest {
         StringBuilder sb = new StringBuilder(1024);
         for (Round r : tournament.getRounds()) {
             sb.append(r).append("\n=========\n");
-            sb.append(" group     | jury\n");
-            //         A: A B C D | ...
+            sb.append(" group         | jury\n");
+            //         A: AA BB CC DD | ...
             for (Group g : r.getGroups()) {
                 sb.append(g.getName()).append(": ");
                 for (Team t : g.getTeams()) {
                     sb.append(t.getCountry()).append(' ');
                 }
-                if (g.getSize() == 3) sb.append("  ");
+                if (g.getSize() == 3) sb.append("   ");
                 sb.append("| ");
                 for (JuryMembership m : tournament.getJuryMemberships()) {
                     if (m.getJury().equals(g.getJury())) {
                         Juror juror = m.getJuror();
-                        sb.append(juror == null ? "[---]" : juror.getCountry());
+                        sb.append(juror == null ? "----" : juror.compactName());
+                        sb.append(',');
                     }
                 }
-                sb.append('\n');
+                sb.replace(sb.length() - 1, sb.length(), "\n");
             }
         }
         return sb.toString();
