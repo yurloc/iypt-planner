@@ -52,7 +52,7 @@ public class TournamentTest {
 
         Tournament t = new Tournament();
         int newCapacity = Group.DEFAULT_JURY_CAPACITY - 1;
-        assertThat(t.changeJuryCapacity(newCapacity), is(false)); // affects no juries
+        assertThat(t.setJuryCapacity(newCapacity), is(false)); // affects no juries
 
         t.addRounds(r1, r2);
         // getRounds, getGroups, getTeams
@@ -65,10 +65,10 @@ public class TournamentTest {
         // getJuryMemberships
         assertThat(t.getJuryMemberships().size(), is(newCapacity * t.getJuries().size()));
 
-        // changeJuryCapacity
-        assertThat(t.changeJuryCapacity(Group.DEFAULT_JURY_CAPACITY), is(true));
+        // setJuryCapacity
+        assertThat(t.setJuryCapacity(Group.DEFAULT_JURY_CAPACITY), is(true));
         newCapacity = Group.DEFAULT_JURY_CAPACITY + 1;
-        assertThat(t.changeJuryCapacity(newCapacity), is(true));
+        assertThat(t.setJuryCapacity(newCapacity), is(true));
         assertThat(t.getJuries().size(), is(t.getGroups().size()));
         assertThat(t.getJuryMemberships().size(), is(newCapacity * t.getJuries().size()));
 
@@ -83,7 +83,7 @@ public class TournamentTest {
         assertThat(t.getDayOffsPerRound(r2), is(0));
 
         newCapacity = 2;
-        t.changeJuryCapacity(newCapacity);
+        t.setJuryCapacity(newCapacity);
         assertThat(t.getJuryMemberships().size(), is(newCapacity * t.getJuries().size()));
 
         t.addJurors(jA1, jA2, jA3);
@@ -140,7 +140,7 @@ public class TournamentTest {
         Tournament t = new Tournament();
         t.addRounds(r);
         int capacity = 2;
-        t.changeJuryCapacity(capacity);
+        t.setJuryCapacity(capacity);
         assertThat(t.getJuryMemberships().size(), is(4));
         assertThat(t.getJuryMemberships().size(), is(r.getGroups().size() * capacity));
 
@@ -168,7 +168,7 @@ public class TournamentTest {
         t.addRounds(r2);
         testClone(t);
 
-        t.changeJuryCapacity(Group.DEFAULT_JURY_CAPACITY);
+        t.setJuryCapacity(Group.DEFAULT_JURY_CAPACITY);
         testClone(t);
 
         t.addJurors(jA1, jB1, jC1);

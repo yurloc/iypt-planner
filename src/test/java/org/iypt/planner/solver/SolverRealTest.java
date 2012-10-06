@@ -38,7 +38,7 @@ public class SolverRealTest extends AbstractSolverTest {
         Round r4 = factory.createRound(4, t09, t01, t17, t12, t04, t20, t15, t07, t23, t18, t10, t02, t21, t13, t05, t24, t16, t08, t03, t19, t11, t06, t22, t14);
         Round r5 = factory.createRound(5, t14, t24, t01, t17, t03, t04, t20, t06, t07, t23, t09, t10, t02, t12, t13, t05, t15, t16, t08, t18, t19, t11, t21, t22);
         Tournament t = factory.newTournament();
-        t.changeJuryCapacity(4);
+        t.setJuryCapacity(4);
 
         // TODO should be handled by the Factory?
         t.addJurors(jA1, jA2, jA3, jA4, jA5, jA6);

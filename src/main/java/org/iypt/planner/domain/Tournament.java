@@ -162,7 +162,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
      * @param capacity number of jurors in each jury
      * @return <code>true</code> if jury capacity change has affected any juries
      */
-    public boolean changeJuryCapacity(int capacity) {
+    public boolean setJuryCapacity(int capacity) {
         if (capacity < 1) {
             throw new IllegalArgumentException("Capacity must be positive, got: " + capacity);
         }
