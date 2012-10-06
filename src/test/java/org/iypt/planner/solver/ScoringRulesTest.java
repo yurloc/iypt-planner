@@ -21,7 +21,7 @@ import org.iypt.planner.domain.DayOff;
 import org.iypt.planner.domain.JurySeat;
 import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Tournament;
-import org.iypt.planner.domain.util.DefaultTournamentFactory;
+import org.iypt.planner.domain.util.RoundFactory;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -74,11 +74,10 @@ public class ScoringRulesTest {
 
     @Test
     public void testMultiSeat() {
-        DefaultTournamentFactory f = new DefaultTournamentFactory();
-        f.createRound(1, tA, tB, tC);
-        f.addJurors(jD1);
-        Tournament t = f.newTournament();
+        Tournament t = new Tournament();
         t.setJuryCapacity(2);
+        t.addRounds(RoundFactory.createRound(1, tA, tB, tC));
+        t.addJurors(jD1);
         for (JurySeat s : t.getJurySeats()) {
             s.setJuror(jD1);
         }
@@ -91,11 +90,10 @@ public class ScoringRulesTest {
     
     @Test
     public void testTeamAndJurorSameCountry() {
-        DefaultTournamentFactory f = new DefaultTournamentFactory();
-        f.createRound(1, tA, tB, tC);
-        f.addJurors(jA1);
-        Tournament t = f.newTournament();
+        Tournament t = new Tournament();
         t.setJuryCapacity(1);
+        t.addRounds(RoundFactory.createRound(1, tA, tB, tC));
+        t.addJurors(jA1);
         for (JurySeat s : t.getJurySeats()) {
             s.setJuror(jA1);
         }
@@ -108,11 +106,11 @@ public class ScoringRulesTest {
     
     @Test
     public void testDayOffRule() {
-        DefaultTournamentFactory f = new DefaultTournamentFactory();
-        Round r1 = f.createRound(1, tA, tB, tC);
-        f.addJurors(jD1);
-        Tournament t = f.newTournament();
+        Round r1 = RoundFactory.createRound(1, tA, tB, tC);
+        Tournament t = new Tournament();
         t.setJuryCapacity(1);
+        t.addRounds(r1);
+        t.addJurors(jD1);
         t.getJurySeats().iterator().next().setJuror(jD1);
         t.addDayOffs(new DayOff(jD1, r1.getDay()));
         

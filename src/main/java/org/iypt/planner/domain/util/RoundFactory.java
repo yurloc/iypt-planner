@@ -1,24 +1,20 @@
 package org.iypt.planner.domain.util;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import org.iypt.planner.domain.Group;
-import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Team;
-import org.iypt.planner.domain.Tournament;
 
 /**
  *
  * @author jlocker
  */
-public class DefaultTournamentFactory {
-    
-    private List<Juror> jurors = new ArrayList<>();
-    private List<Round> rounds = new ArrayList<>();
+public class RoundFactory {
 
+    private RoundFactory() {
+        // hide default constructor
+    }
+    
     /**
      * Creates a new round and initializes its groups as required by the given number of teams. Day index of the round will be
      * equal to its number.
@@ -26,7 +22,7 @@ public class DefaultTournamentFactory {
      * @param teams
      * @return the created round with initialized groups
      */
-    public Round createRound(int number, Team... teams) {
+    public static Round createRound(int number, Team... teams) {
         Group[] groups = new Group[teams.length / 3];
         int[] caps = new int[groups.length];
         
@@ -43,26 +39,14 @@ public class DefaultTournamentFactory {
         return createRound(number, groups);
     }
 
-    public Round createRound(int number, Group... groups) {
+    public static Round createRound(int number, Group... groups) {
         Round r = new Round(number, number);
         r.addGroups(groups);
         char name = 65;
         for (Group group : groups) {
             group.setName(String.valueOf(name++));
         }
-        rounds.add(r);
         return r;
-    }
-    
-    public void addJurors(Juror... jurors) {
-        Collections.addAll(this.jurors, jurors);
-    }
-    
-    public Tournament newTournament() {
-        Tournament tournament = new Tournament();
-        tournament.setJurors(jurors);
-        tournament.setRounds(rounds);
-        return tournament;
     }
 
 }

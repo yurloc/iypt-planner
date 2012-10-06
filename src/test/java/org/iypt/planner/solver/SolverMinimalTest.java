@@ -5,7 +5,7 @@ import org.drools.planner.config.termination.TerminationConfig;
 import org.iypt.planner.domain.DayOff;
 import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Tournament;
-import org.iypt.planner.domain.util.DefaultTournamentFactory;
+import org.iypt.planner.domain.util.RoundFactory;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.*;
@@ -31,12 +31,12 @@ public class SolverMinimalTest extends AbstractSolverTest {
 
     @Override
     Tournament getInitialSolution() {
-        DefaultTournamentFactory factory = new DefaultTournamentFactory();
-        Round r1 = factory.createRound(1, gABC, gDEF, gGHI);
-        Round r2 = factory.createRound(2, gADG, gBEH, gCFI);
-        Round r3 = factory.createRound(3, gAFH, gBDI, gCEG);
-        Tournament t = factory.newTournament();
+        Round r1 = RoundFactory.createRound(1, gABC, gDEF, gGHI);
+        Round r2 = RoundFactory.createRound(2, gADG, gBEH, gCFI);
+        Round r3 = RoundFactory.createRound(3, gAFH, gBDI, gCEG);
+        Tournament t = new Tournament();
         t.setJuryCapacity(6);
+        t.addRounds(r1, r2, r3);
 
         t.addJurors(jA1, jA2, jA3, jA4, jA5, jA6);
         t.addJurors(jB1, jB2, jB3, jB4);
