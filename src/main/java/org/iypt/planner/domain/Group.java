@@ -50,7 +50,7 @@ public final class Group {
 
     @Override
     public String toString() {
-        return round + "/" + name;
+        return String.format("Group %d%s", round.getNumber(), name);
     }
 
     //-------------------------------------------------------------------------------------------------------------------------

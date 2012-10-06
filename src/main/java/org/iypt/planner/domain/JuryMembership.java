@@ -36,7 +36,7 @@ public class JuryMembership {
 
     @Override
     public String toString() {
-        return jury + " juror: " + juror;
+        return String.format("[%s]-[%s]", jury, juror == null ? null : juror.compactName());
     }
     
     public JuryMembership clone() {

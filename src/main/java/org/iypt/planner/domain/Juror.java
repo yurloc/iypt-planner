@@ -8,6 +8,7 @@ public class Juror {
 
     private String firstName;
     private String lastName;
+    private String compactName;
     private final CountryCode country;
     private final JurorType type;
     private boolean chairCandidate = false;
@@ -15,6 +16,7 @@ public class Juror {
     public Juror(CountryCode country, JurorType type) {
         this.country = country;
         this.type = type;
+        setCompactName();
     }
 
     public Juror(String firstName, String lastName, CountryCode country, JurorType type) {
@@ -22,6 +24,17 @@ public class Juror {
         this.lastName = lastName;
         this.country = country;
         this.type = type;
+        setCompactName();
+    }
+
+    private void setCompactName() {
+        compactName = country.toString()
+                + (firstName == null ? '_' : firstName.toLowerCase().charAt(0))
+                + (lastName == null ? '_' : lastName.toLowerCase().charAt(0));
+    }
+
+    public String compactName() {
+        return compactName;
     }
 
     @Override
@@ -35,6 +48,7 @@ public class Juror {
 
     public void setFirstName(String firstName) {
         this.firstName = firstName;
+        setCompactName();
     }
 
     public String getLastName() {
@@ -43,6 +57,7 @@ public class Juror {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+        setCompactName();
     }
 
     /**
