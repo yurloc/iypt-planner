@@ -16,8 +16,8 @@ import static org.junit.Assert.*;
  *
  * @author jlocker
  */
-public class SolverRealTest extends AbstractSolverTest {
-    
+public class SolverLargeTest extends AbstractSolverTest {
+
     @Test
     public void test() {
         assertThat(getConstraintList(), is(Collections.EMPTY_LIST));
@@ -40,7 +40,6 @@ public class SolverRealTest extends AbstractSolverTest {
         Tournament t = factory.newTournament();
         t.setJuryCapacity(4);
 
-        // TODO should be handled by the Factory?
         t.addJurors(jA1, jA2, jA3, jA4, jA5, jA6);
         t.addJurors(jB1, jB2, jB3, jB4);
         t.addJurors(jC1, jC2, jC3, jC4);
@@ -55,7 +54,7 @@ public class SolverRealTest extends AbstractSolverTest {
         t.addDayOffs(new DayOff(jA4, r4.getDay()), new DayOff(jA4, r5.getDay()));
         t.addDayOffs(new DayOff(jA5, r1.getDay()), new DayOff(jA5, r5.getDay()));
         t.addDayOffs(new DayOff(jN1, r1.getDay()), new DayOff(jN1, r2.getDay()));
-        
+
         return t;
     }
 }
