@@ -27,9 +27,8 @@ public class DefaultTournamentFactory {
      * @return the created round with initialized groups
      */
     public Round createRound(int number, Team... teams) {
-        Round r = new Round(number, number);
-        
-        int[] caps = new int[teams.length / 3];
+        Group[] groups = new Group[teams.length / 3];
+        int[] caps = new int[groups.length];
         
         for (int i = 0; i < teams.length; i++) {
             caps[i % caps.length]++;
@@ -37,16 +36,14 @@ public class DefaultTournamentFactory {
         
         int next = 0;
         for (int i = 0; i < caps.length; i++) {
-            Group group = r.createGroup(String.valueOf((char) (65 + i)));
-            group.addTeams(Arrays.copyOfRange(teams, next, next + caps[i]));
+            Group group = new Group(Arrays.copyOfRange(teams, next, next + caps[i]));
+            groups[i] = group;
             next += caps[i];
         }
-        rounds.add(r);
-        return r;
+        return createRound(number, groups);
     }
 
     public Round createRound(int number, Group... groups) {
-        // FIXME remove duplicate code
         Round r = new Round(number, number);
         r.addGroups(groups);
         char name = 65;
