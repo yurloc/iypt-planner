@@ -17,7 +17,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
 
     private HardAndSoftScore score;
     // planning entity
-    private Collection<JuryMembership> juryMemberships;
+    private Collection<JurySeat> jurySeats;
     // facts
     private Collection<Round> rounds;
     private Collection<Team> teams;
@@ -35,7 +35,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
         groups = new LinkedHashSet<>();
         juries = new LinkedHashSet<>();
         jurors = new LinkedHashSet<>();
-        juryMemberships = new LinkedHashSet<>();
+        jurySeats = new LinkedHashSet<>();
         dayOffs = new LinkedHashSet<>();
         conflicts = new LinkedHashSet<>();
     }
@@ -75,8 +75,8 @@ public class Tournament implements Solution<HardAndSoftScore> {
         clone.conflicts = conflicts;
 
         // deep-clone the planning entity
-        for (JuryMembership membership : juryMemberships) {
-            clone.juryMemberships.add(membership.clone());
+        for (JurySeat seat : jurySeats) {
+            clone.jurySeats.add(seat.clone());
         }
         return clone;
     }
@@ -87,8 +87,8 @@ public class Tournament implements Solution<HardAndSoftScore> {
      * @return 
      */
     @PlanningEntityCollectionProperty
-    public Collection<JuryMembership> getJuryMemberships() {
-        return juryMemberships;
+    public Collection<JurySeat> getJurySeats() {
+        return jurySeats;
     }
 
     private void addRounds(Collection<Round> rounds, boolean cloningSolution) {
@@ -104,7 +104,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
                 // skip this when cloning, planning entities have to be deep-cloned
                 if (!cloningSolution) {
                     for (int i = 0; i < jury.getCapacity(); i++) {
-                        juryMemberships.add(new JuryMembership(jury, null));
+                        jurySeats.add(new JurySeat(jury, null));
                     }
                 }
             }
@@ -120,7 +120,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
         this.groups.clear();
         this.teams.clear();
         this.juries.clear();
-        this.juryMemberships.clear();
+        this.jurySeats.clear();
         addRounds(rounds, false);
     }
 
@@ -171,11 +171,11 @@ public class Tournament implements Solution<HardAndSoftScore> {
 
         if (juries.iterator().next().getCapacity() == capacity) return false;
 
-        juryMemberships.clear();
+        jurySeats.clear();
         for (Jury jury : juries) {
             jury.setCapacity(capacity);
             for (int i = 0; i < capacity; i++) {
-                juryMemberships.add(new JuryMembership(jury, null));
+                jurySeats.add(new JurySeat(jury, null));
             }
         }
         return true;
@@ -185,8 +185,8 @@ public class Tournament implements Solution<HardAndSoftScore> {
     // Getters & Setters
     // ------------------------------------------------------------------------
 
-    public void setJuryMemberships(Collection<JuryMembership> juryMemberships) {
-        this.juryMemberships = juryMemberships;
+    public void setJurySeats(Collection<JurySeat> jurySeat) {
+        this.jurySeats = jurySeat;
     }
 
     public Collection<Round> getRounds() {

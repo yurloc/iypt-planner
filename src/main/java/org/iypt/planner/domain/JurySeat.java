@@ -10,15 +10,15 @@ import org.drools.planner.api.domain.variable.ValueRangeType;
  * @author jlocker
  */
 @PlanningEntity
-public class JuryMembership {
+public class JurySeat {
 
     private Jury jury; // fixed
     private Juror juror; // planning variable
 
-    public JuryMembership() {
+    public JurySeat() {
     }
 
-    public JuryMembership(Jury jury, Juror juror) {
+    public JurySeat(Jury jury, Juror juror) {
         this.jury = jury;
         this.juror = juror;
     }
@@ -39,8 +39,8 @@ public class JuryMembership {
         return String.format("[%s]-[%s]", jury, juror == null ? null : juror.compactName());
     }
     
-    public JuryMembership clone() {
-        JuryMembership clone = new JuryMembership();
+    public JurySeat clone() {
+        JurySeat clone = new JurySeat();
         clone.jury = jury;
         clone.juror = juror;
         return clone;

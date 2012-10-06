@@ -12,7 +12,7 @@ import org.apache.pivot.wtk.media.Image;
 import org.iypt.planner.domain.CountryCode;
 import org.iypt.planner.domain.Group;
 import org.iypt.planner.domain.Juror;
-import org.iypt.planner.domain.JuryMembership;
+import org.iypt.planner.domain.JurySeat;
 import org.iypt.planner.domain.Team;
 import org.iypt.planner.domain.Tournament;
 
@@ -41,10 +41,10 @@ public class GroupView extends TablePane {
         }
 
         BoxPane juryPane = new BoxPane(Orientation.HORIZONTAL);
-        for (JuryMembership juryMembership : tournament.getJuryMemberships()) {
-            if (juryMembership.getJury().equals(group.getJury())) {
+        for (JurySeat seat : tournament.getJurySeats()) {
+            if (seat.getJury().equals(group.getJury())) {
                 BoxPane boxPane = new BoxPane(Orientation.HORIZONTAL);
-                Juror juror = juryMembership.getJuror();
+                Juror juror = seat.getJuror();
                 if (juror == null) {
                     boxPane.add(new ImageView(getImage(null)));
                 } else {

@@ -4,7 +4,7 @@
 
   <!-- Domain model configuration -->
   <solutionClass>org.iypt.planner.domain.Tournament</solutionClass>
-  <planningEntityClass>org.iypt.planner.domain.JuryMembership</planningEntityClass>
+  <planningEntityClass>org.iypt.planner.domain.JurySeat</planningEntityClass>
 
   <!-- Score configuration -->
   <scoreDirectorFactory>

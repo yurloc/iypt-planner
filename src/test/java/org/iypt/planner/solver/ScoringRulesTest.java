@@ -18,7 +18,7 @@ import org.drools.planner.core.score.buildin.hardandsoft.HardAndSoftScoreHolder;
 import org.drools.planner.core.score.holder.ScoreHolder;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.iypt.planner.domain.DayOff;
-import org.iypt.planner.domain.JuryMembership;
+import org.iypt.planner.domain.JurySeat;
 import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Tournament;
 import org.iypt.planner.domain.util.DefaultTournamentFactory;
@@ -43,7 +43,7 @@ public class ScoringRulesTest {
     private static final String SCORE_HOLDER_NAME = "scoreHolder";
     private static final String RULE_HARD = "hardConstraintsBroken";
     private static final String RULE_SOFT = "softConstraintsBroken";
-    private static final String RULE_multipleMembershipsInRound = "multipleMembershipsInRound";
+    private static final String RULE_multipleSeatsInRound = "multipleSeatsInRound";
     private static final String RULE_teamAndJurorSameCountry = "teamAndJurorSameCountry";
     private static final String RULE_dayOff = "dayOff";
     private static int ACTIVATION_LISTENER_VERBOSITY = ActivationListener.VERBOSITY_RULES;
@@ -69,22 +69,22 @@ public class ScoringRulesTest {
         }
         assertThat(ruleNames, hasItem(RULE_HARD));
         assertThat(ruleNames, hasItem(RULE_SOFT));
-        assertThat(ruleNames, hasItem(RULE_multipleMembershipsInRound));
+        assertThat(ruleNames, hasItem(RULE_multipleSeatsInRound));
     }
 
     @Test
-    public void testMultiMembership() {
+    public void testMultiSeat() {
         DefaultTournamentFactory f = new DefaultTournamentFactory();
         f.createRound(1, tA, tB, tC);
         f.addJurors(jD1);
         Tournament t = f.newTournament();
         t.setJuryCapacity(2);
-        for (JuryMembership m : t.getJuryMemberships()) {
-            m.setJuror(jD1);
+        for (JurySeat s : t.getJurySeats()) {
+            s.setJuror(jD1);
         }
         
         ScoringResult result = calculateScore(t);
-        assertThat(result.getFireCount(RULE_multipleMembershipsInRound), is(2));
+        assertThat(result.getFireCount(RULE_multipleSeatsInRound), is(2));
         assertThat(result.getTotalFireCount(), is(2));
         assertFalse(result.getScore().isFeasible());
     }
@@ -96,8 +96,8 @@ public class ScoringRulesTest {
         f.addJurors(jA1);
         Tournament t = f.newTournament();
         t.setJuryCapacity(1);
-        for (JuryMembership m : t.getJuryMemberships()) {
-            m.setJuror(jA1);
+        for (JurySeat s : t.getJurySeats()) {
+            s.setJuror(jA1);
         }
         
         ScoringResult result = calculateScore(t);
@@ -113,7 +113,7 @@ public class ScoringRulesTest {
         f.addJurors(jD1);
         Tournament t = f.newTournament();
         t.setJuryCapacity(1);
-        t.getJuryMemberships().iterator().next().setJuror(jD1);
+        t.getJurySeats().iterator().next().setJuror(jD1);
         t.addDayOffs(new DayOff(jD1, r1.getDay()));
         
         ScoringResult result = calculateScore(t);
@@ -130,7 +130,7 @@ public class ScoringRulesTest {
         for (Object o : t.getProblemFacts()) {
             ksession.insert(o);
         }
-        for (Object o : t.getJuryMemberships()) {
+        for (Object o : t.getJurySeats()) {
             ksession.insert(o);
         }
         

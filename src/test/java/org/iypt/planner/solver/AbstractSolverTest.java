@@ -17,7 +17,7 @@ import org.drools.planner.core.score.director.drools.DroolsScoreDirector;
 import org.drools.planner.core.solution.Solution;
 import org.iypt.planner.domain.Group;
 import org.iypt.planner.domain.Juror;
-import org.iypt.planner.domain.JuryMembership;
+import org.iypt.planner.domain.JurySeat;
 import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Team;
 import org.iypt.planner.domain.Tournament;
@@ -102,9 +102,9 @@ public abstract class AbstractSolverTest {
                 }
                 if (g.getSize() == 3) sb.append("   ");
                 sb.append("| ");
-                for (JuryMembership m : tournament.getJuryMemberships()) {
-                    if (m.getJury().equals(g.getJury())) {
-                        Juror juror = m.getJuror();
+                for (JurySeat s : tournament.getJurySeats()) {
+                    if (s.getJury().equals(g.getJury())) {
+                        Juror juror = s.getJuror();
                         sb.append(juror == null ? "----" : juror.compactName());
                         sb.append(',');
                     }
