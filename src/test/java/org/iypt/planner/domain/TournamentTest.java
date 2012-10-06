@@ -89,13 +89,29 @@ public class TournamentTest {
         assertTrue(t.isFeasibleSolutionPossible());
         t.addJurors(jA5, jA6);
         assertTrue(t.isFeasibleSolutionPossible());
+        
+        // add some day offs
         t.addDayOffs(new DayOff(jA1, 1));
         t.addDayOffs(new DayOff(jA3, 1));
         t.addDayOffs(new DayOff(jA2, 2));
         t.addDayOffs(new DayOff(jA4, 2));
+        assertThat(t.getDayOffsPerRound(r1), is(2));
+        assertThat(t.getDayOffsPerRound(r2), is(2));
         assertTrue(t.isFeasibleSolutionPossible());
+
+        // one more day off
         t.addDayOffs(new DayOff(jA1, 2));
         assertFalse(t.isFeasibleSolutionPossible());
+        assertThat(t.getDayOffsPerRound(r2), is(3));
+
+        assertThat(t.getProblemFacts().size(),
+                is(t.getRounds().size()
+                + t.getGroups().size()
+                + t.getTeams().size()
+                + t.getJuries().size()
+                + t.getJurors().size()
+                + t.getDayOffs().size()
+                + t.getConflicts().size()));
 
         t.getDayOffs().clear();
         assertTrue(t.isFeasibleSolutionPossible());
@@ -117,7 +133,7 @@ public class TournamentTest {
         assertTrue(t.isFeasibleSolutionPossible());
 
         t.addDayOffs(new DayOff(jA1, r.getDay()));
-        assertEquals(1, t.getDayOffsPerRound(r));
+        assertThat(t.getDayOffsPerRound(r), is(1));
         assertFalse(t.isFeasibleSolutionPossible());
     }
 }
