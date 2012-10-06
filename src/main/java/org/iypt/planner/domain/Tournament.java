@@ -80,30 +80,13 @@ public class Tournament implements Solution<HardAndSoftScore> {
     }
 
     /**
-     * Get the value of juryMemberships
+     * This is collection of planning entities.
      *
-     * @return the value of juryMemberships
+     * @return 
      */
     @PlanningEntityCollectionProperty
     public Collection<JuryMembership> getJuryMemberships() {
         return juryMemberships;
-    }
-
-    /**
-     * Set the value of juryMemberships
-     *
-     * @param juryMemberships new value of juryMemberships
-     */
-    public void setJuryMemberships(Collection<JuryMembership> juryMemberships) {
-        this.juryMemberships = juryMemberships;
-    }
-
-    public Collection<Round> getRounds() {
-        return rounds;
-    }
-
-    public void setRounds(Collection<Round> rounds) {
-        setRounds(rounds, false);
     }
 
     private void setRounds(Collection<Round> rounds, boolean skipPlanningEntity) {
@@ -128,42 +111,6 @@ public class Tournament implements Solution<HardAndSoftScore> {
         }
     }
 
-    public Collection<Team> getTeams() {
-        return teams;
-    }
-
-    public Collection<Juror> getJurors() {
-        return jurors;
-    }
-
-    public void setJurors(Collection<Juror> jurors) {
-        this.jurors = jurors;
-    }
-
-    public Collection<Group> getGroups() {
-        return groups;
-    }
-
-    public Collection<Jury> getJuries() {
-        return juries;
-    }
-
-    public Collection<DayOff> getDayOffs() {
-        return dayOffs;
-    }
-
-    public void setDayOffs(Collection<DayOff> dayOffs) {
-        this.dayOffs = dayOffs;
-    }
-
-    public Collection<Conflict> getConflicts() {
-        return conflicts;
-    }
-
-    public void setConflicts(Collection<Conflict> conflicts) {
-        this.conflicts = conflicts;
-    }
-
     public void addRounds(Round... rounds) {
         setRounds(Arrays.asList(rounds));
     }
@@ -175,7 +122,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
     public void addDayOffs(DayOff... dayOffs) {
         Collections.addAll(this.dayOffs, dayOffs);
     }
-    
+
     public int getDayOffsPerRound(Round r) {
         int count = 0;
         for (DayOff dayOff : dayOffs) {
@@ -218,5 +165,57 @@ public class Tournament implements Solution<HardAndSoftScore> {
             }
         }
         return true;
+    }
+
+    // ------------------------------------------------------------------------
+    // Getters & Setters
+    // ------------------------------------------------------------------------
+
+    public void setJuryMemberships(Collection<JuryMembership> juryMemberships) {
+        this.juryMemberships = juryMemberships;
+    }
+
+    public Collection<Round> getRounds() {
+        return rounds;
+    }
+
+    public void setRounds(Collection<Round> rounds) {
+        setRounds(rounds, false);
+    }
+
+    public Collection<Team> getTeams() {
+        return teams;
+    }
+
+    public Collection<Juror> getJurors() {
+        return jurors;
+    }
+
+    public void setJurors(Collection<Juror> jurors) {
+        this.jurors = jurors;
+    }
+
+    public Collection<Group> getGroups() {
+        return groups;
+    }
+
+    public Collection<Jury> getJuries() {
+        return juries;
+    }
+
+    public Collection<DayOff> getDayOffs() {
+        return dayOffs;
+    }
+
+    public void setDayOffs(Collection<DayOff> dayOffs) {
+        this.dayOffs = dayOffs;
+    }
+
+    public Collection<Conflict> getConflicts() {
+        return conflicts;
+    }
+
+    public void setConflicts(Collection<Conflict> conflicts) {
+        this.conflicts = conflicts;
     }
 }
