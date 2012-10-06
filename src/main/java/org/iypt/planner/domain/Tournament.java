@@ -67,7 +67,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
     public Solution<HardAndSoftScore> cloneSolution() {
         Tournament clone = new Tournament();
         clone.score = score;
-        clone.setRounds(rounds, true);
+        clone.addRounds(rounds, true);
         clone.jurors = jurors;
         clone.dayOffs = dayOffs;
         clone.conflicts = conflicts;
@@ -89,12 +89,8 @@ public class Tournament implements Solution<HardAndSoftScore> {
         return juryMemberships;
     }
 
-    private void setRounds(Collection<Round> rounds, boolean skipPlanningEntity) {
-        this.rounds = rounds;
-        this.groups.clear();
-        this.juries.clear();
-        this.teams.clear();
-        this.juryMemberships.clear();
+    private void addRounds(Collection<Round> rounds, boolean cloningSolution) {
+        this.rounds.addAll(rounds);
         for (Round r : rounds) {
             for (Group g : r.getGroups()) {
                 groups.add(g);
@@ -102,7 +98,8 @@ public class Tournament implements Solution<HardAndSoftScore> {
                 Jury jury = g.getJury();
                 juries.add(jury);
 
-                if (!skipPlanningEntity) {
+                // skip this when cloning, planning entities have to be deep-cloned
+                if (!cloningSolution) {
                     for (int i = 0; i < jury.getCapacity(); i++) {
                         juryMemberships.add(new JuryMembership(jury, null));
                     }
@@ -112,7 +109,16 @@ public class Tournament implements Solution<HardAndSoftScore> {
     }
 
     public void addRounds(Round... rounds) {
-        setRounds(Arrays.asList(rounds));
+        addRounds(Arrays.asList(rounds), false);
+    }
+
+    public void setRounds(Collection<Round> rounds) {
+        this.rounds.clear();
+        this.groups.clear();
+        this.teams.clear();
+        this.juries.clear();
+        this.juryMemberships.clear();
+        addRounds(rounds, false);
     }
 
     public void addJurors(Juror... jurors) {
@@ -177,10 +183,6 @@ public class Tournament implements Solution<HardAndSoftScore> {
 
     public Collection<Round> getRounds() {
         return rounds;
-    }
-
-    public void setRounds(Collection<Round> rounds) {
-        setRounds(rounds, false);
     }
 
     public Collection<Team> getTeams() {
