@@ -15,6 +15,7 @@ import org.drools.planner.core.score.constraint.ConstraintOccurrence;
 import org.drools.planner.core.score.director.ScoreDirector;
 import org.drools.planner.core.score.director.drools.DroolsScoreDirector;
 import org.drools.planner.core.solution.Solution;
+import org.iypt.planner.domain.DayOff;
 import org.iypt.planner.domain.Group;
 import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.JurySeat;
@@ -92,8 +93,11 @@ public abstract class AbstractSolverTest {
     private static String toDisplayString(Tournament tournament) {
         StringBuilder sb = new StringBuilder(1024);
         for (Round r : tournament.getRounds()) {
-            sb.append(r).append("\n=========\n");
-            sb.append(" group         | jury\n");
+            List<Juror> idle = new ArrayList<>();
+            List<Juror> away = new ArrayList<>();
+            idle.addAll(tournament.getJurors());
+            sb.append('\n').append(r).append("\n=========\n");
+            sb.append(" Group         |  Jury\n");
             //         A: AA BB CC DD | ...
             for (Group g : r.getGroups()) {
                 sb.append(g.getName()).append(": ");
@@ -104,6 +108,7 @@ public abstract class AbstractSolverTest {
                 sb.append("| ");
                 for (JurySeat s : tournament.getJurySeats()) {
                     if (s.getJury().equals(g.getJury())) {
+                        idle.remove(s.getJuror());
                         Juror juror = s.getJuror();
                         sb.append(juror == null ? "----" : juror.compactName());
                         sb.append(',');
@@ -111,6 +116,24 @@ public abstract class AbstractSolverTest {
                 }
                 sb.replace(sb.length() - 1, sb.length(), "\n");
             }
+            for (DayOff dayOff : tournament.getDayOffs()) {
+                if (dayOff.getDay() == r.getDay()) {
+                    away.add(dayOff.getJuror());
+                }
+            }
+            idle.removeAll(away); // idle = all -busy -away
+
+            sb.append(String.format("Jurors away (%2d): ", away.size()));
+            for (Juror juror : away) {
+                sb.append(juror.compactName()).append(',');
+            }
+            sb.replace(sb.length() - 1, sb.length(), "\n");
+
+            sb.append(String.format("Jurors idle (%2d): ", idle.size()));
+            for (Juror juror : idle) {
+                sb.append(juror.compactName()).append(',');
+            }
+            sb.replace(sb.length() - 1, sb.length(), "\n");
         }
         return sb.toString();
     }
