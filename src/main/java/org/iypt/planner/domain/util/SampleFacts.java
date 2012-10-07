@@ -71,7 +71,9 @@ public class SampleFacts {
     public static final Juror jD1 = new Juror(null, "1", CountryCode.DE, INDEPENDENT);
     public static final Juror jD2 = new Juror(null, "2", CountryCode.DE, INDEPENDENT);
     public static final Juror jE1 = new Juror(null, "1", CountryCode.ES, INDEPENDENT);
+    public static final Juror jE2 = new Juror(null, "2", CountryCode.ES, INDEPENDENT);
     public static final Juror jF1 = new Juror(null, "1", CountryCode.FR, INDEPENDENT);
+    public static final Juror jF2 = new Juror(null, "2", CountryCode.FR, INDEPENDENT);
     public static final Juror jG1 = new Juror(null, "1", CountryCode.GB, INDEPENDENT);
     public static final Juror jH1 = new Juror(null, "1", CountryCode.HU, INDEPENDENT);
     public static final Juror jI1 = new Juror(null, "1", CountryCode.IT, INDEPENDENT);
