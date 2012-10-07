@@ -28,22 +28,14 @@
     </termination>
     <selector>
       <selector>
-        <moveFactoryClass>org.drools.planner.core.move.generic.GenericSwapMoveFactory</moveFactoryClass>
+        <moveFactoryClass>org.drools.planner.core.move.generic.GenericChangeMoveFactory</moveFactoryClass>
       </selector>
     </selector>
     <acceptor>
-      <solutionTabuSize>100000</solutionTabuSize>
-      <moveTabuSize>29</moveTabuSize>
-      <!--<planningEntityTabuSize>6</planningEntityTabuSize>-->
     </acceptor>
     <forager>
-      <!--<minimalAcceptedSelection>100000</minimalAcceptedSelection>-->
+      <minimalAcceptedSelection>100</minimalAcceptedSelection>
       <pickEarlyType>FIRST_BEST_SCORE_IMPROVING</pickEarlyType>
     </forager>
   </localSearch>
 </solver>
-<!--
-      <selector>
-        <moveFactoryClass>org.drools.planner.core.move.generic.GenericChangeMoveFactory</moveFactoryClass>
-      </selector>
--->
