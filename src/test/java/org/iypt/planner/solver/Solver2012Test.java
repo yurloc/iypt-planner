@@ -5,7 +5,6 @@ import java.util.Collections;
 import org.drools.planner.config.termination.TerminationConfig;
 import org.iypt.planner.domain.Tournament;
 import org.iypt.planner.domain.util.CSVTournamentFactory;
-import org.iypt.planner.gui.PlannerWindow;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -23,7 +22,7 @@ public class Solver2012Test extends AbstractSolverTest {
     @BeforeClass
     public static void setupTournament() throws IOException {
         String path = "/org/iypt/planner/csv/";
-        CSVTournamentFactory factory = new CSVTournamentFactory(PlannerWindow.class, path + "team_data.csv", path + "jury_data.csv");
+        CSVTournamentFactory factory = new CSVTournamentFactory(path + "team_data.csv", path + "jury_data.csv");
         tournament = factory.newTournament();
         tournament.setJuryCapacity(6);
     }
