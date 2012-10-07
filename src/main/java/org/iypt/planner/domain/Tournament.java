@@ -105,7 +105,9 @@ public class Tournament implements Solution<HardAndSoftScore> {
                 if (!cloningSolution) {
                     boolean chair = true; // first seat in each jury is the chair seat
                     for (int i = 0; i < jury.getCapacity(); i++) {
-                        jurySeats.add(new JurySeat(chair, jury, null));
+                        JurySeat seat = new JurySeat(chair, jury, null);
+                        jurySeats.add(seat);
+                        jury.getSeats().add(seat);
                         chair = false;
                     }
                 }
@@ -182,7 +184,9 @@ public class Tournament implements Solution<HardAndSoftScore> {
             jury.setCapacity(capacity);
             boolean chair = true; // first seat in each jury is the chair seat
             for (int i = 0; i < capacity; i++) {
-                jurySeats.add(new JurySeat(chair, jury, null));
+                JurySeat seat = new JurySeat(chair, jury, null);
+                jurySeats.add(seat);
+                jury.getSeats().add(seat); // XXX relying on implementation of jurySeat collection
                 chair = false;
             }
         }

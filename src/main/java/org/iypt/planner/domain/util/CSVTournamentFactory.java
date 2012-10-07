@@ -13,6 +13,7 @@ import org.iypt.planner.domain.DayOff;
 import org.iypt.planner.domain.Group;
 import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.JurorType;
+import org.iypt.planner.domain.Jury;
 import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Team;
 import org.iypt.planner.domain.Tournament;
@@ -41,11 +42,13 @@ public class CSVTournamentFactory {
     
     private CSVReader teamReader;
     private CSVReader juryReader;
+    private CSVReader schdReader;
     private String teamFile;
     private String juryFile;
+    private String schdFile;
     private Map<Integer, Round> rounds = new HashMap<>(5);
     private Map<CountryCode, Team> teams = new HashMap<>(30);
-    private List<Juror> jurors = new ArrayList<>(100);
+    private Map<String, Juror> jurors = new HashMap<>(100);
     private List<DayOff> dayOffs = new ArrayList<>(100);
     private List<Conflict> conflicts = new ArrayList<>(100);
 
@@ -54,6 +57,20 @@ public class CSVTournamentFactory {
         teamFile = getResourceName(team);
         juryReader = getReader(baseType, jury);
         juryFile = getResourceName(jury);
+    }
+
+    public CSVTournamentFactory(Class<?> baseType, String team, String jury, String schedule) {
+        this(baseType, team, jury);
+        schdReader = getReader(baseType, schedule);
+        schdFile = getResourceName(schedule);
+    }
+
+    public CSVTournamentFactory(String team, String jury, String schedule) {
+        this(CSVTournamentFactory.class, team, jury, schedule);
+    }
+
+    public CSVTournamentFactory(String team, String jury) {
+        this(CSVTournamentFactory.class, team, jury);
     }
 
     private CSVReader getReader(Class<?> baseType, String resource) {
@@ -72,11 +89,30 @@ public class CSVTournamentFactory {
         throw new IOException(String.format("%s in %s [%d:%d]", message, fileName, lineNumber, valuePosition));
     }
 
+    private String getGroupName(String value) {
+        return value.replaceAll("Group ", "");
+    }
+
+    private boolean ignore(String[] line) {
+        if (line.length == 0) return true;
+        if (line.length > 0 && line[0].trim().isEmpty()) {
+            // ignore empty lines
+            if (line.length == 1) {
+                return true;
+            }
+        } else {
+            // skip comments
+            if (line[0].charAt(0) == '#') {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void readTeams() throws IOException {
         int ln = 1; // line number
         for (String[] line : teamReader.readAll()) {
-            if (line.length == 1 && line[0].trim().isEmpty()) {
-                // ignore empty lines
+            if (ignore(line)) {
                 continue;
             }
 
@@ -98,7 +134,7 @@ public class CSVTournamentFactory {
             if (line.length < 2) {
                 throwIOE("Incomplete entry: missing group", teamFile, ln, 1);
             }
-            String groupName = line[1].replaceAll("Group ", "");
+            String groupName = getGroupName(line[1]);
             Group group = round.createGroup(groupName);
 
             // get the teams in group
@@ -125,9 +161,8 @@ public class CSVTournamentFactory {
     private void readJuries() throws IOException {
         int ln = 1; // line number
         for (String[] line : juryReader.readAll()) {
-            if (line.length == 1 && line[0].trim().isEmpty()) {
-                // ignore empty lines
-                break;
+            if (ignore(line)) {
+                continue;
             }
 
             // check minmal number of values
@@ -151,7 +186,7 @@ public class CSVTournamentFactory {
 
             // create the juror
             Juror juror = new Juror(line[0], line[1], cc, jt);
-            jurors.add(juror);
+            jurors.put(String.format("%s, %s", line[1], line[0]), juror);
             conflicts.add(new Conflict(juror, cc));
 
             // read country conflicts, day offs, and optional chair tag
@@ -177,15 +212,84 @@ public class CSVTournamentFactory {
         }
     }
 
+    private void readSchedule(Tournament t) throws IOException {
+        int ln = 1;
+        boolean capacitySet = false;
+
+        for (String[] line : schdReader.readAll()) {
+            if (ignore(line)) {
+                continue;
+            }
+
+            // set jury capacity
+            if (!capacitySet) {
+                int capacity = line.length - 2;
+                if (line[line.length - 1].trim().isEmpty()) {
+                    // don't break the capacity with trailing ';'
+                    capacity--;
+                }
+                log.debug("Setting jury capacity to {}.", capacity);
+                t.setJuryCapacity(capacity);
+                capacitySet = true;
+            }
+
+            // get round number
+            int roundNumber = 0;
+            try {
+                roundNumber = Integer.valueOf(line[0]);
+            } catch (NumberFormatException ex) {
+                throwIOE("Invalid round number", line[0], schdFile, ln, 0);
+            }
+
+            // get the round instance
+            Round round = null;
+            for (Round r : t.getRounds()) {
+                if (r.getDay() == roundNumber) {
+                    round = r;
+                    break;
+                }
+            }
+            if (round == null) {
+                throwIOE("Cannot find round with number", line[0], schdFile, ln, 0);
+            }
+
+            // get group
+            String groupName = getGroupName(line[1]);
+            Jury jury = null;
+            for (Group g : round.getGroups()) {
+                if (groupName.equals(g.getName())) {
+                    jury = g.getJury();
+                }
+            }
+            if (jury == null) {
+                throwIOE("Cannot find group for name", line[1], schdFile, ln, 1);
+            }
+
+            for (int i = 0; i < jury.getCapacity(); i++) {
+                String name = line[i + 2];
+                Juror juror = jurors.get(name);
+                if (juror == null) {
+                    throwIOE("Unkown juror", name, schdFile, ln, i + 2);
+                }
+                jury.getSeats().get(i).setJuror(juror);
+            }
+            ln++;
+        }
+    }
+
     public Tournament newTournament() throws IOException {
         readTeams();
         readJuries();
 
         Tournament t = new Tournament();
         t.setRounds(rounds.values());
-        t.setJurors(jurors);
+        t.setJurors(jurors.values());
         t.setDayOffs(dayOffs);
         t.setConflicts(conflicts);
+
+        if (schdReader != null) {
+            readSchedule(t);
+        }
         return t;
     }
 }
