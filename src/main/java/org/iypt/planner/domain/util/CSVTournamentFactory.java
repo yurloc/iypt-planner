@@ -169,7 +169,7 @@ public class CSVTournamentFactory {
                         // when the first day off is read, the rest of values should be all numbers (except for optional C)
                         throwIOE("Invalid day off number", line[i], juryFile, ln, i);
                     }
-                    log.debug("Juror with multiple conflicts: {} {}", countryNameMap.get(line[i]), juror.compactName());
+                    log.debug("Juror with multiple conflicts: {} {}", countryNameMap.get(line[i]), juror);
                     conflicts.add(new Conflict(juror, countryNameMap.get(line[i])));
                 }
             }

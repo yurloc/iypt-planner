@@ -33,13 +33,13 @@ public class Juror {
                 + (lastName == null ? '_' : lastName.toLowerCase().charAt(0));
     }
 
-    public String compactName() {
-        return compactName;
+    public String fullName() {
+        return firstName + " " + lastName;
     }
 
     @Override
     public String toString() {
-        return String.format("(%s)", country);
+        return compactName;
     }
 
     public String getFirstName() {

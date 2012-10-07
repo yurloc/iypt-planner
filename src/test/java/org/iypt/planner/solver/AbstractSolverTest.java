@@ -110,7 +110,7 @@ public abstract class AbstractSolverTest {
                     if (s.getJury().equals(g.getJury())) {
                         idle.remove(s.getJuror());
                         Juror juror = s.getJuror();
-                        sb.append(juror == null ? "----" : juror.compactName());
+                        sb.append(juror == null ? "----" : juror);
                         sb.append(',');
                     }
                 }
@@ -125,13 +125,13 @@ public abstract class AbstractSolverTest {
 
             sb.append(String.format("Jurors away (%2d): ", away.size()));
             for (Juror juror : away) {
-                sb.append(juror.compactName()).append(',');
+                sb.append(juror).append(',');
             }
             sb.replace(sb.length() - 1, sb.length(), "\n");
 
             sb.append(String.format("Jurors idle (%2d): ", idle.size()));
             for (Juror juror : idle) {
-                sb.append(juror.compactName()).append(',');
+                sb.append(juror).append(',');
             }
             sb.replace(sb.length() - 1, sb.length(), "\n");
         }

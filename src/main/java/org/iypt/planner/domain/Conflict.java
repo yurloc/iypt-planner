@@ -24,7 +24,7 @@ public class Conflict {
 
     @Override
     public String toString() {
-        return String.format("%s(%s)", juror.compactName(), country);
+        return String.format("%s(%s)", juror, country);
     }
 
 }
