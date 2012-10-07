@@ -1,5 +1,6 @@
 package org.iypt.planner.solver;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -24,6 +25,7 @@ import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.JurySeat;
 import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Tournament;
+import org.iypt.planner.domain.util.CSVTournamentFactory;
 import org.iypt.planner.domain.util.RoundFactory;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -73,6 +75,16 @@ public class ScoringRulesTest {
         assertThat(ruleNames, hasItem(RULE_HARD));
         assertThat(ruleNames, hasItem(RULE_SOFT));
         assertThat(ruleNames, hasItem(RULE_multipleSeatsInRound));
+    }
+
+    @Test
+    public void testIYPT2012() throws IOException {
+        String path = "/org/iypt/planner/csv/";
+        CSVTournamentFactory factory = new CSVTournamentFactory(
+                path + "team_data.csv", path + "jury_data.csv", path + "schedule2012.csv");
+        Tournament t = factory.newTournament();
+
+        checkSolutionFeasible(t);
     }
 
     @Test
