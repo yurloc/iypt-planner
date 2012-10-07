@@ -1,5 +1,6 @@
 package org.iypt.planner.gui;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -12,9 +13,11 @@ import org.apache.pivot.util.Resources;
 import org.apache.pivot.util.concurrent.Task;
 import org.apache.pivot.util.concurrent.TaskExecutionException;
 import org.apache.pivot.util.concurrent.TaskListener;
+import org.apache.pivot.wtk.Alert;
 import org.apache.pivot.wtk.Button;
 import org.apache.pivot.wtk.ButtonPressListener;
 import org.apache.pivot.wtk.Label;
+import org.apache.pivot.wtk.MessageType;
 import org.apache.pivot.wtk.PushButton;
 import org.apache.pivot.wtk.TablePane;
 import org.apache.pivot.wtk.TaskAdapter;
@@ -29,6 +32,7 @@ import org.drools.planner.core.phase.step.AbstractStepScope;
 import org.iypt.planner.domain.DayOff;
 import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Tournament;
+import org.iypt.planner.domain.util.CSVTournamentFactory;
 import org.iypt.planner.domain.util.RoundFactory;
 
 import static org.iypt.planner.domain.util.SampleFacts.*;
@@ -52,7 +56,14 @@ public class PlannerWindow extends Window implements Bindable {
         scoreLabel = (Label) namespace.get("scoreLabel");
         nextButton = (PushButton) namespace.get("nextButton");
         terminateButton = (PushButton) namespace.get("terminateButton");
-        tournament = getInitialSolution();
+        try {
+            //        tournament = getInitialSolution();
+            tournament = getInitialSolutionFromCSV();
+            updateRounds();
+        } catch (IOException ex) {
+//            Alert.alert(MessageType.ERROR, ex.getMessage(), PlannerWindow.this);
+            ex.printStackTrace();
+        }
 
         updateRounds();
 
@@ -115,6 +126,17 @@ public class PlannerWindow extends Window implements Bindable {
         };
         // TODO maintain list of running tasks?
         new PullSolutionTask().execute(new TaskAdapter<>(taskListener));
+    }
+
+    private Tournament getInitialSolutionFromCSV() throws IOException {
+        String path = "/org/iypt/planner/csv/";
+        CSVTournamentFactory factory = new CSVTournamentFactory(PlannerWindow.class,
+                path + "team_data.csv",
+                path + "jury_data.csv",
+                path + "schedule2012.csv");
+        Tournament t = factory.newTournament();
+        t.setJuryCapacity(6);
+        return t;
     }
 
     private Tournament getInitialSolution() {
