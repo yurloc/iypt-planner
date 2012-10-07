@@ -34,7 +34,7 @@ public class TournamentTest {
     public void testGroup() {
         Group empty = new Group("A");
         assertThat(empty.getSize(), is(0));
-        assertThat(empty.getJury().getCapacity(), is(Group.DEFAULT_JURY_CAPACITY));
+        assertThat(empty.getJury().getCapacity(), is(Jury.DEFAULT_CAPACITY));
 
         assertThat(new Group(tA, tB, tC).getSize(), is(3));
         assertThat(new Group(tA, tB, tC, tD).getSize(), is(4));
@@ -51,7 +51,7 @@ public class TournamentTest {
         Group g2B = r2.createGroup("B").addTeams(tD, tB, tF);
 
         Tournament t = new Tournament();
-        int newCapacity = Group.DEFAULT_JURY_CAPACITY - 1;
+        int newCapacity = Jury.DEFAULT_CAPACITY - 1;
         assertThat(t.setJuryCapacity(newCapacity), is(false)); // affects no juries
 
         t.addRounds(r1, r2);
@@ -66,8 +66,8 @@ public class TournamentTest {
         assertThat(t.getJurySeats().size(), is(newCapacity * t.getJuries().size()));
 
         // setJuryCapacity
-        assertThat(t.setJuryCapacity(Group.DEFAULT_JURY_CAPACITY), is(true));
-        newCapacity = Group.DEFAULT_JURY_CAPACITY + 1;
+        assertThat(t.setJuryCapacity(Jury.DEFAULT_CAPACITY), is(true));
+        newCapacity = Jury.DEFAULT_CAPACITY + 1;
         assertThat(t.setJuryCapacity(newCapacity), is(true));
         assertThat(t.getJuries().size(), is(t.getGroups().size()));
         assertThat(t.getJurySeats().size(), is(newCapacity * t.getJuries().size()));
@@ -168,7 +168,7 @@ public class TournamentTest {
         t.addRounds(r2);
         testClone(t);
 
-        t.setJuryCapacity(Group.DEFAULT_JURY_CAPACITY);
+        t.setJuryCapacity(Jury.DEFAULT_CAPACITY);
         testClone(t);
 
         t.addJurors(jA1, jB1, jC1);

@@ -7,21 +7,26 @@ import java.util.List;
  *
  * @author jlocker
  */
-public class Jury {
+public final class Jury {
 
+    public static final int DEFAULT_CAPACITY = 6;
     private int capacity;
     private Group group;
     private Juror chair;
     private List<JurySeat> seats;
+
+    public Jury() {
+        setCapacity(DEFAULT_CAPACITY);
+    }
 
     @Override
     public String toString() {
         return group.toString();
     }
 
-    //=========================================================================================================================
+    // ------------------------------------------------------------------------
     // Getters & Setters
-    //=========================================================================================================================
+    // ------------------------------------------------------------------------
 
     public List<JurySeat> getSeats() {
         return seats;
@@ -81,5 +86,4 @@ public class Jury {
     public void setChair(Juror chair) {
         this.chair = chair;
     }
-
 }

@@ -10,14 +10,13 @@ import java.util.List;
  */
 public final class Group {
 
-    public static final int DEFAULT_JURY_CAPACITY = 6;
     private String name;
     private List<Team> teams;
     private Round round;
     private Jury jury;
 
     private Group() {
-        jury = createJury(DEFAULT_JURY_CAPACITY);
+        jury = createJury();
         teams = new ArrayList<>(4);
     }
 
@@ -31,10 +30,9 @@ public final class Group {
         this.name = name;
     }
 
-    private Jury createJury(int juryCapacity) {
+    private Jury createJury() {
         jury = new Jury();
         jury.setGroup(this);
-        jury.setCapacity(juryCapacity);
         return jury;
     }
 
