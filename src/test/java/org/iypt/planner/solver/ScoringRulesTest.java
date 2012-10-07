@@ -57,11 +57,11 @@ public class ScoringRulesTest {
         kbuilder.add(ResourceFactory.newClassPathResource(SCORE_DRL), ResourceType.DRL);
         assertFalse(kbuilder.getErrors().toString(), kbuilder.hasErrors());
         kbase = kbuilder.newKnowledgeBase();
-        
+
         // check the ScoreHolder global name
         KnowledgePackage pkg = kbase.getKnowledgePackages().iterator().next();
         assertEquals("Unexpected ScoreHolder global name", SCORE_HOLDER_NAME, pkg.getGlobalVariables().iterator().next().getName());
-        
+
         // verify we are using the correct rule names (to detect typos and fail fast if a rule is renamed in DRL and not here)
         List<String> ruleNames = new ArrayList<>();
         for (Rule rule : pkg.getRules()) {
@@ -81,13 +81,10 @@ public class ScoringRulesTest {
         for (JurySeat s : t.getJurySeats()) {
             s.setJuror(jD1);
         }
-        
-        ScoringResult result = calculateScore(t);
-        assertThat(result.getFireCount(RULE_multipleSeatsInRound), is(2));
-        assertThat(result.getTotalFireCount(), is(2));
-        assertFalse(result.getScore().isFeasible());
+
+        checkSolution(t, RULE_multipleSeatsInRound, 2, false);
     }
-    
+
     @Test
     public void testTeamAndJurorSameCountry() {
         Tournament t = new Tournament();
@@ -97,13 +94,10 @@ public class ScoringRulesTest {
         for (JurySeat s : t.getJurySeats()) {
             s.setJuror(jA1);
         }
-        
-        ScoringResult result = calculateScore(t);
-        assertThat(result.getFireCount(RULE_teamAndJurorSameCountry), is(1));
-        assertThat(result.getTotalFireCount(), is(1));
-        assertFalse(result.getScore().isFeasible());
+
+        checkSolution(t, RULE_teamAndJurorSameCountry, 1, false);
     }
-    
+
     @Test
     public void testDayOffRule() {
         Round r1 = RoundFactory.createRound(1, tA, tB, tC);
@@ -113,17 +107,21 @@ public class ScoringRulesTest {
         t.addJurors(jD1);
         t.getJurySeats().iterator().next().setJuror(jD1);
         t.addDayOffs(new DayOff(jD1, r1.getDay()));
-        
-        ScoringResult result = calculateScore(t);
-        assertThat(result.getFireCount(RULE_dayOff), is(1));
-        assertThat(result.getTotalFireCount(), is(1));
-        assertFalse(result.getScore().isFeasible());
+
+        checkSolution(t, RULE_dayOff, 1, false);
     }
-    
+
+    private void checkSolution(Tournament t, String ruleFired, int fireCount, boolean feasibile) {
+        ScoringResult result = calculateScore(t);
+        assertThat(result.getFireCount(ruleFired), is(fireCount));
+        assertThat(result.getTotalFireCount(), is(fireCount));
+        assertThat(result.getScore().isFeasible(), is(feasibile));
+    }
+
     private ScoringResult calculateScore(Tournament t) {
         // create ksession
         StatefulKnowledgeSession ksession = kbase.newStatefulKnowledgeSession();
-        
+
         // insert all problem facts and planning entities from the solution
         for (Object o : t.getProblemFacts()) {
             ksession.insert(o);
@@ -131,48 +129,47 @@ public class ScoringRulesTest {
         for (Object o : t.getJurySeats()) {
             ksession.insert(o);
         }
-        
+
         // set global score holder
         ksession.setGlobal(SCORE_HOLDER_NAME, new HardAndSoftScoreHolder());
-        
+
         // register activation listener, ignoring the score accumulation rules
         ActivationListener activationListener = new ActivationListener();
         activationListener.ignoreRule(RULE_HARD);
         activationListener.ignoreRule(RULE_SOFT);
         activationListener.setVerbosity(ACTIVATION_LISTENER_VERBOSITY);
         ksession.addEventListener(activationListener);
-        
+
         // fire the scoring rules
         ksession.fireAllRules();
-        
+
         // return a ScoringResult that will be queried by the test
         ScoringResult scoringResult = new ScoringResult();
         scoringResult.setKnowledgeSession(ksession);
         scoringResult.setActivationListener(activationListener);
         return scoringResult;
     }
-    
+
     /**
      * Listens for rule firings and allows to query what rules were fired.
      */
     private static class ActivationListener extends DefaultAgendaEventListener {
-        
+
         public static final int VERBOSITY_RULES = 1;
         public static final int VERBOSITY_TUPLES = 2;
-        
         private int verbosity = VERBOSITY_RULES;
         private int totalFired = 0;
         private Map<String, Integer> firedRules = new LinkedHashMap<>();
         private List<String> ignoredRules = new ArrayList<>();
-        
+
         public int getTotalFireCount() {
             return totalFired;
         }
-        
+
         public int getFireCount(String ruleName) {
             return firedRules.containsKey(ruleName) ? firedRules.get(ruleName) : 0;
         }
-        
+
         public void ignoreRule(String ruleName) {
             ignoredRules.add(ruleName);
         }
@@ -181,14 +178,19 @@ public class ScoringRulesTest {
         public void afterActivationFired(AfterActivationFiredEvent event) {
             super.afterActivationFired(event);
             String ruleName = event.getActivation().getRule().getName();
-            
-            if (ignoredRules.contains(ruleName)) return; // ignore this rule
-            
+
+            if (ignoredRules.contains(ruleName)) {
+                return; // ignore this rule
+            }
             Integer count = firedRules.get(ruleName);
             firedRules.put(ruleName, count == null ? 1 : ++count);
             totalFired++;
-            if (verbosity >= VERBOSITY_RULES) log.debug("Rule fired: {} ({})", ruleName, firedRules.get(ruleName));
-            if (verbosity >= VERBOSITY_TUPLES) log.debug("Activated by tuple: {}", event.getActivation().getObjects());
+            if (verbosity >= VERBOSITY_RULES) {
+                log.debug("Rule fired: {} ({})", ruleName, firedRules.get(ruleName));
+            }
+            if (verbosity >= VERBOSITY_TUPLES) {
+                log.debug("Activated by tuple: {}", event.getActivation().getObjects());
+            }
         }
 
         public int getVerbosity() {
@@ -198,14 +200,14 @@ public class ScoringRulesTest {
         public void setVerbosity(int verbosity) {
             this.verbosity = verbosity;
         }
-        
     }
-    
+
     private static class ScoringResult {
+
         private ActivationListener activationListener;
         private StatefulKnowledgeSession ksession;
         private HardAndSoftScore score;
-        
+
         public int getTotalFireCount() {
             return activationListener.getTotalFireCount();
         }
@@ -228,6 +230,5 @@ public class ScoringRulesTest {
             score = (HardAndSoftScore) holder.extractScore();
             log.debug(score.toString());
         }
-        
     }
 }
