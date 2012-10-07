@@ -55,6 +55,16 @@ public class SolverLargeTest extends AbstractSolverTest {
         t.addDayOffs(new DayOff(jA5, r1.getDay()), new DayOff(jA5, r5.getDay()));
         t.addDayOffs(new DayOff(jN1, r1.getDay()), new DayOff(jN1, r2.getDay()));
 
+        // visualizing the numbers
+        assertThat(t.getJurors().size(), is(38));
+        assertThat(t.getJurySeats().size() / t.getRounds().size(), is(32));
+
+        assertThat(t.getDayOffsPerRound(r1), is(5));
+        assertThat(t.getDayOffsPerRound(r2), is(3));
+        assertThat(t.getDayOffsPerRound(r3), is(3));
+        assertThat(t.getDayOffsPerRound(r4), is(1));
+        assertThat(t.getDayOffsPerRound(r5), is(2));
+
         return t;
     }
 }
