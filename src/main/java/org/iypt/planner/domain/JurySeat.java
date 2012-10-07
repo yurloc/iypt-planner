@@ -12,13 +12,14 @@ import org.drools.planner.api.domain.variable.ValueRangeType;
 @PlanningEntity
 public class JurySeat {
 
-    private Jury jury; // fixed
-    private Juror juror; // planning variable
+    // fixed
+    private final boolean chair;
+    private final Jury jury;
+    // planning variable
+    private Juror juror;
 
-    public JurySeat() {
-    }
-
-    public JurySeat(Jury jury, Juror juror) {
+    public JurySeat(boolean chair, Jury jury, Juror juror) {
+        this.chair = chair;
         this.jury = jury;
         this.juror = juror;
     }
@@ -36,20 +37,20 @@ public class JurySeat {
 
     @Override
     public String toString() {
-        return String.format("[%s]-[%s]", jury, juror == null ? null : juror);
+        return String.format("[%s]-[%s]", jury, juror);
     }
-    
+
     public JurySeat clone() {
-        JurySeat clone = new JurySeat();
-        clone.jury = jury;
-        clone.juror = juror;
-        return clone;
+        return new JurySeat(chair, jury, juror);
     }
 
     //=========================================================================================================================
     // Getters & Setters
     //=========================================================================================================================
-    
+    public boolean isChair() {
+        return chair;
+    }
+
     /**
      * Get the value of jury
      *
@@ -57,15 +58,6 @@ public class JurySeat {
      */
     public Jury getJury() {
         return jury;
-    }
-
-    /**
-     * Set the value of jury
-     *
-     * @param jury new value of jury
-     */
-    public void setJury(Jury jury) {
-        this.jury = jury;
     }
 
     /**

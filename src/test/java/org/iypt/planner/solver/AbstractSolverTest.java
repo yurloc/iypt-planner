@@ -110,7 +110,9 @@ public abstract class AbstractSolverTest {
                     if (s.getJury().equals(g.getJury())) {
                         idle.remove(s.getJuror());
                         Juror juror = s.getJuror();
+                        if (s.isChair()) sb.append('[');
                         sb.append(juror == null ? "----" : juror);
+                        if (s.isChair()) sb.append(']');
                         sb.append(',');
                     }
                 }

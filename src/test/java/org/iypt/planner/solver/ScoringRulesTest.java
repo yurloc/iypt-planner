@@ -20,6 +20,7 @@ import org.drools.planner.core.score.holder.ScoreHolder;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.iypt.planner.domain.Conflict;
 import org.iypt.planner.domain.DayOff;
+import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.JurySeat;
 import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Tournament;
@@ -48,6 +49,7 @@ public class ScoringRulesTest {
     private static final String RULE_multipleSeatsInRound = "multipleSeatsInRound";
     private static final String RULE_teamAndJurorSameCountry = "teamAndJurorSameCountry";
     private static final String RULE_dayOff = "dayOff";
+    private static final String RULE_invalidChair = "invalidChair";
     private static KnowledgeBase kbase;
 
     @BeforeClass
@@ -79,10 +81,8 @@ public class ScoringRulesTest {
         t.setJuryCapacity(2);
         t.addRounds(RoundFactory.createRound(1, tA, tB, tC));
         t.addJurors(jD1);
-        for (JurySeat s : t.getJurySeats()) {
-            s.setJuror(jD1);
-        }
 
+        assignJurors(t, jD1, jD1);
         checkSolution(t, RULE_multipleSeatsInRound, 2, false);
     }
 
@@ -91,19 +91,17 @@ public class ScoringRulesTest {
         Tournament t = new Tournament();
         t.setJuryCapacity(1);
         t.addRounds(RoundFactory.createRound(1, tA, tB, tC));
-        t.addJurors(jA1);
-        t.getJurySeats().iterator().next().setJuror(jA1);
+        t.addJurors(jA1, jD1);
 
+        // simple country conflict
+        assignJurors(t, jA1);
         checkSolution(t, RULE_teamAndJurorSameCountry, 1, false);
 
         // add another juror with multiple conflicts
         t.setJuryCapacity(2);
-        Iterator<JurySeat> it = t.getJurySeats().iterator();
-        it.next().setJuror(jA1);
-        it.next().setJuror(jD1);
+        assignJurors(t, jA1, jD1);
         t.getConflicts().add(new Conflict(jD1, tB.getCountry()));
         t.getConflicts().add(new Conflict(jD1, tC.getCountry()));
-
         checkSolution(t, RULE_teamAndJurorSameCountry, 3, false);
     }
 
@@ -114,10 +112,47 @@ public class ScoringRulesTest {
         t.setJuryCapacity(1);
         t.addRounds(r1);
         t.addJurors(jD1);
-        t.getJurySeats().iterator().next().setJuror(jD1);
-        t.addDayOffs(new DayOff(jD1, r1.getDay()));
 
+        assignJurors(t, jD1);
+        t.addDayOffs(new DayOff(jD1, r1.getDay()));
         checkSolution(t, RULE_dayOff, 1, false);
+    }
+
+    @Test
+    public void testInvalidChair() {
+        Tournament t = new Tournament();
+        t.setJuryCapacity(2);
+        t.addRounds(RoundFactory.createRound(1, tA, tB, tC, tD, tE, tF));
+        t.addJurors(jA1, jA2, jD1, jD2);
+
+        // invalid chair
+        assignJurors(t, jD2, jD1);
+        checkSolution(t, RULE_invalidChair, 1, false);
+
+        // two invalid chairs
+        assignJurors(t, jD2, null, jA2);
+        checkSolution(t, RULE_invalidChair, 2, false);
+
+        // one chair seat ok, one empty -> no invalid occupation
+        assignJurors(t, jD1, null, null);
+        checkSolutionFeasible(t);
+
+        // both chair seats occupied
+        assignJurors(t, jD1, null, jA1);
+        checkSolutionFeasible(t);
+    }
+
+    private void assignJurors(Tournament t, Juror... jurors) {
+        Iterator<JurySeat> it = t.getJurySeats().iterator();
+        for (int i = 0; i < jurors.length; i++) {
+            it.next().setJuror(jurors[i]);
+        }
+    }
+
+    private void checkSolutionFeasible(Tournament t) {
+        ScoringResult result = calculateScore(t);
+        assertThat(result.getTotalFireCount(), is(0));
+        assertThat(result.getScore().isFeasible(), is(true));
     }
 
     private void checkSolution(Tournament t, String ruleFired, int fireCount, boolean feasibile) {

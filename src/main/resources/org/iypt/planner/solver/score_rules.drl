@@ -49,6 +49,18 @@ then
     ));
 end
 
+rule "invalidChair"
+when
+    $juror : Juror( !chairCandidate )
+    $seat  : JurySeat( chair, juror == $juror )
+then
+    insertLogical( new IntConstraintOccurrence(
+        drools.getRule().getName(),
+        ConstraintType.NEGATIVE_HARD, 1,
+        $seat
+    ));
+end
+
 rule "teamAndJurorSameCountry"
 when
     $seat : JurySeat( $jury : jury, $juror : juror != null )

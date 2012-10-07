@@ -103,8 +103,10 @@ public class Tournament implements Solution<HardAndSoftScore> {
 
                 // skip this when cloning, planning entities have to be deep-cloned
                 if (!cloningSolution) {
+                    boolean chair = true; // first seat in each jury is the chair seat
                     for (int i = 0; i < jury.getCapacity(); i++) {
-                        jurySeats.add(new JurySeat(jury, null));
+                        jurySeats.add(new JurySeat(chair, jury, null));
+                        chair = false;
                     }
                 }
             }
@@ -178,8 +180,10 @@ public class Tournament implements Solution<HardAndSoftScore> {
         jurySeats.clear();
         for (Jury jury : juries) {
             jury.setCapacity(capacity);
+            boolean chair = true; // first seat in each jury is the chair seat
             for (int i = 0; i < capacity; i++) {
-                jurySeats.add(new JurySeat(jury, null));
+                jurySeats.add(new JurySeat(chair, jury, null));
+                chair = false;
             }
         }
         return true;

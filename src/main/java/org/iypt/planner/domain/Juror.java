@@ -19,6 +19,15 @@ public class Juror {
         setCompactName();
     }
 
+    public Juror(String firstName, String lastName, CountryCode country, JurorType type, boolean chairCandidate) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.country = country;
+        this.type = type;
+        this.chairCandidate = chairCandidate;
+        setCompactName();
+    }
+
     public Juror(String firstName, String lastName, CountryCode country, JurorType type) {
         this.firstName = firstName;
         this.lastName = lastName;
