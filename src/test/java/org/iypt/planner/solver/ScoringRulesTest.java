@@ -1,6 +1,7 @@
 package org.iypt.planner.solver;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,7 @@ import org.drools.planner.core.score.buildin.hardandsoft.HardAndSoftScore;
 import org.drools.planner.core.score.buildin.hardandsoft.HardAndSoftScoreHolder;
 import org.drools.planner.core.score.holder.ScoreHolder;
 import org.drools.runtime.StatefulKnowledgeSession;
+import org.iypt.planner.domain.Conflict;
 import org.iypt.planner.domain.DayOff;
 import org.iypt.planner.domain.JurySeat;
 import org.iypt.planner.domain.Round;
@@ -46,7 +48,6 @@ public class ScoringRulesTest {
     private static final String RULE_multipleSeatsInRound = "multipleSeatsInRound";
     private static final String RULE_teamAndJurorSameCountry = "teamAndJurorSameCountry";
     private static final String RULE_dayOff = "dayOff";
-    private static int ACTIVATION_LISTENER_VERBOSITY = ActivationListener.VERBOSITY_RULES;
     private static KnowledgeBase kbase;
 
     @BeforeClass
@@ -91,11 +92,19 @@ public class ScoringRulesTest {
         t.setJuryCapacity(1);
         t.addRounds(RoundFactory.createRound(1, tA, tB, tC));
         t.addJurors(jA1);
-        for (JurySeat s : t.getJurySeats()) {
-            s.setJuror(jA1);
-        }
+        t.getJurySeats().iterator().next().setJuror(jA1);
 
         checkSolution(t, RULE_teamAndJurorSameCountry, 1, false);
+
+        // add another juror with multiple conflicts
+        t.setJuryCapacity(2);
+        Iterator<JurySeat> it = t.getJurySeats().iterator();
+        it.next().setJuror(jA1);
+        it.next().setJuror(jD1);
+        t.getConflicts().add(new Conflict(jD1, tB.getCountry()));
+        t.getConflicts().add(new Conflict(jD1, tC.getCountry()));
+
+        checkSolution(t, RULE_teamAndJurorSameCountry, 3, false);
     }
 
     @Test
@@ -137,7 +146,6 @@ public class ScoringRulesTest {
         ActivationListener activationListener = new ActivationListener();
         activationListener.ignoreRule(RULE_HARD);
         activationListener.ignoreRule(RULE_SOFT);
-        activationListener.setVerbosity(ACTIVATION_LISTENER_VERBOSITY);
         ksession.addEventListener(activationListener);
 
         // fire the scoring rules
@@ -155,9 +163,6 @@ public class ScoringRulesTest {
      */
     private static class ActivationListener extends DefaultAgendaEventListener {
 
-        public static final int VERBOSITY_RULES = 1;
-        public static final int VERBOSITY_TUPLES = 2;
-        private int verbosity = VERBOSITY_RULES;
         private int totalFired = 0;
         private Map<String, Integer> firedRules = new LinkedHashMap<>();
         private List<String> ignoredRules = new ArrayList<>();
@@ -185,20 +190,8 @@ public class ScoringRulesTest {
             Integer count = firedRules.get(ruleName);
             firedRules.put(ruleName, count == null ? 1 : ++count);
             totalFired++;
-            if (verbosity >= VERBOSITY_RULES) {
-                log.debug("Rule fired: {} ({})", ruleName, firedRules.get(ruleName));
-            }
-            if (verbosity >= VERBOSITY_TUPLES) {
-                log.debug("Activated by tuple: {}", event.getActivation().getObjects());
-            }
-        }
-
-        public int getVerbosity() {
-            return verbosity;
-        }
-
-        public void setVerbosity(int verbosity) {
-            this.verbosity = verbosity;
+            log.debug("Rule fired: {} ({})", ruleName, firedRules.get(ruleName));
+            log.debug("Activated by tuple: {}", event.getActivation().getObjects());
         }
     }
 

@@ -51,14 +51,15 @@ end
 
 rule "teamAndJurorSameCountry"
 when
-    $m : JurySeat( $jury : jury, $juror : juror != null )
-    $team : Team( country == $juror.country, $jury.group.teams contains this )
+    $seat : JurySeat( $jury : jury, $juror : juror != null )
+    $team : Team( $jury.group.teams contains this )
+    $conflict : Conflict( juror == $juror, country == $team.country )
     // or $jury.group.countries.contains($juror.country) ?
 then
     insertLogical( new IntConstraintOccurrence(
         drools.getRule().getName(),
         ConstraintType.NEGATIVE_HARD, 1,
-        $m, $team
+        $seat, $team, $conflict
     ));
 end
 

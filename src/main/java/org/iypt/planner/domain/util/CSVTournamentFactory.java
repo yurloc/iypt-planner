@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.iypt.planner.domain.Conflict;
 import org.iypt.planner.domain.CountryCode;
 import org.iypt.planner.domain.DayOff;
 import org.iypt.planner.domain.Group;
@@ -46,6 +47,7 @@ public class CSVTournamentFactory {
     private Map<CountryCode, Team> teams = new HashMap<>(30);
     private List<Juror> jurors = new ArrayList<>(100);
     private List<DayOff> dayOffs = new ArrayList<>(100);
+    private List<Conflict> conflicts = new ArrayList<>(100);
 
     public CSVTournamentFactory(Class<?> baseType, String team, String jury) {
         teamReader = getReader(baseType, team);
@@ -109,6 +111,8 @@ public class CSVTournamentFactory {
                 if (cc == null) {
                     throwIOE("Unknown country", line[i], teamFile, ln, i);
                 }
+                // add the team only if it's new
+                // TODO replace the Map with Set when equals is overriden
                 if (!teams.containsKey(cc)) {
                     teams.put(cc, new Team(teams.size(), cc));
                 }
@@ -139,7 +143,7 @@ public class CSVTournamentFactory {
                 throwIOE("Invalid juror type tag", line[2], juryFile, ln, 2);
             }
 
-            // get country
+            // get first country
             CountryCode cc = countryNameMap.get(line[3]);
             if (cc == null) {
                 throwIOE("Unknown country", line[3], teamFile, ln, 3);
@@ -148,6 +152,7 @@ public class CSVTournamentFactory {
             // create the juror
             Juror juror = new Juror(line[0], line[1], cc, jt);
             jurors.add(juror);
+            conflicts.add(new Conflict(juror, cc));
 
             // read country conflicts, day offs, and optional chair tag
             boolean dayOffMode = false;
@@ -164,8 +169,8 @@ public class CSVTournamentFactory {
                         // when the first day off is read, the rest of values should be all numbers (except for optional C)
                         throwIOE("Invalid day off number", line[i], juryFile, ln, i);
                     }
-                    // TODO add juror country conflict
-                    log.warn("Additional conflict '{}' ignored on line {}.", countryNameMap.get(line[i]), ln);
+                    log.debug("Juror with multiple conflicts: {} {}", countryNameMap.get(line[i]), juror.compactName());
+                    conflicts.add(new Conflict(juror, countryNameMap.get(line[i])));
                 }
             }
             ln++;
@@ -180,6 +185,7 @@ public class CSVTournamentFactory {
         t.setRounds(rounds.values());
         t.setJurors(jurors);
         t.setDayOffs(dayOffs);
+        t.setConflicts(conflicts);
         return t;
     }
 }

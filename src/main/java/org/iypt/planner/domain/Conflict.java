@@ -1,44 +1,30 @@
 package org.iypt.planner.domain;
 
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.Set;
-
 /**
  *
  * @author jlocker
  */
 public class Conflict {
-    
-    private Set<CountryCode> countries;
 
-    public Conflict(CountryCode c1, CountryCode c2) {
-        countries = EnumSet.of(c1, c2);
+    private final Juror juror;
+    private final CountryCode country;
+
+    public Conflict(Juror juror, CountryCode country) {
+        this.juror = juror;
+        this.country = country;
     }
 
-    public Conflict(CountryCode... countries) {
-        this.countries = EnumSet.of(countries[0], Arrays.copyOfRange(countries, 1, countries.length));
+    public CountryCode getCountry() {
+        return country;
     }
 
-    public boolean contains(CountryCode c1, CountryCode c2) {
-        return countries.contains(c1) && countries.contains(c2);
-    }
-    /**
-     * Get the value of countries
-     *
-     * @return the value of countries
-     */
-    public Set<CountryCode> getCountries() {
-        return countries;
+    public Juror getJuror() {
+        return juror;
     }
 
-    /**
-     * Set the value of countries
-     *
-     * @param countries new value of countries
-     */
-    public void setCountries(Set<CountryCode> countries) {
-        this.countries = countries;
+    @Override
+    public String toString() {
+        return String.format("%s(%s)", juror.compactName(), country);
     }
 
 }

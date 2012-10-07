@@ -125,7 +125,10 @@ public class Tournament implements Solution<HardAndSoftScore> {
     }
 
     public void addJurors(Juror... jurors) {
-        Collections.addAll(this.jurors, jurors);
+        for (Juror juror : jurors) {
+            this.jurors.add(juror);
+            this.conflicts.add(new Conflict(juror, juror.getCountry()));
+        }
     }
 
     public void addDayOffs(DayOff... dayOffs) {
@@ -157,8 +160,9 @@ public class Tournament implements Solution<HardAndSoftScore> {
     }
 
     /**
-     * Sets or changes jury capacity for this tournament. All juries contained in this tournament and all that will be added
+     * Sets or changes jury capacities for this tournament. All juries contained in this tournament and all that will be added
      * in future will have this capacity.
+     * <p><em>NOTE: effective change of jury capacities will clear the current seat occupations.</em></p>
      * @param capacity number of jurors in each jury
      * @return <code>true</code> if jury capacity change has affected any juries
      */
