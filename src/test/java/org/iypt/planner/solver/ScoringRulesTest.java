@@ -2,6 +2,7 @@ package org.iypt.planner.solver;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -163,7 +164,7 @@ public class ScoringRulesTest {
 
     private void checkSolutionFeasible(Tournament t) {
         ScoringResult result = calculateScore(t);
-        assertThat(result.getTotalFireCount(), is(0));
+        assertThat(result.getRuleActivations(), is(Collections.EMPTY_LIST));
         assertThat(result.getScore().isFeasible(), is(true));
     }
 
@@ -212,6 +213,7 @@ public class ScoringRulesTest {
 
         private int totalFired = 0;
         private Map<String, Integer> firedRules = new LinkedHashMap<>();
+        private List<RuleActivation> ruleActivations = new ArrayList<>();
         private List<String> ignoredRules = new ArrayList<>();
 
         public int getTotalFireCount() {
@@ -222,6 +224,10 @@ public class ScoringRulesTest {
             return firedRules.containsKey(ruleName) ? firedRules.get(ruleName) : 0;
         }
 
+        public List<RuleActivation> getRuleActivations() {
+            return ruleActivations;
+        }
+
         public void ignoreRule(String ruleName) {
             ignoredRules.add(ruleName);
         }
@@ -230,15 +236,15 @@ public class ScoringRulesTest {
         public void afterActivationFired(AfterActivationFiredEvent event) {
             super.afterActivationFired(event);
             String ruleName = event.getActivation().getRule().getName();
-
             if (ignoredRules.contains(ruleName)) {
                 return; // ignore this rule
             }
+            RuleActivation activation = new RuleActivation(ruleName, event.getActivation().getObjects());
+            ruleActivations.add(activation);
             Integer count = firedRules.get(ruleName);
             firedRules.put(ruleName, count == null ? 1 : ++count);
             totalFired++;
-            log.debug("Rule fired: {} ({})", ruleName, firedRules.get(ruleName));
-            log.debug("Activated by tuple: {}", event.getActivation().getObjects());
+            log.debug("{}", activation);
         }
     }
 
@@ -256,6 +262,10 @@ public class ScoringRulesTest {
             return activationListener.getFireCount(ruleName);
         }
 
+        public List<RuleActivation> getRuleActivations() {
+            return activationListener.getRuleActivations();
+        }
+
         public HardAndSoftScore getScore() {
             return score;
         }
@@ -269,6 +279,22 @@ public class ScoringRulesTest {
             ScoreHolder holder = (ScoreHolder) ksession.getGlobal(SCORE_HOLDER_NAME);
             score = (HardAndSoftScore) holder.extractScore();
             log.debug(score.toString());
+        }
+    }
+
+    private static class RuleActivation {
+
+        private String ruleName;
+        private List<Object> tuple;
+
+        public RuleActivation(String ruleName, List<Object> tuple) {
+            this.ruleName = ruleName;
+            this.tuple = tuple;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("[%s] activated by %s", ruleName, tuple);
         }
     }
 }
