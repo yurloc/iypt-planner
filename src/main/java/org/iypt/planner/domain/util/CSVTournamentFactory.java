@@ -41,12 +41,9 @@ public class CSVTournamentFactory {
     }
     
     private char SEPARATOR = ';';
-    private CSVReader teamReader;
-    private CSVReader juryReader;
-    private CSVReader schdReader;
-    private String teamFile;
-    private String juryFile;
-    private String schdFile;
+    private Source teamSource;
+    private Source jurySource;
+    private Source schdSource;
     private Map<Integer, Round> rounds = new HashMap<>(5);
     private Map<CountryCode, Team> teams = new HashMap<>(30);
     private Map<String, Juror> jurors = new HashMap<>(100);
@@ -54,16 +51,13 @@ public class CSVTournamentFactory {
     private List<Conflict> conflicts = new ArrayList<>(100);
 
     public CSVTournamentFactory(Class<?> baseType, String team, String jury) {
-        teamReader = getReader(baseType, team);
-        teamFile = getResourceName(team);
-        juryReader = getReader(baseType, jury);
-        juryFile = getResourceName(jury);
+        this.teamSource = new Source(getResourceName(team), getReader(baseType, team));
+        this.jurySource = new Source(getResourceName(jury), getReader(baseType, jury));
     }
 
     public CSVTournamentFactory(Class<?> baseType, String team, String jury, String schedule) {
         this(baseType, team, jury);
-        schdReader = getReader(baseType, schedule);
-        schdFile = getResourceName(schedule);
+        this.schdSource = new Source(getResourceName(schedule), getReader(baseType, schedule));
     }
 
     public CSVTournamentFactory(String team, String jury, String schedule) {
@@ -110,9 +104,9 @@ public class CSVTournamentFactory {
         return false;
     }
 
-    private void readTeams() throws IOException {
+    private void readTeams(Source src) throws IOException {
         int ln = 1; // line number
-        for (String[] line : teamReader.readAll()) {
+        for (String[] line : src.reader.readAll()) {
             if (ignore(line)) {
                 continue;
             }
@@ -122,7 +116,7 @@ public class CSVTournamentFactory {
             try {
                 roundNumber = Integer.parseInt(line[0]);
             } catch (NumberFormatException ex) {
-                throwIOE("Invalid round number", line[0], teamFile, ln, 0);
+                throwIOE("Invalid round number", line[0], src.name, ln, 0);
             }
 
             // get the round to be populated
@@ -133,7 +127,7 @@ public class CSVTournamentFactory {
 
             // create the group
             if (line.length < 2) {
-                throwIOE("Incomplete entry: missing group", teamFile, ln, 1);
+                throwIOE("Incomplete entry: missing group", src.name, ln, 1);
             }
             String groupName = getGroupName(line[1]);
             Group group = round.createGroup(groupName);
@@ -141,12 +135,12 @@ public class CSVTournamentFactory {
             // get the teams in group
             for (int i = 2; i < line.length; i++) {
                 if (i == line.length - 1 && line[i].trim().isEmpty()) {
-                    log.warn("Ignoring trailing '{}' in {}[{}:{}]", new Object[]{SEPARATOR, teamFile, ln, i});
+                    log.warn("Ignoring trailing '{}' in {}[{}:{}]", new Object[]{SEPARATOR, src.name, ln, i});
                     break;
                 }
                 CountryCode cc = countryNameMap.get(line[i]);
                 if (cc == null) {
-                    throwIOE("Unknown country", line[i], teamFile, ln, i);
+                    throwIOE("Unknown country", line[i], src.name, ln, i);
                 }
                 // add the team only if it's new
                 // TODO replace the Map with Set when equals is overriden
@@ -159,30 +153,30 @@ public class CSVTournamentFactory {
         }
     }
 
-    private void readJuries() throws IOException {
+    private void readJuries(Source src) throws IOException {
         int ln = 1; // line number
-        for (String[] line : juryReader.readAll()) {
+        for (String[] line : src.reader.readAll()) {
             if (ignore(line)) {
                 continue;
             }
 
             // check minmal number of values
             if (line.length < 4) {
-                if (line.length == 1) throwIOE("Incomplete entry: missing juror's last name", juryFile, ln, 1);
-                if (line.length == 2) throwIOE("Incomplete entry: missing juror's type tag", juryFile, ln, 2);
-                if (line.length == 3) throwIOE("Incomplete entry: missing juror's country", juryFile, ln, 3);
+                if (line.length == 1) throwIOE("Incomplete entry: missing juror's last name", src.name, ln, 1);
+                if (line.length == 2) throwIOE("Incomplete entry: missing juror's type tag", src.name, ln, 2);
+                if (line.length == 3) throwIOE("Incomplete entry: missing juror's country", src.name, ln, 3);
             }
             
             // get JurorType tag
             JurorType jt = JurorType.getByLetter(line[2].charAt(0));
             if (line[2].length() > 1 || jt == null) {
-                throwIOE("Invalid juror type tag", line[2], juryFile, ln, 2);
+                throwIOE("Invalid juror type tag", line[2], src.name, ln, 2);
             }
 
             // get first country
             CountryCode cc = countryNameMap.get(line[3]);
             if (cc == null) {
-                throwIOE("Unknown country", line[3], teamFile, ln, 3);
+                throwIOE("Unknown country", line[3], src.name, ln, 3);
             }
 
             // create the juror
@@ -198,7 +192,7 @@ public class CSVTournamentFactory {
                         juror.setChairCandidate(true);
                         break;
                     } else if(line[i].trim().isEmpty()) {
-                        log.warn("Ignoring trailing '{}' in {}[{}:{}]", new Object[]{SEPARATOR, teamFile, ln, i});
+                        log.warn("Ignoring trailing '{}' in {}[{}:{}]", new Object[]{SEPARATOR, src.name, ln, i});
                         break;
                     }
                 }
@@ -208,7 +202,7 @@ public class CSVTournamentFactory {
                 } catch (NumberFormatException ex) {
                     if (dayOffMode) {
                         // when the first day off is read, the rest of values should be all numbers (except for optional C)
-                        throwIOE("Invalid day off number", line[i], juryFile, ln, i);
+                        throwIOE("Invalid day off number", line[i], src.name, ln, i);
                     }
                     log.debug("Juror with multiple conflicts: {} {}", countryNameMap.get(line[i]), juror);
                     conflicts.add(new Conflict(juror, countryNameMap.get(line[i])));
@@ -218,11 +212,11 @@ public class CSVTournamentFactory {
         }
     }
 
-    private void readSchedule(Tournament t) throws IOException {
+    private void readSchedule(Source src, Tournament t) throws IOException {
         int ln = 1;
         boolean capacitySet = false;
 
-        for (String[] line : schdReader.readAll()) {
+        for (String[] line : src.reader.readAll()) {
             if (ignore(line)) {
                 continue;
             }
@@ -232,7 +226,7 @@ public class CSVTournamentFactory {
                 int capacity = line.length - 2;
                 if (line[line.length - 1].trim().isEmpty()) {
                     // don't break the capacity with trailing ';'
-                    log.warn("Ignoring trailing '{}' in {}[{}:{}]", new Object[]{SEPARATOR, teamFile, ln, line.length - 1});
+                    log.warn("Ignoring trailing '{}' in {}[{}:{}]", new Object[]{SEPARATOR, src.name, ln, line.length - 1});
                     capacity--;
                 }
                 log.debug("Setting jury capacity to {}.", capacity);
@@ -245,7 +239,7 @@ public class CSVTournamentFactory {
             try {
                 roundNumber = Integer.valueOf(line[0]);
             } catch (NumberFormatException ex) {
-                throwIOE("Invalid round number", line[0], schdFile, ln, 0);
+                throwIOE("Invalid round number", line[0], src.name, ln, 0);
             }
 
             // get the round instance
@@ -257,7 +251,7 @@ public class CSVTournamentFactory {
                 }
             }
             if (round == null) {
-                throwIOE("Cannot find round with number", line[0], schdFile, ln, 0);
+                throwIOE("Cannot find round with number", line[0], src.name, ln, 0);
             }
 
             // get group
@@ -269,14 +263,14 @@ public class CSVTournamentFactory {
                 }
             }
             if (jury == null) {
-                throwIOE("Cannot find group for name", line[1], schdFile, ln, 1);
+                throwIOE("Cannot find group for name", line[1], src.name, ln, 1);
             }
 
             for (int i = 0; i < jury.getCapacity(); i++) {
                 String name = line[i + 2];
                 Juror juror = jurors.get(name);
                 if (juror == null) {
-                    throwIOE("Unkown juror", name, schdFile, ln, i + 2);
+                    throwIOE("Unkown juror", name, src.name, ln, i + 2);
                 }
                 jury.getSeats().get(i).setJuror(juror);
             }
@@ -285,8 +279,8 @@ public class CSVTournamentFactory {
     }
 
     public Tournament newTournament() throws IOException {
-        readTeams();
-        readJuries();
+        readTeams(teamSource);
+        readJuries(jurySource);
 
         Tournament t = new Tournament();
         t.setRounds(rounds.values());
@@ -294,9 +288,20 @@ public class CSVTournamentFactory {
         t.setDayOffs(dayOffs);
         t.setConflicts(conflicts);
 
-        if (schdReader != null) {
-            readSchedule(t);
+        if (schdSource != null) {
+            readSchedule(schdSource, t);
         }
         return t;
+    }
+
+    private class Source {
+
+        private final String name;
+        private final CSVReader reader;
+
+        public Source(String name, CSVReader reader) {
+            this.name = name;
+            this.reader = reader;
+        }
     }
 }
