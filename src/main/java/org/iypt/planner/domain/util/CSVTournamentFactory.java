@@ -40,6 +40,7 @@ public class CSVTournamentFactory {
         countryNameMap.put("Russia", CountryCode.RU);
     }
     
+    private char SEPARATOR = ';';
     private CSVReader teamReader;
     private CSVReader juryReader;
     private CSVReader schdReader;
@@ -74,7 +75,7 @@ public class CSVTournamentFactory {
     }
 
     private CSVReader getReader(Class<?> baseType, String resource) {
-        return new CSVReader(new InputStreamReader(baseType.getResourceAsStream(resource)), ';');
+        return new CSVReader(new InputStreamReader(baseType.getResourceAsStream(resource)), SEPARATOR);
     }
 
     private String getResourceName(String resource) {
@@ -140,7 +141,7 @@ public class CSVTournamentFactory {
             // get the teams in group
             for (int i = 2; i < line.length; i++) {
                 if (i == line.length - 1 && line[i].trim().isEmpty()) {
-                    // ignore trailing ';'
+                    log.warn("Ignoring trailing '{}' in {}[{}:{}]", new Object[]{SEPARATOR, teamFile, ln, i});
                     break;
                 }
                 CountryCode cc = countryNameMap.get(line[i]);
@@ -192,9 +193,14 @@ public class CSVTournamentFactory {
             // read country conflicts, day offs, and optional chair tag
             boolean dayOffMode = false;
             for (int i = 4; i < line.length; i++) {
-                if (i == line.length - 1 && "C".equals(line[i])) {
-                    juror.setChairCandidate(true);
-                    break;
+                if (i == line.length - 1) {
+                    if ("C".equals(line[i])) {
+                        juror.setChairCandidate(true);
+                        break;
+                    } else if(line[i].trim().isEmpty()) {
+                        log.warn("Ignoring trailing '{}' in {}[{}:{}]", new Object[]{SEPARATOR, teamFile, ln, i});
+                        break;
+                    }
                 }
                 try {
                     dayOffs.add(new DayOff(juror, Integer.valueOf(line[i])));
@@ -226,6 +232,7 @@ public class CSVTournamentFactory {
                 int capacity = line.length - 2;
                 if (line[line.length - 1].trim().isEmpty()) {
                     // don't break the capacity with trailing ';'
+                    log.warn("Ignoring trailing '{}' in {}[{}:{}]", new Object[]{SEPARATOR, teamFile, ln, line.length - 1});
                     capacity--;
                 }
                 log.debug("Setting jury capacity to {}.", capacity);
