@@ -53,6 +53,7 @@ public class ScoringRulesTest {
     private static final String RULE_teamAndJurorSameCountry = "teamAndJurorSameCountry";
     private static final String RULE_dayOff = "dayOff";
     private static final String RULE_invalidChair = "invalidChair";
+    private static final String RULE_teamAndChairMeetOften = "teamAndChairMeetOften";
     private static KnowledgeBase kbase;
 
     @BeforeClass
@@ -153,6 +154,25 @@ public class ScoringRulesTest {
         // both chair seats occupied
         assignJurors(t, jD1, null, jA1);
         checkSolutionFeasible(t);
+    }
+
+    @Test
+    public void testTeamAndChairMeetOften() {
+        Tournament t = new Tournament();
+        t.setJuryCapacity(2);
+        t.addRounds(RoundFactory.createRound(1, tA, tB, tC));
+        t.addRounds(RoundFactory.createRound(2, tA, tD, tE));
+        t.addRounds(RoundFactory.createRound(3, tA, tB, tC));
+        t.addRounds(RoundFactory.createRound(4, tA, tD, tE));
+        t.addJurors(jM1, jM2, jM3, jN1);
+
+        assignJurors(t, jM1, jM2, jM1, jM2, jM1, jM2, jM1, jM3);
+        // jM2 doesn't trigger the rule because he is not a chair (not even a chair candidate)
+        checkSolution(t, RULE_teamAndChairMeetOften, 1, false);
+
+        assignJurors(t, jM1, jN1, jM1, jN1, jM1, jN1, jM1, jM3);
+        // jN1 doesn't trigger the rule because he is not a chair (even though he's a chair candidate)
+        checkSolution(t, RULE_teamAndChairMeetOften, 1, false);
     }
 
     private void assignJurors(Tournament t, Juror... jurors) {

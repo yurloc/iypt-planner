@@ -1,6 +1,8 @@
 package org.iypt.core;
     dialect "java"
 
+import java.util.Collection;
+
 import org.drools.planner.core.score.buildin.hardandsoft.HardAndSoftScoreHolder;
 import org.drools.planner.core.score.constraint.IntConstraintOccurrence;
 import org.drools.planner.core.score.constraint.ConstraintType;
@@ -85,6 +87,21 @@ then
         drools.getRule().getName(),
         ConstraintType.NEGATIVE_HARD, 1,
         $m, $dayOff
+    ));
+end
+
+rule "teamAndChairMeetOften"
+when
+    $juror : Juror()
+    $team  : Team()
+    // collection of all chair seats occupied by $juror and judging $team
+    $c     : Collection( size > 2 )
+             from collect( JurySeat( chair, juror == $juror, jury.group.teams contains $team ) )
+then
+    insertLogical( new IntConstraintOccurrence(
+        drools.getRule().getName(),
+        ConstraintType.NEGATIVE_HARD, 1,
+        $team, $c, $juror
     ));
 end
 
