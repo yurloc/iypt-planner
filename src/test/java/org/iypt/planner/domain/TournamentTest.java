@@ -76,7 +76,7 @@ public class TournamentTest {
                 is(t.getRounds().size()
                 + t.getGroups().size()
                 + t.getTeams().size()
-                + t.getJuries().size()));
+                + t.getJuries().size() + 1));
 
         assertFalse(t.isFeasibleSolutionPossible());
         assertThat(t.getDayOffsPerRound(r1), is(0));
@@ -114,7 +114,7 @@ public class TournamentTest {
                 + t.getJuries().size()
                 + t.getJurors().size()
                 + t.getDayOffs().size()
-                + t.getConflicts().size()));
+                + t.getConflicts().size() + 1));
 
         t.getDayOffs().clear();
         assertTrue(t.isFeasibleSolutionPossible());
@@ -130,6 +130,44 @@ public class TournamentTest {
         assertThat(t.getTeams(), hasItems(tA, tB, tC, tD, tE, tF));
         assertThat(t.getJuries().size(), is(t.getGroups().size()));
         assertThat(t.getJurySeats().size(), is(newCapacity * t.getJuries().size()));
+    }
+
+    @Test
+    public void testJurorLoad() {
+        //TODO add test
+        fail("Add some tests.");
+    }
+
+    @Test
+    public void testOptimalLoad() {
+        Tournament t = new Tournament();
+        assertEquals(0.0, t.getStatistics().getOptimalLoad(), Double.MIN_VALUE);
+
+        Round r1 = new Round(1, 1);
+        r1.createGroup("A").addTeams(tA, tB, tC);
+        r1.createGroup("B").addTeams(tD, tE, tF);
+        assertEquals(0.0, t.getStatistics().getOptimalLoad(), Double.MIN_VALUE);
+
+        t.setJuryCapacity(2);
+        t.addJurors(jA1, jA2, jA3, jA4);
+        assertEquals(0.0, t.getStatistics().getOptimalLoad(), Double.MIN_VALUE);
+        t.addRounds(r1);
+        assertEquals(1.0, t.getStatistics().getOptimalLoad(), Double.MIN_VALUE);
+
+        t.addJurors(jA5, jA6, jB1, jB2, jB3);
+        assertEquals(4.0 / 9, t.getStatistics().getOptimalLoad(), Double.MIN_VALUE);
+
+        t.setJuryCapacity(3);
+        assertEquals(6.0 / 9, t.getStatistics().getOptimalLoad(), Double.MIN_VALUE);
+
+        Round r2 = new Round(2, 2);
+        r2.createGroup("A").addTeams(tA, tB, tC);
+        r2.createGroup("B").addTeams(tD, tE, tF);
+        t.addRounds(r2);
+        assertEquals(6.0 / 9, t.getStatistics().getOptimalLoad(), Double.MIN_VALUE);
+
+        t.addDayOffs(new DayOff(jA1, 1), new DayOff(jA2, 1));
+        assertEquals(12.0 / (18 - 2), t.getStatistics().getOptimalLoad(), Double.MIN_VALUE);
     }
 
     @Test

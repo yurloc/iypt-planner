@@ -137,6 +137,11 @@ public abstract class AbstractSolverTest {
             }
             sb.replace(sb.length() - 1, sb.length(), "\n");
         }
+        int md = tournament.getJurors().size() * tournament.getRounds().size() - tournament.getDayOffs().size();
+        sb.append('\n');
+        sb.append("Total jury seats:    ").append(tournament.getJurySeats().size()).append('\n');
+        sb.append("Total juror mandays: ").append(md).append('\n');
+        sb.append(String.format("Optimal jury load: %.4f%n", tournament.getStatistics().getOptimalLoad()));
         return sb.toString();
     }
     

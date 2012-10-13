@@ -28,6 +28,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
     private Collection<Conflict> conflicts;
 
     private int juryCapacity = -1;
+    private Statistics stats;
 
     public Tournament() {
         rounds = new LinkedHashSet<>();
@@ -38,6 +39,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
         jurySeats = new LinkedHashSet<>();
         dayOffs = new LinkedHashSet<>();
         conflicts = new LinkedHashSet<>();
+        stats = new Statistics();
     }
 
     @Override
@@ -60,6 +62,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
         facts.addAll(jurors);
         facts.addAll(dayOffs);
         facts.addAll(conflicts);
+        facts.add(stats);
         // All planning entities are automatically inserted into the Drools working memory
         // using @PlanningEntityCollectionProperty
         return facts;
@@ -73,6 +76,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
         clone.jurors = jurors;
         clone.dayOffs = dayOffs;
         clone.conflicts = conflicts;
+        clone.stats = stats;
 
         // deep-clone the planning entity
         for (JurySeat seat : jurySeats) {
@@ -113,6 +117,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
                 }
             }
         }
+        stats.calculateOptimalLoad();
     }
 
     public void addRounds(Round... rounds) {
@@ -133,10 +138,12 @@ public class Tournament implements Solution<HardAndSoftScore> {
             this.jurors.add(juror);
             this.conflicts.add(new Conflict(juror, juror.getCountry()));
         }
+        stats.calculateOptimalLoad();
     }
 
     public void addDayOffs(DayOff... dayOffs) {
         Collections.addAll(this.dayOffs, dayOffs);
+        stats.calculateOptimalLoad();
     }
 
     public int getDayOffsPerRound(Round r) {
@@ -190,6 +197,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
                 chair = false;
             }
         }
+        stats.calculateOptimalLoad();
         return true;
     }
 
@@ -215,6 +223,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
 
     public void setJurors(Collection<Juror> jurors) {
         this.jurors = jurors;
+        stats.calculateOptimalLoad();
     }
 
     public Collection<Group> getGroups() {
@@ -231,6 +240,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
 
     public void setDayOffs(Collection<DayOff> dayOffs) {
         this.dayOffs = dayOffs;
+        stats.calculateOptimalLoad();
     }
 
     public Collection<Conflict> getConflicts() {
@@ -239,5 +249,28 @@ public class Tournament implements Solution<HardAndSoftScore> {
 
     public void setConflicts(Collection<Conflict> conflicts) {
         this.conflicts = conflicts;
+    }
+
+    public Statistics getStatistics() {
+        return stats;
+    }
+
+    public class Statistics {
+
+        private double optimalLoad = 0.0;
+
+        private void calculateOptimalLoad() {
+            if (jurors.size() > 0 && rounds.size() > 0 && dayOffs.size() != jurors.size() * rounds.size()) {
+                optimalLoad = ((double) jurySeats.size()) / (jurors.size() * rounds.size() - dayOffs.size());
+            }
+        }
+
+        public double getOptimalLoad() {
+            return optimalLoad;
+        }
+
+        public int getRounds() {
+            return rounds.size();
+        }
     }
 }
