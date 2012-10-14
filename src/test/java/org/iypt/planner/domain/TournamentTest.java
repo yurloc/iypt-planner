@@ -4,6 +4,7 @@ import java.util.Collection;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.*;
+import static org.iypt.planner.domain.JurorLoad.INFINITE_LOAD_VALUE;
 import static org.iypt.planner.domain.util.SampleFacts.*;
 import static org.junit.Assert.*;
 import static org.junit.matchers.JUnitMatchers.*;
@@ -134,8 +135,23 @@ public class TournamentTest {
 
     @Test
     public void testJurorLoad() {
-        //TODO add test
-        fail("Add some tests.");
+        testLoad(new JurorLoad(jA1, 0, 5, 0, .77), .00, -.77, true);
+        testLoad(new JurorLoad(jA1, 0, 5, 1, .77), .00, -.77, true);
+        testLoad(new JurorLoad(jA1, 0, 5, 2, .77), .00, -.77, true);
+        testLoad(new JurorLoad(jA1, 0, 5, 3, .77), .00, -.77, true);
+        testLoad(new JurorLoad(jA1, 0, 5, 4, .77), .00, -.77, false);
+        testLoad(new JurorLoad(jA1, 0, 5, 5, .77), .00, -.77, false);
+
+        testLoad(new JurorLoad(jA1, 1, 5, 0, .77), .20, -.57, true);
+        testLoad(new JurorLoad(jA1, 1, 5, 1, .77), .25, -.52, true);
+        testLoad(new JurorLoad(jA1, 1, 5, 2, .77), .33, -.44, true);
+        testLoad(new JurorLoad(jA1, 1, 5, 3, .77), .50, -.27, false);
+        testLoad(new JurorLoad(jA1, 1, 5, 4, .77), 1.0, +.23, false);
+        testLoad(new JurorLoad(jA1, 1, 5, 5, .77), INFINITE_LOAD_VALUE, INFINITE_LOAD_VALUE - .77, true);
+
+        testLoad(new JurorLoad(jA1, 4, 5, 0, .77), .80, +.03, false);
+        testLoad(new JurorLoad(jA1, 4, 5, 1, .77), 1.0, +.23, false);
+        testLoad(new JurorLoad(jA1, 4, 5, 2, .77), 1.33, +.56, true);
     }
 
     @Test
@@ -240,4 +256,9 @@ public class TournamentTest {
         assertThat(t.getJurySeats().removeAll(clone.getJurySeats()), is(false));
     }
 
+    private void testLoad(JurorLoad load, double value, double delta, boolean excessive) {
+        assertEquals(load.toString(), value, load.getLoad(), .005);
+        assertEquals(load.toString(), delta, load.getDelta(), .005);
+        assertThat(load.toString(), load.isExcessive(), is(excessive));
+    }
 }

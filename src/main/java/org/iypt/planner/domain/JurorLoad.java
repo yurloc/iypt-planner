@@ -6,16 +6,32 @@ package org.iypt.planner.domain;
  */
 public class JurorLoad {
 
+    public static final double INFINITE_LOAD_VALUE = 2.0;
     private Juror juror;
     private double load;
     private double delta;
     private boolean excessive;
 
     public JurorLoad(Juror juror, Number seats, int rounds, Number dayOffs, double optimal) {
+        this(juror, seats.intValue(), rounds, dayOffs.intValue(), optimal);
+    }
+
+    public JurorLoad(Juror juror, int seats, int rounds, int dayOffs, double optimal) {
         this.juror = juror;
-        load = ((double) seats.intValue()) / (rounds - dayOffs.intValue());
+        double allowed = 0;
+        if (rounds == dayOffs) {
+            // avoid division by zero
+            if (seats == 0) {
+                load = 0;
+                allowed = optimal; // will be never excessive
+            } else {
+                load = INFINITE_LOAD_VALUE;
+            }
+        } else {
+            load = ((double) seats) / (rounds - dayOffs);
+            allowed = 1.0 / (rounds - dayOffs);
+        }
         delta = load - optimal;
-        double allowed = 1.0 / (rounds - dayOffs.intValue());
         excessive = Math.abs(delta) > allowed;
     }
 
