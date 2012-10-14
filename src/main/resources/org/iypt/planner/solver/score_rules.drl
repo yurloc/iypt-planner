@@ -168,6 +168,22 @@ then
     ));
 end
 
+rule "jurorAndJurorConflict"
+when
+    // two occupied seats in the same jury
+    $s1 : JurySeat( $jury : jury, $j1 : juror != null )
+    $s2 : JurySeat( jury == $jury, $j2 : juror != null, this != $s1 )
+    // two conflicts of $j1 and $j2 with the same country
+    $c1 : Conflict( juror == $j1, $country : country )
+    $c2 : Conflict( juror == $j2, country == $country )
+then
+    insertLogical( new IntConstraintOccurrence(
+        drools.getRule().getName(),
+        ConstraintType.NEGATIVE_SOFT, 10,
+        $s1, $s2, $country
+    ));
+end
+
 // ############################################################################
 // Calculate score
 // ############################################################################

@@ -82,7 +82,8 @@ public class ScoringRulesTest {
         log.debug("Optimal load for IYPT2012: {}", t.getStatistics().getOptimalLoad());
         checkSolution(t, true, true,
                 new RuleFiring(ScoringRule.loadDeltaExceeded, 18),
-                new RuleFiring(ScoringRule.teamAndJurorAlreadyMet, 110));
+                new RuleFiring(ScoringRule.teamAndJurorAlreadyMet, 110),
+                new RuleFiring(ScoringRule.jurorAndJurorConflict, 16));
     }
 
     @Test
@@ -216,6 +217,23 @@ public class ScoringRulesTest {
         assignJurors(t, jI1, jM2, jJ1, jM2, jK1, jM2, jL1, jM2, jM1, jM2);
         checkSolution(t, true, ScoringRule.loadDeltaExceeded, 3);
         // TODO add dayOffs
+    }
+
+    @Test
+    public void testJurorAndJurorConflict() {
+        Tournament t = new Tournament();
+        t.setJuryCapacity(3);
+        t.addRounds(RoundFactory.createRound(1, tA, tB, tC, tD, tE, tF));
+        t.addJurors(jK1, jL1, jM1, jM2, jM3, jN1, jN2, jN3, jN4);
+
+        assignJurors(t, jM1, jN1, jM2);
+        checkSolution(t, true, ScoringRule.jurorAndJurorConflict, 2);
+        assignJurors(t, jL1, jM2, jN4, jN1, jN2, jN3);
+        checkSolution(t, true, ScoringRule.jurorAndJurorConflict, 6);
+        assignJurors(t, jL1, jM2, jN4, jN1, jM3, jK1);
+        t.getConflicts().add(new Conflict(jK1, jL1.getCountry()));
+        t.getConflicts().add(new Conflict(jN1, jM3.getCountry()));
+        checkSolution(t, true, ScoringRule.jurorAndJurorConflict, 2); // only jN1-jM3
     }
 
     private void assignJurors(Tournament t, Juror... jurors) {
@@ -405,7 +423,8 @@ public class ScoringRulesTest {
         teamAndChairMeetTwice(false),
         teamAndJurorAlreadyMet(false),
         calculateJurorLoads(false),
-        loadDeltaExceeded(false);
+        loadDeltaExceeded(false),
+        jurorAndJurorConflict(false);
         private boolean hard;
 
         private ScoringRule(boolean hard) {
