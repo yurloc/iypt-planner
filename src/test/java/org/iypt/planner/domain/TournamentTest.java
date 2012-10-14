@@ -227,7 +227,9 @@ public class TournamentTest {
 
         t.addJurors(jA1, jB1, jC1);
         t.addDayOffs(new DayOff(jA1, 1), new DayOff(jB1, 2));
-        // TODO add conflicts
+
+        t.getConflicts().add(new Conflict(jA1, tF.getCountry()));
+        t.getConflicts().add(new Conflict(jB1, tE.getCountry()));
         testClone(t);
     }
 
@@ -242,6 +244,7 @@ public class TournamentTest {
         assertThat(clone.getJurors(), is(t.getJurors()));
         assertThat(clone.getDayOffs(), is(t.getDayOffs()));
         assertThat(clone.getConflicts(), is(t.getConflicts()));
+        assertThat(clone.getStatistics(), is(t.getStatistics()));
 
         // check getProblemFacts
         @SuppressWarnings("unchecked")
@@ -252,7 +255,7 @@ public class TournamentTest {
 
         // same number of planning entities
         assertThat(clone.getJurySeats().size(), is(t.getJurySeats().size()));
-        // no entities in common
+        // no entities in common (verify planning entities are deep cloned)
         assertThat(t.getJurySeats().removeAll(clone.getJurySeats()), is(false));
     }
 
