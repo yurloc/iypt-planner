@@ -21,6 +21,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * This CSV processor ignores whitespace-only (empty) lines and trailing separators if the last value is whitespace-only
+ * (warning is logged).
+ *
+ * <p>NOTE: According to <a href="http://tools.ietf.org/html/rfc4180">RFC 4180</a> trailing commas are not allowed,
+ * whitespace is part of the entry.</p>
  *
  * @author jlocker
  */
