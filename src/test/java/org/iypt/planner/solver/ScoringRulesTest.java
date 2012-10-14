@@ -204,6 +204,20 @@ public class ScoringRulesTest {
     }
 
     @Test
+    public void testTeamAndJurorAlreadyMet() {
+        Tournament t = new Tournament();
+        t.setJuryCapacity(2);
+        t.addRounds(RoundFactory.createRound(1, tA, tB, tC, tD, tE, tF));
+        t.addRounds(RoundFactory.createRound(2, tA, tE, tF, tB, tC, tD));
+        t.addJurors(jJ1, jK1, jL1, jM1, jM2, jM3);
+
+        ignoredRules.remove(ScoringRule.teamAndJurorAlreadyMet);
+
+        assignJurors(t, jJ1, jM2, jK1, jM3, jL1, jM3, jM1, jM2);
+        checkSolution(t, ScoringRule.teamAndJurorAlreadyMet, 4, true);
+    }
+
+    @Test
     public void testJurorBalance() {
         ignoredRules.remove(ScoringRule.loadDeltaExceeded);
         Tournament t = new Tournament();
@@ -379,6 +393,7 @@ public class ScoringRulesTest {
         invalidChair(true),
         teamAndChairMeetOften(true),
         teamAndChairMeetTwice(false),
+        teamAndJurorAlreadyMet(false),
         calculateJurorLoads(false),
         loadDeltaExceeded(false);
         private boolean hard;

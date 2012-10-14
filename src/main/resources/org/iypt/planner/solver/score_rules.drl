@@ -95,7 +95,7 @@ end
 
 rule "teamAndChairMeetOften"
 when
-    $juror : Juror()
+    $juror : Juror( chairCandidate )
     $team  : Team()
     // collection of all chair seats occupied by $juror and judging $team
     $c     : Collection( size > 2 )
@@ -110,7 +110,7 @@ end
 
 rule "teamAndChairMeetTwice"
 when
-    $juror : Juror()
+    $juror : Juror( chairCandidate )
     $team  : Team()
     // collection of all chair seats occupied by $juror and judging $team
     $c     : Collection( size == 2 )
@@ -150,6 +150,21 @@ then
         drools.getRule().getName(),
         ConstraintType.NEGATIVE_SOFT, new Double(abs($load.getDelta() * 100 + 0.5)).intValue(),
         $load
+    ));
+end
+
+rule "teamAndJurorAlreadyMet"
+when
+    $juror : Juror()
+    $team  : Team()
+    // collection of all seats occupied by $juror and judging $team
+    $seats : Collection( size > 1 )
+             from collect( JurySeat( juror == $juror, jury.group.teams contains $team ) )
+then
+    insertLogical( new IntConstraintOccurrence(
+        drools.getRule().getName(),
+        ConstraintType.NEGATIVE_SOFT, Math.pow($seats.size(), 2),
+        $team, $seats, $juror
     ));
 end
 
