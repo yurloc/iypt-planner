@@ -28,7 +28,6 @@ import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Tournament;
 import org.iypt.planner.domain.util.CSVTournamentFactory;
 import org.iypt.planner.domain.util.RoundFactory;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -49,7 +48,6 @@ public class ScoringRulesTest {
     private static final String SCORE_DRL = "org/iypt/planner/solver/score_rules.drl";
     private static final String SCORE_HOLDER_NAME = "scoreHolder";
     private static KnowledgeBase kbase;
-    private List<ScoringRule> ignoredRules;
 
     @BeforeClass
     public static void setUpClass() {
@@ -74,16 +72,6 @@ public class ScoringRulesTest {
         }
     }
 
-    @Before
-    public void resetIgnoredRules() {
-        ignoredRules = new ArrayList<>();
-        for (ScoringRule rule : ScoringRule.values()) {
-            if (!rule.hard) {
-                ignoredRules.add(rule);
-            }
-        }
-    }
-
     @Test
     public void testIYPT2012() throws IOException {
         String path = "/org/iypt/planner/csv/";
@@ -91,14 +79,10 @@ public class ScoringRulesTest {
                 path + "team_data.csv", path + "jury_data.csv", path + "schedule2012.csv");
         Tournament t = factory.newTournament();
 
-        // watch all constraint rules
-        ignoredRules.clear();
-        ignoredRules.add(ScoringRule.hardConstraintsBroken);
-        ignoredRules.add(ScoringRule.softConstraintsBroken);
-        ignoredRules.add(ScoringRule.calculateJurorLoads);
-
         log.debug("Optimal load for IYPT2012: {}", t.getStatistics().getOptimalLoad());
-        checkSolution(t, ScoringRule.loadDeltaExceeded, 18, true);
+        checkSolution(t, true, true,
+                new RuleFiring(ScoringRule.loadDeltaExceeded, 18),
+                new RuleFiring(ScoringRule.teamAndJurorAlreadyMet, 110));
     }
 
     @Test
@@ -109,7 +93,7 @@ public class ScoringRulesTest {
         t.addJurors(jD1);
 
         assignJurors(t, jD1, jD1);
-        checkSolution(t, ScoringRule.multipleSeatsInRound, 2, false);
+        checkSolution(t, false, ScoringRule.multipleSeatsInRound, 2);
     }
 
     @Test
@@ -121,14 +105,14 @@ public class ScoringRulesTest {
 
         // simple country conflict
         assignJurors(t, jA1);
-        checkSolution(t, ScoringRule.teamAndJurorSameCountry, 1, false);
+        checkSolution(t, false, ScoringRule.teamAndJurorSameCountry, 1);
 
         // add another juror with multiple conflicts
         t.setJuryCapacity(2);
         assignJurors(t, jA1, jD1);
         t.getConflicts().add(new Conflict(jD1, tB.getCountry()));
         t.getConflicts().add(new Conflict(jD1, tC.getCountry()));
-        checkSolution(t, ScoringRule.teamAndJurorSameCountry, 3, false);
+        checkSolution(t, false, ScoringRule.teamAndJurorSameCountry, 3);
     }
 
     @Test
@@ -141,7 +125,7 @@ public class ScoringRulesTest {
 
         assignJurors(t, jD1);
         t.addDayOffs(new DayOff(jD1, r1.getDay()));
-        checkSolution(t, ScoringRule.dayOff, 1, false);
+        checkSolution(t, false, ScoringRule.dayOff, 1);
     }
 
     @Test
@@ -153,11 +137,11 @@ public class ScoringRulesTest {
 
         // invalid chair
         assignJurors(t, jD2, jD1);
-        checkSolution(t, ScoringRule.invalidChair, 1, false);
+        checkSolution(t, false, ScoringRule.invalidChair, 1);
 
         // two invalid chairs
         assignJurors(t, jD2, null, jA2);
-        checkSolution(t, ScoringRule.invalidChair, 2, false);
+        checkSolution(t, false, ScoringRule.invalidChair, 2);
 
         // one chair seat ok, one empty -> no invalid occupation
         assignJurors(t, jD1, null, null);
@@ -180,11 +164,11 @@ public class ScoringRulesTest {
 
         assignJurors(t, jM1, jM2, jM1, jM2, jM1, jM2, jM1, jM3);
         // jM2 doesn't trigger the rule because he is not a chair (not even a chair candidate)
-        checkSolution(t, ScoringRule.teamAndChairMeetOften, 1, false);
+        checkSolution(t, false, ScoringRule.teamAndChairMeetOften, 1);
 
         assignJurors(t, jM1, jN1, jM1, jN1, jM1, jN1, jM1, jM3);
         // jN1 doesn't trigger the rule because he is not a chair (even though he's a chair candidate)
-        checkSolution(t, ScoringRule.teamAndChairMeetOften, 1, false);
+        checkSolution(t, false, ScoringRule.teamAndChairMeetOften, 1);
     }
 
     @Test
@@ -197,10 +181,8 @@ public class ScoringRulesTest {
         t.addRounds(RoundFactory.createRound(4, tA, tC, tD));
         t.addJurors(jM1, jM2, jM3, jN1);
 
-        ignoredRules.remove(ScoringRule.teamAndChairMeetTwice);
-
         assignJurors(t, jM1, jM2, jM1, jM2, jN1, jM3, jN1, jM3);
-        checkSolution(t, ScoringRule.teamAndChairMeetTwice, 2, true);
+        checkSolution(t, true, ScoringRule.teamAndChairMeetTwice, 2);
     }
 
     @Test
@@ -211,15 +193,12 @@ public class ScoringRulesTest {
         t.addRounds(RoundFactory.createRound(2, tA, tE, tF, tB, tC, tD));
         t.addJurors(jJ1, jK1, jL1, jM1, jM2, jM3);
 
-        ignoredRules.remove(ScoringRule.teamAndJurorAlreadyMet);
-
         assignJurors(t, jJ1, jM2, jK1, jM3, jL1, jM3, jM1, jM2);
-        checkSolution(t, ScoringRule.teamAndJurorAlreadyMet, 4, true);
+        checkSolution(t, true, ScoringRule.teamAndJurorAlreadyMet, 4);
     }
 
     @Test
     public void testJurorBalance() {
-        ignoredRules.remove(ScoringRule.loadDeltaExceeded);
         Tournament t = new Tournament();
         t.setJuryCapacity(2);
         t.addRounds(RoundFactory.createRound(1, tA, tB, tC));
@@ -235,7 +214,7 @@ public class ScoringRulesTest {
 
         // jM2 is overloaded, jM3 and jM4 are unused
         assignJurors(t, jI1, jM2, jJ1, jM2, jK1, jM2, jL1, jM2, jM1, jM2);
-        checkSolution(t, ScoringRule.loadDeltaExceeded, 3, true);
+        checkSolution(t, true, ScoringRule.loadDeltaExceeded, 3);
         // TODO add dayOffs
     }
 
@@ -247,19 +226,28 @@ public class ScoringRulesTest {
     }
 
     private void checkSolutionFeasible(Tournament t) {
-        ScoringResult result = calculateScore(t);
+        ScoringResult result = calculateScore(t, createActivationListener(false));
         assertThat(result.getRuleActivations(), is(Collections.EMPTY_LIST));
         assertThat(result.getScore().isFeasible(), is(true));
     }
 
-    private void checkSolution(Tournament t, ScoringRule ruleFired, int fireCount, boolean feasibile) {
-        ScoringResult result = calculateScore(t);
-        assertThat(result.getFireCount(ruleFired.toString()), is(fireCount));
-        assertThat(result.getTotalFireCount(), is(fireCount));
+    private void checkSolution(Tournament t, boolean feasibile, ScoringRule ruleFired, int fireCount) {
+        checkSolution(t, feasibile, false, new RuleFiring(ruleFired, fireCount));
+    }
+
+    private void checkSolution(Tournament t, boolean feasibile, boolean strict, RuleFiring... firings) {
+        ScoringResult result = calculateScore(t, createActivationListener(strict, firings));
+
+        int total = 0;
+        for (RuleFiring firing : firings) {
+            assertThat(result.getFireCount(firing.rule.toString()), is(firing.count));
+            total += firing.count;
+        }
+        assertThat(result.getTotalFireCount(), is(total));
         assertThat(result.getScore().isFeasible(), is(feasibile));
     }
 
-    private ScoringResult calculateScore(Tournament t) {
+    private ScoringResult calculateScore(Tournament t, ActivationListener activationListener) {
         // create ksession
         StatefulKnowledgeSession ksession = kbase.newStatefulKnowledgeSession();
 
@@ -275,10 +263,6 @@ public class ScoringRulesTest {
         ksession.setGlobal(SCORE_HOLDER_NAME, new HardAndSoftScoreHolder());
 
         // register activation listener, ignoring the score accumulation rules
-        ActivationListener activationListener = new ActivationListener();
-        for (ScoringRule rule : ignoredRules) {
-            activationListener.ignoreRule(rule.toString());
-        }
         ksession.addEventListener(activationListener);
 
         // fire the scoring rules
@@ -289,6 +273,28 @@ public class ScoringRulesTest {
         scoringResult.setKnowledgeSession(ksession);
         scoringResult.setActivationListener(activationListener);
         return scoringResult;
+    }
+
+    private ActivationListener createActivationListener(boolean strict, RuleFiring... firings) {
+        ActivationListener activationListener = new ActivationListener();
+        if (strict) {
+            // if strict, only ignore non-constraint rules
+            activationListener.ignoreRule(ScoringRule.hardConstraintsBroken.toString());
+            activationListener.ignoreRule(ScoringRule.softConstraintsBroken.toString());
+            activationListener.ignoreRule(ScoringRule.calculateJurorLoads.toString());
+        } else {
+            // if not strict, listen for hard constraint rules only
+            for (ScoringRule rule : ScoringRule.values()) {
+                if (!rule.hard) {
+                    activationListener.ignoreRule(rule.toString());
+                }
+            }
+        }
+        // however, don't ignore the tested rules
+        for (RuleFiring firing : firings) {
+            activationListener.unignoreRule(firing.rule.toString());
+        }
+        return activationListener;
     }
 
     /**
@@ -315,6 +321,10 @@ public class ScoringRulesTest {
 
         public void ignoreRule(String ruleName) {
             ignoredRules.add(ruleName);
+        }
+
+        public void unignoreRule(String ruleName) {
+            ignoredRules.remove(ruleName);
         }
 
         @Override
@@ -400,6 +410,16 @@ public class ScoringRulesTest {
 
         private ScoringRule(boolean hard) {
             this.hard = hard;
+        }
+    }
+
+    private class RuleFiring {
+        private ScoringRule rule;
+        private int count;
+
+        public RuleFiring(ScoringRule rule, int count) {
+            this.rule = rule;
+            this.count = count;
         }
     }
 }
