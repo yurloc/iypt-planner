@@ -91,7 +91,12 @@ public class ScoringRulesTest {
                 path + "team_data.csv", path + "jury_data.csv", path + "schedule2012.csv");
         Tournament t = factory.newTournament();
 
-        ignoredRules.remove(ScoringRule.loadDeltaExceeded);
+        // watch all constraint rules
+        ignoredRules.clear();
+        ignoredRules.add(ScoringRule.hardConstraintsBroken);
+        ignoredRules.add(ScoringRule.softConstraintsBroken);
+        ignoredRules.add(ScoringRule.calculateJurorLoads);
+
         log.debug("Optimal load for IYPT2012: {}", t.getStatistics().getOptimalLoad());
         checkSolution(t, ScoringRule.loadDeltaExceeded, 18, true);
     }
@@ -180,6 +185,22 @@ public class ScoringRulesTest {
         assignJurors(t, jM1, jN1, jM1, jN1, jM1, jN1, jM1, jM3);
         // jN1 doesn't trigger the rule because he is not a chair (even though he's a chair candidate)
         checkSolution(t, ScoringRule.teamAndChairMeetOften, 1, false);
+    }
+
+    @Test
+    public void testTeamAndChairMeetTwice() {
+        Tournament t = new Tournament();
+        t.setJuryCapacity(2);
+        t.addRounds(RoundFactory.createRound(1, tA, tB, tD));
+        t.addRounds(RoundFactory.createRound(2, tA, tC, tE));
+        t.addRounds(RoundFactory.createRound(3, tA, tB, tE));
+        t.addRounds(RoundFactory.createRound(4, tA, tC, tD));
+        t.addJurors(jM1, jM2, jM3, jN1);
+
+        ignoredRules.remove(ScoringRule.teamAndChairMeetTwice);
+
+        assignJurors(t, jM1, jM2, jM1, jM2, jN1, jM3, jN1, jM3);
+        checkSolution(t, ScoringRule.teamAndChairMeetTwice, 2, true);
     }
 
     @Test
@@ -357,6 +378,7 @@ public class ScoringRulesTest {
         dayOff(true),
         invalidChair(true),
         teamAndChairMeetOften(true),
+        teamAndChairMeetTwice(false),
         calculateJurorLoads(false),
         loadDeltaExceeded(false);
         private boolean hard;

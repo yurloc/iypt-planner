@@ -41,13 +41,14 @@ public class SolverMinimalTest extends AbstractSolverTest {
         t.addJurors(jA1, jA2, jA3, jA4, jA5, jA6);
         t.addJurors(jB1, jB2, jB3, jB4);
         t.addJurors(jC1, jC2, jC3, jC4);
-        t.addJurors(jD1, jD2, jE1, jE2, jF1, jF2, jG1);
+        t.addJurors(jD1, jD2, jE1, jE2, jF1, jF2, jG1, jH1, jI1);
 
         t.addDayOffs(new DayOff(jE1, r1.getDay()), new DayOff(jE1, r3.getDay()));
-        
+        t.addDayOffs(new DayOff(jH1, r2.getDay()), new DayOff(jI1, r2.getDay()));
+
         // just visualizing the numbers
         assertThat(t.getJurySeats().size() / t.getRounds().size(), is(18));
-        assertThat(t.getJurors().size(), is(21));
+        assertThat(t.getJurors().size(), is(23));
 
         return t;
     }

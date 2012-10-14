@@ -108,6 +108,21 @@ then
     ));
 end
 
+rule "teamAndChairMeetTwice"
+when
+    $juror : Juror()
+    $team  : Team()
+    // collection of all chair seats occupied by $juror and judging $team
+    $c     : Collection( size == 2 )
+             from collect( JurySeat( chair, juror == $juror, jury.group.teams contains $team ) )
+then
+    insertLogical( new IntConstraintOccurrence(
+        drools.getRule().getName(),
+        ConstraintType.NEGATIVE_SOFT, 200,
+        $team, $c, $juror
+    ));
+end
+
 // ############################################################################
 // Soft constraints
 // ############################################################################
