@@ -22,8 +22,8 @@
   <localSearch>
     <termination>
       <terminationCompositionStyle>OR</terminationCompositionStyle>
-      <maximumSecondsSpend>10</maximumSecondsSpend>
-      <!--<maximumStepCount>1000</maximumStepCount>-->
+      <maximumSecondsSpend>60</maximumSecondsSpend>
+      <maximumUnimprovedStepCount>1000</maximumUnimprovedStepCount>
       <scoreAttained>0hard/0soft</scoreAttained>
     </termination>
     <selector>
