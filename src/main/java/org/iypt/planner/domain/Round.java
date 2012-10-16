@@ -12,6 +12,15 @@ public class Round {
     private int number;
     private int day;
     private Set<Group> groups;
+    private double iCount = 0;
+
+    void setOptimalIndependentCount(double optimalCount) {
+        iCount = optimalCount;
+    }
+
+    public double getOptimalIndependentCount() {
+        return iCount;
+    }
 
     public Round(int number, int day) {
         this.number = number;

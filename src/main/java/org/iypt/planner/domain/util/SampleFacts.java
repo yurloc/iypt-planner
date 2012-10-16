@@ -7,6 +7,7 @@ import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Team;
 
 import static org.iypt.planner.domain.JurorType.INDEPENDENT;
+import static org.iypt.planner.domain.JurorType.TEAM_LEADER;
 
 /**
  *
@@ -77,6 +78,11 @@ public class SampleFacts {
     public static final Juror jG1 = new Juror(null, "1", CountryCode.GB, INDEPENDENT, true);
     public static final Juror jH1 = new Juror(null, "1", CountryCode.HU, INDEPENDENT, true);
     public static final Juror jI1 = new Juror(null, "1", CountryCode.IT, INDEPENDENT, true);
+    public static final Juror jI2 = new Juror(null, "2", CountryCode.IT, INDEPENDENT);
+    public static final Juror jI3 = new Juror(null, "3", CountryCode.IT, INDEPENDENT);
+    public static final Juror jI4 = new Juror(null, "4", CountryCode.IT, INDEPENDENT);
+    public static final Juror jI5 = new Juror(null, "5", CountryCode.IT, INDEPENDENT);
+    public static final Juror jI6 = new Juror(null, "6", CountryCode.IT, INDEPENDENT);
     public static final Juror jJ1 = new Juror(null, "1", CountryCode.JP, INDEPENDENT, true);
     public static final Juror jK1 = new Juror(null, "1", CountryCode.KR, INDEPENDENT, true);
     public static final Juror jL1 = new Juror(null, "1", CountryCode.LV, INDEPENDENT, true);
@@ -92,6 +98,12 @@ public class SampleFacts {
     public static final Juror jN4 = new Juror(null, "4", CountryCode.NL, INDEPENDENT);
     public static final Juror jN5 = new Juror(null, "5", CountryCode.NL, INDEPENDENT);
     public static final Juror jN6 = new Juror(null, "6", CountryCode.NL, INDEPENDENT);
+    public static final Juror jT1 = new Juror(null, "1", CountryCode.TL, TEAM_LEADER, true);
+    public static final Juror jT2 = new Juror(null, "2", CountryCode.TL, TEAM_LEADER);
+    public static final Juror jT3 = new Juror(null, "3", CountryCode.TL, TEAM_LEADER);
+    public static final Juror jT4 = new Juror(null, "4", CountryCode.TL, TEAM_LEADER);
+    public static final Juror jT5 = new Juror(null, "5", CountryCode.TL, TEAM_LEADER);
+    public static final Juror jT6 = new Juror(null, "6", CountryCode.TL, TEAM_LEADER);
     public static final Juror jY1 = new Juror(null, "1", CountryCode.YE, INDEPENDENT, true);
     public static final Juror jZ1 = new Juror(null, "1", CountryCode.ZA, INDEPENDENT, true);
     

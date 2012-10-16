@@ -117,7 +117,7 @@ public class TournamentTest {
                 + t.getDayOffs().size()
                 + t.getConflicts().size() + 1));
 
-        t.getDayOffs().clear();
+        t.clearDayOffs();
         assertTrue(t.isFeasibleSolutionPossible());
 
         // add one more round
@@ -184,6 +184,53 @@ public class TournamentTest {
 
         t.addDayOffs(new DayOff(jA1, 1), new DayOff(jA2, 1));
         assertEquals(12.0 / (18 - 2), t.getStatistics().getOptimalLoad(), Double.MIN_VALUE);
+    }
+
+    @Test
+    public void testIndependentRatio() {
+        Round round = new Round(1, 1);
+        Jury jury = new Jury();
+        jury.setGroup(round.createGroup("A"));
+
+        round.setOptimalIndependentCount(3.3);
+        assertThat(new IndependentRatio(jury, 0).getDelta(), is(-3));
+        assertThat(new IndependentRatio(jury, 3).getDelta(), is(0));
+        assertThat(new IndependentRatio(jury, 4).getDelta(), is(0));
+        assertThat(new IndependentRatio(jury, 5).getDelta(), is(1));
+
+        round.setOptimalIndependentCount(3.0);
+        assertThat(new IndependentRatio(jury, 2).getDelta(), is(-1));
+        assertThat(new IndependentRatio(jury, 3).getDelta(), is(0));
+        assertThat(new IndependentRatio(jury, 4).getDelta(), is(1));
+    }
+
+    @Test
+    public void testOptimalIndependentCount() {
+        Round r1 = new Round(1, 1);
+        r1.createGroup("A").addTeams(tA, tB, tC);
+        Round r2 = new Round(2, 2);
+        r2.createGroup("A").addTeams(tA, tB, tC);
+
+        Tournament t = new Tournament();
+        t.addRounds(r1, r2);
+        assertEquals(0, r1.getOptimalIndependentCount(), Double.MIN_VALUE);
+        assertEquals(0, r2.getOptimalIndependentCount(), Double.MIN_VALUE);
+
+        t.addJurors(jI1, jI2, jT1, jT2);
+        assertEquals(Jury.DEFAULT_CAPACITY * 0.5, r1.getOptimalIndependentCount(), Double.MIN_VALUE);
+        assertEquals(Jury.DEFAULT_CAPACITY * 0.5, r2.getOptimalIndependentCount(), Double.MIN_VALUE);
+
+        t.setJuryCapacity(2);
+        assertEquals(1, r1.getOptimalIndependentCount(), Double.MIN_VALUE);
+        assertEquals(1, r2.getOptimalIndependentCount(), Double.MIN_VALUE);
+
+        t.setJuryCapacity(3);
+        assertEquals(1.5, r1.getOptimalIndependentCount(), Double.MIN_VALUE);
+        assertEquals(1.5, r2.getOptimalIndependentCount(), Double.MIN_VALUE);
+
+        t.addDayOffs(new DayOff(jI1, r1.getDay()), new DayOff(jT2, r2.getDay()));
+        assertEquals(1, r1.getOptimalIndependentCount(), Double.MIN_VALUE);
+        assertEquals(2, r2.getOptimalIndependentCount(), Double.MIN_VALUE);
     }
 
     @Test

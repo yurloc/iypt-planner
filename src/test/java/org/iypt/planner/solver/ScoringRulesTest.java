@@ -83,7 +83,8 @@ public class ScoringRulesTest {
         checkSolution(t, true, true,
                 new RuleFiring(ScoringRule.loadDeltaExceeded, 18),
                 new RuleFiring(ScoringRule.teamAndJurorAlreadyMet, 110),
-                new RuleFiring(ScoringRule.jurorAndJurorConflict, 16));
+                new RuleFiring(ScoringRule.jurorAndJurorConflict, 16),
+                new RuleFiring(ScoringRule.independentRatioDeltaExceeded, 2));
     }
 
     @Test
@@ -236,6 +237,37 @@ public class ScoringRulesTest {
         checkSolution(t, true, ScoringRule.jurorAndJurorConflict, 2); // only jN1-jM3
     }
 
+    @Test
+    public void testIndependentBalance() {
+        Tournament t = new Tournament();
+        t.setJuryCapacity(4);
+        Round r1 = RoundFactory.createRound(1, tA, tB, tC);
+        t.addRounds(r1);
+        // 0.6 independent jurors
+        t.addJurors(jI1, jI2, jI3, jI4, jI5, jI6, jT1, jT2, jT3, jT4);
+        assertEquals(2.4, r1.getOptimalIndependentCount(), Double.MIN_VALUE);
+        assignJurors(t, jI1, jT2, jI3, jT4);
+        checkSolution(t, true, ScoringRule.independentRatioDeltaExceeded, 0);
+        assignJurors(t, jI1, jI2, jI3, jT4);
+        checkSolution(t, true, ScoringRule.independentRatioDeltaExceeded, 0);
+        assignJurors(t, jI1, jI2, jI3, jI4);
+        checkSolution(t, true, ScoringRule.independentRatioDeltaExceeded, 1);
+        assignJurors(t, jT1, jT2, jT3, jT4);
+        checkSolution(t, true, ScoringRule.independentRatioDeltaExceeded, 1);
+
+        // two rounds and dayOffs
+        Round r2 = RoundFactory.createRound(2, tC, tB, tA);
+        t.addRounds(r2);
+        t.addDayOffs(new DayOff(jT1, r1.getDay()));
+        t.addDayOffs(new DayOff(jI1, r2.getDay()), new DayOff(jI2, r2.getDay()), new DayOff(jI3, r2.getDay()));
+        assertEquals(2.7, r1.getOptimalIndependentCount(), .05);
+        assertEquals(1.7, r2.getOptimalIndependentCount(), .05);
+        assignJurors(t, jI1, jI2, jI3, jT4, jT1, jT2, jT3, jI4);
+        checkSolution(t, true, ScoringRule.independentRatioDeltaExceeded, 0);
+        assignJurors(t, jI1, jI2, jI3, jI4, jT1, jT2, jT3, jT4);
+        checkSolution(t, true, ScoringRule.independentRatioDeltaExceeded, 2);
+    }
+
     private void assignJurors(Tournament t, Juror... jurors) {
         Iterator<JurySeat> it = t.getJurySeats().iterator();
         for (int i = 0; i < jurors.length; i++) {
@@ -300,6 +332,7 @@ public class ScoringRulesTest {
             activationListener.ignoreRule(ScoringRule.hardConstraintsBroken.toString());
             activationListener.ignoreRule(ScoringRule.softConstraintsBroken.toString());
             activationListener.ignoreRule(ScoringRule.calculateJurorLoads.toString());
+            activationListener.ignoreRule(ScoringRule.calculateIndependentRatio.toString());
         } else {
             // if not strict, listen for hard constraint rules only
             for (ScoringRule rule : ScoringRule.values()) {
@@ -424,7 +457,9 @@ public class ScoringRulesTest {
         teamAndJurorAlreadyMet(false),
         calculateJurorLoads(false),
         loadDeltaExceeded(false),
-        jurorAndJurorConflict(false);
+        jurorAndJurorConflict(false),
+        calculateIndependentRatio(false),
+        independentRatioDeltaExceeded(false);
         private boolean hard;
 
         private ScoringRule(boolean hard) {
