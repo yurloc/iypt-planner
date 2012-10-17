@@ -12,6 +12,7 @@ public class Juror {
     private final CountryCode country;
     private final JurorType type;
     private boolean chairCandidate = false;
+    private double bias = 0;
 
     public Juror(CountryCode country, JurorType type) {
         this.country = country;
@@ -92,6 +93,14 @@ public class Juror {
 
     public void setChairCandidate(boolean chairCandidate) {
         this.chairCandidate = chairCandidate;
+    }
+
+    public double getBias() {
+        return bias;
+    }
+
+    public void setBias(double bias) {
+        this.bias = bias;
     }
 
 }

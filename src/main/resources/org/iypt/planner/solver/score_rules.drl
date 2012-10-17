@@ -206,6 +206,19 @@ then
     ));
 end
 
+rule "accumulatedBias"
+when
+    $jury : Jury()
+    accumulate( JurySeat( jury == $jury, $juror : juror != null );
+                $bias : sum( $juror.getBias() ) )
+then
+    insertLogical( new IntConstraintOccurrence(
+        drools.getRule().getName(),
+        ConstraintType.NEGATIVE_SOFT, (int) abs($bias.doubleValue() * 10),
+        $jury, $bias
+    ));
+end
+
 // ############################################################################
 // Calculate score
 // ############################################################################

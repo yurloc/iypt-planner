@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import org.drools.planner.api.domain.solution.PlanningEntityCollectionProperty;
 import org.drools.planner.core.score.buildin.hardandsoft.HardAndSoftScore;
 import org.drools.planner.core.solution.Solution;
@@ -32,6 +33,8 @@ public class Tournament implements Solution<HardAndSoftScore> {
     private int juryCapacity = Jury.DEFAULT_CAPACITY;
     private Statistics stats;
     private Map<Integer, List<DayOff>> dayOffsMap;
+    // TODO remove this when bias data is available
+    private Random random = new Random(0);
 
     public Tournament() {
         rounds = new LinkedHashSet<>();
@@ -169,8 +172,21 @@ public class Tournament implements Solution<HardAndSoftScore> {
         addRounds(rounds, false);
     }
 
+    public void setJurors(Collection<Juror> jurors) {
+        this.jurors.clear();
+        addJurors(jurors);
+    }
+
     public void addJurors(Juror... jurors) {
+        addJurors(Arrays.asList(jurors));
+    }
+
+    public void addJurors(Collection<Juror> jurors) {
         for (Juror juror : jurors) {
+            // TODO remove this when bias data is available
+            if (juror.getBias() == 0) {
+                juror.setBias(random.nextDouble() * 2 - 1);
+            }
             this.jurors.add(juror);
             this.conflicts.add(new Conflict(juror, juror.getCountry()));
         }
@@ -273,12 +289,6 @@ public class Tournament implements Solution<HardAndSoftScore> {
 
     public Collection<Juror> getJurors() {
         return jurors;
-    }
-
-    public void setJurors(Collection<Juror> jurors) {
-        this.jurors = jurors;
-        stats.calculateOptimalLoad();
-        calculateIratio();
     }
 
     public Collection<Group> getGroups() {

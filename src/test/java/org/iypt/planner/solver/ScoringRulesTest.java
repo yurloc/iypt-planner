@@ -84,7 +84,8 @@ public class ScoringRulesTest {
                 new RuleFiring(ScoringRule.loadDeltaExceeded, 18),
                 new RuleFiring(ScoringRule.teamAndJurorAlreadyMet, 110),
                 new RuleFiring(ScoringRule.jurorAndJurorConflict, 16),
-                new RuleFiring(ScoringRule.independentRatioDeltaExceeded, 2));
+                new RuleFiring(ScoringRule.independentRatioDeltaExceeded, 2),
+                new RuleFiring(ScoringRule.accumulatedBias, 45));
     }
 
     @Test
@@ -267,6 +268,8 @@ public class ScoringRulesTest {
         assignJurors(t, jI1, jI2, jI3, jI4, jT1, jT2, jT3, jT4);
         checkSolution(t, true, ScoringRule.independentRatioDeltaExceeded, 2);
     }
+
+    // TODO maybe add test for accumulatedBias rule
 
     private void assignJurors(Tournament t, Juror... jurors) {
         Iterator<JurySeat> it = t.getJurySeats().iterator();
@@ -459,7 +462,8 @@ public class ScoringRulesTest {
         loadDeltaExceeded(false),
         jurorAndJurorConflict(false),
         calculateIndependentRatio(false),
-        independentRatioDeltaExceeded(false);
+        independentRatioDeltaExceeded(false),
+        accumulatedBias(false);
         private boolean hard;
 
         private ScoringRule(boolean hard) {
