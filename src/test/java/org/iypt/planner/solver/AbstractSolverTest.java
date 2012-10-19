@@ -1,6 +1,7 @@
 package org.iypt.planner.solver;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.drools.ClassObjectFilter;
@@ -22,6 +23,7 @@ import org.iypt.planner.domain.JurySeat;
 import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Team;
 import org.iypt.planner.domain.Tournament;
+import org.iypt.planner.solver.util.ConstraintComparator;
 import org.junit.Assert;
 import org.junit.Before;
 import org.slf4j.Logger;
@@ -80,6 +82,7 @@ public abstract class AbstractSolverTest {
         solver.solve();
         solved = (Tournament) solver.getBestSolution();
         constraintList = getConstraintList(solver, solved);
+        Collections.sort(constraintList, new ConstraintComparator());
 
         // Display the result
         log.info("Solved Tournament:\n{}", toDisplayString(solved));
