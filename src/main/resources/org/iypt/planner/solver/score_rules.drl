@@ -22,6 +22,7 @@ import org.iypt.planner.domain.Team;
 import org.iypt.planner.domain.Tournament;
 import org.iypt.planner.domain.Tournament.Statistics;
 import static java.lang.Math.abs;
+import static java.lang.Math.round;
 
 global HardAndSoftScoreHolder scoreHolder;
 
@@ -214,7 +215,7 @@ when
 then
     insertLogical( new IntConstraintOccurrence(
         drools.getRule().getName(),
-        ConstraintType.NEGATIVE_SOFT, (int) abs($bias.doubleValue() * 10),
+        ConstraintType.NEGATIVE_SOFT, round(abs($bias.floatValue() * 10)),
         $jury, $bias
     ));
 end
