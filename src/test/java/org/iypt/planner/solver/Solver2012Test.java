@@ -1,7 +1,6 @@
 package org.iypt.planner.solver;
 
 import java.io.IOException;
-import java.util.Collections;
 import org.drools.planner.config.termination.TerminationConfig;
 import org.iypt.planner.domain.Tournament;
 import org.iypt.planner.domain.util.CSVTournamentFactory;
@@ -29,7 +28,7 @@ public class Solver2012Test extends AbstractSolverTest {
 
     @Test
     public void test() {
-        assertThat(getConstraintList(), is(Collections.EMPTY_LIST));
+        assertThat(getBestSolution().getScore().getHardScore(), is(0));
     }
 
     @Override

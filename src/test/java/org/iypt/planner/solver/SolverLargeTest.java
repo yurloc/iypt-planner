@@ -1,6 +1,5 @@
 package org.iypt.planner.solver;
 
-import java.util.Collections;
 import org.drools.planner.config.termination.TerminationConfig;
 import org.iypt.planner.domain.DayOff;
 import org.iypt.planner.domain.Round;
@@ -20,7 +19,7 @@ public class SolverLargeTest extends AbstractSolverTest {
 
     @Test
     public void test() {
-        assertThat(getConstraintList(), is(Collections.EMPTY_LIST));
+        assertThat(getBestSolution().getScore().getHardScore(), is(0));
     }
 
     @Override

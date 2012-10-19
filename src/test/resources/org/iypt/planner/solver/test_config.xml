@@ -23,8 +23,8 @@
     <termination>
       <terminationCompositionStyle>OR</terminationCompositionStyle>
       <maximumSecondsSpend>60</maximumSecondsSpend>
-      <maximumUnimprovedStepCount>1000</maximumUnimprovedStepCount>
-      <scoreAttained>0hard/0soft</scoreAttained>
+      <!--<maximumUnimprovedStepCount>200</maximumUnimprovedStepCount>-->
+      <scoreAttained>0hard/-10000soft</scoreAttained>
     </termination>
     <selector>
       <selector>
