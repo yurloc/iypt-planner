@@ -15,6 +15,9 @@ import static org.junit.matchers.JUnitMatchers.*;
  */
 public class TournamentTest {
 
+    // Statistics, WeightConfig
+    private static final int EXTRA_FACTS = 2;
+
     @Test
     public void testRound() {
         // createGroup
@@ -77,7 +80,7 @@ public class TournamentTest {
                 is(t.getRounds().size()
                 + t.getGroups().size()
                 + t.getTeams().size()
-                + t.getJuries().size() + 1));
+                + t.getJuries().size() + EXTRA_FACTS));
 
         assertFalse(t.isFeasibleSolutionPossible());
         assertThat(t.getDayOffsPerRound(r1), is(0));
@@ -115,7 +118,7 @@ public class TournamentTest {
                 + t.getJuries().size()
                 + t.getJurors().size()
                 + t.getDayOffs().size()
-                + t.getConflicts().size() + 1));
+                + t.getConflicts().size() + EXTRA_FACTS));
 
         t.clearDayOffs();
         assertTrue(t.isFeasibleSolutionPossible());

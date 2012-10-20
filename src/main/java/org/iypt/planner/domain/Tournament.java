@@ -11,6 +11,8 @@ import java.util.Random;
 import org.drools.planner.api.domain.solution.PlanningEntityCollectionProperty;
 import org.drools.planner.core.score.buildin.hardandsoft.HardAndSoftScore;
 import org.drools.planner.core.solution.Solution;
+import org.iypt.planner.solver.DefaultWeightConfig;
+import org.iypt.planner.solver.WeightConfig;
 
 /**
  *
@@ -35,8 +37,10 @@ public class Tournament implements Solution<HardAndSoftScore> {
     private Map<Integer, List<DayOff>> dayOffsMap;
     // TODO remove this when bias data is available
     private Random random = new Random(0);
+    private WeightConfig config = new DefaultWeightConfig();
 
     public Tournament() {
+        // TODO move this out of default constructor
         rounds = new LinkedHashSet<>();
         teams = new LinkedHashSet<>();
         groups = new LinkedHashSet<>();
@@ -70,6 +74,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
         facts.addAll(dayOffs);
         facts.addAll(conflicts);
         facts.add(stats);
+        facts.add(config);
         // All planning entities are automatically inserted into the Drools working memory
         // using @PlanningEntityCollectionProperty
         return facts;
@@ -85,6 +90,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
         clone.dayOffsMap = dayOffsMap;
         clone.conflicts = conflicts;
         clone.stats = stats;
+        clone.config = config;
 
         // deep-clone the planning entity
         for (JurySeat seat : jurySeats) {
@@ -318,6 +324,14 @@ public class Tournament implements Solution<HardAndSoftScore> {
 
     public Statistics getStatistics() {
         return stats;
+    }
+
+    public WeightConfig getWeightConfig() {
+        return config;
+    }
+
+    public void setWeightConfig(WeightConfig config) {
+        this.config = config;
     }
 
     public class Statistics {

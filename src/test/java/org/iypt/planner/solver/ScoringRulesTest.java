@@ -48,6 +48,7 @@ public class ScoringRulesTest {
     private static final String SCORE_DRL = "org/iypt/planner/solver/score_rules.drl";
     private static final String SCORE_HOLDER_NAME = "scoreHolder";
     private static KnowledgeBase kbase;
+    private static WeightConfig wconfig;
 
     @BeforeClass
     public static void setUpClass() {
@@ -70,6 +71,14 @@ public class ScoringRulesTest {
         for (ScoringRule rule : ScoringRule.values()) {
             assertThat(ruleNames, hasItem(rule.toString()));
         }
+
+        wconfig = new WeightConfig() {
+
+            @Override
+            public int getWeight(String ruleId) {
+                return ScoringRule.valueOf(ruleId).weight;
+            }
+        };
     }
 
     @Test
@@ -78,6 +87,7 @@ public class ScoringRulesTest {
         CSVTournamentFactory factory = new CSVTournamentFactory(
                 path + "team_data.csv", path + "jury_data.csv", path + "schedule2012.csv");
         Tournament t = factory.newTournament();
+        t.setWeightConfig(wconfig);
 
         log.debug("Optimal load for IYPT2012: {}", t.getStatistics().getOptimalLoad());
         checkSolution(t, true, true,
@@ -456,18 +466,24 @@ public class ScoringRulesTest {
         dayOff(true),
         invalidChair(true),
         teamAndChairMeetOften(true),
-        teamAndChairMeetTwice(false),
-        teamAndJurorAlreadyMet(false),
+        teamAndChairMeetTwice(false, 200),
+        teamAndJurorAlreadyMet(false, 1),
         calculateJurorLoads(false),
-        loadDeltaExceeded(false),
-        jurorAndJurorConflict(false),
+        loadDeltaExceeded(false, 100),
+        jurorAndJurorConflict(false, 10),
         calculateIndependentRatio(false),
-        independentRatioDeltaExceeded(false),
-        accumulatedBias(false);
+        independentRatioDeltaExceeded(false, 1),
+        accumulatedBias(false, 10);
         private boolean hard;
+        private int weight = 1;
 
         private ScoringRule(boolean hard) {
             this.hard = hard;
+        }
+
+        private ScoringRule(boolean hard, int weight) {
+            this.hard = hard;
+            this.weight = weight;
         }
     }
 

@@ -21,6 +21,7 @@ import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Team;
 import org.iypt.planner.domain.Tournament;
 import org.iypt.planner.domain.Tournament.Statistics;
+import org.iypt.planner.solver.WeightConfig;
 import static java.lang.Math.abs;
 import static java.lang.Math.round;
 
@@ -39,7 +40,7 @@ when
 then
     insertLogical( new IntConstraintOccurrence(
         drools.getRule().getName(),
-        ConstraintType.NEGATIVE_HARD, 10,
+        ConstraintType.NEGATIVE_HARD, 1,
         $juror, $s1, $s2
     ));
 end
@@ -113,6 +114,7 @@ end
 
 rule "teamAndChairMeetTwice"
 when
+    $wc : WeightConfig()
     $juror : Juror( chairCandidate )
     $team  : Team()
     // collection of all chair seats occupied by $juror and judging $team
@@ -121,7 +123,7 @@ when
 then
     insertLogical( new IntConstraintOccurrence(
         drools.getRule().getName(),
-        ConstraintType.NEGATIVE_SOFT, 200,
+        ConstraintType.NEGATIVE_SOFT, $wc.getWeight(drools.getRule().getName()),
         $team, $c, $juror
     ));
 end
@@ -147,17 +149,19 @@ end
 rule "loadDeltaExceeded"
 enabled true
 when
+    $wc : WeightConfig()
     $load : JurorLoad( excessive )
 then
     insertLogical( new IntConstraintOccurrence(
         drools.getRule().getName(),
-        ConstraintType.NEGATIVE_SOFT, Double.valueOf(abs($load.getDelta() * 100 + 0.5)).intValue(),
+        ConstraintType.NEGATIVE_SOFT, Double.valueOf(abs($load.getDelta() * $wc.getWeight(drools.getRule().getName()) + 0.5)).intValue(),
         $load
     ));
 end
 
 rule "teamAndJurorAlreadyMet"
 when
+    $wc : WeightConfig()
     $juror : Juror()
     $team  : Team()
     // collection of all seats occupied by $juror and judging $team
@@ -166,13 +170,14 @@ when
 then
     insertLogical( new IntConstraintOccurrence(
         drools.getRule().getName(),
-        ConstraintType.NEGATIVE_SOFT, $seats.size() * $seats.size(),
+        ConstraintType.NEGATIVE_SOFT, $seats.size() * $seats.size() * $wc.getWeight(drools.getRule().getName()),
         $team, $seats, $juror
     ));
 end
 
 rule "jurorAndJurorConflict"
 when
+    $wc : WeightConfig()
     // two occupied seats in the same jury
     $s1 : JurySeat( $jury : jury, $j1 : juror != null )
     $s2 : JurySeat( jury == $jury, $j2 : juror != null, this != $s1 )
@@ -182,7 +187,7 @@ when
 then
     insertLogical( new IntConstraintOccurrence(
         drools.getRule().getName(),
-        ConstraintType.NEGATIVE_SOFT, 10,
+        ConstraintType.NEGATIVE_SOFT, $wc.getWeight(drools.getRule().getName()),
         $s1, $s2, $country
     ));
 end
@@ -198,24 +203,26 @@ end
 
 rule "independentRatioDeltaExceeded"
 when
+    $wc : WeightConfig()
     $i : IndependentRatio( delta != 0 )
 then
     insertLogical( new IntConstraintOccurrence(
         drools.getRule().getName(),
-        ConstraintType.NEGATIVE_SOFT, $i.getDelta() * $i.getDelta(),
+        ConstraintType.NEGATIVE_SOFT, $i.getDelta() * $i.getDelta() * $wc.getWeight(drools.getRule().getName()),
         $i
     ));
 end
 
 rule "accumulatedBias"
 when
+    $wc : WeightConfig()
     $jury : Jury()
     accumulate( JurySeat( jury == $jury, $juror : juror != null );
                 $bias : sum( $juror.getBias() ) )
 then
     insertLogical( new IntConstraintOccurrence(
         drools.getRule().getName(),
-        ConstraintType.NEGATIVE_SOFT, round(abs($bias.floatValue() * 10)),
+        ConstraintType.NEGATIVE_SOFT, round(abs($bias.floatValue() * $wc.getWeight(drools.getRule().getName()))),
         $jury, $bias
     ));
 end
