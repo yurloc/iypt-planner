@@ -14,6 +14,7 @@ public class DefaultWeightConfig implements WeightConfig {
     }
     private final Map<String, Integer> weights;
 
+    @Override
     public void setWeight(String ruleId, int weight) {
         weights.put(ruleId, weight);
     }

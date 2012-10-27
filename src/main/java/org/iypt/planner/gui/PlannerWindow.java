@@ -13,15 +13,19 @@ import org.apache.pivot.util.Resources;
 import org.apache.pivot.util.concurrent.Task;
 import org.apache.pivot.util.concurrent.TaskExecutionException;
 import org.apache.pivot.util.concurrent.TaskListener;
-import org.apache.pivot.wtk.Alert;
 import org.apache.pivot.wtk.Button;
 import org.apache.pivot.wtk.ButtonPressListener;
 import org.apache.pivot.wtk.Label;
-import org.apache.pivot.wtk.MessageType;
 import org.apache.pivot.wtk.PushButton;
 import org.apache.pivot.wtk.TablePane;
 import org.apache.pivot.wtk.TaskAdapter;
 import org.apache.pivot.wtk.Window;
+import org.drools.KnowledgeBase;
+import org.drools.builder.KnowledgeBuilder;
+import org.drools.builder.KnowledgeBuilderFactory;
+import org.drools.builder.ResourceType;
+import org.drools.definition.KnowledgePackage;
+import org.drools.io.ResourceFactory;
 import org.drools.planner.config.SolverFactory;
 import org.drools.planner.config.XmlSolverFactory;
 import org.drools.planner.core.Solver;
@@ -29,23 +33,28 @@ import org.drools.planner.core.event.BestSolutionChangedEvent;
 import org.drools.planner.core.event.SolverEventListener;
 import org.drools.planner.core.phase.event.SolverPhaseLifecycleListenerAdapter;
 import org.drools.planner.core.phase.step.AbstractStepScope;
-import org.iypt.planner.domain.DayOff;
 import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Tournament;
 import org.iypt.planner.domain.util.CSVTournamentFactory;
-import org.iypt.planner.domain.util.RoundFactory;
+import org.iypt.planner.solver.DefaultWeightConfig;
 
-import static org.iypt.planner.domain.util.SampleFacts.*;
 /**
  *
  * @author jlocker
  */
 public class PlannerWindow extends Window implements Bindable {
 
-    private Label scoreLabel;
-    private PushButton nextButton;
-    private PushButton terminateButton;
+    // constraints config tab controls
+    @BXML private Label drlLabel;
+    @BXML private ConstraintsConfig constraintConfig;
+
+    // planning tab controls
+    @BXML private Label scoreLabel;
+    @BXML private PushButton nextButton;
+    @BXML private PushButton terminateButton;
     @BXML private TablePane roundHolder;
+
+    // other
     private Tournament tournament;
     private SolverTask solverTask;
     private List<RoundView> roundViews = new ArrayList<>();
@@ -53,11 +62,7 @@ public class PlannerWindow extends Window implements Bindable {
 
     @Override
     public void initialize(Map<String, Object> namespace, URL location, Resources resources) {
-        scoreLabel = (Label) namespace.get("scoreLabel");
-        nextButton = (PushButton) namespace.get("nextButton");
-        terminateButton = (PushButton) namespace.get("terminateButton");
         try {
-            //        tournament = getInitialSolution();
             tournament = getInitialSolutionFromCSV();
             updateRounds();
         } catch (IOException ex) {
@@ -65,7 +70,8 @@ public class PlannerWindow extends Window implements Bindable {
             ex.printStackTrace();
         }
 
-        updateRounds();
+        final Solver solver = newSolver();
+        tournament.setWeightConfig(constraintConfig.getWeightConfig());
 
         terminateButton.setEnabled(false);
 
@@ -75,7 +81,7 @@ public class PlannerWindow extends Window implements Bindable {
 //                Alert.alert(MessageType.INFO, "You clicked me!", PlannerWindow.this);
                 button.setEnabled(false);
                 terminateButton.setEnabled(true);
-                solverTask = new SolverTask(newSolver(), tournament);
+                solverTask = new SolverTask(solver, tournament);
                 TaskListener<String> taskListener = new TaskListener<String>() {
                     @Override
                     public void taskExecuted(Task<String> task) {
@@ -139,23 +145,6 @@ public class PlannerWindow extends Window implements Bindable {
         return t;
     }
 
-    private Tournament getInitialSolution() {
-        Round r1 = RoundFactory.createRound(1, gABC, gDEF, gGHI);
-        Round r2 = RoundFactory.createRound(2, gADG, gBEH, gCFI);
-        Round r3 = RoundFactory.createRound(3, gAFH, gBDI, gCEG);
-        Tournament t = new Tournament();
-        t.setJuryCapacity(6);
-        t.addRounds(r1, r2, r3);
-
-        t.addJurors(jA1, jA2, jA3, jA4, jA5, jA6);
-        t.addJurors(jB1, jB2, jB3, jB4);
-        t.addJurors(jC1, jC2, jC3, jC4);
-        t.addJurors(jD1, jD2, jE1, jF1, jG1);
-        t.addDayOffs(new DayOff(jE1, r1.getDay()), new DayOff(jE1, r3.getDay()));
-
-        return t;
-    }
-
     private void updateRounds() {
         if (roundHolder.getRows().getLength() > 0)
         roundHolder.getRows().remove(0, roundHolder.getRows().getLength());
@@ -171,6 +160,18 @@ public class PlannerWindow extends Window implements Bindable {
 
     private Solver newSolver() {
         SolverFactory solverFactory = new XmlSolverFactory("/org/iypt/planner/solver/config.xml");
+        drlLabel.setText(solverFactory.getSolverConfig().getScoreDirectorFactoryConfig().getScoreDrlList().get(0));
+        KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+//        kbuilder.add(ResourceFactory.newClassPathResource(drlLabel.getText()), ResourceType.DRL);
+        kbuilder.add(ResourceFactory.newClassPathResource("org/iypt/planner/solver/score_rules.drl"), ResourceType.DRL);
+        KnowledgeBase kbase = kbuilder.newKnowledgeBase();
+
+        KnowledgePackage pkg = kbase.getKnowledgePackages().iterator().next();
+
+        constraintConfig.setWconfig(new DefaultWeightConfig());
+        constraintConfig.addConstraintsFromRules(pkg.getRules());
+
+        // build a solver
         Solver solver = solverFactory.buildSolver();
         solver.addEventListener(new SolverListener());
         return solver;

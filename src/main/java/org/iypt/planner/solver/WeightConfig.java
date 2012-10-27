@@ -7,4 +7,5 @@ package org.iypt.planner.solver;
 public interface WeightConfig {
 
     int getWeight(String ruleId);
+    void setWeight(String ruleId, int weight);
 }

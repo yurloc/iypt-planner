@@ -73,10 +73,14 @@ public class ScoringRulesTest {
         }
 
         wconfig = new WeightConfig() {
-
             @Override
             public int getWeight(String ruleId) {
                 return ScoringRule.valueOf(ruleId).weight;
+            }
+
+            @Override
+            public void setWeight(String ruleId, int weight) {
+                // do nothing
             }
         };
     }

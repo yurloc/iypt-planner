@@ -1,55 +1,66 @@
 <iypt:PlannerWindow title="IYPT.org Jury Planner" maximized="true"
-                        xmlns:bxml="http://pivot.apache.org/bxml"
-                        xmlns:iypt="org.iypt.planner.gui"
-                        xmlns="org.apache.pivot.wtk">
-  <Border styles="{padding:10}">
-  <TablePane>
-    <columns>
-      <TablePane.Column width="-1"/>
-    </columns>
-    <TablePane.Row height="-1">
-      <BoxPane>
-        <PushButton bxml:id="nextButton" buttonData="Next step"/>
-        <PushButton bxml:id="terminateButton" buttonData="Terminate"/>
-      </BoxPane>
-    </TablePane.Row>
-    <TablePane.Row height="-1">
-      <Form>
-        <Form.Section>
-          <Label Form.label="Score" bxml:id="scoreLabel"/>
-        </Form.Section>
-      </Form>
-    </TablePane.Row>
-    <TablePane.Row height="1*">
-      <!--<ScrollPane horizontalScrollBarPolicy="fill">-->
-      <ScrollPane horizontalScrollBarPolicy="fill_to_capacity"
-                  verticalScrollBarPolicy="fill_to_capacity">
-        <TablePane bxml:id="roundHolder" styles="{verticalSpacing:1, showHorizontalGridLines:true,
-            horizontalSpacing:1, showVerticalGridLines:true}">
+                    xmlns:bxml="http://pivot.apache.org/bxml"
+                    xmlns:content="org.apache.pivot.wtk.content"
+                    xmlns:iypt="org.iypt.planner.gui"
+                    xmlns="org.apache.pivot.wtk">
+  <TabPane selectedIndex="0" styles="{tabOrientation:'horizontal'}">
+
+    <Border TabPane.tabData="Configuration" styles="{padding:10}">
+      <ScrollPane horizontalScrollBarPolicy="fill_to_capacity">
+        <BoxPane orientation="vertical" styles="{fill:true}">
+
+          <!-- Constraints -->
+          <Border title="Constraints configuration" styles="{padding:10}">
+            <BoxPane orientation="vertical">
+              <BoxPane orientation="horizontal">
+                <Label text="DRL:"/>
+                <Label bxml:id="drlLabel" text="undefined"/>
+              </BoxPane>
+              <iypt:ConstraintsConfig bxml:id="constraintConfig"/>
+            </BoxPane>
+          </Border>
+
+        </BoxPane>
+      </ScrollPane>
+    </Border>
+
+    <Border TabPane.tabData="Planning" styles="{padding:10}">
+      <ScrollPane horizontalScrollBarPolicy="fill_to_capacity">
+        <TablePane>
           <columns>
-            <TablePane.Column width="1*"/>
+            <TablePane.Column width="-1"/>
           </columns>
+
+          <!-- Buttons -->
+          <TablePane.Row height="-1">
+            <BoxPane>
+              <PushButton bxml:id="nextButton" buttonData="Next step"/>
+              <PushButton bxml:id="terminateButton" buttonData="Terminate"/>
+            </BoxPane>
+          </TablePane.Row>
+
+          <!-- Score -->
+          <TablePane.Row height="-1">
+            <Form>
+              <Form.Section>
+                <Label Form.label="Score" bxml:id="scoreLabel"/>
+              </Form.Section>
+            </Form>
+          </TablePane.Row>
+
+          <!-- Tournament view -->
+          <TablePane.Row height="1*">
+            <TablePane bxml:id="roundHolder" styles="{verticalSpacing:1, showHorizontalGridLines:true,
+            horizontalSpacing:1, showVerticalGridLines:true}">
+              <columns>
+                <TablePane.Column width="1*"/>
+              </columns>
+            </TablePane>
+          </TablePane.Row>
+
         </TablePane>
       </ScrollPane>
-    </TablePane.Row>
-    <!--      <TablePane>
-      <columns>
-        <TablePane.Column width="1*"/>
-        <TablePane.Column width="1*"/>
-      </columns>
-      <TablePane.Row height="-1">
-        <Border>
-          <BoxPane>
-            <Label text="Groups" preferredHeight="100"/>
-          </BoxPane>
-        </Border>
-        <Border>
-          <BoxPane>
-            <Label text="Juries" preferredHeight="100"/>
-          </BoxPane>
-        </Border>
-      </TablePane.Row>
-    </TablePane>-->
-  </TablePane>
-  </Border>
+    </Border>
+
+  </TabPane>
 </iypt:PlannerWindow>
