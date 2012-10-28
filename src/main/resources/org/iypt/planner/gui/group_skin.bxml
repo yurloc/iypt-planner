@@ -1,0 +1,59 @@
+<BoxPane orientation="vertical"
+         xmlns:bxml="http://pivot.apache.org/bxml"
+         xmlns:content="org.apache.pivot.wtk.content"
+         xmlns:iypt="org.iypt.planner.gui"
+         xmlns="org.apache.pivot.wtk">
+
+  <!-- Group header -->
+  <Border styles="{padding:10}">
+    <BoxPane orientation="horizontal">
+      <BoxPane bxml:id="groupNameBoxPane" orientation="horizontal">
+        <Label bxml:id="groupNameLabel" styles="{font:{bold:true}}"/>
+      </BoxPane>
+      <BoxPane bxml:id="teamsBoxPane" orientation="horizontal"/>
+    </BoxPane>
+  </Border>
+
+  <!-- Jury roster -->
+  <Border styles="{padding:10}">
+    <ScrollPane horizontalScrollBarPolicy="fill_to_capacity">
+    <TableView bxml:id="juryTableView">
+
+      <columns>
+        <TableView.Column name="icon" width="-1">
+          <cellRenderer>
+            <content:TableViewImageCellRenderer/>
+          </cellRenderer>
+        </TableView.Column>
+
+        <TableView.Column name="flag" width="-1" headerData="Country">
+          <cellRenderer>
+            <content:TableViewImageCellRenderer/>
+          </cellRenderer>
+        </TableView.Column>
+
+        <TableView.Column name="name" width="-1" headerData="Name"/>
+
+        <TableView.Column name="type" width="-1" headerData="Type">
+          <cellRenderer>
+            <content:TableViewBooleanCellRenderer/>
+          </cellRenderer>
+        </TableView.Column>
+
+        <TableView.Column name="chair" width="-1" headerData="Chair">
+          <cellRenderer>
+            <content:TableViewBooleanCellRenderer/>
+          </cellRenderer>
+        </TableView.Column>
+      </columns>
+
+    </TableView>
+
+<!--    <columnHeader>
+      <TableViewHeader tableView="$juryTableView" styles="{headersPressable:false}"/>
+    </columnHeader>-->
+    </ScrollPane>
+
+  </Border>
+
+</BoxPane>

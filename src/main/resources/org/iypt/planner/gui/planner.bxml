@@ -62,5 +62,21 @@
       </ScrollPane>
     </Border>
 
+    <Border TabPane.tabData="Group Test" styles="{padding:10}">
+      <ScrollPane horizontalScrollBarPolicy="fill_to_capacity">
+        <BoxPane orientation="horizontal" styles="{fill:true}">
+
+          <!-- Group test -->
+          <Border title="Group A" styles="{padding:10}">
+              <iypt:GroupRoster bxml:id="groupA"/>
+          </Border>
+          <Border title="Group B" styles="{padding:10}">
+              <iypt:GroupRoster bxml:id="groupB"/>
+          </Border>
+
+        </BoxPane>
+      </ScrollPane>
+    </Border>
+
   </TabPane>
 </iypt:PlannerWindow>
