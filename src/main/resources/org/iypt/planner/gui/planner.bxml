@@ -48,33 +48,12 @@
             </Form>
           </TablePane.Row>
 
-          <!-- Tournament view -->
+          <!-- Tournament schedule -->
           <TablePane.Row height="1*">
-            <TablePane bxml:id="roundHolder" styles="{verticalSpacing:1, showHorizontalGridLines:true,
-            horizontalSpacing:1, showVerticalGridLines:true}">
-              <columns>
-                <TablePane.Column width="1*"/>
-              </columns>
-            </TablePane>
+            <BoxPane bxml:id="tournamentScheduleBoxPane" orientation="vertical"/>
           </TablePane.Row>
 
         </TablePane>
-      </ScrollPane>
-    </Border>
-
-    <Border TabPane.tabData="Group Test" styles="{padding:10}">
-      <ScrollPane horizontalScrollBarPolicy="fill_to_capacity">
-        <BoxPane orientation="horizontal" styles="{fill:true}">
-
-          <!-- Group test -->
-          <Border title="Group A" styles="{padding:10}">
-              <iypt:GroupRoster bxml:id="groupA"/>
-          </Border>
-          <Border title="Group B" styles="{padding:10}">
-              <iypt:GroupRoster bxml:id="groupB"/>
-          </Border>
-
-        </BoxPane>
       </ScrollPane>
     </Border>
 

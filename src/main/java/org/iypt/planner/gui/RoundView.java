@@ -1,10 +1,7 @@
 package org.iypt.planner.gui;
 
-import org.apache.pivot.wtk.BoxPane;
+import org.apache.pivot.util.ListenerList;
 import org.apache.pivot.wtk.Container;
-import org.apache.pivot.wtk.Expander;
-import org.apache.pivot.wtk.Orientation;
-import org.iypt.planner.domain.Group;
 import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Tournament;
 
@@ -12,22 +9,42 @@ import org.iypt.planner.domain.Tournament;
  *
  * @author jlocker
  */
-public class RoundView extends Expander {
+public class RoundView extends Container {
 
-    private Container content = new BoxPane(Orientation.HORIZONTAL);
+    private static final class RoundViewListenerList extends ListenerList<RoundViewListener> implements RoundViewListener {
 
-    public RoundView() {
-        super();
-        super.setExpanded(true);
-        setContent(content);
+        @Override
+        public void scheduleChanged(RoundView round) {
+            for (RoundViewListener listener : this) {
+                listener.scheduleChanged(round);
+            }
+        }
+    }
+    private RoundViewListenerList roundViewListeners = new RoundViewListenerList();
+    private Tournament tournament;
+    private Round round;
+
+    public RoundView(Tournament tournament, Round round) {
+        this.round = round;
+        this.tournament = tournament;
+        setSkin(new RoundViewSkin());
     }
 
     public void update(Tournament tournament, Round round) {
-        this.setTitle("Round #" + round.getNumber());
+        this.round = round;
+        this.tournament = tournament;
+        roundViewListeners.scheduleChanged(this);
+    }
 
-        content.removeAll();
-        for (Group group : round.getGroups()) {
-            content.add(new GroupRoster(tournament, group));
-        }
+    public Round getRound() {
+        return round;
+    }
+
+    public Tournament getTournament() {
+        return tournament;
+    }
+
+    public ListenerList<RoundViewListener> getRoundViewListeners() {
+        return roundViewListeners;
     }
 }

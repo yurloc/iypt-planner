@@ -6,18 +6,16 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import org.apache.pivot.beans.BXML;
 import org.apache.pivot.beans.Bindable;
-import org.apache.pivot.collections.ArrayList;
-import org.apache.pivot.collections.List;
 import org.apache.pivot.collections.Map;
 import org.apache.pivot.util.Resources;
 import org.apache.pivot.util.concurrent.Task;
 import org.apache.pivot.util.concurrent.TaskExecutionException;
 import org.apache.pivot.util.concurrent.TaskListener;
+import org.apache.pivot.wtk.BoxPane;
 import org.apache.pivot.wtk.Button;
 import org.apache.pivot.wtk.ButtonPressListener;
 import org.apache.pivot.wtk.Label;
 import org.apache.pivot.wtk.PushButton;
-import org.apache.pivot.wtk.TablePane;
 import org.apache.pivot.wtk.TaskAdapter;
 import org.apache.pivot.wtk.Window;
 import org.drools.KnowledgeBase;
@@ -33,7 +31,6 @@ import org.drools.planner.core.event.BestSolutionChangedEvent;
 import org.drools.planner.core.event.SolverEventListener;
 import org.drools.planner.core.phase.event.SolverPhaseLifecycleListenerAdapter;
 import org.drools.planner.core.phase.step.AbstractStepScope;
-import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Tournament;
 import org.iypt.planner.domain.util.CSVTournamentFactory;
 import org.iypt.planner.solver.DefaultWeightConfig;
@@ -52,19 +49,21 @@ public class PlannerWindow extends Window implements Bindable {
     @BXML private Label scoreLabel;
     @BXML private PushButton nextButton;
     @BXML private PushButton terminateButton;
-    @BXML private TablePane roundHolder;
+    @BXML private BoxPane tournamentScheduleBoxPane;
+    private TournamentSchedule tournamentSchedule;
 
     // other
     private Tournament tournament;
     private SolverTask solverTask;
-    private List<RoundView> roundViews = new ArrayList<>();
     private BlockingQueue<Tournament> betterSolutionQueue = new ArrayBlockingQueue<>(1);
 
     @Override
     public void initialize(Map<String, Object> namespace, URL location, Resources resources) {
         try {
             tournament = getInitialSolutionFromCSV();
-            updateRounds();
+            tournamentSchedule = new TournamentSchedule(tournament);
+            tournamentSchedule.updateSchedule(tournament);
+            tournamentScheduleBoxPane.add(tournamentSchedule);
         } catch (IOException ex) {
 //            Alert.alert(MessageType.ERROR, ex.getMessage(), PlannerWindow.this);
             ex.printStackTrace();
@@ -146,16 +145,7 @@ public class PlannerWindow extends Window implements Bindable {
     }
 
     private void updateRounds() {
-        if (roundHolder.getRows().getLength() > 0)
-        roundHolder.getRows().remove(0, roundHolder.getRows().getLength());
-        for (Round round : tournament.getRounds()) {
-            RoundView roundView = new RoundView();
-            TablePane.Row row = new TablePane.Row();
-            row.add(roundView);
-            roundHolder.getRows().add(row);
-            roundViews.add(roundView);
-            roundView.update(tournament, round);
-        }
+        tournamentSchedule.updateSchedule(tournament);
     }
 
     private Solver newSolver() {
