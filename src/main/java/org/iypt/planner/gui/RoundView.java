@@ -14,7 +14,7 @@ import org.iypt.planner.domain.Tournament;
  */
 public class RoundView extends Expander {
 
-    private Container content = new BoxPane(Orientation.VERTICAL);
+    private Container content = new BoxPane(Orientation.HORIZONTAL);
 
     public RoundView() {
         super();
@@ -25,9 +25,9 @@ public class RoundView extends Expander {
     public void update(Tournament tournament, Round round) {
         this.setTitle("Round #" + round.getNumber());
 
-//        content.clear();
+        content.removeAll();
         for (Group group : round.getGroups()) {
-            content.add(new GroupView(tournament, group));
+            content.add(new GroupRoster(tournament, group));
         }
     }
 }

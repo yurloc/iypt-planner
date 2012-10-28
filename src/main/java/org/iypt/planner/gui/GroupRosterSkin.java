@@ -69,7 +69,7 @@ public class GroupRosterSkin extends ContainerSkin implements GroupRosterListene
     @Override
     public void groupRosterChanged(GroupRoster group) {
         groupNameLabel.setText(group.getGroupName());
-        teamsBoxPane.clear();
+        teamsBoxPane.removeAll();
         for (CountryCode country : group.getTeams()) {
             ImageView teamFlag = new ImageView(Images.getFlag(country));
             teamFlag.setTooltipText(country.getName());
