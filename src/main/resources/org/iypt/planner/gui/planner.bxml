@@ -34,7 +34,7 @@
           <!-- Buttons -->
           <TablePane.Row height="-1">
             <BoxPane>
-              <PushButton bxml:id="nextButton" buttonData="Next step"/>
+              <PushButton bxml:id="solveButton" buttonData="Solve"/>
               <PushButton bxml:id="terminateButton" buttonData="Terminate"/>
             </BoxPane>
           </TablePane.Row>

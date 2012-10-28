@@ -47,7 +47,7 @@ public class PlannerWindow extends Window implements Bindable {
 
     // planning tab controls
     @BXML private Label scoreLabel;
-    @BXML private PushButton nextButton;
+    @BXML private PushButton solveButton;
     @BXML private PushButton terminateButton;
     @BXML private BoxPane tournamentScheduleBoxPane;
     private TournamentSchedule tournamentSchedule;
@@ -74,7 +74,7 @@ public class PlannerWindow extends Window implements Bindable {
 
         terminateButton.setEnabled(false);
 
-        nextButton.getButtonPressListeners().add(new ButtonPressListener() {
+        solveButton.getButtonPressListeners().add(new ButtonPressListener() {
             @Override
             public void buttonPressed(Button button) {
 //                Alert.alert(MessageType.INFO, "You clicked me!", PlannerWindow.this);
@@ -85,7 +85,7 @@ public class PlannerWindow extends Window implements Bindable {
                     @Override
                     public void taskExecuted(Task<String> task) {
 //                        activityIndicator.setActive(false);
-                        nextButton.setEnabled(true);
+                        solveButton.setEnabled(true);
                         terminateButton.setEnabled(false);
                         scoreLabel.setText(task.getResult());
                     }
@@ -93,7 +93,7 @@ public class PlannerWindow extends Window implements Bindable {
                     @Override
                     public void executeFailed(Task<String> task) {
 //                        activityIndicator.setActive(false);
-                        nextButton.setEnabled(true);
+                        solveButton.setEnabled(true);
                         terminateButton.setEnabled(false);
                         scoreLabel.setText(task.getFault().toString());
                     }
