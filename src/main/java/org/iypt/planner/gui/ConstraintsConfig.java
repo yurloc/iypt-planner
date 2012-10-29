@@ -1,11 +1,14 @@
 package org.iypt.planner.gui;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import org.apache.pivot.collections.HashSet;
 import org.apache.pivot.util.ListenerList;
 import org.apache.pivot.wtk.Container;
 import org.drools.definition.rule.Rule;
+import org.drools.planner.core.score.constraint.ConstraintOccurrence;
+import org.iypt.planner.solver.TournamentSolver;
 import org.iypt.planner.solver.WeightConfig;
 
 /**
@@ -56,6 +59,7 @@ public class ConstraintsConfig extends Container {
             }
         }
     }
+    private TournamentSolver solver;
     private WeightConfig weightConfig;
     private HashSet<Constraint> constraints = new HashSet<>();
     private ConstraintsConfigListenerList constraintsConfigListeners = new ConstraintsConfigListenerList();
@@ -67,6 +71,12 @@ public class ConstraintsConfig extends Container {
     public ConstraintsConfig(WeightConfig weightConfig) {
         this.weightConfig = weightConfig;
         setSkin(new ConstraintsConfigSkin());
+    }
+
+    public void setSolver(TournamentSolver solver) {
+        this.solver = solver;
+        this.weightConfig = solver.getWeightConfig();
+        addConstraints(solver.getConstraints());
     }
 
     public void setWconfig(WeightConfig weightConfig) {
