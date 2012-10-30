@@ -18,7 +18,7 @@ public class TournamentScheduleSkin extends ContainerSkin implements TournamentS
     private static final HashMap<String, String> tabPaneStyles = new HashMap<>();
 
     static {
-        tabPaneStyles.put("tabOrientation", "vertical");
+        tabPaneStyles.put("tabOrientation", "horizontal");
     }
 
     @Override

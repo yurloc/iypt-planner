@@ -25,36 +25,59 @@
     </Border>
 
     <Border TabPane.tabData="Planning" styles="{padding:10}">
-      <ScrollPane horizontalScrollBarPolicy="fill_to_capacity">
-        <TablePane>
-          <columns>
-            <TablePane.Column width="-1"/>
-          </columns>
+      <TablePane>
+        <columns>
+          <TablePane.Column width="1*"/>
+        </columns>
 
-          <!-- Buttons -->
-          <TablePane.Row height="-1">
-            <BoxPane>
-              <PushButton bxml:id="solveButton" buttonData="Solve"/>
-              <PushButton bxml:id="terminateButton" buttonData="Terminate"/>
-            </BoxPane>
-          </TablePane.Row>
-
-          <!-- Score -->
-          <TablePane.Row height="-1">
-            <Form>
-              <Form.Section>
-                <Label Form.label="Score" bxml:id="scoreLabel"/>
-              </Form.Section>
-            </Form>
-          </TablePane.Row>
-
-          <!-- Tournament schedule -->
-          <TablePane.Row height="1*">
+        <!-- Tournament schedule -->
+        <TablePane.Row height="-1">
+          <ScrollPane
+            horizontalScrollBarPolicy="fill_to_capacity"
+            verticalScrollBarPolicy="fill"
+          >
             <BoxPane bxml:id="tournamentScheduleBoxPane" orientation="vertical"/>
-          </TablePane.Row>
+          </ScrollPane>
+        </TablePane.Row>
 
-        </TablePane>
-      </ScrollPane>
+        <!-- Buttons -->
+        <TablePane.Row height="-1">
+          <BoxPane>
+            <PushButton bxml:id="solveButton" buttonData="Solve"/>
+            <PushButton bxml:id="terminateButton" buttonData="Terminate"/>
+          </BoxPane>
+        </TablePane.Row>
+
+        <!-- Overall score -->
+        <TablePane.Row height="-1">
+          <BoxPane orientation="vertical">
+            <Label Form.label="Overall score" bxml:id="scoreLabel"/>
+          </BoxPane>
+        </TablePane.Row>
+
+        <!-- Constraint occurences -->
+        <TablePane.Row height="1*">
+          <Border title="Constraint occurences">
+
+            <ScrollPane
+              horizontalScrollBarPolicy="fill_to_capacity"
+              verticalScrollBarPolicy="fill_to_capacity"
+            >
+              <TableView bxml:id="constraintsTableView">
+                <columns>
+                  <TableView.Column width="-1" name="name"   headerData="Constraint"/>
+                  <TableView.Column width="-1" name="type"   headerData="Type"/>
+                  <TableView.Column width="-1" name="weight" headerData="Weight"/>
+                </columns>
+              </TableView>
+
+              <columnHeader>
+                <TableViewHeader tableView="$constraintsTableView"/>
+              </columnHeader>
+            </ScrollPane>
+          </Border>
+        </TablePane.Row>
+      </TablePane>
     </Border>
 
   </TabPane>

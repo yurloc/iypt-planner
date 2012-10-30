@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.URL;
 import org.apache.pivot.beans.BXML;
 import org.apache.pivot.beans.Bindable;
+import org.apache.pivot.collections.ArrayList;
+import org.apache.pivot.collections.List;
 import org.apache.pivot.collections.Map;
 import org.apache.pivot.util.Resources;
 import org.apache.pivot.util.concurrent.Task;
@@ -15,12 +17,14 @@ import org.apache.pivot.wtk.Button;
 import org.apache.pivot.wtk.ButtonPressListener;
 import org.apache.pivot.wtk.Label;
 import org.apache.pivot.wtk.PushButton;
+import org.apache.pivot.wtk.TableView;
 import org.apache.pivot.wtk.TaskAdapter;
 import org.apache.pivot.wtk.Window;
 import org.drools.planner.core.event.BestSolutionChangedEvent;
 import org.drools.planner.core.event.SolverEventListener;
 import org.drools.planner.core.phase.event.SolverPhaseLifecycleListenerAdapter;
 import org.drools.planner.core.phase.step.AbstractStepScope;
+import org.drools.planner.core.score.constraint.ConstraintOccurrence;
 import org.iypt.planner.domain.Tournament;
 import org.iypt.planner.domain.util.CSVTournamentFactory;
 import org.iypt.planner.solver.TournamentSolver;
@@ -40,9 +44,10 @@ public class PlannerWindow extends Window implements Bindable {
     @BXML private PushButton solveButton;
     @BXML private PushButton terminateButton;
     @BXML private BoxPane tournamentScheduleBoxPane;
-    private TournamentSchedule tournamentSchedule;
+    @BXML private TableView constraintsTableView;
 
     // other
+    private TournamentSchedule tournamentSchedule;
     private Tournament tournament;
     private SolverTask solverTask;
 
@@ -79,6 +84,11 @@ public class PlannerWindow extends Window implements Bindable {
                         terminateButton.setEnabled(false);
 //                        scoreLabel.setText(task.getResult());
                         scoreLabel.setText(solver.getTournament().getScore().toString());
+                        List<Constraint> constraints = new ArrayList<>();
+                        for (ConstraintOccurrence co : solver.getConstraintOccurences()) {
+                            constraints.add(new Constraint(co));
+                        }
+                        constraintsTableView.setTableData(constraints);
                     }
 
                     @Override
@@ -140,7 +150,6 @@ public class PlannerWindow extends Window implements Bindable {
 
                 @Override
                 public void run() {
-                    scoreLabel.setText(tournament.getScore().toString());
                     updateRounds();
                 }
             });

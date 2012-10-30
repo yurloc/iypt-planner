@@ -1,6 +1,7 @@
 package org.iypt.planner.solver;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.drools.ClassObjectFilter;
@@ -21,6 +22,7 @@ import org.drools.planner.core.score.constraint.ConstraintOccurrence;
 import org.drools.planner.core.score.director.ScoreDirector;
 import org.drools.planner.core.score.director.drools.DroolsScoreDirector;
 import org.iypt.planner.domain.Tournament;
+import org.iypt.planner.solver.util.ConstraintComparator;
 
 /**
  *
@@ -58,7 +60,6 @@ public class TournamentSolver {
     public void setTournament(Tournament tournament) {
         this.tournament = tournament;
         tournament.setWeightConfig(weightConfig);
-        scoreDirector.setWorkingSolution(tournament);
     }
 
     public List<String> getScoreDrlList() {
@@ -74,11 +75,12 @@ public class TournamentSolver {
     }
 
     public Score<?> getScore() {
+        scoreDirector.setWorkingSolution(tournament);
         return scoreDirector.calculateScore();
     }
 
     public List<ConstraintOccurrence> getConstraintOccurences() {
-
+        scoreDirector.setWorkingSolution(tournament);
         scoreDirector.calculateScore(); // TODO revise me?
 
         WorkingMemory workingMemory = ((DroolsScoreDirector) scoreDirector).getWorkingMemory();
@@ -87,6 +89,7 @@ public class TournamentSolver {
         while (it.hasNext()) {
             occurences.add((ConstraintOccurrence) it.next());
         }
+        Collections.sort(occurences, new ConstraintComparator());
         return occurences;
     }
 
