@@ -55,24 +55,23 @@ public class PlannerWindow extends Window implements Bindable {
 
     // other
     private TournamentSchedule tournamentSchedule;
-    private Tournament tournament;
     private SolverTask solverTask;
+    private TournamentSolver solver;
 
     @Override
     public void initialize(Map<String, Object> namespace, URL location, Resources resources) {
+        Tournament tournament = null;
         try {
             tournament = getInitialSolutionFromCSV();
-            tournamentSchedule = new TournamentSchedule(tournament);
-            tournamentSchedule.updateSchedule(tournament);
-            tournamentScheduleBoxPane.add(tournamentSchedule);
         } catch (IOException ex) {
 //            Alert.alert(MessageType.ERROR, ex.getMessage(), PlannerWindow.this);
             ex.printStackTrace();
         }
+        tournamentSchedule = new TournamentSchedule(tournament);
+        tournamentScheduleBoxPane.add(tournamentSchedule);
 
-        final TournamentSolver solver = newSolver();
+        solver = newSolver();
         solver.setTournament(tournament);
-        scoreLabel.setText(solver.getScore().toString());
 
         terminateButton.setEnabled(false);
 
@@ -89,14 +88,8 @@ public class PlannerWindow extends Window implements Bindable {
 //                        activityIndicator.setActive(false);
                         solveButton.setEnabled(true);
                         terminateButton.setEnabled(false);
-//                        scoreLabel.setText(task.getResult());
-                        scoreLabel.setText(solver.getTournament().getScore().toString());
                         log.debug(solver.getTournament().toDisplayString());
-                        List<Constraint> constraints = new ArrayList<>();
-                        for (ConstraintOccurrence co : solver.getConstraintOccurences()) {
-                            constraints.add(new Constraint(co));
-                        }
-                        constraintsTableView.setTableData(constraints);
+                        solutionChanged();
                     }
 
                     @Override
@@ -133,6 +126,17 @@ public class PlannerWindow extends Window implements Bindable {
             }
 
         });
+        solutionChanged();
+    }
+
+    private void solutionChanged() {
+        scoreLabel.setText(solver.getScore().toString());
+        List<Constraint> constraints = new ArrayList<>();
+        for (ConstraintOccurrence co : solver.getConstraintOccurences()) {
+            constraints.add(new Constraint(co));
+        }
+        constraintsTableView.setTableData(constraints);
+        tournamentSchedule.updateSchedule(solver.getTournament());
     }
 
     private Tournament getInitialSolutionFromCSV() throws IOException {
@@ -144,10 +148,6 @@ public class PlannerWindow extends Window implements Bindable {
         Tournament t = factory.newTournament();
         t.setJuryCapacity(6);
         return t;
-    }
-
-    private void updateRounds() {
-        tournamentSchedule.updateSchedule(tournament);
     }
 
     private TournamentSolver newSolver() {
@@ -168,12 +168,13 @@ public class PlannerWindow extends Window implements Bindable {
 
         @Override
         public void bestSolutionChanged(BestSolutionChangedEvent event) {
-            tournament = (Tournament) event.getNewBestSolution();
+            Tournament better = (Tournament) event.getNewBestSolution();
+            solver.setTournament(better);
             ApplicationContext.queueCallback(new Runnable() {
 
                 @Override
                 public void run() {
-                    updateRounds();
+                    solutionChanged();
                 }
             });
         }
