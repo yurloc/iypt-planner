@@ -1,9 +1,11 @@
 package org.iypt.planner.solver;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 import org.drools.ClassObjectFilter;
 import org.drools.KnowledgeBase;
 import org.drools.WorkingMemory;
@@ -39,6 +41,17 @@ public class TournamentSolver {
 
     public TournamentSolver(String solverConfigResource) {
         weightConfig = new DefaultWeightConfig();
+        // FIXME temporary solution for persistent weights configuration
+        try {
+            Properties weightProperties = new Properties();
+            weightProperties.load(getClass().getResourceAsStream("/weights.properties"));
+            for (String key : weightProperties.stringPropertyNames()) {
+                weightConfig.setWeight(key, Integer.parseInt(weightProperties.getProperty(key)));
+            }
+        } catch (IOException ex) {
+            throw new RuntimeException("Couldn't read weights.properties", ex);
+        }
+
         solverFactory = new XmlSolverFactory(solverConfigResource);
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         for (String string : solverFactory.getSolverConfig().getScoreDirectorFactoryConfig().getScoreDrlList()) {
