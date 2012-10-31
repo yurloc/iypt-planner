@@ -57,25 +57,39 @@
 
         <!-- Constraint occurences -->
         <TablePane.Row height="1*">
-          <Border title="Constraint occurences">
+          <SplitPane>
+            <left>
+              <Border title="Constraint occurences">
 
-            <ScrollPane
-              horizontalScrollBarPolicy="fill_to_capacity"
-              verticalScrollBarPolicy="fill_to_capacity"
-            >
-              <TableView bxml:id="constraintsTableView">
-                <columns>
-                  <TableView.Column width="-1" name="name"   headerData="Constraint"/>
-                  <TableView.Column width="-1" name="type"   headerData="Type"/>
-                  <TableView.Column width="-1" name="weight" headerData="Weight"/>
-                </columns>
-              </TableView>
+                <ScrollPane
+                  horizontalScrollBarPolicy="fill_to_capacity"
+                  verticalScrollBarPolicy="fill_to_capacity"
+                >
+                  <TableView bxml:id="constraintsTableView">
+                    <columns>
+                      <TableView.Column width="-1" name="name"   headerData="Constraint"/>
+                      <TableView.Column width="-1" name="type"   headerData="Type"/>
+                      <TableView.Column width="-1" name="weight" headerData="Weight"/>
+                    </columns>
+                  </TableView>
 
-              <columnHeader>
-                <TableViewHeader tableView="$constraintsTableView"/>
-              </columnHeader>
-            </ScrollPane>
-          </Border>
+                  <columnHeader>
+                    <TableViewHeader tableView="$constraintsTableView"/>
+                  </columnHeader>
+                </ScrollPane>
+              </Border>
+            </left>
+            <right>
+              <Border title="Constraint details">
+                <ScrollPane
+                  horizontalScrollBarPolicy="fill"
+                  verticalScrollBarPolicy="fill_to_capacity"
+                >
+                  <ListView bxml:id="causesListView" selectMode="multi"/>
+                </ScrollPane>
+              </Border>
+            </right>
+          </SplitPane>
         </TablePane.Row>
       </TablePane>
     </Border>

@@ -16,8 +16,10 @@ import org.apache.pivot.wtk.BoxPane;
 import org.apache.pivot.wtk.Button;
 import org.apache.pivot.wtk.ButtonPressListener;
 import org.apache.pivot.wtk.Label;
+import org.apache.pivot.wtk.ListView;
 import org.apache.pivot.wtk.PushButton;
 import org.apache.pivot.wtk.TableView;
+import org.apache.pivot.wtk.TableViewSelectionListener;
 import org.apache.pivot.wtk.TaskAdapter;
 import org.apache.pivot.wtk.Window;
 import org.drools.planner.core.event.BestSolutionChangedEvent;
@@ -49,6 +51,7 @@ public class PlannerWindow extends Window implements Bindable {
     @BXML private PushButton terminateButton;
     @BXML private BoxPane tournamentScheduleBoxPane;
     @BXML private TableView constraintsTableView;
+    @BXML private ListView causesListView;
 
     // other
     private TournamentSchedule tournamentSchedule;
@@ -114,6 +117,21 @@ public class PlannerWindow extends Window implements Bindable {
             public void buttonPressed(Button button) {
                 solverTask.terminate();
             }
+        });
+
+        constraintsTableView.getTableViewSelectionListeners().add(new TableViewSelectionListener.Adapter() {
+
+            @Override
+            public void selectedRowChanged(TableView tableView, Object previousSelectedRow) {
+                int selectedIndex = tableView.getSelectedIndex();
+                if (selectedIndex >= 0) {
+                    Constraint constraint = (Constraint) tableView.getTableData().get(selectedIndex);
+                    causesListView.setListData(constraint.getCauses());
+                } else {
+                    causesListView.getListData().clear();
+                }
+            }
+
         });
     }
 
