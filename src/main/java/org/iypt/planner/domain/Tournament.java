@@ -334,6 +334,62 @@ public class Tournament implements Solution<HardAndSoftScore> {
         this.config = config;
     }
 
+    public String toDisplayString() {
+        StringBuilder sb = new StringBuilder(1024);
+        for (Round r : this.getRounds()) {
+            List<Juror> idle = new ArrayList<>();
+            List<Juror> away = new ArrayList<>();
+            idle.addAll(this.getJurors());
+            sb.append('\n').append(r).append("\n=========\n");
+            sb.append(" Group         |  Jury\n");
+            //         A: AA BB CC DD | ...
+            for (Group g : r.getGroups()) {
+                sb.append(g.getName()).append(": ");
+                for (Team t : g.getTeams()) {
+                    sb.append(t.getCountry()).append(' ');
+                }
+                if (g.getSize() == 3) sb.append("   ");
+                sb.append("| ");
+                for (JurySeat s : this.getJurySeats()) {
+                    if (s.getJury().equals(g.getJury())) {
+                        idle.remove(s.getJuror());
+                        Juror juror = s.getJuror();
+                        if (s.isChair()) sb.append('[');
+                        sb.append(juror == null ? "----" : juror);
+                        if (s.isChair()) sb.append(']');
+                        sb.append(',');
+                    }
+                }
+                sb.replace(sb.length() - 1, sb.length(), "\n");
+            }
+            for (DayOff dayOff : this.getDayOffs()) {
+                if (dayOff.getDay() == r.getDay()) {
+                    away.add(dayOff.getJuror());
+                }
+            }
+            idle.removeAll(away); // idle = all -busy -away
+
+            sb.append(String.format("Jurors away (%2d): ", away.size()));
+            for (Juror juror : away) {
+                sb.append(juror).append(',');
+            }
+            sb.replace(sb.length() - 1, sb.length(), "\n");
+
+            sb.append(String.format("Jurors idle (%2d): ", idle.size()));
+            for (Juror juror : idle) {
+                sb.append(juror).append(',');
+            }
+            sb.replace(sb.length() - 1, sb.length(), "\n");
+            sb.append(String.format("Optimal number of independent jurors: %.4f%n", r.getOptimalIndependentCount()));
+        }
+        int md = this.getJurors().size() * this.getRounds().size() - this.getDayOffs().size();
+        sb.append('\n');
+        sb.append("Total jury seats:    ").append(this.getJurySeats().size()).append('\n');
+        sb.append("Total juror mandays: ").append(md).append('\n');
+        sb.append(String.format("Optimal juror load:  %.4f%n", this.getStatistics().getOptimalLoad()));
+        return sb.toString();
+    }
+
     public class Statistics {
 
         private double optimalLoad = 0.0;
