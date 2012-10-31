@@ -5,25 +5,6 @@
                     xmlns="org.apache.pivot.wtk">
   <TabPane selectedIndex="0" styles="{tabOrientation:'horizontal'}">
 
-    <Border TabPane.tabData="Configuration" styles="{padding:10}">
-      <ScrollPane horizontalScrollBarPolicy="fill_to_capacity">
-        <BoxPane orientation="vertical" styles="{fill:true}">
-
-          <!-- Constraints -->
-          <Border title="Constraints configuration" styles="{padding:10}">
-            <BoxPane orientation="vertical">
-              <BoxPane orientation="horizontal">
-                <Label text="DRL:"/>
-                <Label bxml:id="drlLabel" text="undefined"/>
-              </BoxPane>
-              <iypt:ConstraintsConfig bxml:id="constraintConfig"/>
-            </BoxPane>
-          </Border>
-
-        </BoxPane>
-      </ScrollPane>
-    </Border>
-
     <Border TabPane.tabData="Planning" styles="{padding:10}">
       <TablePane>
         <columns>
@@ -92,6 +73,25 @@
           </SplitPane>
         </TablePane.Row>
       </TablePane>
+    </Border>
+
+    <Border TabPane.tabData="Configuration" styles="{padding:10}">
+      <ScrollPane horizontalScrollBarPolicy="fill_to_capacity">
+        <BoxPane orientation="vertical" styles="{fill:true}">
+
+          <!-- Constraints -->
+          <Border title="Constraints configuration" styles="{padding:10}">
+            <BoxPane orientation="vertical">
+              <BoxPane orientation="horizontal">
+                <Label text="DRL:"/>
+                <Label bxml:id="drlLabel" text="undefined"/>
+              </BoxPane>
+              <iypt:ConstraintsConfig bxml:id="constraintConfig"/>
+            </BoxPane>
+          </Border>
+
+        </BoxPane>
+      </ScrollPane>
     </Border>
 
   </TabPane>
