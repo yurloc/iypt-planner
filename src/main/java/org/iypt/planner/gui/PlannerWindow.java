@@ -28,12 +28,16 @@ import org.drools.planner.core.score.constraint.ConstraintOccurrence;
 import org.iypt.planner.domain.Tournament;
 import org.iypt.planner.domain.util.CSVTournamentFactory;
 import org.iypt.planner.solver.TournamentSolver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author jlocker
  */
 public class PlannerWindow extends Window implements Bindable {
+
+    private static final Logger log = LoggerFactory.getLogger(PlannerWindow.class);
 
     // constraints config tab controls
     @BXML private Label drlLabel;
@@ -84,6 +88,7 @@ public class PlannerWindow extends Window implements Bindable {
                         terminateButton.setEnabled(false);
 //                        scoreLabel.setText(task.getResult());
                         scoreLabel.setText(solver.getTournament().getScore().toString());
+                        log.debug(solver.getTournament().toDisplayString());
                         List<Constraint> constraints = new ArrayList<>();
                         for (ConstraintOccurrence co : solver.getConstraintOccurences()) {
                             constraints.add(new Constraint(co));
