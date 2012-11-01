@@ -26,6 +26,7 @@
           <BoxPane>
             <PushButton bxml:id="solveButton" buttonData="Solve"/>
             <PushButton bxml:id="terminateButton" buttonData="Terminate"/>
+            <Checkbox bxml:id="showChangesCheckbox" buttonData="Show changes on the fly"/>
           </BoxPane>
         </TablePane.Row>
 

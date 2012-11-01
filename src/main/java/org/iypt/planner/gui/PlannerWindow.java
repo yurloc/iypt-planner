@@ -14,7 +14,9 @@ import org.apache.pivot.util.concurrent.TaskListener;
 import org.apache.pivot.wtk.ApplicationContext;
 import org.apache.pivot.wtk.BoxPane;
 import org.apache.pivot.wtk.Button;
+import org.apache.pivot.wtk.Button.State;
 import org.apache.pivot.wtk.ButtonPressListener;
+import org.apache.pivot.wtk.Checkbox;
 import org.apache.pivot.wtk.Label;
 import org.apache.pivot.wtk.ListView;
 import org.apache.pivot.wtk.PushButton;
@@ -49,6 +51,7 @@ public class PlannerWindow extends Window implements Bindable {
     @BXML private Label scoreLabel;
     @BXML private PushButton solveButton;
     @BXML private PushButton terminateButton;
+    @BXML private Checkbox showChangesCheckbox;
     @BXML private BoxPane tournamentScheduleBoxPane;
     @BXML private TableView constraintsTableView;
     @BXML private ListView causesListView;
@@ -72,8 +75,6 @@ public class PlannerWindow extends Window implements Bindable {
 
         solver = newSolver();
         solver.setTournament(tournament);
-
-        terminateButton.setEnabled(false);
 
         solveButton.getButtonPressListeners().add(new ButtonPressListener() {
             @Override
@@ -104,6 +105,7 @@ public class PlannerWindow extends Window implements Bindable {
             }
         });
 
+        terminateButton.setEnabled(false);
         terminateButton.getButtonPressListeners().add(new ButtonPressListener() {
 
             @Override
@@ -111,6 +113,8 @@ public class PlannerWindow extends Window implements Bindable {
                 solverTask.terminate();
             }
         });
+
+        showChangesCheckbox.setState(Button.State.SELECTED);
 
         constraintsTableView.getTableViewSelectionListeners().add(new TableViewSelectionListener.Adapter() {
 
@@ -168,6 +172,9 @@ public class PlannerWindow extends Window implements Bindable {
 
         @Override
         public void bestSolutionChanged(BestSolutionChangedEvent event) {
+            if (showChangesCheckbox.getState() == State.UNSELECTED) {
+                return;
+            }
             Tournament better = (Tournament) event.getNewBestSolution();
             solver.setTournament(better);
             ApplicationContext.queueCallback(new Runnable() {
