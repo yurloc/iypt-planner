@@ -21,6 +21,12 @@
           </ScrollPane>
         </TablePane.Row>
 
+        <TablePane.Row height="-1">
+          <Border title="Details">
+            <bxml:include src="details.bxml" inline="true"/>
+          </Border>
+        </TablePane.Row>
+
         <!-- Buttons -->
         <TablePane.Row height="-1">
           <BoxPane>

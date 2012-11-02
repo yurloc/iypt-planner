@@ -7,6 +7,7 @@ import org.apache.pivot.beans.Bindable;
 import org.apache.pivot.collections.ArrayList;
 import org.apache.pivot.collections.List;
 import org.apache.pivot.collections.Map;
+import org.apache.pivot.collections.adapter.ListAdapter;
 import org.apache.pivot.util.Resources;
 import org.apache.pivot.util.concurrent.Task;
 import org.apache.pivot.util.concurrent.TaskExecutionException;
@@ -19,6 +20,7 @@ import org.apache.pivot.wtk.ButtonPressListener;
 import org.apache.pivot.wtk.Checkbox;
 import org.apache.pivot.wtk.Label;
 import org.apache.pivot.wtk.ListView;
+import org.apache.pivot.wtk.Meter;
 import org.apache.pivot.wtk.PushButton;
 import org.apache.pivot.wtk.TableView;
 import org.apache.pivot.wtk.TableViewSelectionListener;
@@ -29,6 +31,7 @@ import org.drools.planner.core.event.SolverEventListener;
 import org.drools.planner.core.phase.event.SolverPhaseLifecycleListenerAdapter;
 import org.drools.planner.core.phase.step.AbstractStepScope;
 import org.drools.planner.core.score.constraint.ConstraintOccurrence;
+import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Tournament;
 import org.iypt.planner.domain.util.CSVTournamentFactory;
 import org.iypt.planner.solver.TournamentSolver;
@@ -56,6 +59,23 @@ public class PlannerWindow extends Window implements Bindable {
     @BXML private TableView constraintsTableView;
     @BXML private ListView causesListView;
 
+    // tournament details
+    @BXML private Label totalSeatsLabel;
+    @BXML private Label totalMandaysLabel;
+    @BXML private Label optimalLoadLabel;
+
+    // round details
+    @BXML private Label optimalIndependentLabel;
+    @BXML private ListView idleListView;
+    @BXML private ListView awayListView;
+
+    // juror details
+    @BXML private Label fullNameLabel;
+    @BXML private BoxPane conflictsBoxPane;
+    @BXML private Checkbox independentCheckbox;
+    @BXML private Checkbox chairCheckbox;
+    @BXML private Meter loadMeter;
+
     // other
     private TournamentSchedule tournamentSchedule;
     private SolverTask solverTask;
@@ -72,9 +92,24 @@ public class PlannerWindow extends Window implements Bindable {
         }
         tournamentSchedule = new TournamentSchedule(tournament);
         tournamentScheduleBoxPane.add(tournamentSchedule);
+        tournamentSchedule.getTournamentScheduleListeners().add(new TournamentScheduleListener.Adapter() {
+            @Override
+            public void roundSelected(Round round) {
+                if (round == null) {
+                    optimalIndependentLabel.setText("");
+                    idleListView.getListData().clear();
+                    awayListView.getListData().clear();
+                } else {
+                    optimalIndependentLabel.setText(String.format("%.4f", round.getOptimalIndependentCount()));
+                    idleListView.setListData(new ListAdapter<>(solver.getIdle(round)));
+                    awayListView.setListData(new ListAdapter<>(solver.getAway(round)));
+                }
+            }
+        });
 
         solver = newSolver();
         solver.setTournament(tournament);
+        tournamentChanged();
 
         solveButton.getButtonPressListeners().add(new ButtonPressListener() {
             @Override
@@ -141,6 +176,13 @@ public class PlannerWindow extends Window implements Bindable {
         }
         constraintsTableView.setTableData(constraints);
         tournamentSchedule.updateSchedule(solver.getTournament());
+    }
+
+    private void tournamentChanged() {
+        Tournament t = solver.getTournament();
+        totalSeatsLabel.setText(Integer.toString(t.getJurySeats().size()));
+        totalMandaysLabel.setText(Integer.toString(t.getJurors().size() * t.getRounds().size() - t.getDayOffs().size()));
+        optimalLoadLabel.setText(String.format("%.4f", t.getStatistics().getOptimalLoad()));
     }
 
     private Tournament getInitialSolutionFromCSV() throws IOException {

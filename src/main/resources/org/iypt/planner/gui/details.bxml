@@ -1,0 +1,73 @@
+<BoxPane orientation="horizontal"
+         xmlns:bxml="http://pivot.apache.org/bxml"
+         xmlns:content="org.apache.pivot.wtk.content"
+         xmlns:iypt="org.iypt.planner.gui"
+         xmlns="org.apache.pivot.wtk">
+  <Border title="Tournament">
+    <TablePane>
+      <columns>
+        <TablePane.Column width="-1"/>
+        <TablePane.Column width="-1"/>
+      </columns>
+      <TablePane.Row>
+        <Label text="Total jury seats:"/>
+        <Label bxml:id="totalSeatsLabel"/>
+      </TablePane.Row>
+      <TablePane.Row>
+        <Label text="Total juror mandays:"/>
+        <Label bxml:id="totalMandaysLabel"/>
+      </TablePane.Row>
+      <TablePane.Row>
+        <Label text="Optimal juror load:"/>
+        <Label bxml:id="optimalLoadLabel"/>
+      </TablePane.Row>
+    </TablePane>
+  </Border>
+  <Border title="Round">
+    <BoxPane orientation="vertical">
+      <BoxPane orientation="horizontal">
+        <Label text="Optimal number of independent jurors:"/>
+        <Label bxml:id="optimalIndependentLabel"/>
+      </BoxPane>
+      <BoxPane orientation="horizontal">
+        <ListView bxml:id="idleListView"/>
+        <ListView bxml:id="awayListView"/>
+      </BoxPane>
+    </BoxPane>
+  </Border>
+  <Border title="Juror">
+    <BoxPane orientation="vertical">
+      <TablePane>
+        <columns>
+          <TablePane.Column width="-1"/>
+          <TablePane.Column width="-1"/>
+        </columns>
+        <TablePane.Row>
+          <Label text="Full Name:"/>
+          <Label bxml:id="fullNameLabel"/>
+        </TablePane.Row>
+        <TablePane.Row>
+          <Label text="Conflicts:"/>
+          <BoxPane bxml:id="conflictsBoxPane"/>
+        </TablePane.Row>
+        <TablePane.Row>
+          <Label text="Independent:"/>
+          <Checkbox bxml:id="independentCheckbox"/>
+        </TablePane.Row>
+        <TablePane.Row>
+          <Label text="Chair candidate:"/>
+          <Checkbox bxml:id="chairCheckbox"/>
+        </TablePane.Row>
+        <TablePane.Row>
+          <Label text="Load:"/>
+          <Meter bxml:id="loadMeter" preferredWidth="48" preferredHeight="4"/>
+        </TablePane.Row>
+      </TablePane>
+      <Separator heading="Schedule"/>
+      <BoxPane>
+        <Label text="TODO:"/>
+        <Label bxml:id="jurorScheduleTable" text="a TableView should go here"/>
+      </BoxPane>
+    </BoxPane>
+  </Border>
+</BoxPane>

@@ -1,5 +1,7 @@
 package org.iypt.planner.gui;
 
+import org.iypt.planner.domain.Round;
+
 /**
  *
  * @author jlocker
@@ -7,4 +9,19 @@ package org.iypt.planner.gui;
 public interface TournamentScheduleListener {
 
     public void scheduleChanged(TournamentSchedule tournament);
+
+    public void roundSelected(Round round);
+
+    public class Adapter implements TournamentScheduleListener {
+
+        @Override
+        public void scheduleChanged(TournamentSchedule tournament) {
+            // do nothing
+        }
+
+        @Override
+        public void roundSelected(Round round) {
+            // do nothing
+        }
+    }
 }
