@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -22,15 +21,15 @@ public class Tournament implements Solution<HardAndSoftScore> {
 
     private HardAndSoftScore score;
     // planning entity
-    private Collection<JurySeat> jurySeats;
+    private List<JurySeat> jurySeats;
     // facts
-    private Collection<Round> rounds;
-    private Collection<Team> teams;
-    private Collection<Group> groups;
-    private Collection<Jury> juries;
-    private Collection<Juror> jurors;
-    private Collection<DayOff> dayOffs;
-    private Collection<Conflict> conflicts;
+    private List<Round> rounds;
+    private List<Team> teams;
+    private List<Group> groups;
+    private List<Jury> juries;
+    private List<Juror> jurors;
+    private List<DayOff> dayOffs;
+    private List<Conflict> conflicts;
 
     private int juryCapacity = Jury.DEFAULT_CAPACITY;
     private Statistics stats;
@@ -41,15 +40,15 @@ public class Tournament implements Solution<HardAndSoftScore> {
 
     public Tournament() {
         // TODO move this out of default constructor
-        rounds = new LinkedHashSet<>();
-        teams = new LinkedHashSet<>();
-        groups = new LinkedHashSet<>();
-        juries = new LinkedHashSet<>();
-        jurors = new LinkedHashSet<>();
-        jurySeats = new LinkedHashSet<>();
-        dayOffs = new LinkedHashSet<>();
+        rounds = new ArrayList<>();
+        teams = new ArrayList<>();
+        groups = new ArrayList<>();
+        juries = new ArrayList<>();
+        jurors = new ArrayList<>();
+        jurySeats = new ArrayList<>();
+        dayOffs = new ArrayList<>();
         dayOffsMap = new HashMap<>();
-        conflicts = new LinkedHashSet<>();
+        conflicts = new ArrayList<>();
         stats = new Statistics();
     }
 
@@ -281,31 +280,31 @@ public class Tournament implements Solution<HardAndSoftScore> {
     // Getters & Setters
     // ------------------------------------------------------------------------
 
-    public void setJurySeats(Collection<JurySeat> jurySeat) {
+    public void setJurySeats(List<JurySeat> jurySeat) {
         this.jurySeats = jurySeat;
     }
 
-    public Collection<Round> getRounds() {
+    public List<Round> getRounds() {
         return rounds;
     }
 
-    public Collection<Team> getTeams() {
+    public List<Team> getTeams() {
         return teams;
     }
 
-    public Collection<Juror> getJurors() {
+    public List<Juror> getJurors() {
         return jurors;
     }
 
-    public Collection<Group> getGroups() {
+    public List<Group> getGroups() {
         return groups;
     }
 
-    public Collection<Jury> getJuries() {
+    public List<Jury> getJuries() {
         return juries;
     }
 
-    public Collection<DayOff> getDayOffs() {
+    public List<DayOff> getDayOffs() {
         return dayOffs;
     }
 
@@ -314,11 +313,11 @@ public class Tournament implements Solution<HardAndSoftScore> {
         addDayOffs(dayOffs);
     }
 
-    public Collection<Conflict> getConflicts() {
+    public List<Conflict> getConflicts() {
         return conflicts;
     }
 
-    public void setConflicts(Collection<Conflict> conflicts) {
+    public void setConflicts(List<Conflict> conflicts) {
         this.conflicts = conflicts;
     }
 
