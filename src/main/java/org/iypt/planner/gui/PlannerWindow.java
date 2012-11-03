@@ -73,6 +73,8 @@ public class PlannerWindow extends Window implements Bindable {
 
     // round details
     @BXML private Label optimalIndependentLabel;
+    @BXML private Label idleLabel;
+    @BXML private Label awayLabel;
     @BXML private ListView idleListView;
     @BXML private ListView awayListView;
 
@@ -106,10 +108,14 @@ public class PlannerWindow extends Window implements Bindable {
             public void roundSelected(Round round) {
                 if (round == null) {
                     optimalIndependentLabel.setText("");
+                    idleLabel.setText("Idle (0)");
+                    idleLabel.setText("Away (0)");
                     idleListView.getListData().clear();
                     awayListView.getListData().clear();
                 } else {
                     optimalIndependentLabel.setText(String.format("%.4f", round.getOptimalIndependentCount()));
+                    idleLabel.setText(String.format("Idle (%d)", solver.getIdle(round).size()));
+                    awayLabel.setText(String.format("Away (%d)", solver.getAway(round).size()));
                     idleListView.setListData(new ListAdapter<>(solver.getIdle(round)));
                     awayListView.setListData(new ListAdapter<>(solver.getAway(round)));
                 }

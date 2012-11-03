@@ -30,8 +30,14 @@
         <Label bxml:id="optimalIndependentLabel"/>
       </BoxPane>
       <BoxPane orientation="horizontal">
-        <ListView bxml:id="idleListView"/>
-        <ListView bxml:id="awayListView"/>
+        <BoxPane orientation="vertical" styles="{spacing:6}">
+          <Label bxml:id="idleLabel" styles="{font:{bold:true}}"/>
+          <ListView bxml:id="idleListView"/>
+        </BoxPane>
+        <BoxPane orientation="vertical" styles="{spacing:6}">
+          <Label bxml:id="awayLabel" styles="{font:{bold:true}}"/>
+          <ListView bxml:id="awayListView"/>
+        </BoxPane>
       </BoxPane>
     </BoxPane>
   </Border>
