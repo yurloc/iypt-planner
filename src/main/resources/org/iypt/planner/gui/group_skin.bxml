@@ -7,7 +7,7 @@
   <!-- Group header -->
   <Border styles="{padding:10}">
     <BoxPane orientation="horizontal">
-      <BoxPane bxml:id="groupNameBoxPane" orientation="horizontal">
+      <BoxPane orientation="horizontal">
         <Label bxml:id="groupNameLabel" styles="{font:{bold:true}}"/>
       </BoxPane>
       <BoxPane bxml:id="teamsBoxPane" orientation="horizontal"/>

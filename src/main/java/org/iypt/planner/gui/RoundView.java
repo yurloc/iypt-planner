@@ -21,18 +21,18 @@ public class RoundView extends Container {
         }
     }
     private RoundViewListenerList roundViewListeners = new RoundViewListenerList();
-    private Tournament tournament;
+    private TournamentSchedule schedule;
     private Round round;
 
-    public RoundView(Tournament tournament, Round round) {
+    public RoundView(TournamentSchedule schedule, Round round) {
         this.round = round;
-        this.tournament = tournament;
+        this.schedule = schedule;
         setSkin(new RoundViewSkin());
     }
 
-    public void update(Tournament tournament, Round round) {
+    public void update(TournamentSchedule schedule, Round round) {
         this.round = round;
-        this.tournament = tournament;
+        this.schedule = schedule;
         roundViewListeners.scheduleChanged(this);
     }
 
@@ -40,8 +40,12 @@ public class RoundView extends Container {
         return round;
     }
 
+    public TournamentSchedule getSchedule() {
+        return schedule;
+    }
+
     public Tournament getTournament() {
-        return tournament;
+        return schedule.getTournament();
     }
 
     public ListenerList<RoundViewListener> getRoundViewListeners() {

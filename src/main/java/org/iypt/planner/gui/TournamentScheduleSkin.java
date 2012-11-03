@@ -7,6 +7,7 @@ import org.apache.pivot.wtk.TabPane;
 import org.apache.pivot.wtk.TabPaneSelectionListener;
 import org.apache.pivot.wtk.content.ButtonData;
 import org.apache.pivot.wtk.skin.ContainerSkin;
+import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.Round;
 
 /**
@@ -60,19 +61,25 @@ public class TournamentScheduleSkin extends ContainerSkin implements TournamentS
     }
 
     @Override
-    public void scheduleChanged(TournamentSchedule tournament) {
+    public void scheduleChanged(TournamentSchedule schedule) {
         content.getTabs().remove(0, content.getTabs().getLength());
         // TODO check this
 //        TournamentSchedule tournament = (TournamentSchedule) getComponent();
-        for (Round round : tournament.getTournament().getRounds()) {
-            RoundView roundView = new RoundView(tournament.getTournament(), round);
+        for (Round round : schedule.getTournament().getRounds()) {
+            RoundView roundView = new RoundView(schedule, round);
             content.getTabs().add(roundView);
             TabPane.setTabData(roundView, new ButtonData("Round #" + round.getNumber()));
         }
     }
 
+    // TODO refactor the listener interfaces
     @Override
     public void roundSelected(Round round) {
+        // not interested
+    }
+
+    @Override
+    public void jurorSelected(Juror juror) {
         // not interested
     }
 }

@@ -1,10 +1,12 @@
 package org.iypt.planner.gui;
 
+import java.awt.Color;
 import java.io.IOException;
 import java.net.URL;
 import org.apache.pivot.beans.BXML;
 import org.apache.pivot.beans.Bindable;
 import org.apache.pivot.collections.ArrayList;
+import org.apache.pivot.collections.HashMap;
 import org.apache.pivot.collections.List;
 import org.apache.pivot.collections.Map;
 import org.apache.pivot.collections.adapter.ListAdapter;
@@ -18,6 +20,7 @@ import org.apache.pivot.wtk.Button;
 import org.apache.pivot.wtk.Button.State;
 import org.apache.pivot.wtk.ButtonPressListener;
 import org.apache.pivot.wtk.Checkbox;
+import org.apache.pivot.wtk.ImageView;
 import org.apache.pivot.wtk.Label;
 import org.apache.pivot.wtk.ListView;
 import org.apache.pivot.wtk.Meter;
@@ -31,6 +34,10 @@ import org.drools.planner.core.event.SolverEventListener;
 import org.drools.planner.core.phase.event.SolverPhaseLifecycleListenerAdapter;
 import org.drools.planner.core.phase.step.AbstractStepScope;
 import org.drools.planner.core.score.constraint.ConstraintOccurrence;
+import org.iypt.planner.domain.CountryCode;
+import org.iypt.planner.domain.Juror;
+import org.iypt.planner.domain.JurorLoad;
+import org.iypt.planner.domain.JurorType;
 import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Tournament;
 import org.iypt.planner.domain.util.CSVTournamentFactory;
@@ -75,6 +82,8 @@ public class PlannerWindow extends Window implements Bindable {
     @BXML private Checkbox independentCheckbox;
     @BXML private Checkbox chairCheckbox;
     @BXML private Meter loadMeter;
+    private Color loadOkColor;
+    private Color loadNokColor = Color.RED.darker();
 
     // other
     private TournamentSchedule tournamentSchedule;
@@ -105,7 +114,31 @@ public class PlannerWindow extends Window implements Bindable {
                     awayListView.setListData(new ListAdapter<>(solver.getAway(round)));
                 }
             }
+
+            @Override
+            public void jurorSelected(Juror juror) {
+                fullNameLabel.setText(juror.fullName());
+                conflictsBoxPane.removeAll();
+                for (CountryCode cc : solver.getConflicts(juror)) {
+                    ImageView flag = new ImageView(Images.getFlag(cc));
+                    flag.setTooltipText(cc.getName());
+                    flag.setTooltipDelay(200);
+                    conflictsBoxPane.add(flag);
+                }
+                independentCheckbox.setState(juror.getType() == JurorType.INDEPENDENT ? State.SELECTED : State.UNSELECTED);
+                chairCheckbox.setState(juror.isChairCandidate() ? State.SELECTED : State.UNSELECTED);
+                JurorLoad load = solver.getLoad(juror);
+                loadMeter.setPercentage(load.getLoad());
+                loadMeter.setText(String.format("%.2f", load.getLoad()));
+                StyleDictionary styles = loadMeter.getStyles();
+                if (load.isExcessive()) {
+                    styles.put("color", loadNokColor);
+                } else {
+                    styles.put("color", loadOkColor);
+                }
+            }
         });
+        loadOkColor = (Color) loadMeter.getStyles().get("color");
 
         solver = newSolver();
         solver.setTournament(tournament);

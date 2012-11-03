@@ -1,5 +1,6 @@
 package org.iypt.planner.gui;
 
+import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.Round;
 
 /**
@@ -12,6 +13,8 @@ public interface TournamentScheduleListener {
 
     public void roundSelected(Round round);
 
+    public void jurorSelected(Juror juror);
+
     public class Adapter implements TournamentScheduleListener {
 
         @Override
@@ -21,6 +24,11 @@ public interface TournamentScheduleListener {
 
         @Override
         public void roundSelected(Round round) {
+            // do nothing
+        }
+
+        @Override
+        public void jurorSelected(Juror juror) {
             // do nothing
         }
     }

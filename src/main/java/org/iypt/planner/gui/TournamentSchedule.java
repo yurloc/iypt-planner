@@ -2,6 +2,7 @@ package org.iypt.planner.gui;
 
 import org.apache.pivot.util.ListenerList;
 import org.apache.pivot.wtk.Container;
+import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Tournament;
 
@@ -26,6 +27,13 @@ public class TournamentSchedule extends Container {
                 listener.roundSelected(round);
             }
         }
+
+        @Override
+        public void jurorSelected(Juror juror) {
+            for (TournamentScheduleListener listener : this) {
+                listener.jurorSelected(juror);
+            }
+        }
     }
     private TournamentScheduleListenerList tournamentScheduleListeners = new TournamentScheduleListenerList();
     private Tournament tournament;
@@ -48,6 +56,10 @@ public class TournamentSchedule extends Container {
         if (roundNumber >= 0) {
             tournamentScheduleListeners.roundSelected(tournament.getRounds().get(roundNumber));
         }
+    }
+
+    void jurorSelected(Juror juror) {
+        tournamentScheduleListeners.jurorSelected(juror);
     }
 
     public ListenerList<TournamentScheduleListener> getTournamentScheduleListeners() {

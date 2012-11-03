@@ -50,7 +50,7 @@ public class RoundViewSkin extends ContainerSkin implements RoundViewListener {
     public void scheduleChanged(RoundView round) {
         content.removeAll();
         for (Group group : round.getRound().getGroups()) {
-            content.add(new GroupRoster(round.getTournament(), group));
+            content.add(new GroupRoster(round.getSchedule(), group));
         }
     }
 }

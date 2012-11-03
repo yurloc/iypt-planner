@@ -25,9 +25,11 @@ import org.drools.planner.core.score.Score;
 import org.drools.planner.core.score.constraint.ConstraintOccurrence;
 import org.drools.planner.core.score.director.ScoreDirector;
 import org.drools.planner.core.score.director.drools.DroolsScoreDirector;
+import org.iypt.planner.domain.Conflict;
+import org.iypt.planner.domain.CountryCode;
 import org.iypt.planner.domain.DayOff;
-import org.iypt.planner.domain.Group;
 import org.iypt.planner.domain.Juror;
+import org.iypt.planner.domain.JurorLoad;
 import org.iypt.planner.domain.JurySeat;
 import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Tournament;
@@ -45,8 +47,10 @@ public class TournamentSolver {
     private Solver solver;
     private ScoreDirector scoreDirector;
     // tournament details
-    private Map<Round,List<Juror>> idleMap = new HashMap<>();
-    private Map<Round,List<Juror>> awayMap = new HashMap<>();
+    private Map<Round, List<Juror>> idleMap = new HashMap<>();
+    private Map<Round, List<Juror>> awayMap = new HashMap<>();
+    private Map<Juror, List<CountryCode>> conflictMap = new HashMap<>();
+    private Map<Juror, JurorLoad> loadMap = new HashMap<>();
 
     public TournamentSolver(String solverConfigResource) {
         weightConfig = new DefaultWeightConfig();
@@ -143,17 +147,24 @@ public class TournamentSolver {
         return idleMap.get(round);
     }
 
+    public List<CountryCode> getConflicts(Juror juror) {
+        return conflictMap.get(juror);
+    }
+
+    public JurorLoad getLoad(Juror juror) {
+        return loadMap.get(juror);
+    }
+
+    // TODO refactor me, duplicating some code from Tournament.toDisplayString()
     private void updateDetails() {
-        // TODO refactor me, duplicating some code from Tournament.toDisplayString()
+        // collect the lists of idle and away jurors per round
         for (Round r : tournament.getRounds()) {
             List<Juror> idleList = new ArrayList<>();
             List<Juror> awayList = new ArrayList<>();
             idleList.addAll(tournament.getJurors());
-            for (Group g : r.getGroups()) {
-                for (JurySeat s : tournament.getJurySeats()) {
-                    if (s.getJury().equals(g.getJury())) {
-                        idleList.remove(s.getJuror());
-                    }
+            for (JurySeat s : tournament.getJurySeats()) {
+                if (s.getJury().getGroup().getRound().equals(r)) {
+                    idleList.remove(s.getJuror());
                 }
             }
             for (DayOff dayOff : tournament.getDayOffs()) {
@@ -164,6 +175,28 @@ public class TournamentSolver {
             idleList.removeAll(awayList); // idle = all -busy -away
             awayMap.put(r, awayList);
             idleMap.put(r, idleList);
+        }
+
+        // collect conflicts per juror
+        conflictMap.clear();
+        for (Conflict conflict : tournament.getConflicts()) {
+            List<CountryCode> ccList = conflictMap.get(conflict.getJuror());
+            if (ccList == null) {
+                // most jurors have exactly 1 conflict country
+                ccList = new ArrayList<>(1);
+                conflictMap.put(conflict.getJuror(), ccList);
+            }
+            ccList.add(conflict.getCountry());
+        }
+
+        // collect juror loads (based on jury assignments)
+        scoreDirector.setWorkingSolution(tournament);
+        scoreDirector.calculateScore();
+        WorkingMemory workingMemory = ((DroolsScoreDirector) scoreDirector).getWorkingMemory();
+        Iterator<?> it = workingMemory.iterateObjects(new ClassObjectFilter(JurorLoad.class));
+        while (it.hasNext()) {
+            JurorLoad load = (JurorLoad) it.next();
+            loadMap.put(load.getJuror(), load);
         }
     }
 }

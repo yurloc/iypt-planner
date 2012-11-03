@@ -5,10 +5,12 @@ import org.apache.pivot.beans.BXMLSerializer;
 import org.apache.pivot.serialization.SerializationException;
 import org.apache.pivot.wtk.BoxPane;
 import org.apache.pivot.wtk.Component;
+import org.apache.pivot.wtk.ComponentStateListener;
 import org.apache.pivot.wtk.Dimensions;
 import org.apache.pivot.wtk.ImageView;
 import org.apache.pivot.wtk.Label;
 import org.apache.pivot.wtk.TableView;
+import org.apache.pivot.wtk.TableViewSelectionListener;
 import org.apache.pivot.wtk.skin.ContainerSkin;
 import org.iypt.planner.domain.CountryCode;
 
@@ -19,7 +21,6 @@ import org.iypt.planner.domain.CountryCode;
 public class GroupRosterSkin extends ContainerSkin implements GroupRosterListener {
 
     private Component content;
-    private BoxPane groupNameBoxPane;
     private Label groupNameLabel;
     private BoxPane teamsBoxPane;
     private TableView juryTableView;
@@ -27,7 +28,7 @@ public class GroupRosterSkin extends ContainerSkin implements GroupRosterListene
     @Override
     public void install(Component component) {
         super.install(component);
-        GroupRoster group = (GroupRoster) component;
+        final GroupRoster group = (GroupRoster) component;
         group.getGroupRosterListeners().add(this);
 
         BXMLSerializer bxmlSerializer = new BXMLSerializer();
@@ -37,10 +38,23 @@ public class GroupRosterSkin extends ContainerSkin implements GroupRosterListene
             throw new RuntimeException(exception);
         }
         group.add(content);
-        groupNameBoxPane = (BoxPane) bxmlSerializer.getNamespace().get("groupNameBoxPane");
         groupNameLabel = (Label) bxmlSerializer.getNamespace().get("groupNameLabel");
         teamsBoxPane = (BoxPane) bxmlSerializer.getNamespace().get("teamsBoxPane");
         juryTableView = (TableView) bxmlSerializer.getNamespace().get("juryTableView");
+        juryTableView.getTableViewSelectionListeners().add(new TableViewSelectionListener.Adapter() {
+            @Override
+            public void selectedRowChanged(TableView tableView, Object previousSelectedRow) {
+                group.jurorSelected(tableView.getSelectedRow());
+            }
+        });
+        juryTableView.getComponentStateListeners().add(new ComponentStateListener.Adapter() {
+            @Override
+            public void focusedChanged(Component component, Component obverseComponent) {
+                if (component.isFocused()) {
+                    group.jurorSelected(((TableView) component).getSelectedRow());
+                }
+            }
+        });
 
         groupRosterChanged(group);
     }
