@@ -6,7 +6,6 @@ import java.net.URL;
 import org.apache.pivot.beans.BXML;
 import org.apache.pivot.beans.Bindable;
 import org.apache.pivot.collections.ArrayList;
-import org.apache.pivot.collections.HashMap;
 import org.apache.pivot.collections.List;
 import org.apache.pivot.collections.Map;
 import org.apache.pivot.collections.adapter.ListAdapter;
@@ -25,6 +24,7 @@ import org.apache.pivot.wtk.Label;
 import org.apache.pivot.wtk.ListView;
 import org.apache.pivot.wtk.Meter;
 import org.apache.pivot.wtk.PushButton;
+import org.apache.pivot.wtk.TablePane;
 import org.apache.pivot.wtk.TableView;
 import org.apache.pivot.wtk.TableViewSelectionListener;
 import org.apache.pivot.wtk.TaskAdapter;
@@ -39,6 +39,7 @@ import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.JurorLoad;
 import org.iypt.planner.domain.JurorType;
 import org.iypt.planner.domain.Round;
+import org.iypt.planner.domain.Team;
 import org.iypt.planner.domain.Tournament;
 import org.iypt.planner.domain.util.CSVTournamentFactory;
 import org.iypt.planner.solver.TournamentSolver;
@@ -84,6 +85,7 @@ public class PlannerWindow extends Window implements Bindable {
     @BXML private Checkbox independentCheckbox;
     @BXML private Checkbox chairCheckbox;
     @BXML private Meter loadMeter;
+    @BXML private TablePane jurorScheduleTablePane;
     private Color loadOkColor;
     private Color loadNokColor = Color.RED.darker();
 
@@ -141,6 +143,32 @@ public class PlannerWindow extends Window implements Bindable {
                     styles.put("color", loadNokColor);
                 } else {
                     styles.put("color", loadOkColor);
+                }
+                // schedule
+                jurorScheduleTablePane.getRows().remove(0, jurorScheduleTablePane.getRows().getLength());
+                for (JurorDay jurorDay : solver.getJurorDays(juror)) {
+                    TablePane.Row row = new TablePane.Row();
+                    jurorScheduleTablePane.getRows().add(row);
+                    row.add(new Label(jurorDay.getRound().toString()));
+                    switch (jurorDay.getStatus()) {
+                        case AWAY:
+                            row.add(new ImageView(Images.getImage("img/delete.png")));
+                            break;
+                        case IDLE:
+                            row.add(new ImageView(Images.getImage("img/cup.png")));
+                            break;
+                        case ASSIGNED:
+                            row.add(new ImageView(Images.getImage("img/script_edit.png")));
+                            BoxPane teams = new BoxPane();
+                            row.add(teams);
+                            teams.add(new Label(jurorDay.getGroup().getName()));
+                            for (Team team : jurorDay.getGroup().getTeams()) {
+                                teams.add(new ImageView(Images.getFlag(team.getCountry())));
+                            }
+                            break;
+                        default:
+                            throw new AssertionError();
+                    }
                 }
             }
         });
