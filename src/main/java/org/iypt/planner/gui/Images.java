@@ -23,8 +23,8 @@ public class Images {
         }
     }
 
-    public static Image getImage(String resourceName) {
-        return getImage(Images.class.getResource(resourceName));
+    public static Image getImage(String imageName) {
+        return getImage(Images.class.getResource("img/" + imageName));
     }
 
     public static Image getFlag(CountryCode country) {

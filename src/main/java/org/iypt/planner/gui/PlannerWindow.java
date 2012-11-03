@@ -152,13 +152,13 @@ public class PlannerWindow extends Window implements Bindable {
                     row.add(new Label(jurorDay.getRound().toString()));
                     switch (jurorDay.getStatus()) {
                         case AWAY:
-                            row.add(new ImageView(Images.getImage("img/delete.png")));
+                            row.add(new ImageView(Images.getImage("delete.png")));
                             break;
                         case IDLE:
-                            row.add(new ImageView(Images.getImage("img/cup.png")));
+                            row.add(new ImageView(Images.getImage("cup.png")));
                             break;
                         case ASSIGNED:
-                            row.add(new ImageView(Images.getImage("img/script_edit.png")));
+                            row.add(new ImageView(Images.getImage("script_edit.png")));
                             BoxPane teams = new BoxPane();
                             row.add(teams);
                             teams.add(new Label(jurorDay.getGroup().getName()));
