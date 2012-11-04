@@ -129,12 +129,11 @@ public class TournamentSolver {
     public void solve() {
         solver.setPlanningProblem(tournament);
         solver.solve();
-        tournament = (Tournament) solver.getBestSolution();
+        setTournament((Tournament) solver.getBestSolution());
     }
 
     public void terminateEarly() {
         solver.terminateEarly();
-        tournament = (Tournament) solver.getBestSolution();
     }
 
     public Tournament getTournament() {
