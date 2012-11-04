@@ -8,10 +8,10 @@ import org.supercsv.cellprocessor.ift.CellProcessor;
  *
  * @author jlocker
  */
-public class MarkReader extends AbstractTableReader<MarkReader.Mark> {
+public class MarkReader extends AbstractTableReader<MarkReader.MarkRow> {
 
     public MarkReader() {
-        super(Mark.class);
+        super(MarkRow.class);
     }
 
     @Override
@@ -33,7 +33,7 @@ public class MarkReader extends AbstractTableReader<MarkReader.Mark> {
         return "Marks";
     }
 
-    public static class Mark implements HasIntId {
+    public static class MarkRow implements HasIntId {
 
         private int id;
         private int fight;

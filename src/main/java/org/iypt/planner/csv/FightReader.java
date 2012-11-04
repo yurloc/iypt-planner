@@ -10,10 +10,10 @@ import org.supercsv.cellprocessor.ift.CellProcessor;
  *
  * @author jlocker
  */
-public class FightReader extends AbstractTableReader<FightReader.Fight> {
+public class FightReader extends AbstractTableReader<FightReader.FightRow> {
 
     public FightReader() {
-        super(Fight.class);
+        super(FightRow.class);
     }
 
     @Override
@@ -38,7 +38,7 @@ public class FightReader extends AbstractTableReader<FightReader.Fight> {
         return "Fights";
     }
 
-    public static class Fight implements HasIntId {
+    public static class FightRow implements HasIntId {
 
         private int id;
         private int tournament;
