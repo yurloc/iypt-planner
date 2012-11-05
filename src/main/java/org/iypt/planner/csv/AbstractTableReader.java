@@ -1,6 +1,7 @@
 package org.iypt.planner.csv;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import org.supercsv.cellprocessor.ift.CellProcessor;
@@ -26,7 +27,10 @@ public abstract class AbstractTableReader<T extends HasIntId> {
         this.clazz = clazz;
     }
 
-    public void read(CsvTablesProcessor tablesProcessor) throws IOException {
+    public Map<Integer, T> read(CsvTablesProcessor tablesProcessor) throws IOException {
+        if (!rows.isEmpty()) {
+            throw new UnsupportedOperationException("Repeated reading not supported.");
+        }
         try (ICsvBeanReader beanReader = new CsvBeanReader(
                         tablesProcessor.getTableReader(getTableName()),
                         CsvPreference.STANDARD_PREFERENCE)) {
@@ -40,9 +44,10 @@ public abstract class AbstractTableReader<T extends HasIntId> {
             }
 
         }
+        return getRows();
     }
 
     public Map<Integer, T> getRows() {
-        return this.rows;
+        return Collections.unmodifiableMap(rows);
     }
 }
