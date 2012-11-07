@@ -10,6 +10,10 @@
         <TablePane.Column width="-1"/>
       </columns>
       <TablePane.Row>
+        <Label text="Total jurors:"/>
+        <Label bxml:id="totalJurorsLabel"/>
+      </TablePane.Row>
+      <TablePane.Row>
         <Label text="Total jury seats:"/>
         <Label bxml:id="totalSeatsLabel"/>
       </TablePane.Row>

@@ -70,6 +70,7 @@ public class PlannerWindow extends Window implements Bindable {
     // tournament details
     @BXML private Label totalSeatsLabel;
     @BXML private Label totalMandaysLabel;
+    @BXML private Label totalJurorsLabel;
     @BXML private Label optimalLoadLabel;
 
     // round details
@@ -249,6 +250,7 @@ public class PlannerWindow extends Window implements Bindable {
         Tournament t = solver.getTournament();
         totalSeatsLabel.setText(Integer.toString(t.getJurySeats().size()));
         totalMandaysLabel.setText(Integer.toString(t.getJurors().size() * t.getRounds().size() - t.getDayOffs().size()));
+        totalJurorsLabel.setText(Integer.toString(t.getJurors().size()));
         optimalLoadLabel.setText(String.format("%.4f", t.getStatistics().getOptimalLoad()));
     }
 
