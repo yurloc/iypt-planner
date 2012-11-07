@@ -1,6 +1,7 @@
 package org.iypt.planner.csv;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import org.iypt.planner.csv.PersonReader.PersonRow;
@@ -45,8 +46,28 @@ public class Juror {
         return row.getFull_name();
     }
 
+    public String getGivenName() {
+        return row.getGiven_name();
+    }
+
+    public String getLastName() {
+        return row.getLast_name();
+    }
+
     @Override
     public String toString() {
         return String.format("%s {averageBias=%+.2f, marksRecorded=%d}", getName(), getAverageBias(), biases.size());
+    }
+
+    public static class BiasComparator implements Comparator<Juror> {
+
+        @Override
+        public int compare(Juror o1, Juror o2) {
+            int compare = Float.compare(o1.getAverageBias(), o2.getAverageBias());
+            if (compare != 0) {
+                return compare;
+            }
+            return o1.getLastName().compareTo(o2.getLastName());
+        }
     }
 }

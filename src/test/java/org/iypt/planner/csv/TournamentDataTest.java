@@ -2,7 +2,6 @@ package org.iypt.planner.csv;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Comparator;
 import java.util.TreeSet;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -85,18 +84,14 @@ public class TournamentDataTest {
         assertThat((double) event2.getOthersAverage(jurorCL), closeTo(7.8, ERROR));
         assertThat((double) event2.getBias(jurorCL), closeTo(-0.8, ERROR));
 
-        TreeSet<Juror> jurors = new TreeSet<>(new Comparator<Juror>() {
-            @Override
-            public int compare(Juror o1, Juror o2) {
-                return Float.compare(o1.getAverageBias(), o2.getAverageBias());
-            }
-        });
+        TreeSet<Juror> jurors = new TreeSet<>(new Juror.BiasComparator());
 
         jurors.addAll(t.getJurors());
 
         int marks = 0;
+        int i = 0;
         for (Juror juror : jurors) {
-            System.out.println(juror);
+            System.out.printf("%d: %s%n", ++i, juror);
             marks += juror.getMarksRecorded();
         }
         // assert that the sum of recorded marks for all jurors equals number of mark rows for the given tournament
