@@ -1,0 +1,34 @@
+<TableView xmlns:bxml="http://pivot.apache.org/bxml"
+           xmlns:content="org.apache.pivot.wtk.content"
+           xmlns:iypt="org.iypt.planner.gui"
+           xmlns="org.apache.pivot.wtk">
+
+  <columns>
+    <TableView.Column name="icon" width="-1">
+      <cellRenderer>
+        <content:TableViewImageCellRenderer/>
+      </cellRenderer>
+    </TableView.Column>
+
+    <TableView.Column name="flag" width="-1" headerData="Country">
+      <cellRenderer>
+        <content:TableViewImageCellRenderer/>
+      </cellRenderer>
+    </TableView.Column>
+
+    <TableView.Column name="name" width="-1" headerData="Name"/>
+
+    <TableView.Column name="type" width="-1" headerData="Type">
+      <cellRenderer>
+        <content:TableViewBooleanCellRenderer/>
+      </cellRenderer>
+    </TableView.Column>
+
+    <TableView.Column name="chair" width="-1" headerData="Chair">
+      <cellRenderer>
+        <content:TableViewBooleanCellRenderer/>
+      </cellRenderer>
+    </TableView.Column>
+  </columns>
+
+</TableView>

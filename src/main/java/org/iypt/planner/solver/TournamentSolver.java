@@ -33,6 +33,7 @@ import org.iypt.planner.domain.JurorLoad;
 import org.iypt.planner.domain.JurySeat;
 import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Tournament;
+import org.iypt.planner.gui.GroupRoster;
 import org.iypt.planner.gui.JurorDay;
 import org.iypt.planner.solver.util.ConstraintComparator;
 
@@ -146,6 +147,24 @@ public class TournamentSolver {
 
     public List<Juror> getIdle(Round round) {
         return idleMap.get(round);
+    }
+
+    public List<GroupRoster.JurorRow> getAwayRows(Round round) {
+        // FIXME temporary solution
+        List<GroupRoster.JurorRow> list = new ArrayList<>();
+        for (Juror j : getAway(round)) {
+            list.add(new GroupRoster.JurorRow(j));
+        }
+        return list;
+    }
+
+    public List<GroupRoster.JurorRow> getIdleRows(Round round) {
+        // FIXME temporary solution
+        List<GroupRoster.JurorRow> list = new ArrayList<>();
+        for (Juror j : getIdle(round)) {
+            list.add(new GroupRoster.JurorRow(j));
+        }
+        return list;
     }
 
     public List<CountryCode> getConflicts(Juror juror) {

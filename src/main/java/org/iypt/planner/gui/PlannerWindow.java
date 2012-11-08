@@ -77,8 +77,8 @@ public class PlannerWindow extends Window implements Bindable {
     @BXML private Label optimalIndependentLabel;
     @BXML private Label idleLabel;
     @BXML private Label awayLabel;
-    @BXML private ListView idleListView;
-    @BXML private ListView awayListView;
+    @BXML private TableView idleTableView;
+    @BXML private TableView awayTableView;
 
     // juror details
     @BXML private Label fullNameLabel;
@@ -112,15 +112,15 @@ public class PlannerWindow extends Window implements Bindable {
                 if (round == null) {
                     optimalIndependentLabel.setText("");
                     idleLabel.setText("Idle (0)");
-                    idleLabel.setText("Away (0)");
-                    idleListView.getListData().clear();
-                    awayListView.getListData().clear();
+                    awayLabel.setText("Away (0)");
+                    idleTableView.getTableData().clear();
+                    awayTableView.getTableData().clear();
                 } else {
                     optimalIndependentLabel.setText(String.format("%.4f", round.getOptimalIndependentCount()));
                     idleLabel.setText(String.format("Idle (%d)", solver.getIdle(round).size()));
                     awayLabel.setText(String.format("Away (%d)", solver.getAway(round).size()));
-                    idleListView.setListData(new ListAdapter<>(solver.getIdle(round)));
-                    awayListView.setListData(new ListAdapter<>(solver.getAway(round)));
+                    idleTableView.setTableData(new ListAdapter<>(solver.getIdleRows(round)));
+                    awayTableView.setTableData(new ListAdapter<>(solver.getAwayRows(round)));
                 }
             }
 

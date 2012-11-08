@@ -34,14 +34,18 @@
         <Label bxml:id="optimalIndependentLabel"/>
       </BoxPane>
       <BoxPane orientation="horizontal">
-        <BoxPane orientation="vertical" styles="{spacing:6}">
-          <Label bxml:id="idleLabel" styles="{font:{bold:true}}"/>
-          <ListView bxml:id="idleListView"/>
-        </BoxPane>
-        <BoxPane orientation="vertical" styles="{spacing:6}">
-          <Label bxml:id="awayLabel" styles="{font:{bold:true}}"/>
-          <ListView bxml:id="awayListView"/>
-        </BoxPane>
+        <Rollup>
+          <heading>
+            <Label bxml:id="idleLabel" styles="{font:{bold:true}}"/>
+          </heading>
+          <bxml:include bxml:id="idleTableView" src="juror_list.bxml" inline="true"/>
+        </Rollup>
+        <Rollup>
+          <heading>
+            <Label bxml:id="awayLabel" styles="{font:{bold:true}}"/>
+          </heading>
+          <bxml:include bxml:id="awayTableView" src="juror_list.bxml" inline="true"/>
+        </Rollup>
       </BoxPane>
     </BoxPane>
   </Border>
