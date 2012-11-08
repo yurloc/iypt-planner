@@ -1,8 +1,9 @@
-<BoxPane orientation="horizontal"
+<BoxPane orientation="vertical"
          xmlns:bxml="http://pivot.apache.org/bxml"
          xmlns:content="org.apache.pivot.wtk.content"
          xmlns:iypt="org.iypt.planner.gui"
          xmlns="org.apache.pivot.wtk">
+
   <Border title="Tournament">
     <TablePane>
       <columns>
@@ -27,28 +28,7 @@
       </TablePane.Row>
     </TablePane>
   </Border>
-  <Border title="Round">
-    <BoxPane orientation="vertical">
-      <BoxPane orientation="horizontal">
-        <Label text="Optimal number of independent jurors:"/>
-        <Label bxml:id="optimalIndependentLabel"/>
-      </BoxPane>
-      <BoxPane orientation="horizontal">
-        <Rollup>
-          <heading>
-            <Label bxml:id="idleLabel" styles="{font:{bold:true}}"/>
-          </heading>
-          <bxml:include bxml:id="idleTableView" src="juror_list.bxml" inline="true"/>
-        </Rollup>
-        <Rollup>
-          <heading>
-            <Label bxml:id="awayLabel" styles="{font:{bold:true}}"/>
-          </heading>
-          <bxml:include bxml:id="awayTableView" src="juror_list.bxml" inline="true"/>
-        </Rollup>
-      </BoxPane>
-    </BoxPane>
-  </Border>
+
   <Border title="Juror">
     <BoxPane orientation="vertical">
       <TablePane>
@@ -90,4 +70,28 @@
       </TablePane>
     </BoxPane>
   </Border>
+
+  <Border title="Round">
+    <BoxPane orientation="vertical">
+      <BoxPane orientation="horizontal">
+        <Label text="Optimal independent ratio:"/>
+        <Label bxml:id="optimalIndependentLabel"/>
+      </BoxPane>
+      <BoxPane orientation="horizontal">
+        <Rollup expanded="true">
+          <heading>
+            <Label bxml:id="idleLabel" styles="{font:{bold:true}}"/>
+          </heading>
+          <bxml:include bxml:id="idleTableView" src="juror_list.bxml" inline="true"/>
+        </Rollup>
+        <Rollup expanded="true">
+          <heading>
+            <Label bxml:id="awayLabel" styles="{font:{bold:true}}"/>
+          </heading>
+          <bxml:include bxml:id="awayTableView" src="juror_list.bxml" inline="true"/>
+        </Rollup>
+      </BoxPane>
+    </BoxPane>
+  </Border>
+
 </BoxPane>
