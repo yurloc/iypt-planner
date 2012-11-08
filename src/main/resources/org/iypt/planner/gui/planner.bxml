@@ -26,7 +26,7 @@
 
             <!-- Buttons -->
             <TablePane.Row height="-1">
-              <BoxPane>
+              <BoxPane styles="{padding:{top:10}}">
                 <PushButton bxml:id="solveButton" buttonData="Solve"/>
                 <PushButton bxml:id="terminateButton" buttonData="Terminate"/>
                 <Checkbox bxml:id="showChangesCheckbox" buttonData="Show changes on the fly"/>
@@ -35,8 +35,8 @@
 
             <!-- Overall score -->
             <TablePane.Row height="-1">
-              <BoxPane orientation="vertical">
-                <Label Form.label="Overall score" bxml:id="scoreLabel"/>
+              <BoxPane orientation="vertical" styles="{padding:{bottom:10,top:10}}">
+                <Label Form.label="Overall score" bxml:id="scoreLabel" styles="{font:{bold:true}}"/>
               </BoxPane>
             </TablePane.Row>
 
