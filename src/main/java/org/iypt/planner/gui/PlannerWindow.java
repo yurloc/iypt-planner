@@ -85,6 +85,7 @@ public class PlannerWindow extends Window implements Bindable {
     @BXML private BoxPane conflictsBoxPane;
     @BXML private Checkbox independentCheckbox;
     @BXML private Checkbox chairCheckbox;
+    @BXML private Label biasLabel;
     @BXML private Meter loadMeter;
     @BXML private TablePane jurorScheduleTablePane;
     private Color loadOkColor;
@@ -136,14 +137,23 @@ public class PlannerWindow extends Window implements Bindable {
                 }
                 independentCheckbox.setState(juror.getType() == JurorType.INDEPENDENT ? State.SELECTED : State.UNSELECTED);
                 chairCheckbox.setState(juror.isChairCandidate() ? State.SELECTED : State.UNSELECTED);
+                biasLabel.setText(String.format("%+.2f", juror.getBias()));
+                StyleDictionary biasStyles = biasLabel.getStyles();
+                if (juror.getBias() > 0) {
+                    biasStyles.put("color", Color.RED);
+                } else if (juror.getBias() < 0) {
+                    biasStyles.put("color", Color.BLUE);
+                } else {
+                    biasStyles.put("color", Color.BLACK);
+                }
                 JurorLoad load = solver.getLoad(juror);
                 loadMeter.setPercentage(load.getLoad());
                 loadMeter.setText(String.format("%.2f", load.getLoad()));
-                StyleDictionary styles = loadMeter.getStyles();
+                StyleDictionary loadStyles = loadMeter.getStyles();
                 if (load.isExcessive()) {
-                    styles.put("color", loadNokColor);
+                    loadStyles.put("color", loadNokColor);
                 } else {
-                    styles.put("color", loadOkColor);
+                    loadStyles.put("color", loadOkColor);
                 }
                 // schedule
                 jurorScheduleTablePane.getRows().remove(0, jurorScheduleTablePane.getRows().getLength());

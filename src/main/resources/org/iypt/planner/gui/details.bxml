@@ -53,6 +53,10 @@
           <Checkbox bxml:id="chairCheckbox"/>
         </TablePane.Row>
         <TablePane.Row>
+          <Label text="Bias:"/>
+          <Label bxml:id="biasLabel"/>
+        </TablePane.Row>
+        <TablePane.Row>
           <Label text="Load:"/>
           <BoxPane>
             <Meter bxml:id="loadMeter" preferredWidth="64" preferredHeight="12"/>
