@@ -2,7 +2,7 @@
          xmlns:bxml="http://pivot.apache.org/bxml"
          xmlns:content="org.apache.pivot.wtk.content"
          xmlns:iypt="org.iypt.planner.gui"
-         xmlns="org.apache.pivot.wtk">
+         xmlns="org.apache.pivot.wtk" styles="{padding:{left:6, right:6}}">
 
   <Border title="Tournament">
     <TablePane>
