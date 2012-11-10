@@ -15,18 +15,21 @@ public class Constraint {
     private String name;
     private String type;
     private String weight;
+    private int intWeight;
     private List<String> causes;
 
     public Constraint() {
     }
 
     public Constraint(ConstraintOccurrence co) {
-        this.name = co.getRuleId();
-        this.type = co.getConstraintType().toString().replaceFirst("NEGATIVE_", "-");
+        name = co.getRuleId();
+        type = co.getConstraintType().toString().replaceFirst("NEGATIVE_", "");
         if (co instanceof UnweightedConstraintOccurrence) {
-            this.weight = "";
+            intWeight = 0;
+            weight = "";
         } else if (co instanceof IntConstraintOccurrence) {
-            this.weight = Integer.toString(((IntConstraintOccurrence) co).getWeight());
+            intWeight = ((IntConstraintOccurrence) co).getWeight();
+            weight = Integer.toString(intWeight);
         } else {
             throw new UnsupportedOperationException("Constraint type (" + co.getClass() + ") not supported yet.");
         }
@@ -36,12 +39,17 @@ public class Constraint {
         }
     }
 
-    public String getWeight() {
-        return weight;
+    public int getIntWeight() {
+        return intWeight;
     }
 
-    public void setWeight(String weight) {
-        this.weight = weight;
+    public void setIntWeight(int intWeight) {
+        this.intWeight = intWeight;
+        weight = Integer.toString(intWeight);
+    }
+
+    public String getWeight() {
+        return weight;
     }
 
     public String getType() {

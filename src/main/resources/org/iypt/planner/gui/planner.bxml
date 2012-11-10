@@ -50,17 +50,7 @@
                       horizontalScrollBarPolicy="fill_to_capacity"
                       verticalScrollBarPolicy="fill_to_capacity"
                     >
-                      <TableView bxml:id="constraintsTableView">
-                        <columns>
-                          <TableView.Column width="-1" name="name"   headerData="Constraint"/>
-                          <TableView.Column width="-1" name="type"   headerData="Type"/>
-                          <TableView.Column width="-1" name="weight" headerData="Weight"/>
-                        </columns>
-                      </TableView>
-
-                      <columnHeader>
-                        <TableViewHeader tableView="$constraintsTableView"/>
-                      </columnHeader>
+                      <BoxPane bxml:id="constraintsBoxPane" orientation="vertical"/>
                     </ScrollPane>
                   </Border>
                 </left>

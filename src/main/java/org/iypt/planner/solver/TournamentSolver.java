@@ -35,17 +35,18 @@ import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Tournament;
 import org.iypt.planner.gui.GroupRoster;
 import org.iypt.planner.gui.JurorDay;
-import org.iypt.planner.solver.util.ConstraintComparator;
 
 /**
  *
  * @author jlocker
  */
 public class TournamentSolver {
+
     private SolverFactory solverFactory;
     private Tournament tournament;
     private WeightConfig weightConfig;
     private List<String> constraints;
+    private List<ConstraintOccurrence> constraintOccurences;
     private Solver solver;
     private ScoreDirector scoreDirector;
     // tournament details
@@ -101,26 +102,16 @@ public class TournamentSolver {
     }
 
     public List<String> getConstraints() {
-        return constraints;
+        return Collections.unmodifiableList(constraints);
     }
 
     public Score<?> getScore() {
-        scoreDirector.setWorkingSolution(tournament);
+        scoreDirector.setWorkingSolution(tournament.cloneSolution());
         return scoreDirector.calculateScore();
     }
 
     public List<ConstraintOccurrence> getConstraintOccurences() {
-        scoreDirector.setWorkingSolution(tournament);
-        scoreDirector.calculateScore(); // TODO revise me?
-
-        WorkingMemory workingMemory = ((DroolsScoreDirector) scoreDirector).getWorkingMemory();
-        Iterator<?> it = workingMemory.iterateObjects(new ClassObjectFilter(ConstraintOccurrence.class));
-        ArrayList<ConstraintOccurrence> occurences = new ArrayList<>();
-        while (it.hasNext()) {
-            occurences.add((ConstraintOccurrence) it.next());
-        }
-        Collections.sort(occurences, new ConstraintComparator());
-        return occurences;
+        return Collections.unmodifiableList(constraintOccurences);
     }
 
     public void addEventListener(SolverEventListener solverListener) {
@@ -223,14 +214,23 @@ public class TournamentSolver {
             ccList.add(conflict.getCountry());
         }
 
-        // collect juror loads (based on jury assignments)
-        scoreDirector.setWorkingSolution(tournament);
+        scoreDirector.setWorkingSolution(tournament.cloneSolution());
         scoreDirector.calculateScore();
         WorkingMemory workingMemory = ((DroolsScoreDirector) scoreDirector).getWorkingMemory();
-        Iterator<?> it = workingMemory.iterateObjects(new ClassObjectFilter(JurorLoad.class));
+        Iterator<?> it;
+
+        // collect juror loads (based on jury assignments)
+        it = workingMemory.iterateObjects(new ClassObjectFilter(JurorLoad.class));
         while (it.hasNext()) {
             JurorLoad load = (JurorLoad) it.next();
             loadMap.put(load.getJuror(), load);
+        }
+
+        // collect constraint occurences
+        it = workingMemory.iterateObjects(new ClassObjectFilter(ConstraintOccurrence.class));
+        constraintOccurences = new ArrayList<>();
+        while (it.hasNext()) {
+            constraintOccurences.add((ConstraintOccurrence) it.next());
         }
     }
 }

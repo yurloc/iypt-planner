@@ -3,6 +3,8 @@ package org.iypt.planner.gui;
 import java.awt.Color;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Comparator;
+import java.util.HashMap;
 import org.apache.pivot.beans.BXML;
 import org.apache.pivot.beans.Bindable;
 import org.apache.pivot.collections.ArrayList;
@@ -24,6 +26,7 @@ import org.apache.pivot.wtk.Label;
 import org.apache.pivot.wtk.ListView;
 import org.apache.pivot.wtk.Meter;
 import org.apache.pivot.wtk.PushButton;
+import org.apache.pivot.wtk.Rollup;
 import org.apache.pivot.wtk.TablePane;
 import org.apache.pivot.wtk.TableView;
 import org.apache.pivot.wtk.TableViewSelectionListener;
@@ -64,7 +67,7 @@ public class PlannerWindow extends Window implements Bindable {
     @BXML private PushButton terminateButton;
     @BXML private Checkbox showChangesCheckbox;
     @BXML private BoxPane tournamentScheduleBoxPane;
-    @BXML private TableView constraintsTableView;
+    @BXML private BoxPane constraintsBoxPane;
     @BXML private ListView causesListView;
 
     // tournament details
@@ -211,6 +214,7 @@ public class PlannerWindow extends Window implements Bindable {
 //                        activityIndicator.setActive(false);
                         solveButton.setEnabled(true);
                         terminateButton.setEnabled(false);
+                        task.getFault().printStackTrace();
                         scoreLabel.setText(task.getFault().toString());
                     }
                 };
@@ -229,30 +233,65 @@ public class PlannerWindow extends Window implements Bindable {
 
         showChangesCheckbox.setState(Button.State.SELECTED);
 
-        constraintsTableView.getTableViewSelectionListeners().add(new TableViewSelectionListener.Adapter() {
-
-            @Override
-            public void selectedRowChanged(TableView tableView, Object previousSelectedRow) {
-                int selectedIndex = tableView.getSelectedIndex();
-                if (selectedIndex >= 0) {
-                    Constraint constraint = (Constraint) tableView.getTableData().get(selectedIndex);
-                    causesListView.setListData(constraint.getCauses());
-                } else {
-                    causesListView.getListData().clear();
-                }
-            }
-
-        });
         solutionChanged();
     }
 
     private void solutionChanged() {
         scoreLabel.setText(solver.getScore().toString());
-        List<Constraint> constraints = new ArrayList<>();
-        for (ConstraintOccurrence co : solver.getConstraintOccurences()) {
-            constraints.add(new Constraint(co));
+
+        constraintsBoxPane.removeAll();
+        HashMap<String, List<Constraint>> map = new HashMap<>();
+        for (String constraintId : solver.getConstraints()) {
+            map.put(constraintId, new ArrayList<Constraint>());
         }
-        constraintsTableView.setTableData(constraints);
+
+        for (ConstraintOccurrence co : solver.getConstraintOccurences()) {
+            map.get(co.getRuleId()).add(new Constraint(co));
+        }
+
+        for (String coId : map.keySet()) {
+            List<Constraint> coList = map.get(coId);
+            String type = "";
+            if (coList.getLength() > 0) {
+                type = coList.get(0).getType().toLowerCase();
+            }
+            int total = 0;
+            for (Constraint constraint : coList) {
+                total += constraint.getIntWeight();
+            }
+            Rollup rollup = new Rollup(false);
+            rollup.setEnabled(!coList.isEmpty());
+            constraintsBoxPane.add(rollup);
+            Label heading = new Label(String.format("%s (%d/%d%s)", coId, coList.getLength(), total, type));
+            rollup.setHeading(heading);
+
+            TableView tableView = new TableView();
+            rollup.setContent(tableView);
+
+            tableView.getColumns().add(new TableView.Column("name", null, -1, false));
+            tableView.getColumns().add(new TableView.Column("weight", null, -1, false));
+
+            coList.setComparator(new Comparator<Constraint>() {
+                @Override
+                public int compare(Constraint o1, Constraint o2) {
+                    // sort by wight descending
+                    return o2.getIntWeight() - o1.getIntWeight();
+                }
+            });
+            tableView.setTableData(coList);
+            tableView.getTableViewSelectionListeners().add(new TableViewSelectionListener.Adapter() {
+                @Override
+                public void selectedRowChanged(TableView tableView, Object previousSelectedRow) {
+                    int selectedIndex = tableView.getSelectedIndex();
+                    if (selectedIndex >= 0) {
+                        Constraint constraint = (Constraint) tableView.getTableData().get(selectedIndex);
+                        causesListView.setListData(constraint.getCauses());
+                    } else {
+                        causesListView.getListData().clear();
+                    }
+                }
+            });
+        }
         tournamentSchedule.updateSchedule(solver.getTournament());
     }
 
