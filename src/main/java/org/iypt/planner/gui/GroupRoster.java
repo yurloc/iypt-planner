@@ -51,6 +51,10 @@ public class GroupRoster extends Container {
             return juror.getFirstName().substring(0, 1) + juror.getLastName().charAt(0);
         }
 
+        public Juror getJuror() {
+            return juror;
+        }
+
         public Image getIcon() {
             return icon;
         }

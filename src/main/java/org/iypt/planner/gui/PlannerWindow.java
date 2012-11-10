@@ -21,6 +21,8 @@ import org.apache.pivot.wtk.Button;
 import org.apache.pivot.wtk.Button.State;
 import org.apache.pivot.wtk.ButtonPressListener;
 import org.apache.pivot.wtk.Checkbox;
+import org.apache.pivot.wtk.Component;
+import org.apache.pivot.wtk.ComponentStateListener;
 import org.apache.pivot.wtk.ImageView;
 import org.apache.pivot.wtk.Label;
 import org.apache.pivot.wtk.ListView;
@@ -45,6 +47,7 @@ import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Team;
 import org.iypt.planner.domain.Tournament;
 import org.iypt.planner.domain.util.CSVTournamentFactory;
+import org.iypt.planner.gui.GroupRoster.JurorRow;
 import org.iypt.planner.solver.TournamentSolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -130,63 +133,34 @@ public class PlannerWindow extends Window implements Bindable {
 
             @Override
             public void jurorSelected(Juror juror) {
-                fullNameLabel.setText(juror.fullName());
-                conflictsBoxPane.removeAll();
-                for (CountryCode cc : solver.getConflicts(juror)) {
-                    ImageView flag = new ImageView(Images.getFlag(cc));
-                    flag.setTooltipText(cc.getName());
-                    flag.setTooltipDelay(200);
-                    conflictsBoxPane.add(flag);
-                }
-                independentCheckbox.setState(juror.getType() == JurorType.INDEPENDENT ? State.SELECTED : State.UNSELECTED);
-                chairCheckbox.setState(juror.isChairCandidate() ? State.SELECTED : State.UNSELECTED);
-                biasLabel.setText(String.format("%+.2f", juror.getBias()));
-                StyleDictionary biasStyles = biasLabel.getStyles();
-                if (juror.getBias() > 0) {
-                    biasStyles.put("color", Color.RED);
-                } else if (juror.getBias() < 0) {
-                    biasStyles.put("color", Color.BLUE);
-                } else {
-                    biasStyles.put("color", Color.BLACK);
-                }
-                JurorLoad load = solver.getLoad(juror);
-                loadMeter.setPercentage(load.getLoad());
-                loadMeter.setText(String.format("%.2f", load.getLoad()));
-                StyleDictionary loadStyles = loadMeter.getStyles();
-                if (load.isExcessive()) {
-                    loadStyles.put("color", loadNokColor);
-                } else {
-                    loadStyles.put("color", loadOkColor);
-                }
-                // schedule
-                jurorScheduleTablePane.getRows().remove(0, jurorScheduleTablePane.getRows().getLength());
-                for (JurorDay jurorDay : solver.getJurorDays(juror)) {
-                    TablePane.Row row = new TablePane.Row();
-                    jurorScheduleTablePane.getRows().add(row);
-                    row.add(new Label(jurorDay.getRound().toString()));
-                    switch (jurorDay.getStatus()) {
-                        case AWAY:
-                            row.add(new ImageView(Images.getImage("delete.png")));
-                            break;
-                        case IDLE:
-                            row.add(new ImageView(Images.getImage("cup.png")));
-                            break;
-                        case ASSIGNED:
-                            row.add(new ImageView(Images.getImage("script_edit.png")));
-                            BoxPane teams = new BoxPane();
-                            row.add(teams);
-                            teams.add(new Label(jurorDay.getGroup().getName()));
-                            for (Team team : jurorDay.getGroup().getTeams()) {
-                                teams.add(new ImageView(Images.getFlag(team.getCountry())));
-                            }
-                            break;
-                        default:
-                            throw new AssertionError();
-                    }
-                }
+                showJuror(juror);
             }
         });
         loadOkColor = (Color) loadMeter.getStyles().get("color");
+        TableViewSelectionListener.Adapter selectedJurorListener = new TableViewSelectionListener.Adapter() {
+            @Override
+            public void selectedRowChanged(TableView tableView, Object previousSelectedRow) {
+                JurorRow row = (JurorRow) tableView.getSelectedRow();
+                if (row != null) {
+                    showJuror(row.getJuror());
+                }
+            }
+        };
+        ComponentStateListener.Adapter focusedJurorListener = new ComponentStateListener.Adapter() {
+            @Override
+            public void focusedChanged(Component component, Component obverseComponent) {
+                if (component.isFocused()) {
+                    JurorRow row = (JurorRow) ((TableView) component).getSelectedRow();
+                    if (row != null) {
+                        showJuror(row.getJuror());
+                    }
+                }
+            }
+        };
+        idleTableView.getTableViewSelectionListeners().add(selectedJurorListener);
+        idleTableView.getComponentStateListeners().add(focusedJurorListener);
+        awayTableView.getTableViewSelectionListeners().add(selectedJurorListener);
+        awayTableView.getComponentStateListeners().add(focusedJurorListener);
 
         solver = newSolver();
         solver.setTournament(tournament);
@@ -381,5 +355,62 @@ public class PlannerWindow extends Window implements Bindable {
             return null;
         }
 
+    }
+
+    private void showJuror(Juror juror) {
+        fullNameLabel.setText(juror.fullName());
+        conflictsBoxPane.removeAll();
+        for (CountryCode cc : solver.getConflicts(juror)) {
+            ImageView flag = new ImageView(Images.getFlag(cc));
+            flag.setTooltipText(cc.getName());
+            flag.setTooltipDelay(200);
+            conflictsBoxPane.add(flag);
+        }
+        independentCheckbox.setState(juror.getType() == JurorType.INDEPENDENT ? State.SELECTED : State.UNSELECTED);
+        chairCheckbox.setState(juror.isChairCandidate() ? State.SELECTED : State.UNSELECTED);
+        biasLabel.setText(String.format("%+.2f", juror.getBias()));
+        StyleDictionary biasStyles = biasLabel.getStyles();
+        if (juror.getBias() > 0) {
+            biasStyles.put("color", Color.RED);
+        } else if (juror.getBias() < 0) {
+            biasStyles.put("color", Color.BLUE);
+        } else {
+            biasStyles.put("color", Color.BLACK);
+        }
+        JurorLoad load = solver.getLoad(juror);
+        loadMeter.setPercentage(load.getLoad());
+        loadMeter.setText(String.format("%.2f", load.getLoad()));
+        StyleDictionary loadStyles = loadMeter.getStyles();
+        if (load.isExcessive()) {
+            loadStyles.put("color", loadNokColor);
+        } else {
+            loadStyles.put("color", loadOkColor);
+        }
+        // schedule
+        jurorScheduleTablePane.getRows().remove(0, jurorScheduleTablePane.getRows().getLength());
+        for (JurorDay jurorDay : solver.getJurorDays(juror)) {
+            TablePane.Row row = new TablePane.Row();
+            jurorScheduleTablePane.getRows().add(row);
+            row.add(new Label(jurorDay.getRound().toString()));
+            switch (jurorDay.getStatus()) {
+                case AWAY:
+                    row.add(new ImageView(Images.getImage("delete.png")));
+                    break;
+                case IDLE:
+                    row.add(new ImageView(Images.getImage("cup.png")));
+                    break;
+                case ASSIGNED:
+                    row.add(new ImageView(Images.getImage("script_edit.png")));
+                    BoxPane teams = new BoxPane();
+                    row.add(teams);
+                    teams.add(new Label(jurorDay.getGroup().getName()));
+                    for (Team team : jurorDay.getGroup().getTeams()) {
+                        teams.add(new ImageView(Images.getFlag(team.getCountry())));
+                    }
+                    break;
+                default:
+                    throw new AssertionError();
+            }
+        }
     }
 }
