@@ -30,6 +30,9 @@
                 <PushButton bxml:id="solveButton" buttonData="Solve"/>
                 <PushButton bxml:id="terminateButton" buttonData="Terminate"/>
                 <Checkbox bxml:id="showChangesCheckbox" buttonData="Show changes on the fly"/>
+                <PushButton bxml:id="swapButton" buttonData="Swap"/>
+                <bxml:include bxml:id="swap1TableView" src="juror_list.bxml" inline="true"/>
+                <bxml:include bxml:id="swap2TableView" src="juror_list.bxml" inline="true"/>
               </BoxPane>
             </TablePane.Row>
 

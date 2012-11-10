@@ -49,6 +49,7 @@ public class TournamentSolver {
     private List<ConstraintOccurrence> constraintOccurences;
     private Solver solver;
     private ScoreDirector scoreDirector;
+    private boolean solving;
     // tournament details
     private Map<Round, List<Juror>> idleMap = new HashMap<>();
     private Map<Round, List<Juror>> awayMap = new HashMap<>();
@@ -119,8 +120,10 @@ public class TournamentSolver {
     }
 
     public void solve() {
+        solving = true;
         solver.setPlanningProblem(tournament);
         solver.solve();
+        solving = false;
         setTournament((Tournament) solver.getBestSolution());
     }
 
@@ -232,5 +235,9 @@ public class TournamentSolver {
         while (it.hasNext()) {
             constraintOccurences.add((ConstraintOccurrence) it.next());
         }
+    }
+
+    public boolean isSolving() {
+        return solving;
     }
 }

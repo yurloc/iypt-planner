@@ -43,6 +43,7 @@ import org.iypt.planner.domain.CountryCode;
 import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.JurorLoad;
 import org.iypt.planner.domain.JurorType;
+import org.iypt.planner.domain.JurySeat;
 import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Team;
 import org.iypt.planner.domain.Tournament;
@@ -68,6 +69,9 @@ public class PlannerWindow extends Window implements Bindable {
     @BXML private Label scoreLabel;
     @BXML private PushButton solveButton;
     @BXML private PushButton terminateButton;
+    @BXML private PushButton swapButton;
+    @BXML private TableView swap1TableView;
+    @BXML private TableView swap2TableView;
     @BXML private Checkbox showChangesCheckbox;
     @BXML private BoxPane tournamentScheduleBoxPane;
     @BXML private BoxPane constraintsBoxPane;
@@ -101,6 +105,9 @@ public class PlannerWindow extends Window implements Bindable {
     private TournamentSchedule tournamentSchedule;
     private SolverTask solverTask;
     private TournamentSolver solver;
+    private Round selectedRound;
+    private Juror juror1;
+    private Juror juror2;
 
     @Override
     public void initialize(Map<String, Object> namespace, URL location, Resources resources) {
@@ -116,6 +123,7 @@ public class PlannerWindow extends Window implements Bindable {
         tournamentSchedule.getTournamentScheduleListeners().add(new TournamentScheduleListener.Adapter() {
             @Override
             public void roundSelected(Round round) {
+                selectedRound = round;
                 if (round == null) {
                     optimalIndependentLabel.setText("");
                     idleLabel.setText("Idle (0)");
@@ -128,12 +136,14 @@ public class PlannerWindow extends Window implements Bindable {
                     awayLabel.setText(String.format("Away (%d)", solver.getAway(round).size()));
                     idleTableView.setTableData(new ListAdapter<>(solver.getIdleRows(round)));
                     awayTableView.setTableData(new ListAdapter<>(solver.getAwayRows(round)));
+                    clearSwap();
                 }
             }
 
             @Override
             public void jurorSelected(Juror juror) {
                 showJuror(juror);
+                prepareSwap(juror);
             }
         });
         loadOkColor = (Color) loadMeter.getStyles().get("color");
@@ -162,6 +172,16 @@ public class PlannerWindow extends Window implements Bindable {
         awayTableView.getTableViewSelectionListeners().add(selectedJurorListener);
         awayTableView.getComponentStateListeners().add(focusedJurorListener);
 
+        idleTableView.getTableViewSelectionListeners().add(new TableViewSelectionListener.Adapter() {
+            @Override
+            public void selectedRowChanged(TableView tableView, Object previousSelectedRow) {
+                JurorRow row = (JurorRow) tableView.getSelectedRow();
+                if (row != null) {
+                    prepareSwap(row.getJuror());
+                }
+            }
+        });
+
         solver = newSolver();
         solver.setTournament(tournament);
         tournamentChanged();
@@ -172,6 +192,7 @@ public class PlannerWindow extends Window implements Bindable {
 //                Alert.alert(MessageType.INFO, "You clicked me!", PlannerWindow.this);
                 button.setEnabled(false);
                 terminateButton.setEnabled(true);
+                clearSwap();
                 solverTask = new SolverTask(solver);
                 TaskListener<Void> taskListener = new TaskListener<Void>() {
                     @Override
@@ -193,6 +214,27 @@ public class PlannerWindow extends Window implements Bindable {
                     }
                 };
                 solverTask.execute(new TaskAdapter<>(taskListener));
+            }
+        });
+
+        swap1TableView.setSelectMode(TableView.SelectMode.NONE);
+        swap2TableView.setSelectMode(TableView.SelectMode.NONE);
+        swapButton.setEnabled(false);
+        swapButton.getButtonPressListeners().add(new ButtonPressListener() {
+            @Override
+            public void buttonPressed(Button button) {
+                Tournament t = solver.getTournament();
+                for (JurySeat seat : t.getJurySeats()) {
+                    if (seat.getJury().getGroup().getRound() == selectedRound) {
+                        if (seat.getJuror() == juror1) {
+                            seat.setJuror(juror2);
+                        } else if (seat.getJuror() == juror2) {
+                            seat.setJuror(juror1);
+                        }
+                    }
+                }
+                solver.setTournament(t);
+                solutionChanged();
             }
         });
 
@@ -412,5 +454,37 @@ public class PlannerWindow extends Window implements Bindable {
                     throw new AssertionError();
             }
         }
+    }
+
+    private void prepareSwap(Juror juror) {
+        if (juror1 == null) {
+            juror1 = juror;
+        } else if (juror2 == null) {
+            if (juror != juror1) {
+                juror2 = juror;
+            }
+        } else if (juror != juror2 && juror != juror1) {
+            juror1 = juror2;
+            juror2 = juror;
+        }
+
+        if (juror1 != null) {
+            swap1TableView.setTableData(new ArrayList<>(new JurorRow(juror1)));
+        }
+        if (juror2 != null) {
+            swap2TableView.setTableData(new ArrayList<>(new JurorRow(juror2)));
+            if (!solver.isSolving()) {
+                swapButton.setEnabled(true);
+            }
+        }
+
+    }
+
+    private void clearSwap() {
+        juror1 = null;
+        juror2 = null;
+        swap1TableView.getTableData().clear();
+        swap2TableView.getTableData().clear();
+        swapButton.setEnabled(false);
     }
 }
