@@ -24,6 +24,7 @@ public class GroupRosterSkin extends ContainerSkin implements GroupRosterListene
     private Label groupNameLabel;
     private BoxPane teamsBoxPane;
     private TableView juryTableView;
+    private Dimensions preferredSize = null;
 
     @Override
     public void install(Component component) {
@@ -71,7 +72,10 @@ public class GroupRosterSkin extends ContainerSkin implements GroupRosterListene
 
     @Override
     public Dimensions getPreferredSize() {
-        return content.getPreferredSize();
+        if (preferredSize == null) {
+            preferredSize = content.getPreferredSize();
+        }
+        return preferredSize;
     }
 
     @Override
