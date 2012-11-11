@@ -118,27 +118,12 @@ public class PlannerWindow extends Window implements Bindable {
 //            Alert.alert(MessageType.ERROR, ex.getMessage(), PlannerWindow.this);
             ex.printStackTrace();
         }
-        selectedRound = tournament.getRounds().get(0);
         tournamentSchedule = new TournamentSchedule(tournament);
         tournamentScheduleBoxPane.add(tournamentSchedule);
         tournamentSchedule.getTournamentScheduleListeners().add(new TournamentScheduleListener.Adapter() {
             @Override
             public void roundSelected(Round round) {
-                selectedRound = round;
-                if (round == null) {
-                    optimalIndependentLabel.setText("");
-                    idleLabel.setText("Idle (0)");
-                    awayLabel.setText("Away (0)");
-                    idleTableView.getTableData().clear();
-                    awayTableView.getTableData().clear();
-                } else {
-                    optimalIndependentLabel.setText(String.format("%.4f", round.getOptimalIndependentCount()));
-                    idleLabel.setText(String.format("Idle (%d)", solver.getIdle(round).size()));
-                    awayLabel.setText(String.format("Away (%d)", solver.getAway(round).size()));
-                    idleTableView.setTableData(new ListAdapter<>(solver.getIdleRows(round)));
-                    awayTableView.setTableData(new ListAdapter<>(solver.getAwayRows(round)));
-                    clearSwap();
-                }
+                updateRoundDetails(round);
             }
 
             @Override
@@ -252,6 +237,7 @@ public class PlannerWindow extends Window implements Bindable {
         showChangesCheckbox.setState(Button.State.SELECTED);
 
         solutionChanged();
+        updateRoundDetails(tournament.getRounds().get(0));
     }
 
     private void solutionChanged() {
@@ -310,6 +296,7 @@ public class PlannerWindow extends Window implements Bindable {
                 }
             });
         }
+        updateRoundDetails(selectedRound);
         tournamentSchedule.updateSchedule(solver.getTournament());
     }
 
@@ -399,6 +386,24 @@ public class PlannerWindow extends Window implements Bindable {
             return null;
         }
 
+    }
+
+    private void updateRoundDetails(Round round) {
+        selectedRound = round;
+        if (round == null) {
+            optimalIndependentLabel.setText("");
+            idleLabel.setText("Idle (0)");
+            awayLabel.setText("Away (0)");
+            idleTableView.getTableData().clear();
+            awayTableView.getTableData().clear();
+        } else {
+            optimalIndependentLabel.setText(String.format("%.4f", round.getOptimalIndependentCount()));
+            idleLabel.setText(String.format("Idle (%d)", solver.getIdle(round).size()));
+            awayLabel.setText(String.format("Away (%d)", solver.getAway(round).size()));
+            idleTableView.setTableData(new ListAdapter<>(solver.getIdleRows(round)));
+            awayTableView.setTableData(new ListAdapter<>(solver.getAwayRows(round)));
+            clearSwap();
+        }
     }
 
     private void showJuror(Juror juror) {
