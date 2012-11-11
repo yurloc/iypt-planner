@@ -1,7 +1,8 @@
 package org.iypt.planner.domain;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.List;
 
 /**
  *
@@ -11,7 +12,7 @@ public class Round {
 
     private int number;
     private int day;
-    private Set<Group> groups;
+    private List<Group> groups;
     private double iCount = 0;
 
     void setOptimalIndependentCount(double optimalCount) {
@@ -25,7 +26,7 @@ public class Round {
     public Round(int number, int day) {
         this.number = number;
         this.day = day;
-        this.groups = new LinkedHashSet<>(10);
+        this.groups = new ArrayList<>(10);
     }
     
     public Group createGroup(String name) {
@@ -79,7 +80,7 @@ public class Round {
      *
      * @return the value of groups
      */
-    public Set<Group> getGroups() {
+    public List<Group> getGroups() {
         return groups;
     }
 

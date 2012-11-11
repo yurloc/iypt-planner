@@ -1,5 +1,6 @@
 package org.iypt.planner.gui;
 
+import java.util.List;
 import org.apache.pivot.collections.HashMap;
 import org.apache.pivot.wtk.Component;
 import org.apache.pivot.wtk.Dimensions;
@@ -17,6 +18,7 @@ import org.iypt.planner.domain.Round;
 public class TournamentScheduleSkin extends ContainerSkin implements TournamentScheduleListener {
 
     private TabPane content;
+    private RoundView[] views;
     private static final HashMap<String, String> tabPaneStyles = new HashMap<>();
 
     static {
@@ -26,17 +28,27 @@ public class TournamentScheduleSkin extends ContainerSkin implements TournamentS
     @Override
     public void install(Component component) {
         super.install(component);
-        final TournamentSchedule tournament = (TournamentSchedule) component;
-        tournament.getTournamentScheduleListeners().add(this);
+        final TournamentSchedule schedule = (TournamentSchedule) component;
+        schedule.getTournamentScheduleListeners().add(this);
         content = new TabPane();
         content.getTabPaneSelectionListeners().add(new TabPaneSelectionListener.Adapter() {
             @Override
             public void selectedIndexChanged(TabPane tabPane, int previousSelectedIndex) {
-                tournament.roundSelected(tabPane.getSelectedIndex());
+                schedule.roundSelected(tabPane.getSelectedIndex());
             }
         });
         content.setStyles(tabPaneStyles);
-        tournament.add(content);
+        schedule.add(content);
+
+        // initialize round views
+        List<Round> rounds = schedule.getTournament().getRounds();
+        views = new RoundView[rounds.size()];
+        for (int i = 0; i < views.length; i++) {
+            RoundView roundView = new RoundView(schedule, rounds.get(i));
+            views[i] = roundView;
+            content.getTabs().add(roundView);
+            TabPane.setTabData(roundView, new ButtonData("Round #" + rounds.get(i).getNumber()));
+        }
     }
 
     @Override
@@ -62,13 +74,11 @@ public class TournamentScheduleSkin extends ContainerSkin implements TournamentS
 
     @Override
     public void scheduleChanged(TournamentSchedule schedule) {
-        content.getTabs().remove(0, content.getTabs().getLength());
         // TODO check this
-//        TournamentSchedule tournament = (TournamentSchedule) getComponent();
-        for (Round round : schedule.getTournament().getRounds()) {
-            RoundView roundView = new RoundView(schedule, round);
-            content.getTabs().add(roundView);
-            TabPane.setTabData(roundView, new ButtonData("Round #" + round.getNumber()));
+        // TournamentSchedule tournament = (TournamentSchedule) getComponent();
+        List<Round> rounds = schedule.getTournament().getRounds();
+        for (int i = 0; i < views.length; i++) {
+            views[i].update(schedule, rounds.get(i));
         }
     }
 

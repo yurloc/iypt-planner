@@ -118,6 +118,7 @@ public class PlannerWindow extends Window implements Bindable {
 //            Alert.alert(MessageType.ERROR, ex.getMessage(), PlannerWindow.this);
             ex.printStackTrace();
         }
+        selectedRound = tournament.getRounds().get(0);
         tournamentSchedule = new TournamentSchedule(tournament);
         tournamentScheduleBoxPane.add(tournamentSchedule);
         tournamentSchedule.getTournamentScheduleListeners().add(new TournamentScheduleListener.Adapter() {
@@ -234,6 +235,7 @@ public class PlannerWindow extends Window implements Bindable {
                     }
                 }
                 solver.setTournament(t);
+                clearSwap();
                 solutionChanged();
             }
         });

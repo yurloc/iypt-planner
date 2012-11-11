@@ -1,5 +1,6 @@
 package org.iypt.planner.gui;
 
+import java.util.List;
 import org.apache.pivot.wtk.BoxPane;
 import org.apache.pivot.wtk.Component;
 import org.apache.pivot.wtk.Dimensions;
@@ -14,6 +15,7 @@ import org.iypt.planner.domain.Group;
 public class RoundViewSkin extends ContainerSkin implements RoundViewListener {
 
     private BoxPane content;
+    private GroupRoster[] views;
 
     @Override
     public void install(Component component) {
@@ -22,7 +24,15 @@ public class RoundViewSkin extends ContainerSkin implements RoundViewListener {
         round.getRoundViewListeners().add(this);
         content = new BoxPane(Orientation.HORIZONTAL);
         round.add(content);
-        scheduleChanged(round);
+
+        // initialize group views
+        List<Group> groups = round.getRound().getGroups();
+        views = new GroupRoster[groups.size()];
+        for (int i = 0; i < views.length; i++) {
+            GroupRoster view = new GroupRoster(round.getSchedule(), groups.get(i));
+            views[i] = view;
+            content.add(view);
+        }
     }
 
     @Override
@@ -48,9 +58,9 @@ public class RoundViewSkin extends ContainerSkin implements RoundViewListener {
 
     @Override
     public void scheduleChanged(RoundView round) {
-        content.removeAll();
-        for (Group group : round.getRound().getGroups()) {
-            content.add(new GroupRoster(round.getSchedule(), group));
+        List<Group> groups = round.getRound().getGroups();
+        for (int i = 0; i < views.length; i++) {
+            views[i].update(groups.get(i));
         }
     }
 }

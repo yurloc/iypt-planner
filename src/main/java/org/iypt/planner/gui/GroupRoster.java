@@ -106,12 +106,7 @@ public class GroupRoster extends Container {
     GroupRoster(TournamentSchedule schedule, Group group) {
         this.schedule = schedule;
         this.group = group;
-
-        for (JurySeat seat : schedule.getTournament().getJurySeats()) {
-            if (seat.getJury().equals(group.getJury())) {
-                jurorList.add(new JurorRow(seat.getJuror()));
-            }
-        }
+        updateJurors();
 
         setSkin(new GroupRosterSkin());
     }
@@ -128,8 +123,23 @@ public class GroupRoster extends Container {
         return teams;
     }
 
+    private void updateJurors() {
+        jurorList = new ArrayList<>(schedule.getTournament().getJuries().get(0).getCapacity());
+        for (JurySeat seat : schedule.getTournament().getJurySeats()) {
+            if (seat.getJury().equals(group.getJury())) {
+                jurorList.add(new JurorRow(seat.getJuror()));
+            }
+        }
+    }
+
     public List<JurorRow> getJurorList() {
         return jurorList;
+    }
+
+    void update(Group group) {
+        this.group = group;
+        updateJurors();
+        groupRosterListenerList.groupRosterChanged(this);
     }
 
     public ListenerList<GroupRosterListener> getGroupRosterListeners() {
