@@ -107,6 +107,9 @@ public class TournamentSolver {
     }
 
     public Score<?> getScore() {
+        if (tournament.getScore() != null) {
+            return tournament.getScore();
+        }
         scoreDirector.setWorkingSolution(tournament.cloneSolution());
         return scoreDirector.calculateScore();
     }
