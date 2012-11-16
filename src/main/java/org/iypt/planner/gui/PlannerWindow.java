@@ -1,6 +1,5 @@
 package org.iypt.planner.gui;
 
-import java.awt.Color;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Comparator;
@@ -16,6 +15,7 @@ import org.apache.pivot.util.concurrent.Task;
 import org.apache.pivot.util.concurrent.TaskExecutionException;
 import org.apache.pivot.util.concurrent.TaskListener;
 import org.apache.pivot.wtk.ApplicationContext;
+import org.apache.pivot.wtk.Border;
 import org.apache.pivot.wtk.BoxPane;
 import org.apache.pivot.wtk.Button;
 import org.apache.pivot.wtk.Button.State;
@@ -23,13 +23,10 @@ import org.apache.pivot.wtk.ButtonPressListener;
 import org.apache.pivot.wtk.Checkbox;
 import org.apache.pivot.wtk.Component;
 import org.apache.pivot.wtk.ComponentStateListener;
-import org.apache.pivot.wtk.ImageView;
 import org.apache.pivot.wtk.Label;
 import org.apache.pivot.wtk.ListView;
-import org.apache.pivot.wtk.Meter;
 import org.apache.pivot.wtk.PushButton;
 import org.apache.pivot.wtk.Rollup;
-import org.apache.pivot.wtk.TablePane;
 import org.apache.pivot.wtk.TableView;
 import org.apache.pivot.wtk.TableViewSelectionListener;
 import org.apache.pivot.wtk.TaskAdapter;
@@ -39,13 +36,9 @@ import org.drools.planner.core.event.SolverEventListener;
 import org.drools.planner.core.phase.event.SolverPhaseLifecycleListenerAdapter;
 import org.drools.planner.core.phase.step.AbstractStepScope;
 import org.drools.planner.core.score.constraint.ConstraintOccurrence;
-import org.iypt.planner.domain.CountryCode;
 import org.iypt.planner.domain.Juror;
-import org.iypt.planner.domain.JurorLoad;
-import org.iypt.planner.domain.JurorType;
 import org.iypt.planner.domain.JurySeat;
 import org.iypt.planner.domain.Round;
-import org.iypt.planner.domain.Team;
 import org.iypt.planner.domain.Tournament;
 import org.iypt.planner.domain.util.CSVTournamentFactory;
 import org.iypt.planner.gui.GroupRoster.JurorRow;
@@ -91,15 +84,8 @@ public class PlannerWindow extends Window implements Bindable {
     @BXML private TableView awayTableView;
 
     // juror details
-    @BXML private Label fullNameLabel;
-    @BXML private BoxPane conflictsBoxPane;
-    @BXML private Checkbox independentCheckbox;
-    @BXML private Checkbox chairCheckbox;
-    @BXML private Label biasLabel;
-    @BXML private Meter loadMeter;
-    @BXML private TablePane jurorScheduleTablePane;
-    private Color loadOkColor;
-    private Color loadNokColor = Color.RED.darker();
+    @BXML private Border jurorBorder;
+    private JurorDetails jurorDetails;
 
     // other
     private TournamentSchedule tournamentSchedule;
@@ -132,7 +118,6 @@ public class PlannerWindow extends Window implements Bindable {
                 prepareSwap(juror);
             }
         });
-        loadOkColor = (Color) loadMeter.getStyles().get("color");
         TableViewSelectionListener.Adapter selectedJurorListener = new TableViewSelectionListener.Adapter() {
             @Override
             public void selectedRowChanged(TableView tableView, Object previousSelectedRow) {
@@ -235,6 +220,8 @@ public class PlannerWindow extends Window implements Bindable {
         });
 
         showChangesCheckbox.setState(Button.State.SELECTED);
+        jurorDetails = new JurorDetails(solver);
+        jurorBorder.setContent(jurorDetails);
 
         solutionChanged();
         updateRoundDetails(tournament.getRounds().get(0));
@@ -407,60 +394,7 @@ public class PlannerWindow extends Window implements Bindable {
     }
 
     private void showJuror(Juror juror) {
-        fullNameLabel.setText(juror.fullName());
-        conflictsBoxPane.removeAll();
-        for (CountryCode cc : solver.getConflicts(juror)) {
-            ImageView flag = new ImageView(Images.getFlag(cc));
-            flag.setTooltipText(cc.getName());
-            flag.setTooltipDelay(200);
-            conflictsBoxPane.add(flag);
-        }
-        independentCheckbox.setState(juror.getType() == JurorType.INDEPENDENT ? State.SELECTED : State.UNSELECTED);
-        chairCheckbox.setState(juror.isChairCandidate() ? State.SELECTED : State.UNSELECTED);
-        biasLabel.setText(String.format("%+.2f", juror.getBias()));
-        StyleDictionary biasStyles = biasLabel.getStyles();
-        if (juror.getBias() > 0) {
-            biasStyles.put("color", Color.RED);
-        } else if (juror.getBias() < 0) {
-            biasStyles.put("color", Color.BLUE);
-        } else {
-            biasStyles.put("color", Color.BLACK);
-        }
-        JurorLoad load = solver.getLoad(juror);
-        loadMeter.setPercentage(load.getLoad());
-        loadMeter.setText(String.format("%.2f", load.getLoad()));
-        StyleDictionary loadStyles = loadMeter.getStyles();
-        if (load.isExcessive()) {
-            loadStyles.put("color", loadNokColor);
-        } else {
-            loadStyles.put("color", loadOkColor);
-        }
-        // schedule
-        jurorScheduleTablePane.getRows().remove(0, jurorScheduleTablePane.getRows().getLength());
-        for (JurorDay jurorDay : solver.getJurorDays(juror)) {
-            TablePane.Row row = new TablePane.Row();
-            jurorScheduleTablePane.getRows().add(row);
-            row.add(new Label(jurorDay.getRound().toString()));
-            switch (jurorDay.getStatus()) {
-                case AWAY:
-                    row.add(new ImageView(Images.getImage("delete.png")));
-                    break;
-                case IDLE:
-                    row.add(new ImageView(Images.getImage("cup.png")));
-                    break;
-                case ASSIGNED:
-                    row.add(new ImageView(Images.getImage("script_edit.png")));
-                    BoxPane teams = new BoxPane();
-                    row.add(teams);
-                    teams.add(new Label(jurorDay.getGroup().getName()));
-                    for (Team team : jurorDay.getGroup().getTeams()) {
-                        teams.add(new ImageView(Images.getFlag(team.getCountry())));
-                    }
-                    break;
-                default:
-                    throw new AssertionError();
-            }
-        }
+        jurorDetails.showJuror(juror);
     }
 
     private void prepareSwap(Juror juror) {

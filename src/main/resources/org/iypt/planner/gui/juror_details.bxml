@@ -1,0 +1,49 @@
+<BoxPane orientation="vertical"
+         xmlns:bxml="http://pivot.apache.org/bxml"
+         xmlns:content="org.apache.pivot.wtk.content"
+         xmlns:iypt="org.iypt.planner.gui"
+         xmlns="org.apache.pivot.wtk" styles="{padding:{left:6, right:6}}">
+
+      <TablePane>
+        <columns>
+          <TablePane.Column width="-1"/>
+          <TablePane.Column width="1*"/>
+        </columns>
+        <TablePane.Row>
+          <Label text="Full Name:"/>
+          <Label bxml:id="fullNameLabel"/>
+        </TablePane.Row>
+        <TablePane.Row>
+          <Label text="Conflicts:"/>
+          <BoxPane bxml:id="conflictsBoxPane"/>
+        </TablePane.Row>
+        <TablePane.Row>
+          <Label text="Independent:"/>
+          <Checkbox bxml:id="independentCheckbox"/>
+        </TablePane.Row>
+        <TablePane.Row>
+          <Label text="Chair candidate:"/>
+          <Checkbox bxml:id="chairCheckbox"/>
+        </TablePane.Row>
+        <TablePane.Row>
+          <Label text="Bias:"/>
+          <Label bxml:id="biasLabel"/>
+        </TablePane.Row>
+        <TablePane.Row>
+          <Label text="Load:"/>
+          <BoxPane>
+            <Meter bxml:id="loadMeter" preferredWidth="64" preferredHeight="12"/>
+          </BoxPane>
+        </TablePane.Row>
+      </TablePane>
+      <Separator heading="Schedule"/>
+      <!-- TODO make this interactive TableView (clicking a row activates the corresponding Round) -->
+      <TablePane bxml:id="jurorScheduleTablePane" styles="{horizontalSpacing:8}">
+        <columns>
+          <TablePane.Column width="-1"/>
+          <TablePane.Column width="-1"/>
+          <TablePane.Column width="-1"/>
+        </columns>
+      </TablePane>
+
+</BoxPane>
