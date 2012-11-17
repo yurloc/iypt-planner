@@ -8,22 +8,29 @@ import org.iypt.planner.domain.Round;
  * @author jlocker
  */
 public class JurorDay {
+
     public enum Status {
-        AWAY, IDLE, ASSIGNED
+
+        ASSIGNED, IDLE, AWAY
     }
     private Round round;
-    private Status status;
     private Group group;
+    private Status status;
+    private Status change;
+
+    public JurorDay(Round round, Group group, Status status) {
+        this.round = round;
+        this.group = group;
+        this.status = status;
+        this.change = status;
+    }
 
     public JurorDay(Round round, boolean idle) {
-        this.round = round;
-        this.status = idle ? Status.IDLE : Status.AWAY;
+        this(round, null, idle ? Status.IDLE : Status.AWAY);
     }
 
     public JurorDay(Group group) {
-        this.round = group.getRound();
-        this.status = Status.ASSIGNED;
-        this.group = group;
+        this(group.getRound(), group, Status.ASSIGNED);
     }
 
     public Round getRound() {
@@ -36,6 +43,15 @@ public class JurorDay {
 
     public Group getGroup() {
         return group;
+    }
+
+    boolean change(Status status) {
+        change = status;
+        return isDirty();
+    }
+
+    boolean isDirty() {
+        return status != change;
     }
 
     @Override

@@ -12,6 +12,7 @@ public class JurorDetails extends Container {
 
     private final TournamentSolver solver;
     private final JurorDetailsSkin skin;
+    private Juror juror;
 
     public JurorDetails(TournamentSolver solver) {
         this.solver = solver;
@@ -24,7 +25,11 @@ public class JurorDetails extends Container {
     }
 
     public void showJuror(Juror juror) {
+        this.juror = juror;
         skin.showJuror(juror);
     }
 
+    public Juror getJuror() {
+        return juror;
+    }
 }
