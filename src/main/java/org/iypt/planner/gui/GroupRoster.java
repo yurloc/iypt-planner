@@ -27,6 +27,9 @@ public class GroupRoster extends Container {
         private boolean type;
         private boolean chair;
 
+        public JurorRow() {
+        }
+
         public JurorRow(Juror juror) {
             this.juror = juror;
             this.icon = Images.getImage(Images.PERSON_DEFAULT);
@@ -34,6 +37,13 @@ public class GroupRoster extends Container {
             this.name = toDisplayName2(juror);
             this.type = juror.getType() == JurorType.INDEPENDENT;
             this.chair = juror.isChairCandidate();
+        }
+
+        public static JurorRow newInstance(Juror juror) {
+            if (juror == null) {
+                return new JurorRow();
+            }
+            return new JurorRow(juror);
         }
 
         private static String toDisplayName1(Juror juror) {
@@ -127,7 +137,7 @@ public class GroupRoster extends Container {
         jurorList = new ArrayList<>(schedule.getTournament().getJuries().get(0).getCapacity());
         for (JurySeat seat : schedule.getTournament().getJurySeats()) {
             if (seat.getJury().equals(group.getJury())) {
-                jurorList.add(new JurorRow(seat.getJuror()));
+                jurorList.add(JurorRow.newInstance(seat.getJuror()));
             }
         }
     }

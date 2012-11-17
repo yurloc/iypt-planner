@@ -97,6 +97,13 @@ public class JurorDetailsSkin extends ContainerSkin {
                 revert();
             }
         });
+
+        saveButton.getButtonPressListeners().add(new ButtonPressListener() {
+            @Override
+            public void buttonPressed(Button button) {
+                save();
+            }
+        });
     }
 
     @Override
@@ -240,7 +247,13 @@ public class JurorDetailsSkin extends ContainerSkin {
             if (day.isDirty()) {
                 setSelectedIndex(stateButtons.get(day), day);
                 roundLables.get(day).getStyles().put("font", fontOrig);
+                day.reset();
             }
         }
+    }
+
+    private void save() {
+        JurorDetails details = (JurorDetails) getComponent();
+        details.saveChanges();
     }
 }

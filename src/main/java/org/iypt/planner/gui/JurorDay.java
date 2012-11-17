@@ -50,8 +50,20 @@ public class JurorDay {
         return isDirty();
     }
 
-    boolean isDirty() {
+    public boolean isDirty() {
         return status != change;
+    }
+
+    public Status getChange() {
+        return change;
+    }
+
+    public void reset() {
+        change = status;
+    }
+
+    public void applyChange() {
+        status = change;
     }
 
     @Override

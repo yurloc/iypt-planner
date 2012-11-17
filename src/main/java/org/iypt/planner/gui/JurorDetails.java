@@ -13,6 +13,7 @@ public class JurorDetails extends Container {
     private final TournamentSolver solver;
     private final JurorDetailsSkin skin;
     private Juror juror;
+    private PlannerWindow listener;
 
     public JurorDetails(TournamentSolver solver) {
         this.solver = solver;
@@ -31,5 +32,15 @@ public class JurorDetails extends Container {
 
     public Juror getJuror() {
         return juror;
+    }
+
+    public void setListener(PlannerWindow listener) {
+        this.listener = listener;
+    }
+
+    void saveChanges() {
+        solver.applyChanges(juror);
+        skin.showJuror(juror);
+        listener.solutionChanged();
     }
 }

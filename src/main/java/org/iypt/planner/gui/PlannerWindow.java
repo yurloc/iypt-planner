@@ -221,13 +221,14 @@ public class PlannerWindow extends Window implements Bindable {
 
         showChangesCheckbox.setState(Button.State.SELECTED);
         jurorDetails = new JurorDetails(solver);
+        jurorDetails.setListener(this);
         jurorBorder.setContent(jurorDetails);
 
         solutionChanged();
         updateRoundDetails(tournament.getRounds().get(0));
     }
 
-    private void solutionChanged() {
+    void solutionChanged() {
         scoreLabel.setText(solver.getScore().toString());
 
         constraintsBoxPane.removeAll();
@@ -394,7 +395,9 @@ public class PlannerWindow extends Window implements Bindable {
     }
 
     private void showJuror(Juror juror) {
-        jurorDetails.showJuror(juror);
+        if (juror != null) {
+            jurorDetails.showJuror(juror);
+        }
     }
 
     private void prepareSwap(Juror juror) {

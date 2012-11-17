@@ -192,7 +192,7 @@ public class TournamentSolver {
             List<Juror> awayList = new ArrayList<>();
             idleList.addAll(tournament.getJurors());
             for (JurySeat seat : tournament.getJurySeats()) {
-                if (seat.getJury().getGroup().getRound().equals(round)) {
+                if (seat.getJury().getGroup().getRound().equals(round) && seat.getJuror() != null) {
                     idleList.remove(seat.getJuror());
                     jurorDayMap.get(seat.getJuror()).set(round.getNumber() - 1, new JurorDay(seat.getJury().getGroup()));
                 }
@@ -242,5 +242,41 @@ public class TournamentSolver {
 
     public boolean isSolving() {
         return solving;
+    }
+
+    public void applyChanges(Juror juror) {
+        for (JurorDay day : jurorDayMap.get(juror)) {
+            if (day.isDirty()) {
+
+                // no matter what the change is...
+                if (day.getStatus() == JurorDay.Status.ASSIGNED) {
+                    // empty the seat
+                    for (JurySeat seat : tournament.getJurySeats()) {
+                        if (seat.getJuror() == juror && seat.getJury().getGroup().getRound().getDay() == day.getRound().getDay()) {
+                            seat.setJuror(null);
+                        }
+                    }
+                } else if (day.getStatus() == JurorDay.Status.AWAY) {
+                    // cancel day off
+                    ArrayList<DayOff> cancelled = new ArrayList<>();
+                    for (DayOff dayOff : tournament.getDayOffs()) {
+                        // FIXME this would cancel multiple day offs if there were multiple rounds in one day
+                        if (dayOff.getJuror() == juror && dayOff.getDay() == day.getRound().getDay()) {
+                            cancelled.add(dayOff);
+                        }
+                    }
+                    tournament.getDayOffs().removeAll(cancelled);
+                }
+
+                // no matter what the original state is
+                if (day.getChange() == JurorDay.Status.AWAY) {
+                    // add day off
+                    tournament.addDayOffs(new DayOff(juror, day.getRound().getDay()));
+                }
+
+                day.applyChange();
+            }
+        }
+        updateDetails();
     }
 }
