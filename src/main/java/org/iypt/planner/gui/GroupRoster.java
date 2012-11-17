@@ -40,7 +40,7 @@ public class GroupRoster extends Container {
         }
 
         public static JurorRow newInstance(Juror juror) {
-            if (juror == null) {
+            if (juror == Juror.NULL) {
                 return new JurorRow();
             }
             return new JurorRow(juror);

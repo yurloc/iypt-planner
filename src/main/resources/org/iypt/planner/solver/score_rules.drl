@@ -45,12 +45,10 @@ then
     ));
 end
 
-rule "juryNotFull"
-    enabled false // probably not needed
+rule "emptySeat"
 when
-    $seat : JurySeat( juror == null, $jury : jury )
+    $seat : JurySeat( juror == Juror.NULL )
 then
-    System.out.println("juror missing");
     insertLogical( new IntConstraintOccurrence(
         drools.getRule().getName(),
         ConstraintType.NEGATIVE_HARD, 1,
@@ -72,7 +70,7 @@ end
 
 rule "teamAndJurorSameCountry"
 when
-    $seat : JurySeat( $jury : jury, $juror : juror != null )
+    $seat : JurySeat( $jury : jury, $juror : juror )
     $team : Team( $jury.group.teams contains this )
     $conflict : Conflict( juror == $juror, country == $team.country )
     // or $jury.group.countries.contains($juror.country) ?
@@ -87,7 +85,7 @@ end
 rule "dayOff"
 when
     $r : Round( $day : day)
-    $m : JurySeat( jury.group.round == $r, $juror : juror != null )
+    $m : JurySeat( jury.group.round == $r, $juror : juror )
     $dayOff : DayOff( juror == $juror, day == $day )
 then
     insertLogical( new IntConstraintOccurrence(
@@ -178,12 +176,12 @@ end
 rule "jurorAndJurorConflict"
 when
     $wc : WeightConfig()
-    // two occupied seats in the same jury
-    $s1 : JurySeat( $jury : jury, $j1 : juror != null )
-    $s2 : JurySeat( jury == $jury, $j2 : juror != null, this != $s1 )
-    // two conflicts of $j1 and $j2 with the same country
-    $c1 : Conflict( juror == $j1, $country : country )
-    $c2 : Conflict( juror == $j2, country == $country )
+    // two jurors with the same country conflict
+    $c1 : Conflict( $j1 : juror, $country : country )
+    $c2 : Conflict( $j2 : juror, country == $country )
+    // those two jurors meet in the same jury
+    $s1 : JurySeat( $jury : jury, juror == $j1 )
+    $s2 : JurySeat( jury == $jury, juror == $j2, this != $s1 )
 then
     insertLogical( new IntConstraintOccurrence(
         drools.getRule().getName(),

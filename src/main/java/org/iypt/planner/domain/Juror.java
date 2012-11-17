@@ -6,6 +6,7 @@ package org.iypt.planner.domain;
  */
 public class Juror {
 
+    public static final Juror NULL = new Juror(null, null, null, null, false);
     private String firstName;
     private String lastName;
     private String compactName;
@@ -38,9 +39,10 @@ public class Juror {
     }
 
     private void setCompactName() {
-        compactName = country.toString()
-                + (firstName == null ? '_' : firstName.toLowerCase().charAt(0))
-                + (lastName == null ? '_' : lastName.toLowerCase().charAt(0));
+        compactName = String.format("%s%c%c",
+                country == null ? "--" : country,
+                firstName == null ? '_' : firstName.toLowerCase().charAt(0),
+                lastName == null ? '_' : lastName.toLowerCase().charAt(0));
     }
 
     public String fullName() {
@@ -81,6 +83,7 @@ public class Juror {
 
     /**
      * Get juror type.
+     *
      * @return juror type
      */
     public JurorType getType() {
@@ -102,5 +105,4 @@ public class Juror {
     public void setBias(double bias) {
         this.bias = bias;
     }
-
 }

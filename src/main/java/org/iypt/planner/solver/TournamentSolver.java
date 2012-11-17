@@ -192,7 +192,7 @@ public class TournamentSolver {
             List<Juror> awayList = new ArrayList<>();
             idleList.addAll(tournament.getJurors());
             for (JurySeat seat : tournament.getJurySeats()) {
-                if (seat.getJury().getGroup().getRound().equals(round) && seat.getJuror() != null) {
+                if (seat.getJuror() != Juror.NULL && seat.getJury().getGroup().getRound().equals(round)) {
                     idleList.remove(seat.getJuror());
                     jurorDayMap.get(seat.getJuror()).set(round.getNumber() - 1, new JurorDay(seat.getJury().getGroup()));
                 }
@@ -253,7 +253,7 @@ public class TournamentSolver {
                     // empty the seat
                     for (JurySeat seat : tournament.getJurySeats()) {
                         if (seat.getJuror() == juror && seat.getJury().getGroup().getRound().getDay() == day.getRound().getDay()) {
-                            seat.setJuror(null);
+                            seat.setJuror(Juror.NULL);
                         }
                     }
                 } else if (day.getStatus() == JurorDay.Status.AWAY) {

@@ -114,6 +114,17 @@ public class ScoringRulesTest {
     }
 
     @Test
+    public void testEmptySeat() {
+        Tournament t = new Tournament();
+        t.setJuryCapacity(2);
+        t.addRounds(RoundFactory.createRound(1, tA, tB, tC));
+        t.addJurors(jD1);
+
+        assignJurors(t, jD1, Juror.NULL);
+        checkSolution(t, false, ScoringRule.emptySeat, 1);
+    }
+
+    @Test
     public void testTeamAndJurorSameCountry() {
         Tournament t = new Tournament();
         t.setJuryCapacity(1);
@@ -153,19 +164,15 @@ public class ScoringRulesTest {
         t.addJurors(jA1, jA2, jD1, jD2);
 
         // invalid chair
-        assignJurors(t, jD2, jD1);
+        assignJurors(t, jD2, jD1, jA1, jA2);
         checkSolution(t, false, ScoringRule.invalidChair, 1);
 
         // two invalid chairs
-        assignJurors(t, jD2, null, jA2);
+        assignJurors(t, jD2, jD1, jA2, jA1);
         checkSolution(t, false, ScoringRule.invalidChair, 2);
 
-        // one chair seat ok, one empty -> no invalid occupation
-        assignJurors(t, jD1, null, null);
-        checkSolutionFeasible(t);
-
         // both chair seats occupied
-        assignJurors(t, jD1, null, jA1);
+        assignJurors(t, jD1, jD2, jA1, jA2);
         checkSolutionFeasible(t);
     }
 
@@ -242,7 +249,7 @@ public class ScoringRulesTest {
         t.addRounds(RoundFactory.createRound(1, tA, tB, tC, tD, tE, tF));
         t.addJurors(jK1, jL1, jM1, jM2, jM3, jN1, jN2, jN3, jN4);
 
-        assignJurors(t, jM1, jN1, jM2);
+        assignJurors(t, jM1, jN1, jM2, jK1, jL1, jM3);
         checkSolution(t, true, ScoringRule.jurorAndJurorConflict, 2);
         assignJurors(t, jL1, jM2, jN4, jN1, jN2, jN3);
         checkSolution(t, true, ScoringRule.jurorAndJurorConflict, 6);
@@ -384,7 +391,7 @@ public class ScoringRulesTest {
         }
 
         public List<RuleActivation> getRuleActivations() {
-            return ruleActivations;
+            return Collections.unmodifiableList(ruleActivations);
         }
 
         public void ignoreRule(String ruleName) {
@@ -466,6 +473,7 @@ public class ScoringRulesTest {
         hardConstraintsBroken(false),
         softConstraintsBroken(false),
         multipleSeatsInRound(true),
+        emptySeat(true),
         teamAndJurorSameCountry(true),
         dayOff(true),
         invalidChair(true),
@@ -492,6 +500,7 @@ public class ScoringRulesTest {
     }
 
     private class RuleFiring {
+
         private ScoringRule rule;
         private int count;
 
