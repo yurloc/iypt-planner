@@ -277,6 +277,7 @@ public class TournamentTest {
 
         t.addJurors(jA1, jB1, jC1);
         t.addDayOffs(new DayOff(jA1, 1), new DayOff(jB1, 2));
+        t.addLock(new Lock(jA1, t.getJuries().get(0), 0));
 
         t.getConflicts().add(new Conflict(jA1, tF.getCountry()));
         t.getConflicts().add(new Conflict(jB1, tE.getCountry()));
@@ -294,7 +295,9 @@ public class TournamentTest {
         assertThat(clone.getJurors(), is(t.getJurors()));
         assertThat(clone.getDayOffs(), is(t.getDayOffs()));
         assertThat(clone.getConflicts(), is(t.getConflicts()));
+        assertThat(clone.getLocks(), is(t.getLocks()));
         assertThat(clone.getStatistics(), is(t.getStatistics()));
+        assertThat(clone.getWeightConfig(), is(t.getWeightConfig()));
 
         // check getProblemFacts
         @SuppressWarnings("unchecked")

@@ -24,6 +24,7 @@ import org.iypt.planner.domain.Conflict;
 import org.iypt.planner.domain.DayOff;
 import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.JurySeat;
+import org.iypt.planner.domain.Lock;
 import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Tournament;
 import org.iypt.planner.domain.util.CSVTournamentFactory;
@@ -154,6 +155,20 @@ public class ScoringRulesTest {
         assignJurors(t, jD1);
         t.addDayOffs(new DayOff(jD1, r1.getDay()));
         checkSolution(t, false, ScoringRule.dayOff, 1);
+    }
+
+    @Test
+    public void testBrokenLock() {
+        Round r1 = RoundFactory.createRound(1, tA, tB, tC);
+        Tournament t = new Tournament();
+        t.setJuryCapacity(2);
+        t.addRounds(r1);
+        t.addJurors(jD1, jE1, jF1);
+
+        assignJurors(t, jD1, jE1);
+        t.addLock(new Lock(jF1, t.getJuries().get(0), 0));
+        t.addLock(new Lock(jE1, t.getJuries().get(0), 1));
+        checkSolution(t, false, ScoringRule.brokenLock, 1);
     }
 
     @Test
@@ -476,6 +491,7 @@ public class ScoringRulesTest {
         emptySeat(true),
         teamAndJurorSameCountry(true),
         dayOff(true),
+        brokenLock(true),
         invalidChair(true),
         teamAndChairMeetOften(true),
         teamAndChairMeetTwice(false, 200),

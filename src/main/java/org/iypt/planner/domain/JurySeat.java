@@ -13,14 +13,14 @@ import org.drools.planner.api.domain.variable.ValueRangeType;
 public class JurySeat {
 
     // fixed
-    private final boolean chair;
     private final Jury jury;
+    private int position;
     // planning variable
     private Juror juror;
 
-    public JurySeat(boolean chair, Jury jury, Juror juror) {
-        this.chair = chair;
+    public JurySeat(Jury jury, int position, Juror juror) {
         this.jury = jury;
+        this.position = position;
         this.juror = juror;
     }
 
@@ -41,14 +41,18 @@ public class JurySeat {
     }
 
     public JurySeat clone() {
-        return new JurySeat(chair, jury, juror);
+        return new JurySeat(jury, position, juror);
     }
 
     //=========================================================================================================================
     // Getters & Setters
     //=========================================================================================================================
     public boolean isChair() {
-        return chair;
+        return position == 0;
+    }
+
+    public int getPosition() {
+        return position;
     }
 
     /**

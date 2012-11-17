@@ -17,6 +17,7 @@ import org.iypt.planner.domain.JurorLoad;
 import org.iypt.planner.domain.JurorType;
 import org.iypt.planner.domain.Jury;
 import org.iypt.planner.domain.JurySeat;
+import org.iypt.planner.domain.Lock;
 import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Team;
 import org.iypt.planner.domain.Tournament;
@@ -92,6 +93,18 @@ then
         drools.getRule().getName(),
         ConstraintType.NEGATIVE_HARD, 1,
         $m, $dayOff
+    ));
+end
+
+rule "brokenLock"
+when
+    $lock : Lock()
+    JurySeat( jury == $lock.jury, position == $lock.position, $misfit : juror != $lock.juror )
+then
+    insertLogical( new IntConstraintOccurrence(
+        drools.getRule().getName(),
+        ConstraintType.NEGATIVE_HARD, 1,
+        $lock, $misfit
     ));
 end
 

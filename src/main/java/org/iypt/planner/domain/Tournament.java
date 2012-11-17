@@ -30,6 +30,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
     private List<Juror> jurors;
     private List<DayOff> dayOffs;
     private List<Conflict> conflicts;
+    private List<Lock> locks;
 
     private int juryCapacity = Jury.DEFAULT_CAPACITY;
     private Statistics stats;
@@ -47,6 +48,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
         jurors = new ArrayList<>();
         jurySeats = new ArrayList<>();
         dayOffs = new ArrayList<>();
+        locks = new ArrayList<>();
         dayOffsMap = new HashMap<>();
         conflicts = new ArrayList<>();
         stats = new Statistics();
@@ -72,6 +74,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
         facts.addAll(jurors);
         facts.addAll(dayOffs);
         facts.addAll(conflicts);
+        facts.addAll(locks);
         facts.add(stats);
         facts.add(config);
         // All planning entities are automatically inserted into the Drools working memory
@@ -88,6 +91,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
         clone.dayOffs = dayOffs;
         clone.dayOffsMap = dayOffsMap;
         clone.conflicts = conflicts;
+        clone.locks = locks;
         clone.stats = stats;
         clone.config = config;
 
@@ -150,12 +154,10 @@ public class Tournament implements Solution<HardAndSoftScore> {
 
                 // skip this when cloning, planning entities have to be deep-cloned
                 if (!cloningSolution) {
-                    boolean chair = true; // first seat in each jury is the chair seat
                     for (int i = 0; i < jury.getCapacity(); i++) {
-                        JurySeat seat = new JurySeat(chair, jury, null);
+                        JurySeat seat = new JurySeat(jury, i, null);
                         jurySeats.add(seat);
                         jury.getSeats().add(seat);
-                        chair = false;
                     }
                 }
             }
@@ -228,6 +230,14 @@ public class Tournament implements Solution<HardAndSoftScore> {
         calculateIratio();
     }
 
+    public void addLock(Lock lock) {
+        locks.add(lock);
+    }
+
+    public void removeLock(Lock lock) {
+        locks.remove(lock);
+    }
+
     /**
      * Performs a sanity-check on this tournament. Checks the included problem facts and indicates if some hard constraints
      * obviously cannot be satisfied.
@@ -263,12 +273,10 @@ public class Tournament implements Solution<HardAndSoftScore> {
         jurySeats.clear();
         for (Jury jury : juries) {
             jury.setCapacity(capacity);
-            boolean chair = true; // first seat in each jury is the chair seat
             for (int i = 0; i < capacity; i++) {
-                JurySeat seat = new JurySeat(chair, jury, null);
+                JurySeat seat = new JurySeat(jury, i, null);
                 jurySeats.add(seat);
                 jury.getSeats().add(seat); // XXX relying on implementation of jurySeat collection
-                chair = false;
             }
         }
         stats.calculateOptimalLoad();
@@ -319,6 +327,10 @@ public class Tournament implements Solution<HardAndSoftScore> {
 
     public void setConflicts(List<Conflict> conflicts) {
         this.conflicts = conflicts;
+    }
+
+    public List<Lock> getLocks() {
+        return locks;
     }
 
     public Statistics getStatistics() {
