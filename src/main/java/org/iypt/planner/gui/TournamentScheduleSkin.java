@@ -10,6 +10,7 @@ import org.apache.pivot.wtk.content.ButtonData;
 import org.apache.pivot.wtk.skin.ContainerSkin;
 import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.Round;
+import org.iypt.planner.gui.GroupRoster.JurorRow;
 
 /**
  *
@@ -41,7 +42,7 @@ public class TournamentScheduleSkin extends ContainerSkin implements TournamentS
         schedule.add(content);
 
         // initialize round views
-        List<Round> rounds = schedule.getTournament().getRounds();
+        List<Round> rounds = schedule.getSolver().getTournament().getRounds();
         views = new RoundView[rounds.size()];
         for (int i = 0; i < views.length; i++) {
             RoundView roundView = new RoundView(schedule, rounds.get(i));
@@ -76,7 +77,7 @@ public class TournamentScheduleSkin extends ContainerSkin implements TournamentS
     public void scheduleChanged(TournamentSchedule schedule) {
         // TODO check this
         // TournamentSchedule tournament = (TournamentSchedule) getComponent();
-        List<Round> rounds = schedule.getTournament().getRounds();
+        List<Round> rounds = schedule.getSolver().getTournament().getRounds();
         for (int i = 0; i < views.length; i++) {
             views[i].update(schedule, rounds.get(i));
         }
@@ -90,6 +91,16 @@ public class TournamentScheduleSkin extends ContainerSkin implements TournamentS
 
     @Override
     public void jurorSelected(Juror juror) {
+        // not interested
+    }
+
+    @Override
+    public void jurorLocked(JurorRow jurorRow) {
+        // not interested
+    }
+
+    @Override
+    public void jurorUnlocked(JurorRow jurorRow) {
         // not interested
     }
 }

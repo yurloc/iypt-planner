@@ -11,6 +11,7 @@ import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.JurorType;
 import org.iypt.planner.domain.JurySeat;
 import org.iypt.planner.domain.Team;
+import org.iypt.planner.solver.TournamentSolver;
 
 /**
  *
@@ -20,6 +21,7 @@ public class GroupRoster extends Container {
 
     public static class JurorRow {
 
+        private JurySeat seat;
         private Juror juror;
         private Image icon;
         private Image flag;
@@ -27,7 +29,7 @@ public class GroupRoster extends Container {
         private boolean type;
         private boolean chair;
 
-        public JurorRow() {
+        private JurorRow() {
         }
 
         public JurorRow(Juror juror) {
@@ -46,6 +48,12 @@ public class GroupRoster extends Container {
             return new JurorRow(juror);
         }
 
+        private static JurorRow newInstance(JurySeat seat) {
+            JurorRow row = newInstance(seat.getJuror());
+            row.seat = seat;
+            return row;
+        }
+
         private static String toDisplayName1(Juror juror) {
             StringBuilder sb = new StringBuilder(20);
             if (juror.getLastName().length() > 10) {
@@ -59,6 +67,10 @@ public class GroupRoster extends Container {
 
         private static String toDisplayName2(Juror juror) {
             return juror.getFirstName().substring(0, 1) + juror.getLastName().charAt(0);
+        }
+
+        public JurySeat getSeat() {
+            return seat;
         }
 
         public Juror getJuror() {
@@ -84,6 +96,14 @@ public class GroupRoster extends Container {
         public boolean isChair() {
             return chair;
         }
+
+        public void breakLock() {
+            icon = Images.getImage(Images.PERSON_BROKEN_LOCK);
+        }
+
+        public void lock() {
+            icon = Images.getImage(Images.PERSON_LOCKED);
+        }
     }
 
     private static final class GroupRosterListenerList extends ListenerList<GroupRosterListener> implements GroupRosterListener {
@@ -95,7 +115,6 @@ public class GroupRoster extends Container {
             }
         }
     }
-
     private GroupRosterListenerList groupRosterListenerList = new GroupRosterListenerList();
     private TournamentSchedule schedule;
     private Group group;
@@ -107,6 +126,21 @@ public class GroupRoster extends Container {
             JurorRow jurorRow = (JurorRow) row;
             schedule.jurorSelected(jurorRow.juror);
         }
+    }
+
+    void lockIn(int rowIndex) {
+        JurorRow row = getJurorList().get(rowIndex);
+        schedule.lockJuror(row);
+
+    }
+
+    void lockOut(int rowIndex) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    void unlock(int rowIndex) {
+        JurorRow row = getJurorList().get(rowIndex);
+        schedule.unlockJuror(row);
     }
 
     public GroupRoster() {
@@ -134,10 +168,20 @@ public class GroupRoster extends Container {
     }
 
     private void updateJurors() {
-        jurorList = new ArrayList<>(schedule.getTournament().getJuries().get(0).getCapacity());
-        for (JurySeat seat : schedule.getTournament().getJurySeats()) {
+        TournamentSolver solver = schedule.getSolver();
+        jurorList = new ArrayList<>(solver.getJuryCapacity());
+        for (JurySeat seat : solver.getTournament().getJurySeats()) {
             if (seat.getJury().equals(group.getJury())) {
-                jurorList.add(JurorRow.newInstance(seat.getJuror()));
+                JurorRow row = JurorRow.newInstance(seat);
+                switch (solver.getLockStatus(row)) {
+                    case 1:
+                        row.lock();
+                        break;
+                    case 2:
+                        row.breakLock();
+                        break;
+                }
+                jurorList.add(row);
             }
         }
     }

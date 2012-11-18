@@ -15,6 +15,8 @@ import org.iypt.planner.domain.CountryCode;
 public class Images {
 
     public static final URL PERSON_DEFAULT = Images.class.getResource("img/status_offline.png");
+    public static final URL PERSON_LOCKED = Images.class.getResource("img/lock.png");
+    public static final URL PERSON_BROKEN_LOCK = Images.class.getResource("img/lock_break.png");
     private static final Map<CountryCode, URL> flags = new HashMap<>();
 
     static {

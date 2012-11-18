@@ -45,7 +45,7 @@ public class RoundView extends Container {
     }
 
     public Tournament getTournament() {
-        return schedule.getTournament();
+        return schedule.getSolver().getTournament();
     }
 
     public ListenerList<RoundViewListener> getRoundViewListeners() {

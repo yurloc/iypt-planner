@@ -31,9 +31,11 @@ import org.iypt.planner.domain.DayOff;
 import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.JurorLoad;
 import org.iypt.planner.domain.JurySeat;
+import org.iypt.planner.domain.Lock;
 import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Tournament;
 import org.iypt.planner.gui.GroupRoster;
+import org.iypt.planner.gui.GroupRoster.JurorRow;
 import org.iypt.planner.gui.JurorDay;
 
 /**
@@ -278,5 +280,42 @@ public class TournamentSolver {
             }
         }
         updateDetails();
+    }
+
+    public void lockJuror(JurorRow row) {
+        tournament.addLock(new Lock(row.getJuror(), row.getSeat().getJury(), row.getSeat().getPosition()));
+    }
+
+    public void unlockJuror(JurorRow row) {
+        Lock removed = null;
+        for (Lock lock : tournament.getLocks()) {
+            if (lock.matches(row.getSeat())) {
+                removed = lock;
+            }
+        }
+        if (removed != null) {
+            tournament.removeLock(removed);
+        }
+    }
+
+    public int getLockStatus(JurorRow row) {
+        for (Lock lock : tournament.getLocks()) {
+            if (lock.matches(row.getSeat())) {
+                if (lock.getJuror() == row.getJuror()) {
+                    return 1;
+                } else {
+                    return 2;
+                }
+            }
+        }
+        return 0;
+    }
+
+    public Round getRound(int roundNumber) {
+        return tournament.getRounds().get(roundNumber);
+    }
+
+    public int getJuryCapacity() {
+        return tournament.getJuries().get(0).getCapacity();
     }
 }

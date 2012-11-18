@@ -3,12 +3,15 @@ package org.iypt.planner.gui;
 import java.io.IOException;
 import org.apache.pivot.beans.BXMLSerializer;
 import org.apache.pivot.serialization.SerializationException;
+import org.apache.pivot.wtk.Action;
 import org.apache.pivot.wtk.BoxPane;
 import org.apache.pivot.wtk.Component;
 import org.apache.pivot.wtk.ComponentStateListener;
 import org.apache.pivot.wtk.Dimensions;
 import org.apache.pivot.wtk.ImageView;
 import org.apache.pivot.wtk.Label;
+import org.apache.pivot.wtk.Menu;
+import org.apache.pivot.wtk.MenuHandler;
 import org.apache.pivot.wtk.TableView;
 import org.apache.pivot.wtk.TableViewSelectionListener;
 import org.apache.pivot.wtk.skin.ContainerSkin;
@@ -25,6 +28,28 @@ public class GroupRosterSkin extends ContainerSkin implements GroupRosterListene
     private BoxPane teamsBoxPane;
     private TableView juryTableView;
     private Dimensions preferredSize = null;
+    private int rowIndex;
+    private final Action lockInAction = new Action() {
+        @Override
+        public void perform(Component source) {
+            GroupRoster group = (GroupRoster) getComponent();
+            group.lockIn(rowIndex);
+        }
+    };
+    private final Action lockOutAction = new Action() {
+        @Override
+        public void perform(Component source) {
+            GroupRoster group = (GroupRoster) getComponent();
+            group.lockOut(rowIndex);
+        }
+    };
+    private final Action unlockAction = new Action() {
+        @Override
+        public void perform(Component source) {
+            GroupRoster group = (GroupRoster) getComponent();
+            group.unlock(rowIndex);
+        }
+    };
 
     @Override
     public void install(Component component) {
@@ -56,6 +81,25 @@ public class GroupRosterSkin extends ContainerSkin implements GroupRosterListene
                 }
             }
         });
+        final Menu.Section section = new Menu.Section();
+        Menu.Item li = new Menu.Item("Lock-in");
+        Menu.Item lo = new Menu.Item("Lock-out");
+        Menu.Item ul = new Menu.Item("Unlock");
+        li.setAction(lockInAction);
+        lo.setAction(lockOutAction);
+        ul.setAction(unlockAction);
+        section.add(li);
+        section.add(lo);
+        section.add(ul);
+        juryTableView.setMenuHandler(new MenuHandler.Adapter() {
+            @Override
+            public boolean configureContextMenu(Component component, Menu menu, int x, int y) {
+                menu.getSections().add(section);
+                rowIndex = juryTableView.getRowAt(y);
+                return false;
+            }
+        });
+        lockOutAction.setEnabled(false);
 
         groupRosterChanged(group);
     }

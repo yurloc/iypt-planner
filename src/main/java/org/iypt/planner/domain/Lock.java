@@ -16,6 +16,10 @@ public class Lock {
         this.position = position;
     }
 
+    public boolean matches(JurySeat seat) {
+        return seat.getJury() == jury && seat.getPosition() == position;
+    }
+
     public Juror getJuror() {
         return juror;
     }
@@ -32,5 +36,4 @@ public class Lock {
     public String toString() {
         return String.format("%s locked on seat %d in %s", juror, position, jury);
     }
-
 }

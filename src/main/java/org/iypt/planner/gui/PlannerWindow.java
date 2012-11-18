@@ -104,7 +104,11 @@ public class PlannerWindow extends Window implements Bindable {
 //            Alert.alert(MessageType.ERROR, ex.getMessage(), PlannerWindow.this);
             ex.printStackTrace();
         }
-        tournamentSchedule = new TournamentSchedule(tournament);
+
+        solver = newSolver();
+        solver.setTournament(tournament);
+
+        tournamentSchedule = new TournamentSchedule(solver);
         tournamentScheduleBoxPane.add(tournamentSchedule);
         tournamentSchedule.getTournamentScheduleListeners().add(new TournamentScheduleListener.Adapter() {
             @Override
@@ -116,6 +120,16 @@ public class PlannerWindow extends Window implements Bindable {
             public void jurorSelected(Juror juror) {
                 showJuror(juror);
                 prepareSwap(juror);
+            }
+
+            @Override
+            public void jurorLocked(JurorRow jurorRow) {
+                solver.lockJuror(jurorRow);
+            }
+
+            @Override
+            public void jurorUnlocked(JurorRow jurorRow) {
+                solver.unlockJuror(jurorRow);
             }
         });
         TableViewSelectionListener.Adapter selectedJurorListener = new TableViewSelectionListener.Adapter() {
@@ -152,10 +166,6 @@ public class PlannerWindow extends Window implements Bindable {
                 }
             }
         });
-
-        solver = newSolver();
-        solver.setTournament(tournament);
-        tournamentChanged();
 
         solveButton.getButtonPressListeners().add(new ButtonPressListener() {
             @Override
@@ -224,6 +234,7 @@ public class PlannerWindow extends Window implements Bindable {
         jurorDetails.setListener(this);
         jurorBorder.setContent(jurorDetails);
 
+        tournamentChanged();
         solutionChanged();
         updateRoundDetails(tournament.getRounds().get(0));
     }
@@ -285,7 +296,7 @@ public class PlannerWindow extends Window implements Bindable {
             });
         }
         updateRoundDetails(selectedRound);
-        tournamentSchedule.updateSchedule(solver.getTournament());
+        tournamentSchedule.updateSchedule();
     }
 
     private void tournamentChanged() {
