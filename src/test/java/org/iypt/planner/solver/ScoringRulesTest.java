@@ -306,7 +306,6 @@ public class ScoringRulesTest {
     }
 
     // TODO maybe add test for accumulatedBias rule
-
     private void assignJurors(Tournament t, Juror... jurors) {
         Iterator<JurySeat> it = t.getJurySeats().iterator();
         for (int i = 0; i < jurors.length; i++) {
@@ -485,15 +484,18 @@ public class ScoringRulesTest {
 
     private enum ScoringRule {
 
+        // score calculation
         hardConstraintsBroken(false),
         softConstraintsBroken(false),
-        multipleSeatsInRound(true),
+        // hard constraints
         emptySeat(true),
+        multipleSeatsInRound(true),
+        invalidChair(true),
         teamAndJurorSameCountry(true),
+        teamAndChairMeetOften(true),
         dayOff(true),
         brokenLock(true),
-        invalidChair(true),
-        teamAndChairMeetOften(true),
+        // soft constraints
         teamAndChairMeetTwice(false, 200),
         teamAndJurorAlreadyMet(false, 1),
         calculateJurorLoads(false),
