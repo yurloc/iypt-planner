@@ -239,6 +239,24 @@ then
 end
 
 // ############################################################################
+// Change penalties
+// ############################################################################
+
+rule "penalizeChairChange"
+when
+     $t : Tournament()
+    $s2 : JurySeat( position == 0, $jury := jury )
+    $s1 : JurySeat( position == 0, $jury := jury, juror != $s2.juror ) from $t.getJurySeats()
+    $wc : WeightConfig()
+then
+    insertLogical( new IntConstraintOccurrence(
+        drools.getRule().getName(),
+        ConstraintType.NEGATIVE_SOFT, $wc.getWeight(drools.getRule().getName()),
+        $s1, $s2
+    ));
+end
+
+// ############################################################################
 // Calculate score
 // ############################################################################
 

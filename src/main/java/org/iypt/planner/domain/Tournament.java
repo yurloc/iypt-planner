@@ -31,6 +31,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
     private List<DayOff> dayOffs;
     private List<Conflict> conflicts;
     private List<Lock> locks;
+    private Tournament original = null;
 
     private int juryCapacity = Jury.DEFAULT_CAPACITY;
     private Statistics stats;
@@ -77,6 +78,9 @@ public class Tournament implements Solution<HardAndSoftScore> {
         facts.addAll(locks);
         facts.add(stats);
         facts.add(config);
+        if (original != null) {
+            facts.add(original);
+        }
         // All planning entities are automatically inserted into the Drools working memory
         // using @PlanningEntityCollectionProperty
         return facts;
@@ -94,6 +98,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
         clone.locks = locks;
         clone.stats = stats;
         clone.config = config;
+        clone.original = original;
 
         // deep-clone the planning entity
         for (JurySeat seat : jurySeats) {
@@ -343,6 +348,10 @@ public class Tournament implements Solution<HardAndSoftScore> {
 
     public void setWeightConfig(WeightConfig config) {
         this.config = config;
+    }
+
+    public void setOriginal(Tournament original) {
+        this.original = original;
     }
 
     public String toDisplayString() {

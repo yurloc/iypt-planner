@@ -305,6 +305,27 @@ public class ScoringRulesTest {
         checkSolution(t, true, ScoringRule.independentRatioDeltaExceeded, 2);
     }
 
+    @Test
+    public void testPenalizeChairChange() {
+        Tournament tOld = new Tournament();
+        tOld.setJuryCapacity(1);
+        Round r1 = RoundFactory.createRound(1, tA, tB, tC);
+        Round r2 = RoundFactory.createRound(2, tD, tE, tF);
+        tOld.addRounds(r1, r2);
+        assignJurors(tOld, jK1, jL1);
+        Tournament tNew = (Tournament) tOld.cloneSolution();
+        tNew.setOriginal(tOld);
+
+        assignJurors(tNew, jK1, jL1);
+        checkSolution(tNew, true, ScoringRule.penalizeChairChange, 0);
+
+        assignJurors(tNew, jK1, jM1);
+        checkSolution(tNew, true, ScoringRule.penalizeChairChange, 1);
+
+        assignJurors(tNew, jL1, jK1);
+        checkSolution(tNew, true, ScoringRule.penalizeChairChange, 2);
+    }
+
     // TODO maybe add test for accumulatedBias rule
     private void assignJurors(Tournament t, Juror... jurors) {
         Iterator<JurySeat> it = t.getJurySeats().iterator();
@@ -503,7 +524,8 @@ public class ScoringRulesTest {
         jurorAndJurorConflict(false, 10),
         calculateIndependentRatio(false),
         independentRatioDeltaExceeded(false, 1),
-        accumulatedBias(false, 10);
+        accumulatedBias(false, 10),
+        penalizeChairChange(false, 133);
         private boolean hard;
         private int weight = 1;
 
