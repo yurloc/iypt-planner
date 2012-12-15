@@ -256,6 +256,20 @@ then
     ));
 end
 
+rule "penalizeJurorWithdraw"
+when
+    $t : Tournament()
+    $s : JurySeat( $juror := juror ) from $t.jurySeats
+    not( exists JurySeat( $juror := juror) )
+    $wc : WeightConfig()
+then
+    insertLogical( new IntConstraintOccurrence(
+        drools.getRule().getName(),
+        ConstraintType.NEGATIVE_SOFT, $wc.getWeight(drools.getRule().getName()),
+        $s
+    ));
+end
+
 // ############################################################################
 // Calculate score
 // ############################################################################
