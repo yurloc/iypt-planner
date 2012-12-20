@@ -3,11 +3,12 @@ package org.iypt.planner.gui;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import org.apache.pivot.collections.HashSet;
+import java.util.List;
 import org.apache.pivot.util.ListenerList;
 import org.apache.pivot.wtk.Container;
-import org.drools.definition.rule.Rule;
 import org.drools.planner.core.score.constraint.ConstraintOccurrence;
+import org.drools.planner.core.score.constraint.ConstraintType;
+import org.drools.planner.core.score.constraint.IntConstraintOccurrence;
 import org.iypt.planner.solver.TournamentSolver;
 import org.iypt.planner.solver.WeightConfig;
 
@@ -27,25 +28,30 @@ public class ConstraintsConfig extends Container {
 
     protected final class Constraint {
 
-        private String name;
-        private int weight;
+        private ConstraintOccurrence co;
 
-        public Constraint(String name, int weight) {
-            this.name = name;
-            this.weight = weight;
+        public Constraint(String name, ConstraintType type) {
+            co = new IntConstraintOccurrence(name, type);
+        }
+
+        private Constraint(ConstraintOccurrence co) {
+            this.co = co;
         }
 
         public String getName() {
-            return name;
+            return co.getRuleId();
         }
 
         public int getWeight() {
-            return weight;
+            return weightConfig.getWeight(getName());
+        }
+
+        public ConstraintType getType() {
+            return co.getConstraintType();
         }
 
         public void setWeight(int weight) {
-            this.weight = weight;
-            weightConfig.setWeight(name, weight);
+            weightConfig.setWeight(getName(), weight);
         }
     }
 
@@ -61,7 +67,7 @@ public class ConstraintsConfig extends Container {
     }
     private TournamentSolver solver;
     private WeightConfig weightConfig;
-    private HashSet<Constraint> constraints = new HashSet<>();
+    private List<Constraint> constraints = new ArrayList<>();
     private ConstraintsConfigListenerList constraintsConfigListeners = new ConstraintsConfigListenerList();
 
     public ConstraintsConfig() {
@@ -83,24 +89,18 @@ public class ConstraintsConfig extends Container {
         this.weightConfig = weightConfig;
     }
 
-    public void addConstraints(String... constraints) {
+    public void addConstraints(ConstraintOccurrence... constraints) {
         addConstraints(Arrays.asList(constraints));
     }
 
-    public void addConstraints(Collection<String> constraints) {
-        for (String constraint : constraints) {
-            this.constraints.add(new Constraint(constraint, weightConfig.getWeight(constraint)));
+    public void addConstraints(Collection<ConstraintOccurrence> constraints) {
+        for (ConstraintOccurrence co : constraints) {
+            this.constraints.add(new Constraint(co));
         }
         constraintsConfigListeners.constraintsChanged(this);
     }
 
-    public void addConstraintsFromRules(Collection<Rule> rules) {
-        for (Rule rule : rules) {
-            addConstraints(rule.getName());
-        }
-    }
-
-    protected HashSet<Constraint> getConstraints() {
+    protected List<Constraint> getConstraints() {
         return constraints;
     }
 

@@ -1,5 +1,6 @@
 package org.iypt.planner.gui;
 
+import java.awt.Color;
 import org.apache.pivot.collections.HashMap;
 import org.apache.pivot.collections.Map;
 import org.apache.pivot.wtk.Component;
@@ -9,6 +10,7 @@ import org.apache.pivot.wtk.TablePane;
 import org.apache.pivot.wtk.TextInput;
 import org.apache.pivot.wtk.TextInputContentListener;
 import org.apache.pivot.wtk.skin.ContainerSkin;
+import org.drools.planner.core.score.constraint.ConstraintType;
 import org.iypt.planner.gui.ConstraintsConfig.Constraint;
 
 /**
@@ -19,10 +21,13 @@ public class ConstraintsConfigSkin extends ContainerSkin implements ConstraintsC
 
     private TablePane content;
     private static final Map<String, Object> borderStyles = new HashMap<>();
+    private static final Map<String, Object> hardConstraintStyles = new HashMap<>();
+    private static final String EXPLANATION = "Hard constraints are weighted equally. There's no point in modifying the weights.";
 
     static {
         borderStyles.put("padding", 10);
         borderStyles.put("thickness", 0);
+        hardConstraintStyles.put("color", Color.RED.darker());
     }
 
     /* 1. call super.install()
@@ -74,20 +79,30 @@ public class ConstraintsConfigSkin extends ContainerSkin implements ConstraintsC
         for (final Constraint constraint : config.getConstraints()) {
             TablePane.Row row = new TablePane.Row();
             content.getRows().add(row);
-            row.add(new Label(constraint.getName()));
+            Label label = new Label(constraint.getName());
+            row.add(label);
 
-            TextInput textInput = new TextInput();
-            row.add(textInput);
-            textInput.setText(Integer.toString(constraint.getWeight()));
-            textInput.getTextInputContentListeners().add(new TextInputContentListener.Adapter() {
-                @Override
-                public void textChanged(TextInput textInput) {
-                    String text = textInput.getText();
-                    if (!text.isEmpty()) {
-                        constraint.setWeight(Integer.parseInt(text));
+            if (constraint.getType() == ConstraintType.NEGATIVE_HARD) {
+                label.setStyles(hardConstraintStyles);
+                Label wLabel = new Label("--");
+                row.add(wLabel);
+                label.setTooltipText(EXPLANATION);
+                wLabel.setTooltipText(EXPLANATION);
+            } else {
+                TextInput textInput = new TextInput();
+                row.add(textInput);
+                textInput.setText(Integer.toString(constraint.getWeight()));
+                textInput.getTextInputContentListeners().add(new TextInputContentListener.Adapter() {
+                    @Override
+                    public void textChanged(TextInput textInput) {
+                        String text = textInput.getText();
+                        if (!text.isEmpty()) {
+                            constraint.setWeight(Integer.parseInt(text));
+                        }
                     }
-                }
-            });
+                });
+            }
+
         }
     }
 }

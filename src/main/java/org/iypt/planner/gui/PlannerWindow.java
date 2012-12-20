@@ -244,8 +244,8 @@ public class PlannerWindow extends Window implements Bindable {
 
         constraintsBoxPane.removeAll();
         HashMap<String, List<Constraint>> map = new HashMap<>();
-        for (String constraintId : solver.getConstraints()) {
-            map.put(constraintId, new ArrayList<Constraint>());
+        for (ConstraintOccurrence constraintId : solver.getConstraints()) {
+            map.put(constraintId.getRuleId(), new ArrayList<Constraint>());
         }
 
         for (ConstraintOccurrence co : solver.getConstraintOccurences()) {

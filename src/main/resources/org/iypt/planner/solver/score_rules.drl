@@ -33,6 +33,7 @@ global HardAndSoftScoreHolder scoreHolder;
 // ############################################################################
 
 rule "multipleSeatsInRound"
+@ConstraintType(hard)
 when
     $r : Round()
     $juror : Juror()
@@ -47,6 +48,7 @@ then
 end
 
 rule "emptySeat"
+@ConstraintType(hard)
 when
     $seat : JurySeat( juror == Juror.NULL )
 then
@@ -58,6 +60,7 @@ then
 end
 
 rule "invalidChair"
+@ConstraintType(hard)
 when
     $juror : Juror( !chairCandidate )
     $seat  : JurySeat( chair, juror == $juror )
@@ -70,6 +73,7 @@ then
 end
 
 rule "teamAndJurorSameCountry"
+@ConstraintType(hard)
 when
     $seat : JurySeat( $jury : jury, $juror : juror )
     $team : Team( $jury.group.teams contains this )
@@ -84,6 +88,7 @@ then
 end
 
 rule "dayOff"
+@ConstraintType(hard)
 when
     $r : Round( $day : day)
     $m : JurySeat( jury.group.round == $r, $juror : juror )
@@ -97,6 +102,7 @@ then
 end
 
 rule "brokenLock"
+@ConstraintType(hard)
 when
     $lock : Lock()
     JurySeat( jury == $lock.jury, position == $lock.position, $misfit : juror != $lock.juror )
@@ -109,6 +115,7 @@ then
 end
 
 rule "teamAndChairMeetOften"
+@ConstraintType(hard)
 when
     $juror : Juror( chairCandidate )
     $team  : Team()
@@ -128,6 +135,7 @@ end
 // ############################################################################
 
 rule "teamAndChairMeetTwice"
+@ConstraintType(soft)
 when
     $wc : WeightConfig()
     $juror : Juror( chairCandidate )
@@ -158,6 +166,7 @@ then
 end
 
 rule "loadDeltaExceeded"
+@ConstraintType(soft)
 enabled true
 when
     $wc : WeightConfig()
@@ -171,6 +180,7 @@ then
 end
 
 rule "teamAndJurorAlreadyMet"
+@ConstraintType(soft)
 when
     $wc : WeightConfig()
     $juror : Juror()
@@ -187,6 +197,7 @@ then
 end
 
 rule "jurorAndJurorConflict"
+@ConstraintType(soft)
 when
     $wc : WeightConfig()
     // two jurors with the same country conflict
@@ -213,6 +224,7 @@ then
 end
 
 rule "independentRatioDeltaExceeded"
+@ConstraintType(soft)
 when
     $wc : WeightConfig()
     $i : IndependentRatio( delta != 0 )
@@ -225,6 +237,7 @@ then
 end
 
 rule "accumulatedBias"
+@ConstraintType(soft)
 when
     $wc : WeightConfig()
     $jury : Jury()
@@ -243,6 +256,7 @@ end
 // ############################################################################
 
 rule "penalizeChairChange"
+@ConstraintType(soft)
 when
      $t : Tournament()
     $s2 : JurySeat( position == 0, $jury := jury )
@@ -257,6 +271,7 @@ then
 end
 
 rule "penalizeJurorWithdraw"
+@ConstraintType(soft)
 when
     $t : Tournament()
     $s : JurySeat( $juror := juror ) from $t.jurySeats

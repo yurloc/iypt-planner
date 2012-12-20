@@ -23,6 +23,9 @@ import org.drools.planner.core.Solver;
 import org.drools.planner.core.event.SolverEventListener;
 import org.drools.planner.core.score.Score;
 import org.drools.planner.core.score.constraint.ConstraintOccurrence;
+import org.drools.planner.core.score.constraint.ConstraintType;
+import org.drools.planner.core.score.constraint.IntConstraintOccurrence;
+import org.drools.planner.core.score.constraint.UnweightedConstraintOccurrence;
 import org.drools.planner.core.score.director.ScoreDirector;
 import org.drools.planner.core.score.director.drools.DroolsScoreDirector;
 import org.iypt.planner.domain.Conflict;
@@ -37,6 +40,7 @@ import org.iypt.planner.domain.Tournament;
 import org.iypt.planner.gui.GroupRoster;
 import org.iypt.planner.gui.GroupRoster.JurorRow;
 import org.iypt.planner.gui.JurorDay;
+import org.iypt.planner.solver.util.ConstraintComparator;
 
 /**
  *
@@ -47,7 +51,7 @@ public class TournamentSolver {
     private SolverFactory solverFactory;
     private Tournament tournament;
     private WeightConfig weightConfig;
-    private List<String> constraints;
+    private List<ConstraintOccurrence> constraintRules;
     private List<ConstraintOccurrence> constraintOccurences;
     private Solver solver;
     private ScoreDirector scoreDirector;
@@ -79,12 +83,28 @@ public class TournamentSolver {
             // TODO process kbuilder errors
         }
         KnowledgeBase kbase = kbuilder.newKnowledgeBase();
-        constraints = new ArrayList<>();
+        constraintRules = new ArrayList<>();
         for (KnowledgePackage pkg : kbase.getKnowledgePackages()) {
             for (Rule rule : pkg.getRules()) {
-                constraints.add(rule.getName());
+                String key = "ConstraintType";
+                if (rule.getMetaData().containsKey(key)) {
+                    String type = (String) rule.getMetaData().get(key);
+                    ConstraintOccurrence co;
+                    switch (type) {
+                        case "hard":
+                            co = new UnweightedConstraintOccurrence(rule.getName(), ConstraintType.NEGATIVE_HARD);
+                            break;
+                        case "soft":
+                            co = new IntConstraintOccurrence(rule.getName(), ConstraintType.NEGATIVE_SOFT);
+                            break;
+                        default:
+                            throw new AssertionError();
+                    }
+                    constraintRules.add(co);
+                }
             }
         }
+        Collections.sort(constraintRules, new ConstraintComparator());
 
         solver = solverFactory.buildSolver();
         scoreDirector = solver.getScoreDirectorFactory().buildScoreDirector();
@@ -104,8 +124,8 @@ public class TournamentSolver {
         return weightConfig;
     }
 
-    public List<String> getConstraints() {
-        return Collections.unmodifiableList(constraints);
+    public List<ConstraintOccurrence> getConstraints() {
+        return Collections.unmodifiableList(constraintRules);
     }
 
     public Score<?> getScore() {
