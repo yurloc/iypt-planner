@@ -14,6 +14,7 @@ import org.apache.pivot.util.Resources;
 import org.apache.pivot.util.concurrent.Task;
 import org.apache.pivot.util.concurrent.TaskExecutionException;
 import org.apache.pivot.util.concurrent.TaskListener;
+import org.apache.pivot.wtk.Action;
 import org.apache.pivot.wtk.ApplicationContext;
 import org.apache.pivot.wtk.Border;
 import org.apache.pivot.wtk.BoxPane;
@@ -23,6 +24,7 @@ import org.apache.pivot.wtk.ButtonPressListener;
 import org.apache.pivot.wtk.Checkbox;
 import org.apache.pivot.wtk.Component;
 import org.apache.pivot.wtk.ComponentStateListener;
+import org.apache.pivot.wtk.DesktopApplicationContext;
 import org.apache.pivot.wtk.Label;
 import org.apache.pivot.wtk.ListView;
 import org.apache.pivot.wtk.PushButton;
@@ -94,6 +96,15 @@ public class PlannerWindow extends Window implements Bindable {
     private Round selectedRound;
     private Juror juror1;
     private Juror juror2;
+
+    public PlannerWindow() {
+        Action.getNamedActions().put("quit", new Action() {
+            @Override
+            public void perform(Component source) {
+                DesktopApplicationContext.exit();
+            }
+        });
+    }
 
     @Override
     public void initialize(Map<String, Object> namespace, URL location, Resources resources) {

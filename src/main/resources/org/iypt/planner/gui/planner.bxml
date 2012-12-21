@@ -3,6 +3,10 @@
                     xmlns:content="org.apache.pivot.wtk.content"
                     xmlns:iypt="org.iypt.planner.gui"
                     xmlns="org.apache.pivot.wtk">
+  <actionMappings>
+    <Window.ActionMapping action="quit" keyStroke="CMD-Q"/>
+  </actionMappings>
+
   <TabPane selectedIndex="0" styles="{tabOrientation:'horizontal'}">
 
     <Border TabPane.tabData="Planning" styles="{padding:10}">
