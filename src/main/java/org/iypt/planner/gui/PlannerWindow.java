@@ -29,6 +29,8 @@ import org.apache.pivot.wtk.Label;
 import org.apache.pivot.wtk.ListView;
 import org.apache.pivot.wtk.PushButton;
 import org.apache.pivot.wtk.Rollup;
+import org.apache.pivot.wtk.Spinner;
+import org.apache.pivot.wtk.SpinnerSelectionListener;
 import org.apache.pivot.wtk.TableView;
 import org.apache.pivot.wtk.TableViewSelectionListener;
 import org.apache.pivot.wtk.TaskAdapter;
@@ -73,9 +75,10 @@ public class PlannerWindow extends Window implements Bindable {
     @BXML private ListView causesListView;
 
     // tournament details
+    @BXML private Label totalJurorsLabel;
+    @BXML private Spinner juryCapacitySpinner;
     @BXML private Label totalSeatsLabel;
     @BXML private Label totalMandaysLabel;
-    @BXML private Label totalJurorsLabel;
     @BXML private Label optimalLoadLabel;
 
     // round details
@@ -245,6 +248,16 @@ public class PlannerWindow extends Window implements Bindable {
         jurorDetails.setListener(this);
         jurorBorder.setContent(jurorDetails);
 
+        juryCapacitySpinner.getSpinnerSelectionListeners().add(new SpinnerSelectionListener.Adapter() {
+            @Override
+            public void selectedItemChanged(Spinner spinner, Object previousSelectedItem) {
+                Integer capacity = (Integer) spinner.getSelectedItem();
+                // TODO schedule the capacity change and apply it only when new solving starts
+                solver.getTournament().setJuryCapacity(capacity);
+                tournamentChanged();
+            }
+        });
+
         tournamentChanged();
         solutionChanged();
         updateRoundDetails(tournament.getRounds().get(0));
@@ -312,10 +325,12 @@ public class PlannerWindow extends Window implements Bindable {
 
     private void tournamentChanged() {
         Tournament t = solver.getTournament();
+        totalJurorsLabel.setText(Integer.toString(t.getJurors().size()));
+        juryCapacitySpinner.setSelectedItem(Integer.valueOf(t.getJuryCapacity()));
         totalSeatsLabel.setText(Integer.toString(t.getJurySeats().size()));
         totalMandaysLabel.setText(Integer.toString(t.getJurors().size() * t.getRounds().size() - t.getDayOffs().size()));
-        totalJurorsLabel.setText(Integer.toString(t.getJurors().size()));
         optimalLoadLabel.setText(String.format("%.4f", t.getStatistics().getOptimalLoad()));
+        tournamentSchedule.updateSchedule();
     }
 
     private Tournament getInitialSolutionFromCSV() throws IOException {

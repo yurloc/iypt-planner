@@ -338,6 +338,10 @@ public class Tournament implements Solution<HardAndSoftScore> {
         return locks;
     }
 
+    public int getJuryCapacity() {
+        return juryCapacity;
+    }
+
     public Statistics getStatistics() {
         return stats;
     }
