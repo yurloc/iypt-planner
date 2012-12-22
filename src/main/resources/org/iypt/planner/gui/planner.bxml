@@ -6,103 +6,131 @@
   <actionMappings>
     <Window.ActionMapping action="quit" keyStroke="CMD-Q"/>
   </actionMappings>
+  <TablePane>
+    <columns>
+      <TablePane.Column width="1*" />
+    </columns>
+    
+    <!-- Menu bar -->
+    <TablePane.Row height="-1">
+      <MenuBar>
+        <MenuBar.Item buttonData="Commands">
+          <Menu>
+            <Menu.Section>
+              <Menu.Item bxml:id="scheduleNewMenuItem">
+                <buttonData>
+                  <content:MenuItemData text="Clear schedule" keyboardShortcut="CMD-X" />
+                </buttonData>
+              </Menu.Item>
+            </Menu.Section>
+          </Menu>
+        </MenuBar.Item>
+      </MenuBar>
+    </TablePane.Row>
 
-  <TabPane selectedIndex="0" styles="{tabOrientation:'horizontal'}">
+    <!-- Main window section -->
+    <TablePane.Row height="1*">
+      <TabPane selectedIndex="0" styles="{tabOrientation:'horizontal'}">
 
-    <Border TabPane.tabData="Planning" styles="{padding:10}">
-      <SplitPane splitRatio="0.80">
+        <!-- Planning tab -->
+        <Border TabPane.tabData="Planning" styles="{padding:10}">
+          <SplitPane splitRatio="0.80">
 
-        <left>
-          <TablePane>
-            <columns>
-              <TablePane.Column width="1*"/>
-            </columns>
+            <left>
+              <TablePane>
+                <columns>
+                  <TablePane.Column width="1*"/>
+                </columns>
 
-            <!-- Tournament schedule -->
-            <TablePane.Row height="-1">
-              <ScrollPane
-                horizontalScrollBarPolicy="fill_to_capacity"
-                verticalScrollBarPolicy="fill"
-              >
-                <BoxPane bxml:id="tournamentScheduleBoxPane" orientation="vertical"/>
-              </ScrollPane>
-            </TablePane.Row>
+                <!-- Tournament schedule -->
+                <TablePane.Row height="-1">
+                  <ScrollPane
+                    horizontalScrollBarPolicy="fill_to_capacity"
+                    verticalScrollBarPolicy="fill"
+                  >
+                    <BoxPane bxml:id="tournamentScheduleBoxPane" orientation="vertical"/>
+                  </ScrollPane>
+                </TablePane.Row>
 
-            <!-- Buttons -->
-            <TablePane.Row height="-1">
-              <BoxPane styles="{padding:{top:10}}">
-                <PushButton bxml:id="solveButton" buttonData="Solve"/>
-                <PushButton bxml:id="terminateButton" buttonData="Terminate"/>
-                <Checkbox bxml:id="showChangesCheckbox" buttonData="Show changes on the fly"/>
-                <PushButton bxml:id="swapButton" buttonData="Swap"/>
-                <bxml:include bxml:id="swap1TableView" src="juror_list.bxml" inline="true"/>
-                <bxml:include bxml:id="swap2TableView" src="juror_list.bxml" inline="true"/>
-              </BoxPane>
-            </TablePane.Row>
+                <!-- Buttons -->
+                <TablePane.Row height="-1">
+                  <BoxPane styles="{padding:{top:10}}">
+                    <PushButton bxml:id="solveButton" buttonData="Solve"/>
+                    <PushButton bxml:id="terminateButton" buttonData="Terminate"/>
+                    <Checkbox bxml:id="showChangesCheckbox" buttonData="Show changes on the fly"/>
+                    <PushButton bxml:id="swapButton" buttonData="Swap"/>
+                    <bxml:include bxml:id="swap1TableView" src="juror_list.bxml" inline="true"/>
+                    <bxml:include bxml:id="swap2TableView" src="juror_list.bxml" inline="true"/>
+                  </BoxPane>
+                </TablePane.Row>
 
-            <!-- Overall score -->
-            <TablePane.Row height="-1">
-              <BoxPane orientation="vertical" styles="{padding:{bottom:10,top:10}}">
-                <Label Form.label="Overall score" bxml:id="scoreLabel" styles="{font:{bold:true}}"/>
-              </BoxPane>
-            </TablePane.Row>
+                <!-- Overall score -->
+                <TablePane.Row height="-1">
+                  <BoxPane orientation="vertical" styles="{padding:{bottom:10,top:10}}">
+                    <Label Form.label="Overall score" bxml:id="scoreLabel" styles="{font:{bold:true}}"/>
+                  </BoxPane>
+                </TablePane.Row>
 
-            <!-- Constraint occurences -->
-            <TablePane.Row height="1*">
-              <SplitPane>
-                <left>
-                  <Border title="Constraint occurences">
+                <!-- Constraint occurences -->
+                <TablePane.Row height="1*">
+                  <SplitPane>
+                    <left>
+                      <Border title="Constraint occurences">
 
-                    <ScrollPane
-                      horizontalScrollBarPolicy="fill_to_capacity"
-                      verticalScrollBarPolicy="fill_to_capacity"
-                    >
-                      <BoxPane bxml:id="constraintsBoxPane" orientation="vertical"/>
-                    </ScrollPane>
-                  </Border>
-                </left>
-                <right>
-                  <Border title="Constraint details">
-                    <ScrollPane
-                      horizontalScrollBarPolicy="fill"
-                      verticalScrollBarPolicy="fill_to_capacity"
-                    >
-                      <ListView bxml:id="causesListView" selectMode="multi"/>
-                    </ScrollPane>
-                  </Border>
-                </right>
-              </SplitPane>
-            </TablePane.Row>
-          </TablePane>
-        </left>
+                        <ScrollPane
+                          horizontalScrollBarPolicy="fill_to_capacity"
+                          verticalScrollBarPolicy="fill_to_capacity"
+                        >
+                          <BoxPane bxml:id="constraintsBoxPane" orientation="vertical"/>
+                        </ScrollPane>
+                      </Border>
+                    </left>
+                    <right>
+                      <Border title="Constraint details">
+                        <ScrollPane
+                          horizontalScrollBarPolicy="fill"
+                          verticalScrollBarPolicy="fill_to_capacity"
+                        >
+                          <ListView bxml:id="causesListView" selectMode="multi"/>
+                        </ScrollPane>
+                      </Border>
+                    </right>
+                  </SplitPane>
+                </TablePane.Row>
+              </TablePane>
+            </left>
 
-        <right>
-          <Border title="Details">
-            <bxml:include src="details.bxml" inline="true"/>
-          </Border>
-        </right>
+            <right>
+              <Border title="Details">
+                <bxml:include src="details.bxml" inline="true"/>
+              </Border>
+            </right>
 
-      </SplitPane>
-    </Border>
+          </SplitPane>
+        </Border>
 
-    <Border TabPane.tabData="Configuration" styles="{padding:10}">
-      <ScrollPane horizontalScrollBarPolicy="fill_to_capacity">
-        <BoxPane orientation="vertical" styles="{fill:true}">
+        <!-- Configuration tab -->
+        <Border TabPane.tabData="Configuration" styles="{padding:10}">
+          <ScrollPane horizontalScrollBarPolicy="fill_to_capacity">
+            <BoxPane orientation="vertical" styles="{fill:true}">
 
-          <!-- Constraints -->
-          <Border title="Constraints configuration" styles="{padding:10}">
-            <BoxPane orientation="vertical">
-              <BoxPane orientation="horizontal">
-                <Label text="DRL:"/>
-                <Label bxml:id="drlLabel" text="undefined"/>
-              </BoxPane>
-              <iypt:ConstraintsConfig bxml:id="constraintConfig"/>
+              <!-- Constraints -->
+              <Border title="Constraints configuration" styles="{padding:10}">
+                <BoxPane orientation="vertical">
+                  <BoxPane orientation="horizontal">
+                    <Label text="DRL:"/>
+                    <Label bxml:id="drlLabel" text="undefined"/>
+                  </BoxPane>
+                  <iypt:ConstraintsConfig bxml:id="constraintConfig"/>
+                </BoxPane>
+              </Border>
+
             </BoxPane>
-          </Border>
+          </ScrollPane>
+        </Border>
 
-        </BoxPane>
-      </ScrollPane>
-    </Border>
+      </TabPane>
 
-  </TabPane>
+    </TablePane.Row>
+  </TablePane>
 </iypt:PlannerWindow>
