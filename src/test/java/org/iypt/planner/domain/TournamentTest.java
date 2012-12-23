@@ -7,7 +7,6 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.iypt.planner.domain.JurorLoad.INFINITE_LOAD_VALUE;
 import static org.iypt.planner.domain.util.SampleFacts.*;
 import static org.junit.Assert.*;
-import static org.junit.matchers.JUnitMatchers.*;
 
 /**
  *
