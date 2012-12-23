@@ -335,13 +335,11 @@ public class PlannerWindow extends Window implements Bindable {
 
     private Tournament getInitialSolutionFromCSV() throws IOException {
         String path = "/org/iypt/planner/csv/";
-        CSVTournamentFactory factory = new CSVTournamentFactory(PlannerWindow.class,
-                path + "team_data.csv",
-                path + "jury_data.csv",
-                path + "schedule2012.csv");
-        Tournament t = factory.newTournament();
-        t.setJuryCapacity(6);
-        return t;
+        CSVTournamentFactory factory = new CSVTournamentFactory();
+        factory.readTeamData(PlannerWindow.class, path + "team_data.csv");
+        factory.readJuryData(PlannerWindow.class, path + "jury_data.csv");
+        factory.readSchedule(PlannerWindow.class, path + "schedule2012.csv");
+        return factory.newTournament();
     }
 
     private TournamentSolver newSolver() {

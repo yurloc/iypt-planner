@@ -20,8 +20,8 @@ public class Solver2012Test extends AbstractSolverTest {
 
     @BeforeClass
     public static void setupTournament() throws IOException {
-        String path = "/org/iypt/planner/csv/";
-        CSVTournamentFactory factory = new CSVTournamentFactory(path + "team_data.csv", path + "jury_data.csv");
+        CSVTournamentFactory factory = new CSVTournamentFactory();
+        factory.readDataFromClasspath("/org/iypt/planner/csv/", "team_data.csv", "jury_data.csv");
         tournament = factory.newTournament();
         tournament.setJuryCapacity(6);
     }

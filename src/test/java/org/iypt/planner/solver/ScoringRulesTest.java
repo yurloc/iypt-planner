@@ -87,9 +87,8 @@ public class ScoringRulesTest {
 
     @Test
     public void testIYPT2012() throws IOException {
-        String path = "/org/iypt/planner/csv/";
-        CSVTournamentFactory factory = new CSVTournamentFactory(
-                path + "team_data.csv", path + "jury_data.csv", path + "schedule2012.csv");
+        CSVTournamentFactory factory = new CSVTournamentFactory();
+        factory.readDataFromClasspath("/org/iypt/planner/csv/", "team_data.csv", "jury_data.csv", "schedule2012.csv");
         Tournament t = factory.newTournament();
         t.setWeightConfig(wconfig);
 

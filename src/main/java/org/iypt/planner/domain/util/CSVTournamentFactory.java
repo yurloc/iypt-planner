@@ -46,31 +46,35 @@ public class CSVTournamentFactory {
     }
     
     private char SEPARATOR = ';';
-    private Source teamSource;
-    private Source jurySource;
-    private Source schdSource;
-    private Map<Integer, Round> rounds = new HashMap<>(5);
-    private Map<CountryCode, Team> teams = new HashMap<>(30);
-    private Map<String, Juror> jurors = new HashMap<>(100);
-    private List<DayOff> dayOffs = new ArrayList<>(100);
-    private List<Conflict> conflicts = new ArrayList<>(100);
+    private Map<Integer, Round> rounds;
+    private Map<CountryCode, Team> teams;
+    private Map<String, Juror> jurors;
+    private List<DayOff> dayOffs;
+    private List<Conflict> conflicts;
+    private Map<Jury, List<Juror>> juries;
+    private int juryCapacity = 0;
+    private Tournament tournament;
 
-    public CSVTournamentFactory(Class<?> baseType, String team, String jury) {
-        this.teamSource = new Source(getResourceName(team), getReader(baseType, team));
-        this.jurySource = new Source(getResourceName(jury), getReader(baseType, jury));
+    public void readDataFromClasspath(String commonPath, String teamFile, String juryFile) throws IOException {
+        readTeamData(CSVTournamentFactory.class, commonPath + teamFile);
+        readJuryData(CSVTournamentFactory.class, commonPath + juryFile);
     }
 
-    public CSVTournamentFactory(Class<?> baseType, String team, String jury, String schedule) {
-        this(baseType, team, jury);
-        this.schdSource = new Source(getResourceName(schedule), getReader(baseType, schedule));
+    public void readDataFromClasspath(String commonPath, String teamFile, String juryFile, String scheduleFile) throws IOException {
+        readDataFromClasspath(commonPath, teamFile, juryFile);
+        readSchedule(CSVTournamentFactory.class, commonPath + scheduleFile);
     }
 
-    public CSVTournamentFactory(String team, String jury, String schedule) {
-        this(CSVTournamentFactory.class, team, jury, schedule);
+    public void readTeamData(Class<?> baseType, String resourcePath) throws IOException {
+        readTeams(new Source(getResourceName(resourcePath), getReader(baseType, resourcePath)));
     }
 
-    public CSVTournamentFactory(String team, String jury) {
-        this(CSVTournamentFactory.class, team, jury);
+    public void readJuryData(Class<?> baseType, String resourcePath) throws IOException {
+        readJuries(new Source(getResourceName(resourcePath), getReader(baseType, resourcePath)));
+    }
+
+    public void readSchedule(Class<?> baseType, String resourcePath) throws IOException {
+        readSchedule(new Source(getResourceName(resourcePath), getReader(baseType, resourcePath)));
     }
 
     private CSVReader getReader(Class<?> baseType, String resource) {
@@ -110,6 +114,10 @@ public class CSVTournamentFactory {
     }
 
     private void readTeams(Source src) throws IOException {
+        // initialize collections
+        rounds = new HashMap<>(5);
+        teams = new HashMap<>(30);
+        
         int ln = 1; // line number
         for (String[] line : src.reader.readAll()) {
             if (ignore(line)) {
@@ -159,6 +167,11 @@ public class CSVTournamentFactory {
     }
 
     private void readJuries(Source src) throws IOException {
+        // initialize collections
+        jurors = new HashMap<>(100);
+        dayOffs = new ArrayList<>(100);
+        conflicts = new ArrayList<>(100);
+
         int ln = 1; // line number
         for (String[] line : src.reader.readAll()) {
             if (ignore(line)) {
@@ -217,7 +230,9 @@ public class CSVTournamentFactory {
         }
     }
 
-    private void readSchedule(Source src, Tournament t) throws IOException {
+    private void readSchedule(Source src) throws IOException {
+        juries = new HashMap<>();
+
         int ln = 1;
         boolean capacitySet = false;
 
@@ -234,8 +249,8 @@ public class CSVTournamentFactory {
                     log.warn("Ignoring trailing '{}' in {}[{}:{}]", new Object[]{SEPARATOR, src.name, ln, line.length - 1});
                     capacity--;
                 }
-                log.debug("Setting jury capacity to {}.", capacity);
-                t.setJuryCapacity(capacity);
+                log.debug("Inferred jury capacity: {}.", capacity);
+                juryCapacity = capacity;
                 capacitySet = true;
             }
 
@@ -249,7 +264,7 @@ public class CSVTournamentFactory {
 
             // get the round instance
             Round round = null;
-            for (Round r : t.getRounds()) {
+            for (Round r : rounds.values()) {
                 if (r.getDay() == roundNumber) {
                     round = r;
                     break;
@@ -271,32 +286,35 @@ public class CSVTournamentFactory {
                 throwIOE("Cannot find group for name", line[1], src.name, ln, 1);
             }
 
-            for (int i = 0; i < jury.getCapacity(); i++) {
+            List<Juror> jurorList = new ArrayList<>();
+            juries.put(jury, jurorList);
+            for (int i = 0; i < juryCapacity; i++) {
                 String name = line[i + 2];
                 Juror juror = jurors.get(name);
                 if (juror == null) {
                     throwIOE("Unkown juror", name, src.name, ln, i + 2);
                 }
-                jury.getSeats().get(i).setJuror(juror);
+                jurorList.add(juror);
             }
             ln++;
         }
     }
 
     public Tournament newTournament() throws IOException {
-        readTeams(teamSource);
-        readJuries(jurySource);
-
-        Tournament t = new Tournament();
-        t.setRounds(rounds.values());
-        t.setJurors(jurors.values());
-        t.setDayOffs(dayOffs);
-        t.setConflicts(conflicts);
-
-        if (schdSource != null) {
-            readSchedule(schdSource, t);
+        tournament = new Tournament();
+        if (juryCapacity > 0) {
+            tournament.setJuryCapacity(juryCapacity);
         }
-        return t;
+        tournament.setRounds(rounds.values());
+        for (Jury jury : tournament.getJuries()) {
+            for (int i = 0; i < juryCapacity; i++) {
+                jury.getSeats().get(i).setJuror(juries.get(jury).get(i));
+            }
+        }
+        tournament.setJurors(jurors.values());
+        tournament.setDayOffs(dayOffs);
+        tournament.setConflicts(conflicts);
+        return tournament;
     }
 
     private class Source {
