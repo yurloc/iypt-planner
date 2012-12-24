@@ -1,5 +1,6 @@
 package org.iypt.planner.gui;
 
+import java.awt.Color;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Comparator;
@@ -340,6 +341,10 @@ public class PlannerWindow extends Window implements Bindable {
             if (coList.isEmpty()) {
                 rollup.setEnabled(false);
                 rollup.getHeading().setEnabled(false);
+            } else {
+                if (map.get(coId).get(0).isHard()) {
+                    heading.getStyles().put("color", Color.RED.darker());
+                }
             }
 
             TableView tableView = new TableView();

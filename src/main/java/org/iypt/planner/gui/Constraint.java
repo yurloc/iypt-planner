@@ -3,6 +3,7 @@ package org.iypt.planner.gui;
 import org.apache.pivot.collections.ArrayList;
 import org.apache.pivot.collections.List;
 import org.drools.planner.core.score.constraint.ConstraintOccurrence;
+import org.drools.planner.core.score.constraint.ConstraintType;
 import org.drools.planner.core.score.constraint.IntConstraintOccurrence;
 import org.drools.planner.core.score.constraint.UnweightedConstraintOccurrence;
 
@@ -17,12 +18,14 @@ public class Constraint {
     private String weight;
     private int intWeight;
     private List<String> causes;
+    private boolean hard;
 
     public Constraint() {
     }
 
     public Constraint(ConstraintOccurrence co) {
         name = co.getRuleId();
+        hard = co.getConstraintType() == ConstraintType.NEGATIVE_HARD;
         type = co.getConstraintType().toString().replaceFirst("NEGATIVE_", "");
         if (co instanceof UnweightedConstraintOccurrence) {
             intWeight = 0;
@@ -70,5 +73,9 @@ public class Constraint {
 
     public List<String> getCauses() {
         return causes;
+    }
+
+    public boolean isHard() {
+        return hard;
     }
 }
