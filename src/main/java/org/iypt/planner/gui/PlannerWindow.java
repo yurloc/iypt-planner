@@ -15,6 +15,7 @@ import org.apache.pivot.util.concurrent.Task;
 import org.apache.pivot.util.concurrent.TaskExecutionException;
 import org.apache.pivot.util.concurrent.TaskListener;
 import org.apache.pivot.wtk.Action;
+import org.apache.pivot.wtk.Alert;
 import org.apache.pivot.wtk.ApplicationContext;
 import org.apache.pivot.wtk.Border;
 import org.apache.pivot.wtk.BoxPane;
@@ -27,6 +28,7 @@ import org.apache.pivot.wtk.ComponentStateListener;
 import org.apache.pivot.wtk.DesktopApplicationContext;
 import org.apache.pivot.wtk.Label;
 import org.apache.pivot.wtk.ListView;
+import org.apache.pivot.wtk.MessageType;
 import org.apache.pivot.wtk.PushButton;
 import org.apache.pivot.wtk.Rollup;
 import org.apache.pivot.wtk.Spinner;
@@ -111,41 +113,85 @@ public class PlannerWindow extends Window implements Bindable {
 
     @Override
     public void initialize(Map<String, Object> namespace, URL location, Resources resources) {
-        Tournament tournament = null;
-        try {
-            tournament = getInitialSolutionFromCSV();
-        } catch (IOException ex) {
-//            Alert.alert(MessageType.ERROR, ex.getMessage(), PlannerWindow.this);
-            ex.printStackTrace();
-        }
-
-        solver = newSolver();
-        solver.setTournament(tournament);
-
-        tournamentSchedule = new TournamentSchedule(solver);
-        tournamentScheduleBoxPane.add(tournamentSchedule);
-        tournamentSchedule.getTournamentScheduleListeners().add(new TournamentScheduleListener.Adapter() {
+        solveButton.setEnabled(false);
+        TaskListener<TournamentSolver> newSolverTaskListener = new TaskListener<TournamentSolver>() {
             @Override
-            public void roundSelected(Round round) {
-                updateRoundDetails(round);
+            public void taskExecuted(Task<TournamentSolver> task) {
+                solver = task.getResult();
+                try {
+                    final Tournament tournament = getInitialSolutionFromCSV();
+                    solver.setTournament(tournament);
+                } catch (final IOException ex) {
+                    log.error("Error reading data files", ex);
+                    ApplicationContext.queueCallback(new Runnable() {
+                        @Override
+                        public void run() {
+                            Alert.alert(MessageType.ERROR, ex.getMessage(), PlannerWindow.this);
+                        }
+                    });
+                }
+                tournamentSchedule = new TournamentSchedule(solver);
+                tournamentSchedule.getTournamentScheduleListeners().add(new TournamentScheduleListener.Adapter() {
+                    @Override
+                    public void roundSelected(Round round) {
+                        updateRoundDetails(round);
+                    }
+
+                    @Override
+                    public void jurorSelected(Juror juror) {
+                        showJuror(juror);
+                        prepareSwap(juror);
+                    }
+
+                    @Override
+                    public void jurorLocked(JurorRow jurorRow) {
+                        solver.lockJuror(jurorRow);
+                    }
+
+                    @Override
+                    public void jurorUnlocked(JurorRow jurorRow) {
+                        solver.unlockJuror(jurorRow);
+                    }
+                });
+
+                jurorDetails = new JurorDetails(solver);
+                jurorDetails.setListener(PlannerWindow.this);
+
+                // update the UI on EDT
+                ApplicationContext.queueCallback(new Runnable() {
+                    @Override
+                    public void run() {
+                        tournamentScheduleBoxPane.add(tournamentSchedule);
+                        drlLabel.setText(solver.getScoreDrlList().get(0));
+                        constraintConfig.setSolver(solver);
+                        solveButton.setEnabled(true);
+                        jurorBorder.setContent(jurorDetails);
+                        tournamentChanged();
+                        solutionChanged();
+                        updateRoundDetails(solver.getTournament().getRounds().get(0));
+                    }
+                });
             }
 
             @Override
-            public void jurorSelected(Juror juror) {
-                showJuror(juror);
-                prepareSwap(juror);
+            public void executeFailed(final Task<TournamentSolver> task) {
+                log.error("Error during solution", task.getFault());
+                ApplicationContext.queueCallback(new Runnable() {
+                    @Override
+                    public void run() {
+                        Alert.alert(MessageType.ERROR, task.getFault().getMessage(), PlannerWindow.this);
+                    }
+                });
             }
+        };
 
+        new Task<TournamentSolver>() {
             @Override
-            public void jurorLocked(JurorRow jurorRow) {
-                solver.lockJuror(jurorRow);
+            public TournamentSolver execute() throws TaskExecutionException {
+                return newSolver();
             }
+        }.execute(newSolverTaskListener);
 
-            @Override
-            public void jurorUnlocked(JurorRow jurorRow) {
-                solver.unlockJuror(jurorRow);
-            }
-        });
         TableViewSelectionListener.Adapter selectedJurorListener = new TableViewSelectionListener.Adapter() {
             @Override
             public void selectedRowChanged(TableView tableView, Object previousSelectedRow) {
@@ -184,7 +230,6 @@ public class PlannerWindow extends Window implements Bindable {
         solveButton.getButtonPressListeners().add(new ButtonPressListener() {
             @Override
             public void buttonPressed(Button button) {
-//                Alert.alert(MessageType.INFO, "You clicked me!", PlannerWindow.this);
                 button.setEnabled(false);
                 terminateButton.setEnabled(true);
                 clearSwap();
@@ -192,20 +237,29 @@ public class PlannerWindow extends Window implements Bindable {
                 TaskListener<Void> taskListener = new TaskListener<Void>() {
                     @Override
                     public void taskExecuted(Task<Void> task) {
-//                        activityIndicator.setActive(false);
-                        solveButton.setEnabled(true);
-                        terminateButton.setEnabled(false);
                         log.debug(solver.getTournament().toDisplayString());
-                        solutionChanged();
+                        ApplicationContext.queueCallback(new Runnable() {
+                            @Override
+                            public void run() {
+                                solveButton.setEnabled(true);
+                                terminateButton.setEnabled(false);
+                                solutionChanged();
+                            }
+                        });
                     }
 
                     @Override
-                    public void executeFailed(Task<Void> task) {
-//                        activityIndicator.setActive(false);
-                        solveButton.setEnabled(true);
-                        terminateButton.setEnabled(false);
-                        task.getFault().printStackTrace();
-                        scoreLabel.setText(task.getFault().toString());
+                    public void executeFailed(final Task<Void> task) {
+                        log.error("Error during solution", task.getFault());
+                        ApplicationContext.queueCallback(new Runnable() {
+                            @Override
+                            public void run() {
+                                solveButton.setEnabled(true);
+                                terminateButton.setEnabled(false);
+                                scoreLabel.setText(task.getFault().toString());
+                                Alert.alert(MessageType.ERROR, task.getFault().getMessage(), PlannerWindow.this);
+                            }
+                        });
                     }
                 };
                 solverTask.execute(new TaskAdapter<>(taskListener));
@@ -244,10 +298,6 @@ public class PlannerWindow extends Window implements Bindable {
         });
 
         showChangesCheckbox.setState(Button.State.SELECTED);
-        jurorDetails = new JurorDetails(solver);
-        jurorDetails.setListener(this);
-        jurorBorder.setContent(jurorDetails);
-
         juryCapacitySpinner.getSpinnerSelectionListeners().add(new SpinnerSelectionListener.Adapter() {
             @Override
             public void selectedItemChanged(Spinner spinner, Object previousSelectedItem) {
@@ -258,9 +308,6 @@ public class PlannerWindow extends Window implements Bindable {
             }
         });
 
-        tournamentChanged();
-        solutionChanged();
-        updateRoundDetails(tournament.getRounds().get(0));
     }
 
     void solutionChanged() {
@@ -301,7 +348,7 @@ public class PlannerWindow extends Window implements Bindable {
             coList.setComparator(new Comparator<Constraint>() {
                 @Override
                 public int compare(Constraint o1, Constraint o2) {
-                    // sort by wight descending
+                    // sort by weight descending
                     return o2.getIntWeight() - o1.getIntWeight();
                 }
             });
@@ -344,10 +391,6 @@ public class PlannerWindow extends Window implements Bindable {
 
     private TournamentSolver newSolver() {
         TournamentSolver solver = new TournamentSolver("/org/iypt/planner/solver/config.xml");
-        drlLabel.setText(solver.getScoreDrlList().get(0));
-        constraintConfig.setSolver(solver);
-
-        // build a solver
         solver.addEventListener(new SolverListener());
         return solver;
     }
@@ -404,8 +447,6 @@ public class PlannerWindow extends Window implements Bindable {
         @Override
         public Void execute() throws TaskExecutionException {
             solver.solve();
-//            Tournament solved = (Tournament) solver.solve();
-//            return solved;
             return null;
         }
 
