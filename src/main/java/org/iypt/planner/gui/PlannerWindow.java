@@ -334,10 +334,13 @@ public class PlannerWindow extends Window implements Bindable {
                 total += constraint.getIntWeight();
             }
             Rollup rollup = new Rollup(false);
-            rollup.setEnabled(!coList.isEmpty());
             constraintsBoxPane.add(rollup);
             Label heading = new Label(String.format("%s (%d/%d%s)", coId, coList.getLength(), total, type));
             rollup.setHeading(heading);
+            if (coList.isEmpty()) {
+                rollup.setEnabled(false);
+                rollup.getHeading().setEnabled(false);
+            }
 
             TableView tableView = new TableView();
             rollup.setContent(tableView);
