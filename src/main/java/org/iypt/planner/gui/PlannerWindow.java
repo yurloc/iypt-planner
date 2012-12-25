@@ -1,6 +1,7 @@
 package org.iypt.planner.gui;
 
 import java.awt.Color;
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Comparator;
@@ -27,11 +28,14 @@ import org.apache.pivot.wtk.Checkbox;
 import org.apache.pivot.wtk.Component;
 import org.apache.pivot.wtk.ComponentStateListener;
 import org.apache.pivot.wtk.DesktopApplicationContext;
+import org.apache.pivot.wtk.FileBrowserSheet;
 import org.apache.pivot.wtk.Label;
 import org.apache.pivot.wtk.ListView;
 import org.apache.pivot.wtk.MessageType;
 import org.apache.pivot.wtk.PushButton;
 import org.apache.pivot.wtk.Rollup;
+import org.apache.pivot.wtk.Sheet;
+import org.apache.pivot.wtk.SheetCloseListener;
 import org.apache.pivot.wtk.Spinner;
 import org.apache.pivot.wtk.SpinnerSelectionListener;
 import org.apache.pivot.wtk.TableView;
@@ -110,6 +114,74 @@ public class PlannerWindow extends Window implements Bindable {
                 DesktopApplicationContext.exit();
             }
         });
+        final CSVTournamentFactory factory = new CSVTournamentFactory();
+        final FileBrowserSheet fileBrowserSheet = new FileBrowserSheet();
+        Action.getNamedActions().put("loadTeams", new Action() {
+            @Override
+            public void perform(Component source) {
+                fileBrowserSheet.open(PlannerWindow.this, new SheetCloseListener() {
+                    @Override
+                    public void sheetClosed(Sheet sheet) {
+                        if (sheet.getResult()) {
+                            File f = fileBrowserSheet.getSelectedFile();
+                            try {
+                                factory.readTeamData(f);
+                            } catch (IOException ex) {
+                                log.error("Error reading data file", ex);
+                                Alert.alert(MessageType.ERROR, ex.getMessage(), PlannerWindow.this);
+                            }
+                        }
+                    }
+
+                });
+            }
+        });
+        Action.getNamedActions().put("loadJurors", new Action() {
+            @Override
+            public void perform(Component source) {
+                fileBrowserSheet.open(PlannerWindow.this, new SheetCloseListener() {
+                    @Override
+                    public void sheetClosed(Sheet sheet) {
+                        if (sheet.getResult()) {
+                            File f = fileBrowserSheet.getSelectedFile();
+                            try {
+                                factory.readJuryData(f);
+                            } catch (IOException ex) {
+                                log.error("Error reading data file", ex);
+                                Alert.alert(MessageType.ERROR, ex.getMessage(), PlannerWindow.this);
+                            }
+                        }
+                    }
+
+                });
+            }
+        });
+        Action.getNamedActions().put("loadSchedule", new Action() {
+            @Override
+            public void perform(Component source) {
+                fileBrowserSheet.open(PlannerWindow.this, new SheetCloseListener() {
+                    @Override
+                    public void sheetClosed(Sheet sheet) {
+                        if (sheet.getResult()) {
+                            File f = fileBrowserSheet.getSelectedFile();
+                            try {
+                                factory.readSchedule(f);
+                                Tournament tournament = factory.newTournament();
+                                solver.setTournament(tournament);
+                                tournamentChanged();
+                                solutionChanged();
+                                updateRoundDetails(solver.getTournament().getRounds().get(0));
+                                log.info("Tournament loaded\n{}", tournament.toDisplayString());
+                            } catch (IOException ex) {
+                                log.error("Error reading data file", ex);
+                                    Alert.alert(MessageType.ERROR, ex.getMessage(), PlannerWindow.this);
+                            }
+                        }
+                    }
+
+                });
+            }
+        });
     }
 
     @Override
@@ -120,17 +192,15 @@ public class PlannerWindow extends Window implements Bindable {
             public void taskExecuted(Task<TournamentSolver> task) {
                 solver = task.getResult();
                 try {
-                    final Tournament tournament = getInitialSolutionFromCSV();
+                    Tournament tournament = getInitialSolutionFromCSV();
                     solver.setTournament(tournament);
-                } catch (final IOException ex) {
+                } catch (IOException ex) {
                     log.error("Error reading data files", ex);
-                    ApplicationContext.queueCallback(new Runnable() {
-                        @Override
-                        public void run() {
-                            Alert.alert(MessageType.ERROR, ex.getMessage(), PlannerWindow.this);
-                        }
-                    });
+                    Alert.alert(MessageType.ERROR, ex.getMessage(), PlannerWindow.this);
                 }
+
+                jurorDetails = new JurorDetails(solver);
+                jurorDetails.setListener(PlannerWindow.this);
                 tournamentSchedule = new TournamentSchedule(solver);
                 tournamentSchedule.getTournamentScheduleListeners().add(new TournamentScheduleListener.Adapter() {
                     @Override
@@ -154,35 +224,21 @@ public class PlannerWindow extends Window implements Bindable {
                         solver.unlockJuror(jurorRow);
                     }
                 });
-
-                jurorDetails = new JurorDetails(solver);
-                jurorDetails.setListener(PlannerWindow.this);
-
-                // update the UI on EDT
-                ApplicationContext.queueCallback(new Runnable() {
-                    @Override
-                    public void run() {
-                        tournamentScheduleBoxPane.add(tournamentSchedule);
-                        drlLabel.setText(solver.getScoreDrlList().get(0));
-                        constraintConfig.setSolver(solver);
-                        solveButton.setEnabled(true);
-                        jurorBorder.setContent(jurorDetails);
-                        tournamentChanged();
-                        solutionChanged();
-                        updateRoundDetails(solver.getTournament().getRounds().get(0));
-                    }
-                });
+                tournamentScheduleBoxPane.add(tournamentSchedule);
+                drlLabel.setText(solver.getScoreDrlList().get(0));
+                constraintConfig.setSolver(solver);
+                solveButton.setEnabled(true);
+                jurorBorder.setContent(jurorDetails);
+                tournamentChanged();
+                solutionChanged();
+                updateRoundDetails(solver.getTournament().getRounds().get(0));
+                log.info("initialization successful");
             }
 
             @Override
-            public void executeFailed(final Task<TournamentSolver> task) {
+            public void executeFailed(Task<TournamentSolver> task) {
                 log.error("Error during solution", task.getFault());
-                ApplicationContext.queueCallback(new Runnable() {
-                    @Override
-                    public void run() {
-                        Alert.alert(MessageType.ERROR, task.getFault().getMessage(), PlannerWindow.this);
-                    }
-                });
+                Alert.alert(MessageType.ERROR, task.getFault().getMessage(), PlannerWindow.this);
             }
         };
 
@@ -191,7 +247,7 @@ public class PlannerWindow extends Window implements Bindable {
             public TournamentSolver execute() throws TaskExecutionException {
                 return newSolver();
             }
-        }.execute(newSolverTaskListener);
+        }.execute(new TaskAdapter<>(newSolverTaskListener));
 
         TableViewSelectionListener.Adapter selectedJurorListener = new TableViewSelectionListener.Adapter() {
             @Override

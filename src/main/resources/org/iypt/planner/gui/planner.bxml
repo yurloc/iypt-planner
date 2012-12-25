@@ -17,9 +17,19 @@
         <MenuBar.Item buttonData="Commands">
           <Menu>
             <Menu.Section>
-              <Menu.Item bxml:id="scheduleNewMenuItem">
+              <Menu.Item action="loadTeams">
                 <buttonData>
-                  <content:MenuItemData text="Clear schedule" keyboardShortcut="CMD-X" />
+                  <content:MenuItemData text="Load teams"/>
+                </buttonData>
+              </Menu.Item>
+              <Menu.Item action="loadJurors">
+                <buttonData>
+                  <content:MenuItemData text="Load jurors"/>
+                </buttonData>
+              </Menu.Item>
+              <Menu.Item action="loadSchedule">
+                <buttonData>
+                  <content:MenuItemData text="Load schedule"/>
                 </buttonData>
               </Menu.Item>
             </Menu.Section>

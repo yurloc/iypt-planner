@@ -1,6 +1,9 @@
 package org.iypt.planner.domain.util;
 
 import au.com.bytecode.opencsv.CSVReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -66,19 +69,35 @@ public class CSVTournamentFactory {
     }
 
     public void readTeamData(Class<?> baseType, String resourcePath) throws IOException {
-        readTeams(new Source(getResourceName(resourcePath), getReader(baseType, resourcePath)));
+        readTeams(new Source(baseType, resourcePath));
     }
 
     public void readJuryData(Class<?> baseType, String resourcePath) throws IOException {
-        readJuries(new Source(getResourceName(resourcePath), getReader(baseType, resourcePath)));
+        readJuries(new Source(baseType, resourcePath));
     }
 
     public void readSchedule(Class<?> baseType, String resourcePath) throws IOException {
-        readSchedule(new Source(getResourceName(resourcePath), getReader(baseType, resourcePath)));
+        readSchedule(new Source(baseType, resourcePath));
+    }
+
+    public void readTeamData(File dataFile) throws IOException {
+        readTeams(new Source(dataFile));
+    }
+
+    public void readJuryData(File dataFile) throws IOException {
+        readJuries(new Source(dataFile));
+    }
+
+    public void readSchedule(File dataFile) throws IOException {
+        readSchedule(new Source(dataFile));
     }
 
     private CSVReader getReader(Class<?> baseType, String resource) {
         return new CSVReader(new InputStreamReader(baseType.getResourceAsStream(resource)), SEPARATOR);
+    }
+
+    private CSVReader getReader(File file) throws FileNotFoundException {
+        return new CSVReader(new FileReader(file), SEPARATOR);
     }
 
     private String getResourceName(String resource) {
@@ -321,6 +340,16 @@ public class CSVTournamentFactory {
 
         private final String name;
         private final CSVReader reader;
+
+        public Source(Class<?> baseType, String resourcePath) {
+            name = getResourceName(resourcePath);
+            reader = getReader(baseType, resourcePath);
+        }
+
+        public Source(File file) throws FileNotFoundException {
+            name = file.getName();
+            reader = getReader(file);
+        }
 
         public Source(String name, CSVReader reader) {
             this.name = name;
