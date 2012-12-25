@@ -295,30 +295,21 @@ public class PlannerWindow extends Window implements Bindable {
                     @Override
                     public void taskExecuted(Task<Void> task) {
                         log.debug(solver.getTournament().toDisplayString());
-                        ApplicationContext.queueCallback(new Runnable() {
-                            @Override
-                            public void run() {
-                                solveButton.setEnabled(true);
-                                terminateButton.setEnabled(false);
-                                solutionChanged();
-                            }
-                        });
+                        solveButton.setEnabled(true);
+                        terminateButton.setEnabled(false);
+                        solutionChanged();
                     }
 
                     @Override
-                    public void executeFailed(final Task<Void> task) {
+                    public void executeFailed(Task<Void> task) {
                         log.error("Error during solution", task.getFault());
-                        ApplicationContext.queueCallback(new Runnable() {
-                            @Override
-                            public void run() {
-                                solveButton.setEnabled(true);
-                                terminateButton.setEnabled(false);
-                                scoreLabel.setText(task.getFault().toString());
-                                Alert.alert(MessageType.ERROR, task.getFault().getMessage(), PlannerWindow.this);
-                            }
-                        });
+                        solveButton.setEnabled(true);
+                        terminateButton.setEnabled(false);
+                        scoreLabel.setText(task.getFault().toString());
+                        Alert.alert(MessageType.ERROR, task.getFault().getMessage(), PlannerWindow.this);
                     }
                 };
+                // TaskAdapter forwards task events to the UI thread
                 solverTask.execute(new TaskAdapter<>(taskListener));
             }
         });
