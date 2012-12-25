@@ -5,13 +5,16 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeSet;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -22,6 +25,8 @@ public class BiasWriterTest {
 
     private static final Logger log = LoggerFactory.getLogger(BiasWriterTest.class);
     private static TournamentData data;
+    private static final int head = 2;
+    private static final int tail = 4;
 
     @BeforeClass
     public static void setUp() throws IOException {
@@ -36,6 +41,8 @@ public class BiasWriterTest {
 
         TreeSet<Juror> jurors = new TreeSet<>(new Juror.BiasComparator());
         jurors.addAll(t.getJurors());
+        // +1 for the header line
+        int totalLines = jurors.size() + 1;
 
         StringWriter sw = new StringWriter();
         BiasWriter writer = new BiasWriter(jurors);
@@ -43,17 +50,35 @@ public class BiasWriterTest {
 
         log.debug(sw.toString());
 
+        List<String> actualLines = new ArrayList<>();
         BufferedReader br = new BufferedReader(new StringReader(sw.toString()));
-        assertThat(br.readLine(), is("given_name,last_name,bias"));
-        assertThat(br.readLine(), is("Florian,Ostermaier,-0.81"));
+
+        // store some lines from head
+        for (int i = 0; i < head; i++) {
+            actualLines.add(br.readLine());
+        }
 
         // skip the middle
-        for (int i = 0; i < 79; i++) {
+        for (int i = 0; i < totalLines - head - tail; i++) {
             br.readLine();
         }
 
-        // check the last two lines
-        assertThat(br.readLine(), is("Nien,Cheng-Hsun,0"));
-        assertThat(br.readLine(), is("Uno,Uno,0"));
+        // store some lines from tail
+        for (int i = 0; i < tail; i++) {
+            actualLines.add(br.readLine());
+        }
+
+        // all lines have been read
+        assertThat(br.readLine(), nullValue());
+
+        // check the stored lines
+        String[] expectedLines = {
+            "given_name,last_name,bias",
+            "Florian,Ostermaier,-0.81",
+            "Władysław,Borgieł,0.81",
+            "Michael,Gierling,0.89",
+            "Nien,Cheng-Hsun,0",
+            "Uno,Uno,0"};
+        assertThat(actualLines, contains(expectedLines));
     }
 }
