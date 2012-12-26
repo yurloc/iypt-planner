@@ -205,8 +205,10 @@ public class CSVTournamentFactory {
             }
             
             // get JurorType tag
-            JurorType jt = JurorType.getByLetter(line[2].charAt(0));
-            if (line[2].length() > 1 || jt == null) {
+            JurorType jt = null;
+            try {
+                jt = JurorType.getByLetter(line[2].charAt(0));
+            } catch (IllegalArgumentException e) {
                 throwIOE("Invalid juror type tag", line[2], src.name, ln, 2);
             }
 
