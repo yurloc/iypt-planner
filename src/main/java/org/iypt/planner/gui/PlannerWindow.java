@@ -161,7 +161,8 @@ public class PlannerWindow extends Window implements Bindable {
 
         @Override
         public void perform(Component source) {
-            throw new UnsupportedOperationException("Not supported yet.");
+            solver.clearSchedule();
+            solutionChanged();
         }
     };
     private Action saveScheduleAction = new Action() {
@@ -575,10 +576,10 @@ public class PlannerWindow extends Window implements Bindable {
         }
 
         if (juror1 != null) {
-            swap1TableView.setTableData(new ArrayList<>(new JurorRow(juror1)));
+            swap1TableView.setTableData(new ArrayList<>(JurorRow.newInstance(juror1)));
         }
         if (juror2 != null) {
-            swap2TableView.setTableData(new ArrayList<>(new JurorRow(juror2)));
+            swap2TableView.setTableData(new ArrayList<>(JurorRow.newInstance(juror2)));
             if (!solver.isSolving()) {
                 swapButton.setEnabled(true);
             }

@@ -172,7 +172,7 @@ public class TournamentSolver {
         // FIXME temporary solution
         List<GroupRoster.JurorRow> list = new ArrayList<>();
         for (Juror j : getAway(round)) {
-            list.add(new GroupRoster.JurorRow(j));
+            list.add(GroupRoster.JurorRow.newInstance(j));
         }
         return list;
     }
@@ -181,7 +181,7 @@ public class TournamentSolver {
         // FIXME temporary solution
         List<GroupRoster.JurorRow> list = new ArrayList<>();
         for (Juror j : getIdle(round)) {
-            list.add(new GroupRoster.JurorRow(j));
+            list.add(GroupRoster.JurorRow.newInstance(j));
         }
         return list;
     }
@@ -214,7 +214,7 @@ public class TournamentSolver {
             List<Juror> awayList = new ArrayList<>();
             idleList.addAll(tournament.getJurors());
             for (JurySeat seat : tournament.getJurySeats()) {
-                if (seat.getJuror() != Juror.NULL && seat.getJury().getGroup().getRound().equals(round)) {
+                if (seat.isOccupied() && seat.getJury().getGroup().getRound().equals(round)) {
                     idleList.remove(seat.getJuror());
                     jurorDayMap.get(seat.getJuror()).set(round.getNumber() - 1, new JurorDay(seat.getJury().getGroup()));
                 }
@@ -337,5 +337,10 @@ public class TournamentSolver {
 
     public int getJuryCapacity() {
         return tournament.getJuries().get(0).getCapacity();
+    }
+
+    public void clearSchedule() {
+        tournament.clear();
+        updateDetails();
     }
 }

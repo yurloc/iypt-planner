@@ -289,6 +289,12 @@ public class Tournament implements Solution<HardAndSoftScore> {
         return true;
     }
 
+    public void clear() {
+        for (JurySeat seat : jurySeats) {
+            seat.setJuror(null);
+        }
+    }
+
     // ------------------------------------------------------------------------
     // Getters & Setters
     // ------------------------------------------------------------------------

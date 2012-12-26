@@ -32,7 +32,7 @@ public class GroupRoster extends Container {
         private JurorRow() {
         }
 
-        public JurorRow(Juror juror) {
+        private JurorRow(Juror juror) {
             this.juror = juror;
             this.icon = Images.getImage(Images.PERSON_DEFAULT);
             this.flag = Images.getFlag(juror.getCountry());
@@ -42,7 +42,7 @@ public class GroupRoster extends Container {
         }
 
         public static JurorRow newInstance(Juror juror) {
-            if (juror == Juror.NULL) {
+            if (juror == Juror.NULL || juror == null) {
                 return new JurorRow();
             }
             return new JurorRow(juror);
