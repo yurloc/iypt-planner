@@ -106,6 +106,85 @@ public class PlannerWindow extends Window implements Bindable {
     private Round selectedRound;
     private Juror juror1;
     private Juror juror2;
+    private CSVTournamentFactory factory;
+
+    private abstract class LoadFileAction extends Action {
+
+        abstract void processFile(File f) throws Exception;
+        final FileBrowserSheet fileBrowserSheet = new FileBrowserSheet();
+
+        @Override
+        public void perform(Component source) {
+            fileBrowserSheet.open(PlannerWindow.this, new SheetCloseListener() {
+                @Override
+                public void sheetClosed(Sheet sheet) {
+                    if (sheet.getResult()) {
+                        File f = fileBrowserSheet.getSelectedFile();
+                        try {
+                            processFile(f);
+                        } catch (Exception ex) {
+                            log.error("Error reading data file", ex);
+                            Alert.alert(MessageType.ERROR, ex.getMessage(), PlannerWindow.this);
+                        }
+                    }
+                }
+            });
+        }
+    }
+    private LoadFileAction loadTeamsAction = new LoadFileAction() {
+        @Override
+        void processFile(File f) throws Exception {
+            factory.readTeamData(f);
+            loadScheduleAction.setEnabled(factory.canReadSchedule());
+        }
+    };
+    private LoadFileAction loadJurorsAction = new LoadFileAction() {
+        @Override
+        void processFile(File f) throws Exception {
+            factory.readJuryData(f);
+            loadScheduleAction.setEnabled(factory.canReadSchedule());
+        }
+    };
+    private LoadFileAction loadScheduleAction = new LoadFileAction() {
+        @Override
+        void processFile(File f) throws Exception {
+            factory.readSchedule(f);
+            Tournament tournament = factory.newTournament();
+            loadTeamsAction.setEnabled(false);
+            loadJurorsAction.setEnabled(false);
+            clearScheduleAction.setEnabled(true);
+            solver.setTournament(tournament);
+            tournamentChanged();
+            solutionChanged();
+            updateRoundDetails(solver.getTournament().getRounds().get(0));
+            log.info("Tournament loaded\n{}", tournament.toDisplayString());
+        }
+    };
+    private Action clearScheduleAction = new Action() {
+
+        @Override
+        public void perform(Component source) {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+    };
+    private Action saveScheduleAction = new Action() {
+
+        @Override
+        public void perform(Component source) {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+    };
+    private Action newTournamentAction = new Action() {
+        @Override
+        public void perform(Component source) {
+            factory = new CSVTournamentFactory();
+            loadTeamsAction.setEnabled(true);
+            loadJurorsAction.setEnabled(true);
+            loadScheduleAction.setEnabled(false);
+            clearScheduleAction.setEnabled(false);
+            saveScheduleAction.setEnabled(false);
+        }
+    };
 
     public PlannerWindow() {
         Action.getNamedActions().put("quit", new Action() {
@@ -114,74 +193,15 @@ public class PlannerWindow extends Window implements Bindable {
                 DesktopApplicationContext.exit();
             }
         });
-        final CSVTournamentFactory factory = new CSVTournamentFactory();
-        final FileBrowserSheet fileBrowserSheet = new FileBrowserSheet();
-        Action.getNamedActions().put("loadTeams", new Action() {
-            @Override
-            public void perform(Component source) {
-                fileBrowserSheet.open(PlannerWindow.this, new SheetCloseListener() {
-                    @Override
-                    public void sheetClosed(Sheet sheet) {
-                        if (sheet.getResult()) {
-                            File f = fileBrowserSheet.getSelectedFile();
-                            try {
-                                factory.readTeamData(f);
-                            } catch (IOException ex) {
-                                log.error("Error reading data file", ex);
-                                Alert.alert(MessageType.ERROR, ex.getMessage(), PlannerWindow.this);
-                            }
-                        }
-                    }
-
-                });
-            }
-        });
-        Action.getNamedActions().put("loadJurors", new Action() {
-            @Override
-            public void perform(Component source) {
-                fileBrowserSheet.open(PlannerWindow.this, new SheetCloseListener() {
-                    @Override
-                    public void sheetClosed(Sheet sheet) {
-                        if (sheet.getResult()) {
-                            File f = fileBrowserSheet.getSelectedFile();
-                            try {
-                                factory.readJuryData(f);
-                            } catch (IOException ex) {
-                                log.error("Error reading data file", ex);
-                                Alert.alert(MessageType.ERROR, ex.getMessage(), PlannerWindow.this);
-                            }
-                        }
-                    }
-
-                });
-            }
-        });
-        Action.getNamedActions().put("loadSchedule", new Action() {
-            @Override
-            public void perform(Component source) {
-                fileBrowserSheet.open(PlannerWindow.this, new SheetCloseListener() {
-                    @Override
-                    public void sheetClosed(Sheet sheet) {
-                        if (sheet.getResult()) {
-                            File f = fileBrowserSheet.getSelectedFile();
-                            try {
-                                factory.readSchedule(f);
-                                Tournament tournament = factory.newTournament();
-                                solver.setTournament(tournament);
-                                tournamentChanged();
-                                solutionChanged();
-                                updateRoundDetails(solver.getTournament().getRounds().get(0));
-                                log.info("Tournament loaded\n{}", tournament.toDisplayString());
-                            } catch (IOException ex) {
-                                log.error("Error reading data file", ex);
-                                    Alert.alert(MessageType.ERROR, ex.getMessage(), PlannerWindow.this);
-                            }
-                        }
-                    }
-
-                });
-            }
-        });
+        loadTeamsAction.setEnabled(false);
+        loadJurorsAction.setEnabled(false);
+        loadScheduleAction.setEnabled(false);
+        Action.getNamedActions().put("loadTeams", loadTeamsAction);
+        Action.getNamedActions().put("loadJurors", loadJurorsAction);
+        Action.getNamedActions().put("loadSchedule", loadScheduleAction);
+        Action.getNamedActions().put("saveSchedule", saveScheduleAction);
+        Action.getNamedActions().put("clearSchedule", clearScheduleAction);
+        Action.getNamedActions().put("newTournament", newTournamentAction);
     }
 
     @Override
@@ -194,7 +214,7 @@ public class PlannerWindow extends Window implements Bindable {
                 try {
                     Tournament tournament = getInitialSolutionFromCSV();
                     solver.setTournament(tournament);
-                } catch (IOException ex) {
+                } catch (Exception ex) {
                     log.error("Error reading data files", ex);
                     Alert.alert(MessageType.ERROR, ex.getMessage(), PlannerWindow.this);
                 }

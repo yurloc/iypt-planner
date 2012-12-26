@@ -17,6 +17,11 @@
         <MenuBar.Item buttonData="Commands">
           <Menu>
             <Menu.Section>
+              <Menu.Item action="newTournament">
+                <buttonData>
+                  <content:MenuItemData text="New tournament"/>
+                </buttonData>
+              </Menu.Item>
               <Menu.Item action="loadTeams">
                 <buttonData>
                   <content:MenuItemData text="Load teams"/>
@@ -30,6 +35,16 @@
               <Menu.Item action="loadSchedule">
                 <buttonData>
                   <content:MenuItemData text="Load schedule"/>
+                </buttonData>
+              </Menu.Item>
+              <Menu.Item action="saveSchedule">
+                <buttonData>
+                  <content:MenuItemData text="Save schedule"/>
+                </buttonData>
+              </Menu.Item>
+              <Menu.Item action="clearSchedule">
+                <buttonData>
+                  <content:MenuItemData text="Clear schedule"/>
                 </buttonData>
               </Menu.Item>
             </Menu.Section>
