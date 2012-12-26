@@ -47,6 +47,11 @@
                   <content:MenuItemData text="Clear schedule"/>
                 </buttonData>
               </Menu.Item>
+              <Menu.Item action="loadExample">
+                <buttonData>
+                  <content:MenuItemData text="Load IYPT 2012"/>
+                </buttonData>
+              </Menu.Item>
             </Menu.Section>
           </Menu>
         </MenuBar.Item>

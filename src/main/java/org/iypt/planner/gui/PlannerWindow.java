@@ -154,41 +154,7 @@ public class PlannerWindow extends Window implements Bindable {
         @Override
         void processFile(File f) throws Exception {
             factory.readSchedule(f);
-            Tournament tournament = factory.newTournament();
-            loadTeamsAction.setEnabled(false);
-            loadJurorsAction.setEnabled(false);
-            clearScheduleAction.setEnabled(true);
-            solver.setTournament(tournament);
-            tournamentSchedule = new TournamentSchedule(solver);
-            tournamentSchedule.getTournamentScheduleListeners().add(new TournamentScheduleListener.Adapter() {
-                @Override
-                public void roundSelected(Round round) {
-                    updateRoundDetails(round);
-                }
-
-                @Override
-                public void jurorSelected(Juror juror) {
-                    showJuror(juror);
-                    prepareSwap(juror);
-                }
-
-                @Override
-                public void jurorLocked(JurorRow jurorRow) {
-                    solver.lockJuror(jurorRow);
-                }
-
-                @Override
-                public void jurorUnlocked(JurorRow jurorRow) {
-                    solver.unlockJuror(jurorRow);
-                }
-            });
-            tournamentScheduleBoxPane.removeAll();
-            tournamentScheduleBoxPane.add(tournamentSchedule);
-            solveButton.setEnabled(true);
-            tournamentChanged();
-            solutionChanged();
-            updateRoundDetails(solver.getTournament().getRounds().get(0));
-            log.info("Tournament loaded\n{}", tournament.toDisplayString());
+            tournamentLoaded(factory.newTournament());
         }
     };
     private Action clearScheduleAction = new Action() {
@@ -214,7 +180,20 @@ public class PlannerWindow extends Window implements Bindable {
             loadScheduleAction.setEnabled(false);
             clearScheduleAction.setEnabled(false);
             saveScheduleAction.setEnabled(false);
+            loadExampleAction.setEnabled(true);
             tournamentScheduleBoxPane.removeAll();
+        }
+    };
+    private Action loadExampleAction = new Action() {
+        @Override
+        public void perform(Component source) {
+            try {
+                factory.readDataFromClasspath("/org/iypt/planner/csv/", "team_data.csv", "jury_data.csv", "schedule2012.csv");
+                tournamentLoaded(factory.newTournament());
+            } catch (Exception ex) {
+                log.error("Failed to load example", ex);
+                Alert.alert(MessageType.ERROR, "Failed to load example: " + ex.getMessage(), PlannerWindow.this);
+            }
         }
     };
 
@@ -231,6 +210,7 @@ public class PlannerWindow extends Window implements Bindable {
         Action.getNamedActions().put("saveSchedule", saveScheduleAction);
         Action.getNamedActions().put("clearSchedule", clearScheduleAction);
         Action.getNamedActions().put("newTournament", newTournamentAction);
+        Action.getNamedActions().put("loadExample", loadExampleAction);
     }
 
     @Override
@@ -241,6 +221,7 @@ public class PlannerWindow extends Window implements Bindable {
         loadScheduleAction.setEnabled(false);
         saveScheduleAction.setEnabled(false);
         clearScheduleAction.setEnabled(false);
+        loadExampleAction.setEnabled(false);
         solveButton.setEnabled(false);
         TaskListener<TournamentSolver> newSolverTaskListener = new TaskListener<TournamentSolver>() {
             @Override
@@ -378,6 +359,43 @@ public class PlannerWindow extends Window implements Bindable {
             }
         });
 
+    }
+
+    private void tournamentLoaded(Tournament tournament) {
+        loadTeamsAction.setEnabled(false);
+        loadJurorsAction.setEnabled(false);
+        clearScheduleAction.setEnabled(true);
+        solver.setTournament(tournament);
+        tournamentSchedule = new TournamentSchedule(solver);
+        tournamentSchedule.getTournamentScheduleListeners().add(new TournamentScheduleListener.Adapter() {
+            @Override
+            public void roundSelected(Round round) {
+                updateRoundDetails(round);
+            }
+
+            @Override
+            public void jurorSelected(Juror juror) {
+                showJuror(juror);
+                prepareSwap(juror);
+            }
+
+            @Override
+            public void jurorLocked(JurorRow jurorRow) {
+                solver.lockJuror(jurorRow);
+            }
+
+            @Override
+            public void jurorUnlocked(JurorRow jurorRow) {
+                solver.unlockJuror(jurorRow);
+            }
+        });
+        tournamentScheduleBoxPane.removeAll();
+        tournamentScheduleBoxPane.add(tournamentSchedule);
+        solveButton.setEnabled(true);
+        tournamentChanged();
+        solutionChanged();
+        updateRoundDetails(solver.getTournament().getRounds().get(0));
+        log.info("Tournament loaded\n{}", tournament.toDisplayString());
     }
 
     void solutionChanged() {
