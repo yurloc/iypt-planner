@@ -2,7 +2,6 @@ package org.iypt.planner.gui;
 
 import java.awt.Color;
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -154,6 +153,32 @@ public class PlannerWindow extends Window implements Bindable {
             loadJurorsAction.setEnabled(false);
             clearScheduleAction.setEnabled(true);
             solver.setTournament(tournament);
+            tournamentSchedule = new TournamentSchedule(solver);
+            tournamentSchedule.getTournamentScheduleListeners().add(new TournamentScheduleListener.Adapter() {
+                @Override
+                public void roundSelected(Round round) {
+                    updateRoundDetails(round);
+                }
+
+                @Override
+                public void jurorSelected(Juror juror) {
+                    showJuror(juror);
+                    prepareSwap(juror);
+                }
+
+                @Override
+                public void jurorLocked(JurorRow jurorRow) {
+                    solver.lockJuror(jurorRow);
+                }
+
+                @Override
+                public void jurorUnlocked(JurorRow jurorRow) {
+                    solver.unlockJuror(jurorRow);
+                }
+            });
+            tournamentScheduleBoxPane.removeAll();
+            tournamentScheduleBoxPane.add(tournamentSchedule);
+            solveButton.setEnabled(true);
             tournamentChanged();
             solutionChanged();
             updateRoundDetails(solver.getTournament().getRounds().get(0));
@@ -183,6 +208,7 @@ public class PlannerWindow extends Window implements Bindable {
             loadScheduleAction.setEnabled(false);
             clearScheduleAction.setEnabled(false);
             saveScheduleAction.setEnabled(false);
+            tournamentScheduleBoxPane.removeAll();
         }
     };
 
@@ -193,9 +219,6 @@ public class PlannerWindow extends Window implements Bindable {
                 DesktopApplicationContext.exit();
             }
         });
-        loadTeamsAction.setEnabled(false);
-        loadJurorsAction.setEnabled(false);
-        loadScheduleAction.setEnabled(false);
         Action.getNamedActions().put("loadTeams", loadTeamsAction);
         Action.getNamedActions().put("loadJurors", loadJurorsAction);
         Action.getNamedActions().put("loadSchedule", loadScheduleAction);
@@ -206,53 +229,23 @@ public class PlannerWindow extends Window implements Bindable {
 
     @Override
     public void initialize(Map<String, Object> namespace, URL location, Resources resources) {
+        newTournamentAction.setEnabled(false);
+        loadTeamsAction.setEnabled(false);
+        loadJurorsAction.setEnabled(false);
+        loadScheduleAction.setEnabled(false);
+        saveScheduleAction.setEnabled(false);
+        clearScheduleAction.setEnabled(false);
         solveButton.setEnabled(false);
         TaskListener<TournamentSolver> newSolverTaskListener = new TaskListener<TournamentSolver>() {
             @Override
             public void taskExecuted(Task<TournamentSolver> task) {
                 solver = task.getResult();
-                try {
-                    Tournament tournament = getInitialSolutionFromCSV();
-                    solver.setTournament(tournament);
-                } catch (Exception ex) {
-                    log.error("Error reading data files", ex);
-                    Alert.alert(MessageType.ERROR, ex.getMessage(), PlannerWindow.this);
-                }
-
-                jurorDetails = new JurorDetails(solver);
-                jurorDetails.setListener(PlannerWindow.this);
-                tournamentSchedule = new TournamentSchedule(solver);
-                tournamentSchedule.getTournamentScheduleListeners().add(new TournamentScheduleListener.Adapter() {
-                    @Override
-                    public void roundSelected(Round round) {
-                        updateRoundDetails(round);
-                    }
-
-                    @Override
-                    public void jurorSelected(Juror juror) {
-                        showJuror(juror);
-                        prepareSwap(juror);
-                    }
-
-                    @Override
-                    public void jurorLocked(JurorRow jurorRow) {
-                        solver.lockJuror(jurorRow);
-                    }
-
-                    @Override
-                    public void jurorUnlocked(JurorRow jurorRow) {
-                        solver.unlockJuror(jurorRow);
-                    }
-                });
-                tournamentScheduleBoxPane.add(tournamentSchedule);
                 drlLabel.setText(solver.getScoreDrlList().get(0));
                 constraintConfig.setSolver(solver);
-                solveButton.setEnabled(true);
-                jurorBorder.setContent(jurorDetails);
-                tournamentChanged();
-                solutionChanged();
-                updateRoundDetails(solver.getTournament().getRounds().get(0));
-                log.info("initialization successful");
+                jurorDetails.setSolver(solver);
+                newTournamentAction.setEnabled(true);
+                newTournamentAction.perform(PlannerWindow.this);
+                log.info("Solver initialized");
             }
 
             @Override
@@ -366,6 +359,9 @@ public class PlannerWindow extends Window implements Bindable {
         });
 
         showChangesCheckbox.setState(Button.State.SELECTED);
+        jurorDetails = new JurorDetails();
+        jurorDetails.setListener(PlannerWindow.this);
+        jurorBorder.setContent(jurorDetails);
         juryCapacitySpinner.getSpinnerSelectionListeners().add(new SpinnerSelectionListener.Adapter() {
             @Override
             public void selectedItemChanged(Spinner spinner, Object previousSelectedItem) {
@@ -453,15 +449,6 @@ public class PlannerWindow extends Window implements Bindable {
         totalMandaysLabel.setText(Integer.toString(t.getJurors().size() * t.getRounds().size() - t.getDayOffs().size()));
         optimalLoadLabel.setText(String.format("%.4f", t.getStatistics().getOptimalLoad()));
         tournamentSchedule.updateSchedule();
-    }
-
-    private Tournament getInitialSolutionFromCSV() throws IOException {
-        String path = "/org/iypt/planner/csv/";
-        CSVTournamentFactory factory = new CSVTournamentFactory();
-        factory.readTeamData(PlannerWindow.class, path + "team_data.csv");
-        factory.readJuryData(PlannerWindow.class, path + "jury_data.csv");
-        factory.readSchedule(PlannerWindow.class, path + "schedule2012.csv");
-        return factory.newTournament();
     }
 
     private TournamentSolver newSolver() {

@@ -10,13 +10,12 @@ import org.iypt.planner.solver.TournamentSolver;
  */
 public class JurorDetails extends Container {
 
-    private final TournamentSolver solver;
     private final JurorDetailsSkin skin;
+    private TournamentSolver solver;
     private Juror juror;
     private PlannerWindow listener;
 
-    public JurorDetails(TournamentSolver solver) {
-        this.solver = solver;
+    public JurorDetails() {
         skin = new JurorDetailsSkin();
         super.setSkin(skin);
     }
@@ -42,5 +41,9 @@ public class JurorDetails extends Container {
         solver.applyChanges(juror);
         skin.showJuror(juror);
         listener.solutionChanged();
+    }
+
+    void setSolver(TournamentSolver solver) {
+        this.solver = solver;
     }
 }
