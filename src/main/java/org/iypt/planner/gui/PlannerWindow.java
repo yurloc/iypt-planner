@@ -110,7 +110,12 @@ public class PlannerWindow extends Window implements Bindable {
     private abstract class LoadFileAction extends Action {
 
         abstract void processFile(File f) throws Exception;
-        final FileBrowserSheet fileBrowserSheet = new FileBrowserSheet();
+        private final FileBrowserSheet fileBrowserSheet = new FileBrowserSheet();
+        private final String fileType;
+
+        public LoadFileAction(String fileType) {
+            this.fileType = fileType;
+        }
 
         @Override
         public void perform(Component source) {
@@ -123,28 +128,29 @@ public class PlannerWindow extends Window implements Bindable {
                             processFile(f);
                         } catch (Exception ex) {
                             log.error("Error reading data file", ex);
-                            Alert.alert(MessageType.ERROR, ex.getMessage(), PlannerWindow.this);
+                            String message = String.format("%s. Perhaps this is not a %s data file?", ex.getMessage(), fileType);
+                            Alert.alert(MessageType.ERROR, message, PlannerWindow.this);
                         }
                     }
                 }
             });
         }
     }
-    private LoadFileAction loadTeamsAction = new LoadFileAction() {
+    private LoadFileAction loadTeamsAction = new LoadFileAction("teams") {
         @Override
         void processFile(File f) throws Exception {
             factory.readTeamData(f);
             loadScheduleAction.setEnabled(factory.canReadSchedule());
         }
     };
-    private LoadFileAction loadJurorsAction = new LoadFileAction() {
+    private LoadFileAction loadJurorsAction = new LoadFileAction("jurors") {
         @Override
         void processFile(File f) throws Exception {
             factory.readJuryData(f);
             loadScheduleAction.setEnabled(factory.canReadSchedule());
         }
     };
-    private LoadFileAction loadScheduleAction = new LoadFileAction() {
+    private LoadFileAction loadScheduleAction = new LoadFileAction("schedule") {
         @Override
         void processFile(File f) throws Exception {
             factory.readSchedule(f);
