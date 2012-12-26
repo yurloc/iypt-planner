@@ -57,6 +57,7 @@ public class CSVTournamentFactory {
     private Map<Jury, List<Juror>> juries;
     private int juryCapacity = 0;
     private Tournament tournament;
+    private State state = new State();
 
     public void readDataFromClasspath(String commonPath, String teamFile, String juryFile) throws IOException {
         readTeamData(CSVTournamentFactory.class, commonPath + teamFile);
@@ -183,6 +184,7 @@ public class CSVTournamentFactory {
             }
             ln++;
         }
+        state.teamsReady();
     }
 
     private void readJuries(Source src) throws IOException {
@@ -249,9 +251,13 @@ public class CSVTournamentFactory {
             }
             ln++;
         }
+        state.jurorsReady();
     }
 
     private void readSchedule(Source src) throws IOException {
+        if (!state.canReadSchedule()) {
+            throw new IllegalStateException("Not ready to read schedule. Teams and jurors must be read first.");
+        }
         juries = new HashMap<>();
 
         int ln = 1;
@@ -322,20 +328,28 @@ public class CSVTournamentFactory {
     }
 
     public Tournament newTournament() throws IOException {
+        if (!state.canCreateTournament()) {
+            throw new IllegalStateException("Missing some data to create new tournament. Read teams and jurors first.");
+        }
         tournament = new Tournament();
+        tournament.setRounds(rounds.values());
+        tournament.setJurors(jurors.values());
+        tournament.setDayOffs(dayOffs);
+        tournament.setConflicts(conflicts);
+
         if (juryCapacity > 0) {
             tournament.setJuryCapacity(juryCapacity);
         }
-        tournament.setRounds(rounds.values());
         for (Jury jury : tournament.getJuries()) {
             for (int i = 0; i < juryCapacity; i++) {
                 jury.getSeats().get(i).setJuror(juries.get(jury).get(i));
             }
         }
-        tournament.setJurors(jurors.values());
-        tournament.setDayOffs(dayOffs);
-        tournament.setConflicts(conflicts);
         return tournament;
+    }
+
+    public boolean canReadSchedule() {
+        return state.canReadSchedule();
     }
 
     private class Source {
@@ -356,6 +370,27 @@ public class CSVTournamentFactory {
         public Source(String name, CSVReader reader) {
             this.name = name;
             this.reader = reader;
+        }
+    }
+
+    private class State {
+        boolean teams = false;
+        boolean jurors = false;
+
+        void teamsReady() {
+            teams = true;
+        }
+
+        void jurorsReady() {
+            jurors = true;
+        }
+
+        boolean canReadSchedule() {
+            return teams && jurors;
+        }
+
+        boolean canCreateTournament() {
+            return teams && jurors;
         }
     }
 }
