@@ -12,6 +12,7 @@ import org.apache.pivot.collections.ArrayList;
 import org.apache.pivot.collections.List;
 import org.apache.pivot.collections.Map;
 import org.apache.pivot.collections.adapter.ListAdapter;
+import org.apache.pivot.util.Filter;
 import org.apache.pivot.util.Resources;
 import org.apache.pivot.util.concurrent.Task;
 import org.apache.pivot.util.concurrent.TaskExecutionException;
@@ -102,11 +103,16 @@ public class PlannerWindow extends Window implements Bindable {
     private Juror juror1;
     private Juror juror2;
     private CSVTournamentFactory factory;
+    private Filter<File> csvFileFilter = new Filter<File>() {
+        @Override
+        public boolean include(File item) {
+            return !(item.isDirectory() || item.getName().toLowerCase().endsWith(".csv"));
+        }
+    };
 
     private abstract class LoadFileAction extends Action {
 
         abstract void processFile(File f) throws Exception;
-        private final FileBrowserSheet fileBrowserSheet = new FileBrowserSheet();
         private final String fileType;
 
         public LoadFileAction(String fileType) {
@@ -115,6 +121,9 @@ public class PlannerWindow extends Window implements Bindable {
 
         @Override
         public void perform(Component source) {
+            // TODO set root folder to last selected file parent
+            final FileBrowserSheet fileBrowserSheet = new FileBrowserSheet();
+            fileBrowserSheet.setDisabledFileFilter(csvFileFilter);
             fileBrowserSheet.open(PlannerWindow.this, new SheetCloseListener() {
                 @Override
                 public void sheetClosed(Sheet sheet) {
@@ -162,10 +171,12 @@ public class PlannerWindow extends Window implements Bindable {
         }
     };
     private Action saveScheduleAction = new Action() {
-        FileBrowserSheet fileBrowserSheet = new FileBrowserSheet(FileBrowserSheet.Mode.SAVE_AS);
-
         @Override
         public void perform(Component source) {
+            // create new FileBrowser to make sure a fresh file list is displayed
+            // TODO set root folder
+            final FileBrowserSheet fileBrowserSheet = new FileBrowserSheet(FileBrowserSheet.Mode.SAVE_AS);
+            fileBrowserSheet.setDisabledFileFilter(csvFileFilter);
             fileBrowserSheet.setSelectedFile(new File(fileBrowserSheet.getRootDirectory(), "schedule.csv"));
             fileBrowserSheet.open(PlannerWindow.this, new SheetCloseListener() {
                 @Override
