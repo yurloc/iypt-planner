@@ -65,11 +65,9 @@ import org.slf4j.LoggerFactory;
 public class PlannerWindow extends Window implements Bindable {
 
     private static final Logger log = LoggerFactory.getLogger(PlannerWindow.class);
-
     // constraints config tab controls
     @BXML private Label drlLabel;
     @BXML private ConstraintsConfig constraintConfig;
-
     // planning tab controls
     @BXML private Label scoreLabel;
     @BXML private PushButton solveButton;
@@ -81,25 +79,21 @@ public class PlannerWindow extends Window implements Bindable {
     @BXML private BoxPane tournamentScheduleBoxPane;
     @BXML private BoxPane constraintsBoxPane;
     @BXML private ListView causesListView;
-
     // tournament details
     @BXML private Label totalJurorsLabel;
     @BXML private Spinner juryCapacitySpinner;
     @BXML private Label totalSeatsLabel;
     @BXML private Label totalMandaysLabel;
     @BXML private Label optimalLoadLabel;
-
     // round details
     @BXML private Label optimalIndependentLabel;
     @BXML private Label idleLabel;
     @BXML private Label awayLabel;
     @BXML private TableView idleTableView;
     @BXML private TableView awayTableView;
-
     // juror details
     @BXML private Border jurorBorder;
     private JurorDetails jurorDetails;
-
     // other
     private TournamentSchedule tournamentSchedule;
     private SolverTask solverTask;
@@ -358,7 +352,6 @@ public class PlannerWindow extends Window implements Bindable {
 
         terminateButton.setEnabled(false);
         terminateButton.getButtonPressListeners().add(new ButtonPressListener() {
-
             @Override
             public void buttonPressed(Button button) {
                 solverTask.terminate();
@@ -506,7 +499,6 @@ public class PlannerWindow extends Window implements Bindable {
     //=========================================================================================================================
     // listeners
     //=========================================================================================================================
-
     private class SolverListener implements SolverEventListener {
 
         @Override
@@ -517,14 +509,12 @@ public class PlannerWindow extends Window implements Bindable {
             Tournament better = (Tournament) event.getNewBestSolution();
             solver.setTournament(better);
             ApplicationContext.queueCallback(new Runnable() {
-
                 @Override
                 public void run() {
                     solutionChanged();
                 }
             });
         }
-
     }
 
     private class PhaseListener extends SolverPhaseLifecycleListenerAdapter {
@@ -533,13 +523,11 @@ public class PlannerWindow extends Window implements Bindable {
         public void stepTaken(AbstractStepScope stepScope) {
             super.stepTaken(stepScope);
         }
-
     }
 
     //=========================================================================================================================
     // tasks
     //=========================================================================================================================
-
     private class SolverTask extends Task<Void> {
 
         private final TournamentSolver solver;
@@ -557,7 +545,6 @@ public class PlannerWindow extends Window implements Bindable {
             solver.solve();
             return null;
         }
-
     }
 
     private void updateRoundDetails(Round round) {
