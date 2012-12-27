@@ -90,7 +90,10 @@ public class Tournament implements Solution<HardAndSoftScore> {
     public Solution<HardAndSoftScore> cloneSolution() {
         Tournament clone = new Tournament();
         clone.score = score;
-        clone.addRounds(rounds, true);
+        clone.rounds = rounds;
+        clone.teams = teams;
+        clone.groups = groups;
+        clone.juries = juries;
         clone.jurors = jurors;
         clone.dayOffs = dayOffs;
         clone.dayOffsMap = dayOffsMap;
@@ -147,7 +150,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
         }
     }
 
-    private void addRounds(Collection<Round> rounds, boolean cloningSolution) {
+    private void addRounds(Collection<Round> rounds) {
         this.rounds.addAll(rounds);
         for (Round r : rounds) {
             for (Group g : r.getGroups()) {
@@ -157,12 +160,9 @@ public class Tournament implements Solution<HardAndSoftScore> {
                 jury.setCapacity(juryCapacity);
                 juries.add(jury);
 
-                // skip this when cloning, planning entities have to be deep-cloned
-                if (!cloningSolution) {
-                    for (int i = 0; i < jury.getCapacity(); i++) {
-                        JurySeat seat = new JurySeat(jury, i, null);
-                        jurySeats.add(seat);
-                    }
+                for (int i = 0; i < jury.getCapacity(); i++) {
+                    JurySeat seat = new JurySeat(jury, i, null);
+                    jurySeats.add(seat);
                 }
             }
         }
@@ -171,7 +171,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
     }
 
     public void addRounds(Round... rounds) {
-        addRounds(Arrays.asList(rounds), false);
+        addRounds(Arrays.asList(rounds));
     }
 
     public void setRounds(Collection<Round> rounds) {
@@ -180,7 +180,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
         this.teams.clear();
         this.juries.clear();
         this.jurySeats.clear();
-        addRounds(rounds, false);
+        addRounds(rounds);
     }
 
     public void setJurors(Collection<Juror> jurors) {
