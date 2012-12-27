@@ -1,10 +1,10 @@
-package org.iypt.planner.csv;
+package org.iypt.planner.csv.full_data;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import org.iypt.planner.csv.PersonReader.PersonRow;
+import org.iypt.planner.csv.full_data.PersonReader.PersonRow;
 
 /**
  *

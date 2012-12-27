@@ -1,9 +1,9 @@
-package org.iypt.planner.csv;
+package org.iypt.planner.csv.full_data;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import org.iypt.planner.csv.MarkReader.MarkRow;
+import org.iypt.planner.csv.full_data.MarkReader.MarkRow;
 
 /**
  *

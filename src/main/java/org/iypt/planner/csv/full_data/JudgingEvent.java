@@ -1,4 +1,4 @@
-package org.iypt.planner.csv;
+package org.iypt.planner.csv.full_data;
 
 import java.util.HashMap;
 import java.util.Map;

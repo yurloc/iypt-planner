@@ -1,4 +1,4 @@
-package org.iypt.planner.csv;
+package org.iypt.planner.csv.full_data;
 
 import org.supercsv.cellprocessor.CellProcessorAdaptor;
 import org.supercsv.cellprocessor.ift.BoolCellProcessor;

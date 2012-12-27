@@ -1,4 +1,4 @@
-package org.iypt.planner.domain.util;
+package org.iypt.planner.csv;
 
 import au.com.bytecode.opencsv.CSVReader;
 import java.io.File;

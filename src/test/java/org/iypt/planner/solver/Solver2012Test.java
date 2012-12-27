@@ -3,7 +3,7 @@ package org.iypt.planner.solver;
 import java.io.IOException;
 import org.drools.planner.config.termination.TerminationConfig;
 import org.iypt.planner.domain.Tournament;
-import org.iypt.planner.domain.util.CSVTournamentFactory;
+import org.iypt.planner.csv.CSVTournamentFactory;
 import org.junit.BeforeClass;
 import org.junit.Test;
 

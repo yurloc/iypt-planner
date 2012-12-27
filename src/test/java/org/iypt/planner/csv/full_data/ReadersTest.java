@@ -1,11 +1,11 @@
-package org.iypt.planner.csv;
+package org.iypt.planner.csv.full_data;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-import org.iypt.planner.csv.FightReader.FightRow;
-import org.iypt.planner.csv.JurorReader.JurorRow;
-import org.iypt.planner.csv.MarkReader.MarkRow;
-import org.iypt.planner.csv.PersonReader.PersonRow;
+import org.iypt.planner.csv.full_data.FightReader.FightRow;
+import org.iypt.planner.csv.full_data.JurorReader.JurorRow;
+import org.iypt.planner.csv.full_data.MarkReader.MarkRow;
+import org.iypt.planner.csv.full_data.PersonReader.PersonRow;
 import org.junit.BeforeClass;
 import org.junit.Test;
 

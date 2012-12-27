@@ -1,15 +1,15 @@
-package org.iypt.planner.csv;
+package org.iypt.planner.csv.full_data;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import org.iypt.planner.csv.FightReader.FightRow;
-import org.iypt.planner.csv.JurorReader.JurorRow;
-import org.iypt.planner.csv.MarkReader.MarkRow;
-import org.iypt.planner.csv.PersonReader.PersonRow;
-import org.iypt.planner.csv.TournamentReader.TournamentRow;
+import org.iypt.planner.csv.full_data.FightReader.FightRow;
+import org.iypt.planner.csv.full_data.JurorReader.JurorRow;
+import org.iypt.planner.csv.full_data.MarkReader.MarkRow;
+import org.iypt.planner.csv.full_data.PersonReader.PersonRow;
+import org.iypt.planner.csv.full_data.TournamentReader.TournamentRow;
 
 /**
  *

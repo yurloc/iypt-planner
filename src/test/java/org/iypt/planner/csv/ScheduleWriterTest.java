@@ -13,7 +13,6 @@ import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.JurySeat;
 import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Tournament;
-import org.iypt.planner.domain.util.CSVTournamentFactory;
 import org.iypt.planner.domain.util.RoundFactory;
 import org.junit.BeforeClass;
 import org.junit.Test;

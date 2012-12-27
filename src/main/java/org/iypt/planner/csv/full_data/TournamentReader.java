@@ -1,4 +1,4 @@
-package org.iypt.planner.csv;
+package org.iypt.planner.csv.full_data;
 
 import org.supercsv.cellprocessor.Optional;
 import org.supercsv.cellprocessor.ParseInt;
