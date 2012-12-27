@@ -1,6 +1,5 @@
 package org.iypt.planner.csv;
 
-import au.com.bytecode.opencsv.CSVReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -22,6 +21,8 @@ import org.iypt.planner.domain.Team;
 import org.iypt.planner.domain.Tournament;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.supercsv.io.CsvListReader;
+import org.supercsv.prefs.CsvPreference;
 
 /**
  * This CSV processor ignores whitespace-only (empty) lines and trailing separators if the last value is whitespace-only
@@ -48,7 +49,7 @@ public class CSVTournamentFactory {
         countryNameMap.put("Russia", CountryCode.RU);
     }
     
-    private char SEPARATOR = ';';
+    private CsvPreference preference = CsvPreference.EXCEL_NORTH_EUROPE_PREFERENCE;
     private Map<Integer, Round> rounds;
     private Map<CountryCode, Team> teams;
     private Map<String, Juror> jurors;
@@ -93,12 +94,12 @@ public class CSVTournamentFactory {
         readSchedule(new Source(dataFile));
     }
 
-    private CSVReader getReader(Class<?> baseType, String resource) {
-        return new CSVReader(new InputStreamReader(baseType.getResourceAsStream(resource)), SEPARATOR);
+    private CsvListReader getReader(Class<?> baseType, String resource) {
+        return new CsvListReader(new InputStreamReader(baseType.getResourceAsStream(resource)), preference);
     }
 
-    private CSVReader getReader(File file) throws FileNotFoundException {
-        return new CSVReader(new FileReader(file), SEPARATOR);
+    private CsvListReader getReader(File file) throws FileNotFoundException {
+        return new CsvListReader(new FileReader(file), preference);
     }
 
     private String getResourceName(String resource) {
@@ -117,16 +118,16 @@ public class CSVTournamentFactory {
         return value.replaceAll("Group ", "");
     }
 
-    private boolean ignore(String[] line) {
-        if (line.length == 0) return true;
-        if (line.length > 0 && line[0].trim().isEmpty()) {
+    private boolean ignore(List<String> line) {
+        if (line.isEmpty()) return true;
+        if (line.get(0).trim().isEmpty()) {
             // ignore empty lines
-            if (line.length == 1) {
+            if (line.size() == 1) {
                 return true;
             }
         } else {
             // skip comments
-            if (line[0].charAt(0) == '#') {
+            if (line.get(0).charAt(0) == '#') {
                 return true;
             }
         }
@@ -139,7 +140,8 @@ public class CSVTournamentFactory {
         teams = new HashMap<>(30);
         
         int ln = 1; // line number
-        for (String[] line : src.reader.readAll()) {
+        List<String> line;
+        while ((line = src.reader.read()) != null) {
             if (ignore(line)) {
                 continue;
             }
@@ -147,9 +149,9 @@ public class CSVTournamentFactory {
             // get round number
             int roundNumber = 0;
             try {
-                roundNumber = Integer.parseInt(line[0]);
+                roundNumber = Integer.parseInt(line.get(0));
             } catch (NumberFormatException ex) {
-                throwIOE("Invalid round number", line[0], src.name, ln, 0);
+                throwIOE("Invalid round number", line.get(0), src.name, ln, 0);
             }
 
             // get the round to be populated
@@ -159,21 +161,21 @@ public class CSVTournamentFactory {
             Round round = rounds.get(roundNumber);
 
             // create the group
-            if (line.length < 2) {
+            if (line.size() < 2) {
                 throwIOE("Incomplete entry: missing group", src.name, ln, 1);
             }
-            String groupName = getGroupName(line[1]);
+            String groupName = getGroupName(line.get(1));
             Group group = round.createGroup(groupName);
 
             // get the teams in group
-            for (int i = 2; i < line.length; i++) {
-                if (i == line.length - 1 && line[i].trim().isEmpty()) {
-                    log.warn("Ignoring trailing '{}' in {}[{}:{}]", new Object[]{SEPARATOR, src.name, ln, i});
+            for (int i = 2; i < line.size(); i++) {
+                if (i == line.size() - 1 && line.get(i) == null) {
+                    log.warn("Ignoring trailing '{}' in {}[{}:{}]", new Object[]{(char) preference.getDelimiterChar(), src.name, ln, i});
                     break;
                 }
-                CountryCode cc = countryNameMap.get(line[i]);
+                CountryCode cc = countryNameMap.get(line.get(i));
                 if (cc == null) {
-                    throwIOE("Unknown country", line[i], src.name, ln, i);
+                    throwIOE("Unknown country", line.get(i), src.name, ln, i);
                 }
                 // add the team only if it's new
                 // TODO replace the Map with Set when equals is overriden
@@ -194,59 +196,60 @@ public class CSVTournamentFactory {
         conflicts = new ArrayList<>(100);
 
         int ln = 1; // line number
-        for (String[] line : src.reader.readAll()) {
+        List<String> line;
+        while ((line = src.reader.read()) != null) {
             if (ignore(line)) {
                 continue;
             }
 
             // check minmal number of values
-            if (line.length < 4) {
-                if (line.length == 1) throwIOE("Incomplete entry: missing juror's last name", src.name, ln, 1);
-                if (line.length == 2) throwIOE("Incomplete entry: missing juror's type tag", src.name, ln, 2);
-                if (line.length == 3) throwIOE("Incomplete entry: missing juror's country", src.name, ln, 3);
+            if (line.size() < 4) {
+                if (line.size() == 1) throwIOE("Incomplete entry: missing juror's last name", src.name, ln, 1);
+                if (line.size() == 2) throwIOE("Incomplete entry: missing juror's type tag", src.name, ln, 2);
+                if (line.size() == 3) throwIOE("Incomplete entry: missing juror's country", src.name, ln, 3);
             }
             
             // get JurorType tag
             JurorType jt = null;
             try {
-                jt = JurorType.getByLetter(line[2].charAt(0));
+                jt = JurorType.getByLetter(line.get(2).charAt(0));
             } catch (IllegalArgumentException e) {
-                throwIOE("Invalid juror type tag", line[2], src.name, ln, 2);
+                throwIOE("Invalid juror type tag", line.get(2), src.name, ln, 2);
             }
 
             // get first country
-            CountryCode cc = countryNameMap.get(line[3]);
+            CountryCode cc = countryNameMap.get(line.get(3));
             if (cc == null) {
-                throwIOE("Unknown country", line[3], src.name, ln, 3);
+                throwIOE("Unknown country", line.get(3), src.name, ln, 3);
             }
 
             // create the juror
-            Juror juror = new Juror(line[0], line[1], cc, jt);
-            jurors.put(String.format("%s, %s", line[1], line[0]), juror);
+            Juror juror = new Juror(line.get(0), line.get(1), cc, jt);
+            jurors.put(String.format("%s, %s", line.get(1), line.get(0)), juror);
             conflicts.add(new Conflict(juror, cc));
 
             // read country conflicts, day offs, and optional chair tag
             boolean dayOffMode = false;
-            for (int i = 4; i < line.length; i++) {
-                if (i == line.length - 1) {
-                    if ("C".equals(line[i])) {
+            for (int i = 4; i < line.size(); i++) {
+                if (i == line.size() - 1) {
+                    if ("C".equals(line.get(i))) {
                         juror.setChairCandidate(true);
                         break;
-                    } else if(line[i].trim().isEmpty()) {
-                        log.warn("Ignoring trailing '{}' in {}[{}:{}]", new Object[]{SEPARATOR, src.name, ln, i});
+                    } else if (line.get(i) == null) {
+                        log.warn("Ignoring trailing '{}' in {}[{}:{}]", new Object[]{(char) preference.getDelimiterChar(), src.name, ln, i});
                         break;
                     }
                 }
                 try {
-                    dayOffs.add(new DayOff(juror, Integer.valueOf(line[i])));
+                    dayOffs.add(new DayOff(juror, Integer.valueOf(line.get(i))));
                     dayOffMode = true;
                 } catch (NumberFormatException ex) {
                     if (dayOffMode) {
                         // when the first day off is read, the rest of values should be all numbers (except for optional C)
-                        throwIOE("Invalid day off number", line[i], src.name, ln, i);
+                        throwIOE("Invalid day off number", line.get(i), src.name, ln, i);
                     }
-                    log.debug("Juror with multiple conflicts: {} {}", countryNameMap.get(line[i]), juror);
-                    conflicts.add(new Conflict(juror, countryNameMap.get(line[i])));
+                    log.debug("Juror with multiple conflicts: {} {}", countryNameMap.get(line.get(i)), juror);
+                    conflicts.add(new Conflict(juror, countryNameMap.get(line.get(i))));
                 }
             }
             ln++;
@@ -263,17 +266,18 @@ public class CSVTournamentFactory {
         int ln = 1;
         boolean capacitySet = false;
 
-        for (String[] line : src.reader.readAll()) {
+        List<String> line;
+        while ((line = src.reader.read()) != null) {
             if (ignore(line)) {
                 continue;
             }
 
             // set jury capacity
             if (!capacitySet) {
-                int capacity = line.length - 2;
-                if (line[line.length - 1].trim().isEmpty()) {
+                int capacity = line.size() - 2;
+                if (line.get(line.size() - 1) == null) {
                     // don't break the capacity with trailing ';'
-                    log.warn("Ignoring trailing '{}' in {}[{}:{}]", new Object[]{SEPARATOR, src.name, ln, line.length - 1});
+                    log.warn("Ignoring trailing '{}' in {}[{}:{}]", new Object[]{(char) preference.getDelimiterChar(), src.name, ln, line.size() - 1});
                     capacity--;
                 }
                 log.debug("Inferred jury capacity: {}.", capacity);
@@ -284,9 +288,9 @@ public class CSVTournamentFactory {
             // get round number
             int roundNumber = 0;
             try {
-                roundNumber = Integer.valueOf(line[0]);
+                roundNumber = Integer.valueOf(line.get(0));
             } catch (NumberFormatException ex) {
-                throwIOE("Invalid round number", line[0], src.name, ln, 0);
+                throwIOE("Invalid round number", line.get(0), src.name, ln, 0);
             }
 
             // get the round instance
@@ -298,11 +302,11 @@ public class CSVTournamentFactory {
                 }
             }
             if (round == null) {
-                throwIOE("Cannot find round with number", line[0], src.name, ln, 0);
+                throwIOE("Cannot find round with number", line.get(0), src.name, ln, 0);
             }
 
             // get group
-            String groupName = getGroupName(line[1]);
+            String groupName = getGroupName(line.get(1));
             Jury jury = null;
             for (Group g : round.getGroups()) {
                 if (groupName.equals(g.getName())) {
@@ -310,13 +314,13 @@ public class CSVTournamentFactory {
                 }
             }
             if (jury == null) {
-                throwIOE("Cannot find group for name", line[1], src.name, ln, 1);
+                throwIOE("Cannot find group for name", line.get(1), src.name, ln, 1);
             }
 
             List<Juror> jurorList = new ArrayList<>();
             juries.put(jury, jurorList);
             for (int i = 0; i < juryCapacity; i++) {
-                String name = line[i + 2];
+                String name = line.get(i + 2);
                 Juror juror = jurors.get(name);
                 if (juror == null) {
                     throwIOE("Unkown juror", name, src.name, ln, i + 2);
@@ -355,7 +359,7 @@ public class CSVTournamentFactory {
     private class Source {
 
         private final String name;
-        private final CSVReader reader;
+        private final CsvListReader reader;
 
         public Source(Class<?> baseType, String resourcePath) {
             name = getResourceName(resourcePath);
@@ -367,7 +371,7 @@ public class CSVTournamentFactory {
             reader = getReader(file);
         }
 
-        public Source(String name, CSVReader reader) {
+        public Source(String name, CsvListReader reader) {
             this.name = name;
             this.reader = reader;
         }
