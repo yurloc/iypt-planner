@@ -44,7 +44,7 @@ public class ScheduleWriterTest {
         int i = 0;
         for (Round round : tournament.getRounds()) {
             for (Group group : round.getGroups()) {
-                for (JurySeat seat : group.getJury().getSeats()) {
+                for (JurySeat seat : tournament.getSeats(group.getJury())) {
                     seat.setJuror(jurors.get(i));
                     i = (++i) % jurors.size();
                 }

@@ -36,7 +36,7 @@ public class ScheduleWriter {
                     data.add(round.getNumber());
                     data.add("Group " + group.getName());
                     // append all jurors
-                    for (JurySeat seat : group.getJury().getSeats()) {
+                    for (JurySeat seat : tournament.getSeats(group.getJury())) {
                         Juror juror = seat.getJuror();
                         if (juror == null) {
                             juror = Juror.NULL;

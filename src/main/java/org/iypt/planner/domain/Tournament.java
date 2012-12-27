@@ -162,7 +162,6 @@ public class Tournament implements Solution<HardAndSoftScore> {
                     for (int i = 0; i < jury.getCapacity(); i++) {
                         JurySeat seat = new JurySeat(jury, i, null);
                         jurySeats.add(seat);
-                        jury.getSeats().add(seat);
                     }
                 }
             }
@@ -281,12 +280,17 @@ public class Tournament implements Solution<HardAndSoftScore> {
             for (int i = 0; i < capacity; i++) {
                 JurySeat seat = new JurySeat(jury, i, null);
                 jurySeats.add(seat);
-                jury.getSeats().add(seat); // XXX relying on implementation of jurySeat collection
             }
         }
         stats.calculateOptimalLoad();
         calculateIratio();
         return true;
+    }
+
+    public List<JurySeat> getSeats(Jury jury) {
+        // XXX relying on the fixed order of juries and seats (note: cloned tournament must preserve the order!)
+        int start = juries.indexOf(jury) * juryCapacity;
+        return jurySeats.subList(start, start + juryCapacity);
     }
 
     public void clear() {

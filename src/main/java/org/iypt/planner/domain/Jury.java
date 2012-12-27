@@ -1,8 +1,5 @@
 package org.iypt.planner.domain;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  *
  * @author jlocker
@@ -13,7 +10,6 @@ public final class Jury {
     private int capacity;
     private Group group;
     private Juror chair;
-    private List<JurySeat> seats;
 
     public Jury() {
         setCapacity(DEFAULT_CAPACITY);
@@ -27,11 +23,6 @@ public final class Jury {
     // ------------------------------------------------------------------------
     // Getters & Setters
     // ------------------------------------------------------------------------
-
-    public List<JurySeat> getSeats() {
-        return seats;
-    }
-
     /**
      * Get the value of group
      *
@@ -66,7 +57,6 @@ public final class Jury {
      */
     public void setCapacity(int capacity) {
         this.capacity = capacity;
-        seats = new ArrayList<>(capacity);
     }
 
     /**

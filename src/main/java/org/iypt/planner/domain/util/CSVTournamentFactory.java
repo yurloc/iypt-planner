@@ -342,7 +342,7 @@ public class CSVTournamentFactory {
         }
         for (Jury jury : tournament.getJuries()) {
             for (int i = 0; i < juryCapacity; i++) {
-                jury.getSeats().get(i).setJuror(juries.get(jury).get(i));
+                tournament.getSeats(jury).get(i).setJuror(juries.get(jury).get(i));
             }
         }
         return tournament;
