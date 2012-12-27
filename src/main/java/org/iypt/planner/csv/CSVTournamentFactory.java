@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -53,6 +54,7 @@ public class CSVTournamentFactory {
     private Map<Integer, Round> rounds;
     private Map<CountryCode, Team> teams;
     private Map<String, Juror> jurors;
+    private Map<String, Double> biases;
     private List<DayOff> dayOffs;
     private List<Conflict> conflicts;
     private Map<Jury, List<Juror>> juries;
@@ -70,12 +72,26 @@ public class CSVTournamentFactory {
         readSchedule(CSVTournamentFactory.class, commonPath + scheduleFile);
     }
 
+    public void readDataFromClasspath(String commonPath, String teamFile, String juryFile, String biasFile, String scheduleFile) throws IOException {
+        readDataFromClasspath(commonPath, teamFile, juryFile);
+        readBiasData(CSVTournamentFactory.class, commonPath + biasFile);
+        readSchedule(CSVTournamentFactory.class, commonPath + scheduleFile);
+    }
+
     public void readTeamData(Class<?> baseType, String resourcePath) throws IOException {
         readTeams(new Source(baseType, resourcePath));
     }
 
     public void readJuryData(Class<?> baseType, String resourcePath) throws IOException {
         readJuries(new Source(baseType, resourcePath));
+    }
+
+    public void readBiasData(Class<?> baseType, String resourcePath) throws IOException {
+        readBiases(new InputStreamReader(baseType.getResourceAsStream(resourcePath)));
+    }
+
+    public void readBiasData(File dataFile) throws IOException {
+        readBiases(new FileReader(dataFile));
     }
 
     public void readSchedule(Class<?> baseType, String resourcePath) throws IOException {
@@ -257,6 +273,12 @@ public class CSVTournamentFactory {
         state.jurorsReady();
     }
 
+    private void readBiases(Reader reader) throws IOException {
+        BiasReader br = new BiasReader();
+        biases = br.read(reader);
+        state.biasesReady();
+    }
+
     private void readSchedule(Source src) throws IOException {
         if (!state.canReadSchedule()) {
             throw new IllegalStateException("Not ready to read schedule. Teams and jurors must be read first.");
@@ -341,6 +363,12 @@ public class CSVTournamentFactory {
         tournament.setDayOffs(dayOffs);
         tournament.setConflicts(conflicts);
 
+        if (state.haveBiasData()) {
+            for (Juror juror : jurors.values()) {
+                juror.setBias(biases.get(juror.fullName()));
+            }
+        }
+
         if (juryCapacity > 0) {
             tournament.setJuryCapacity(juryCapacity);
         }
@@ -378,23 +406,32 @@ public class CSVTournamentFactory {
     }
 
     private class State {
-        boolean teams = false;
-        boolean jurors = false;
+        private boolean teams = false;
+        private boolean jurors = false;
+        private boolean biases = false;
 
-        void teamsReady() {
+        private void teamsReady() {
             teams = true;
         }
 
-        void jurorsReady() {
+        private void biasesReady() {
+            biases = true;
+        }
+
+        private void jurorsReady() {
             jurors = true;
         }
 
-        boolean canReadSchedule() {
+        private boolean canReadSchedule() {
             return teams && jurors;
         }
 
-        boolean canCreateTournament() {
+        private boolean canCreateTournament() {
             return teams && jurors;
+        }
+
+        private boolean haveBiasData() {
+            return biases;
         }
     }
 }

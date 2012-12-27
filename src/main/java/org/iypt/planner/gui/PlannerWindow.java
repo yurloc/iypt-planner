@@ -213,7 +213,7 @@ public class PlannerWindow extends Window implements Bindable {
         @Override
         public void perform(Component source) {
             try {
-                factory.readDataFromClasspath("/org/iypt/planner/csv/", "team_data.csv", "jury_data.csv", "schedule2012.csv");
+                factory.readDataFromClasspath("/org/iypt/planner/csv/", "team_data.csv", "jury_data.csv", "bias_IYPT2012.csv", "schedule2012.csv");
                 tournamentLoaded(factory.newTournament());
             } catch (Exception ex) {
                 log.error("Failed to load example", ex);
