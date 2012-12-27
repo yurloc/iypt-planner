@@ -2,6 +2,7 @@ package org.iypt.planner.gui;
 
 import java.awt.Color;
 import java.io.File;
+import java.io.FileWriter;
 import java.net.URL;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -46,6 +47,7 @@ import org.drools.planner.core.event.SolverEventListener;
 import org.drools.planner.core.phase.event.SolverPhaseLifecycleListenerAdapter;
 import org.drools.planner.core.phase.step.AbstractStepScope;
 import org.drools.planner.core.score.constraint.ConstraintOccurrence;
+import org.iypt.planner.csv.ScheduleWriter;
 import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.JurySeat;
 import org.iypt.planner.domain.Round;
@@ -158,18 +160,35 @@ public class PlannerWindow extends Window implements Bindable {
         }
     };
     private Action clearScheduleAction = new Action() {
-
         @Override
         public void perform(Component source) {
+            saveScheduleAction.setEnabled(false);
             solver.clearSchedule();
             solutionChanged();
         }
     };
     private Action saveScheduleAction = new Action() {
+        FileBrowserSheet fileBrowserSheet = new FileBrowserSheet(FileBrowserSheet.Mode.SAVE_AS);
 
         @Override
         public void perform(Component source) {
-            throw new UnsupportedOperationException("Not supported yet.");
+            fileBrowserSheet.setSelectedFile(new File(fileBrowserSheet.getRootDirectory(), "schedule.csv"));
+            fileBrowserSheet.open(PlannerWindow.this, new SheetCloseListener() {
+                @Override
+                public void sheetClosed(Sheet sheet) {
+                    if (sheet.getResult()) {
+                        File f = fileBrowserSheet.getSelectedFile();
+                        // TODO check if the file exists and ask to overwrite
+                        try {
+                            new ScheduleWriter(solver.getTournament()).write(new FileWriter(f));
+                            log.info("Schedule written to '{}'", f.getAbsolutePath());
+                        } catch (Exception ex) {
+                            log.error("Error writing schedule file", ex);
+                            Alert.alert(MessageType.ERROR, ex.getMessage(), PlannerWindow.this);
+                        }
+                    }
+                }
+            });
         }
     };
     private Action newTournamentAction = new Action() {
@@ -365,7 +384,9 @@ public class PlannerWindow extends Window implements Bindable {
     private void tournamentLoaded(Tournament tournament) {
         loadTeamsAction.setEnabled(false);
         loadJurorsAction.setEnabled(false);
+        loadScheduleAction.setEnabled(true);
         clearScheduleAction.setEnabled(true);
+        saveScheduleAction.setEnabled(true);
         solver.setTournament(tournament);
         tournamentSchedule = new TournamentSchedule(solver);
         tournamentSchedule.getTournamentScheduleListeners().add(new TournamentScheduleListener.Adapter() {
