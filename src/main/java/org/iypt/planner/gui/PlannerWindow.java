@@ -528,14 +528,6 @@ public class PlannerWindow extends Window implements Bindable {
         }
     }
 
-    private class PhaseListener extends SolverPhaseLifecycleListenerAdapter {
-
-        @Override
-        public void stepTaken(AbstractStepScope stepScope) {
-            super.stepTaken(stepScope);
-        }
-    }
-
     //=========================================================================================================================
     // tasks
     //=========================================================================================================================

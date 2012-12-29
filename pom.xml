@@ -10,7 +10,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <pivot.version>2.0.2</pivot.version>
-    <drools.version>5.4.0.Final</drools.version>
+    <drools.version>5.5.0.Final</drools.version>
   </properties>
 
   <build>

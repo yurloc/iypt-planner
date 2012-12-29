@@ -26,11 +26,14 @@
       <!--<maximumUnimprovedStepCount>200</maximumUnimprovedStepCount>-->
       <scoreAttained>0hard/-10000soft</scoreAttained>
     </termination>
-    <selector>
-      <selector>
-        <moveFactoryClass>org.drools.planner.core.move.generic.GenericChangeMoveFactory</moveFactoryClass>
-      </selector>
-    </selector>
+    <unionMoveSelector>
+      <changeMoveSelector>
+        <fixedProbabilityWeight>4.0</fixedProbabilityWeight>
+      </changeMoveSelector>
+      <swapMoveSelector>
+        <fixedProbabilityWeight>1.0</fixedProbabilityWeight>
+      </swapMoveSelector>
+    </unionMoveSelector>
     <acceptor>
     </acceptor>
     <forager>

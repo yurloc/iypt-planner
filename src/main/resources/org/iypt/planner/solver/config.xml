@@ -28,19 +28,20 @@
       <maximumUnimprovedStepCount>500</maximumUnimprovedStepCount>
       <scoreAttained>0hard/0soft</scoreAttained>
     </termination>
-    <selector>
-      <selector>
-        <moveFactoryClass>org.drools.planner.core.move.generic.GenericChangeMoveFactory</moveFactoryClass>
-      </selector>
-      <selector>
-        <moveFactoryClass>org.drools.planner.core.move.generic.GenericSwapMoveFactory</moveFactoryClass>
-      </selector>
-    </selector>
+    <unionMoveSelector>
+      <changeMoveSelector>
+        <fixedProbabilityWeight>1.0</fixedProbabilityWeight>
+      </changeMoveSelector>
+      <swapMoveSelector>
+        <fixedProbabilityWeight>4.0</fixedProbabilityWeight>
+      </swapMoveSelector>
+    </unionMoveSelector>
     <acceptor>
       <planningEntityTabuSize>7</planningEntityTabuSize>
     </acceptor>
     <forager>
-      <minimalAcceptedSelection>1000</minimalAcceptedSelection>
+      <minimalAcceptedSelection>10000</minimalAcceptedSelection>
+      <pickEarlyType>FIRST_BEST_SCORE_IMPROVING</pickEarlyType>
     </forager>
   </localSearch>
 </solver>
