@@ -1,11 +1,11 @@
 package org.iypt.planner.gui;
 
+import com.neovisionaries.i18n.CountryCode;
 import org.apache.pivot.collections.ArrayList;
 import org.apache.pivot.collections.List;
 import org.apache.pivot.util.ListenerList;
 import org.apache.pivot.wtk.Container;
 import org.apache.pivot.wtk.media.Image;
-import org.iypt.planner.domain.CountryCode;
 import org.iypt.planner.domain.Group;
 import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.JurorType;

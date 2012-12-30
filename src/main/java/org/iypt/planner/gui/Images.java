@@ -1,12 +1,12 @@
 package org.iypt.planner.gui;
 
+import com.neovisionaries.i18n.CountryCode;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.pivot.util.concurrent.TaskExecutionException;
 import org.apache.pivot.wtk.ApplicationContext;
 import org.apache.pivot.wtk.media.Image;
-import org.iypt.planner.domain.CountryCode;
 
 /**
  *

@@ -1,5 +1,7 @@
 package org.iypt.planner.domain;
 
+import com.neovisionaries.i18n.CountryCode;
+
 /**
  *
  * @author jlocker

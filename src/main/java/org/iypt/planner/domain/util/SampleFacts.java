@@ -1,6 +1,6 @@
 package org.iypt.planner.domain.util;
 
-import org.iypt.planner.domain.CountryCode;
+import com.neovisionaries.i18n.CountryCode;
 import org.iypt.planner.domain.Group;
 import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.Round;

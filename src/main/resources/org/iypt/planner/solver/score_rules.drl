@@ -7,8 +7,8 @@ import org.drools.planner.core.score.buildin.hardandsoft.HardAndSoftScoreHolder;
 import org.drools.planner.core.score.constraint.IntConstraintOccurrence;
 import org.drools.planner.core.score.constraint.ConstraintType;
 
+import com.neovisionaries.i18n.CountryCode;
 import org.iypt.planner.domain.Conflict;
-import org.iypt.planner.domain.CountryCode;
 import org.iypt.planner.domain.DayOff;
 import org.iypt.planner.domain.Group;
 import org.iypt.planner.domain.IndependentRatio;

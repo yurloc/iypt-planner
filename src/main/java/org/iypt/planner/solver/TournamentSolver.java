@@ -1,5 +1,6 @@
 package org.iypt.planner.solver;
 
+import com.neovisionaries.i18n.CountryCode;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,7 +30,6 @@ import org.drools.planner.core.score.constraint.UnweightedConstraintOccurrence;
 import org.drools.planner.core.score.director.ScoreDirector;
 import org.drools.planner.core.score.director.drools.DroolsScoreDirector;
 import org.iypt.planner.domain.Conflict;
-import org.iypt.planner.domain.CountryCode;
 import org.iypt.planner.domain.DayOff;
 import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.JurorLoad;

@@ -1,5 +1,6 @@
 package org.iypt.planner.gui;
 
+import com.neovisionaries.i18n.CountryCode;
 import java.io.IOException;
 import org.apache.pivot.beans.BXMLSerializer;
 import org.apache.pivot.serialization.SerializationException;
@@ -15,7 +16,6 @@ import org.apache.pivot.wtk.MenuHandler;
 import org.apache.pivot.wtk.TableView;
 import org.apache.pivot.wtk.TableViewSelectionListener;
 import org.apache.pivot.wtk.skin.ContainerSkin;
-import org.iypt.planner.domain.CountryCode;
 
 /**
  *

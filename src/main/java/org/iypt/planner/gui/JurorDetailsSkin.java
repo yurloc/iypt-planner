@@ -1,5 +1,6 @@
 package org.iypt.planner.gui;
 
+import com.neovisionaries.i18n.CountryCode;
 import java.awt.Color;
 import java.awt.Font;
 import java.io.IOException;
@@ -26,7 +27,6 @@ import org.apache.pivot.wtk.TablePane;
 import org.apache.pivot.wtk.content.ListItem;
 import org.apache.pivot.wtk.content.ListViewItemRenderer;
 import org.apache.pivot.wtk.skin.ContainerSkin;
-import org.iypt.planner.domain.CountryCode;
 import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.JurorLoad;
 import org.iypt.planner.domain.JurorType;

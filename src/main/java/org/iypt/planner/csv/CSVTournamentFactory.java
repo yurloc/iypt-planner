@@ -1,5 +1,6 @@
 package org.iypt.planner.csv;
 
+import com.neovisionaries.i18n.CountryCode;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -11,7 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.iypt.planner.domain.Conflict;
-import org.iypt.planner.domain.CountryCode;
 import org.iypt.planner.domain.DayOff;
 import org.iypt.planner.domain.Group;
 import org.iypt.planner.domain.Juror;
