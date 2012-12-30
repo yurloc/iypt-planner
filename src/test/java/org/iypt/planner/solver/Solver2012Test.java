@@ -2,12 +2,12 @@ package org.iypt.planner.solver;
 
 import java.io.IOException;
 import org.drools.planner.config.termination.TerminationConfig;
-import org.iypt.planner.domain.Tournament;
 import org.iypt.planner.csv.CSVTournamentFactory;
+import org.iypt.planner.domain.Tournament;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 /**

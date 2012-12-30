@@ -3,7 +3,7 @@ package org.iypt.planner.domain;
 import java.util.Collection;
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.Matchers.*;
 import static org.iypt.planner.domain.JurorLoad.INFINITE_LOAD_VALUE;
 import static org.iypt.planner.domain.util.SampleFacts.*;
 import static org.junit.Assert.*;

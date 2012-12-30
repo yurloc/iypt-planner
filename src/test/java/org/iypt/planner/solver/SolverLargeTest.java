@@ -7,7 +7,7 @@ import org.iypt.planner.domain.Tournament;
 import org.iypt.planner.domain.util.RoundFactory;
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.Matchers.*;
 import static org.iypt.planner.domain.util.SampleFacts.*;
 import static org.junit.Assert.*;
 

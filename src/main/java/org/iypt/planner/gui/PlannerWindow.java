@@ -45,8 +45,6 @@ import org.apache.pivot.wtk.TaskAdapter;
 import org.apache.pivot.wtk.Window;
 import org.drools.planner.core.event.BestSolutionChangedEvent;
 import org.drools.planner.core.event.SolverEventListener;
-import org.drools.planner.core.phase.event.SolverPhaseLifecycleListenerAdapter;
-import org.drools.planner.core.phase.step.AbstractStepScope;
 import org.drools.planner.core.score.constraint.ConstraintOccurrence;
 import org.iypt.planner.csv.CSVTournamentFactory;
 import org.iypt.planner.csv.ScheduleWriter;
