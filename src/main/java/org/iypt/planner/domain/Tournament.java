@@ -20,7 +20,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
 
     private HardAndSoftScore score;
     // planning entity
-    private List<JurySeat> jurySeats;
+    private List<Seat> seats;
     // facts
     private List<Round> rounds;
     private List<Team> teams;
@@ -44,7 +44,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
         groups = new ArrayList<>();
         juries = new ArrayList<>();
         jurors = new ArrayList<>();
-        jurySeats = new ArrayList<>();
+        seats = new ArrayList<>();
         dayOffs = new ArrayList<>();
         locks = new ArrayList<>();
         dayOffsMap = new HashMap<>();
@@ -101,8 +101,8 @@ public class Tournament implements Solution<HardAndSoftScore> {
         clone.original = original;
 
         // deep-clone the planning entity
-        for (JurySeat seat : jurySeats) {
-            clone.jurySeats.add(seat.clone());
+        for (Seat seat : seats) {
+            clone.seats.add(seat.clone());
         }
         return clone;
     }
@@ -113,8 +113,8 @@ public class Tournament implements Solution<HardAndSoftScore> {
      * @return 
      */
     @PlanningEntityCollectionProperty
-    public Collection<JurySeat> getJurySeats() {
-        return jurySeats;
+    public Collection<Seat> getSeats() {
+        return seats;
     }
 
     private void calculateIratio() {
@@ -158,8 +158,8 @@ public class Tournament implements Solution<HardAndSoftScore> {
                 juries.add(jury);
 
                 for (int i = 0; i < jury.getCapacity(); i++) {
-                    JurySeat seat = new JurySeat(jury, i, null);
-                    jurySeats.add(seat);
+                    Seat seat = new Seat(jury, i, null);
+                    seats.add(seat);
                 }
             }
         }
@@ -176,7 +176,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
         this.groups.clear();
         this.teams.clear();
         this.juries.clear();
-        this.jurySeats.clear();
+        this.seats.clear();
         addRounds(rounds);
     }
 
@@ -267,12 +267,12 @@ public class Tournament implements Solution<HardAndSoftScore> {
 
         if (juries.iterator().next().getCapacity() == capacity) return false;
 
-        jurySeats.clear();
+        seats.clear();
         for (Jury jury : juries) {
             jury.setCapacity(capacity);
             for (int i = 0; i < capacity; i++) {
-                JurySeat seat = new JurySeat(jury, i, null);
-                jurySeats.add(seat);
+                Seat seat = new Seat(jury, i, null);
+                seats.add(seat);
             }
         }
         stats.calculateOptimalLoad();
@@ -280,14 +280,14 @@ public class Tournament implements Solution<HardAndSoftScore> {
         return true;
     }
 
-    public List<JurySeat> getSeats(Jury jury) {
+    public List<Seat> getSeats(Jury jury) {
         // XXX relying on the fixed order of juries and seats (note: cloned tournament must preserve the order!)
         int start = juries.indexOf(jury) * juryCapacity;
-        return jurySeats.subList(start, start + juryCapacity);
+        return seats.subList(start, start + juryCapacity);
     }
 
     public void clear() {
-        for (JurySeat seat : jurySeats) {
+        for (Seat seat : seats) {
             seat.setJuror(null);
         }
     }
@@ -296,8 +296,8 @@ public class Tournament implements Solution<HardAndSoftScore> {
     // Getters & Setters
     // ------------------------------------------------------------------------
 
-    public void setJurySeats(List<JurySeat> jurySeat) {
-        this.jurySeats = jurySeat;
+    public void setSeats(List<Seat> seats) {
+        this.seats = seats;
     }
 
     public List<Round> getRounds() {
@@ -377,7 +377,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
                 }
                 if (g.getSize() == 3) sb.append("   ");
                 sb.append("| ");
-                for (JurySeat s : this.getJurySeats()) {
+                for (Seat s : this.getSeats()) {
                     if (s.getJury().equals(g.getJury())) {
                         idle.remove(s.getJuror());
                         Juror juror = s.getJuror();
@@ -411,7 +411,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
         }
         int md = this.getJurors().size() * this.getRounds().size() - this.getDayOffs().size();
         sb.append('\n');
-        sb.append("Total jury seats:    ").append(this.getJurySeats().size()).append('\n');
+        sb.append("Total jury seats:    ").append(this.getSeats().size()).append('\n');
         sb.append("Total juror mandays: ").append(md).append('\n');
         sb.append(String.format("Optimal juror load:  %.4f%n", this.getStatistics().getOptimalLoad()));
         return sb.toString();
@@ -423,7 +423,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
 
         private void calculateOptimalLoad() {
             if (jurors.size() > 0 && rounds.size() > 0 && dayOffs.size() != jurors.size() * rounds.size()) {
-                optimalLoad = ((double) jurySeats.size()) / (jurors.size() * rounds.size() - dayOffs.size());
+                optimalLoad = ((double) seats.size()) / (jurors.size() * rounds.size() - dayOffs.size());
             }
         }
 

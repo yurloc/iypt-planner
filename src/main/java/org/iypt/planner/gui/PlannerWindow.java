@@ -49,8 +49,8 @@ import org.drools.planner.core.score.constraint.ConstraintOccurrence;
 import org.iypt.planner.csv.CSVTournamentFactory;
 import org.iypt.planner.csv.ScheduleWriter;
 import org.iypt.planner.domain.Juror;
-import org.iypt.planner.domain.JurySeat;
 import org.iypt.planner.domain.Round;
+import org.iypt.planner.domain.Seat;
 import org.iypt.planner.domain.Tournament;
 import org.iypt.planner.gui.GroupRoster.JurorRow;
 import org.iypt.planner.solver.TournamentSolver;
@@ -344,7 +344,7 @@ public class PlannerWindow extends Window implements Bindable {
             @Override
             public void buttonPressed(Button button) {
                 Tournament t = solver.getTournament();
-                for (JurySeat seat : t.getJurySeats()) {
+                for (Seat seat : t.getSeats()) {
                     if (seat.getJury().getGroup().getRound() == selectedRound) {
                         if (seat.getJuror() == juror1) {
                             seat.setJuror(juror2);
@@ -493,7 +493,7 @@ public class PlannerWindow extends Window implements Bindable {
         Tournament t = solver.getTournament();
         totalJurorsLabel.setText(Integer.toString(t.getJurors().size()));
         juryCapacitySpinner.setSelectedItem(Integer.valueOf(t.getJuryCapacity()));
-        totalSeatsLabel.setText(Integer.toString(t.getJurySeats().size()));
+        totalSeatsLabel.setText(Integer.toString(t.getSeats().size()));
         totalMandaysLabel.setText(Integer.toString(t.getJurors().size() * t.getRounds().size() - t.getDayOffs().size()));
         optimalLoadLabel.setText(String.format("%.4f", t.getStatistics().getOptimalLoad()));
         tournamentSchedule.updateSchedule();

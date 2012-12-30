@@ -9,7 +9,7 @@ import org.iypt.planner.domain.CountryCode;
 import org.iypt.planner.domain.Group;
 import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.JurorType;
-import org.iypt.planner.domain.JurySeat;
+import org.iypt.planner.domain.Seat;
 import org.iypt.planner.domain.Team;
 import org.iypt.planner.solver.TournamentSolver;
 
@@ -21,7 +21,7 @@ public class GroupRoster extends Container {
 
     public static class JurorRow {
 
-        private JurySeat seat;
+        private Seat seat;
         private Juror juror;
         private Image icon;
         private Image flag;
@@ -48,7 +48,7 @@ public class GroupRoster extends Container {
             return new JurorRow(juror);
         }
 
-        private static JurorRow newInstance(JurySeat seat) {
+        private static JurorRow newInstance(Seat seat) {
             JurorRow row = newInstance(seat.getJuror());
             row.seat = seat;
             return row;
@@ -69,7 +69,7 @@ public class GroupRoster extends Container {
             return juror.getFirstName().substring(0, 1) + juror.getLastName().charAt(0);
         }
 
-        public JurySeat getSeat() {
+        public Seat getSeat() {
             return seat;
         }
 
@@ -170,7 +170,7 @@ public class GroupRoster extends Container {
     private void updateJurors() {
         TournamentSolver solver = schedule.getSolver();
         jurorList = new ArrayList<>(solver.getJuryCapacity());
-        for (JurySeat seat : solver.getTournament().getJurySeats()) {
+        for (Seat seat : solver.getTournament().getSeats()) {
             if (seat.getJury().equals(group.getJury())) {
                 JurorRow row = JurorRow.newInstance(seat);
                 switch (solver.getLockStatus(row)) {

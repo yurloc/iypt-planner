@@ -16,9 +16,9 @@ import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.JurorLoad;
 import org.iypt.planner.domain.JurorType;
 import org.iypt.planner.domain.Jury;
-import org.iypt.planner.domain.JurySeat;
 import org.iypt.planner.domain.Lock;
 import org.iypt.planner.domain.Round;
+import org.iypt.planner.domain.Seat;
 import org.iypt.planner.domain.Team;
 import org.iypt.planner.domain.Tournament;
 import org.iypt.planner.domain.Tournament.Statistics;
@@ -37,8 +37,8 @@ rule "multipleSeatsInRound"
 when
     $r : Round()
     $juror : Juror()
-    $s1 : JurySeat( juror == $juror, jury.group.round == $r )
-    $s2 : JurySeat( juror == $juror, jury.group.round == $r, this != $s1 )
+    $s1 : Seat( juror == $juror, jury.group.round == $r )
+    $s2 : Seat( juror == $juror, jury.group.round == $r, this != $s1 )
 then
     insertLogical( new IntConstraintOccurrence(
         drools.getRule().getName(),
@@ -50,7 +50,7 @@ end
 rule "emptySeat"
 @ConstraintType(hard)
 when
-    $seat : JurySeat( juror == Juror.NULL )
+    $seat : Seat( juror == Juror.NULL )
 then
     insertLogical( new IntConstraintOccurrence(
         drools.getRule().getName(),
@@ -63,7 +63,7 @@ rule "invalidChair"
 @ConstraintType(hard)
 when
     $juror : Juror( !chairCandidate )
-    $seat  : JurySeat( chair, juror == $juror )
+    $seat  : Seat( chair, juror == $juror )
 then
     insertLogical( new IntConstraintOccurrence(
         drools.getRule().getName(),
@@ -75,7 +75,7 @@ end
 rule "teamAndJurorSameCountry"
 @ConstraintType(hard)
 when
-    $seat : JurySeat( $jury : jury, $juror : juror )
+    $seat : Seat( $jury : jury, $juror : juror )
     $team : Team( $jury.group.teams contains this )
     $conflict : Conflict( juror == $juror, country == $team.country )
     // or $jury.group.countries.contains($juror.country) ?
@@ -91,7 +91,7 @@ rule "dayOff"
 @ConstraintType(hard)
 when
     $r : Round( $day : day)
-    $m : JurySeat( jury.group.round == $r, $juror : juror )
+    $m : Seat( jury.group.round == $r, $juror : juror )
     $dayOff : DayOff( juror == $juror, day == $day )
 then
     insertLogical( new IntConstraintOccurrence(
@@ -105,7 +105,7 @@ rule "brokenLock"
 @ConstraintType(hard)
 when
     $lock : Lock()
-    JurySeat( jury == $lock.jury, position == $lock.position, $misfit : juror != $lock.juror )
+    Seat( jury == $lock.jury, position == $lock.position, $misfit : juror != $lock.juror )
 then
     insertLogical( new IntConstraintOccurrence(
         drools.getRule().getName(),
@@ -121,7 +121,7 @@ when
     $team  : Team()
     // collection of all chair seats occupied by $juror and judging $team
     $c     : Collection( size > 2 )
-             from collect( JurySeat( chair, juror == $juror, jury.group.teams contains $team ) )
+             from collect( Seat( chair, juror == $juror, jury.group.teams contains $team ) )
 then
     insertLogical( new IntConstraintOccurrence(
         drools.getRule().getName(),
@@ -142,7 +142,7 @@ when
     $team  : Team()
     // collection of all chair seats occupied by $juror and judging $team
     $c     : Collection( size == 2 )
-             from collect( JurySeat( chair, juror == $juror, jury.group.teams contains $team ) )
+             from collect( Seat( chair, juror == $juror, jury.group.teams contains $team ) )
 then
     insertLogical( new IntConstraintOccurrence(
         drools.getRule().getName(),
@@ -156,7 +156,7 @@ salience 1
 when
     $stats : Statistics()
     $juror : Juror()
-    accumulate( JurySeat( juror == $juror );
+    accumulate( Seat( juror == $juror );
                 $seats : count() )
     accumulate( DayOff( juror == $juror );
                 $dayOffs : count() )
@@ -187,7 +187,7 @@ when
     $team  : Team()
     // collection of all seats occupied by $juror and judging $team
     $seats : Collection( size > 1 )
-             from collect( JurySeat( juror == $juror, jury.group.teams contains $team ) )
+             from collect( Seat( juror == $juror, jury.group.teams contains $team ) )
 then
     insertLogical( new IntConstraintOccurrence(
         drools.getRule().getName(),
@@ -204,8 +204,8 @@ when
     $c1 : Conflict( $j1 : juror, $country : country )
     $c2 : Conflict( $j2 : juror, country == $country )
     // those two jurors meet in the same jury
-    $s1 : JurySeat( $jury : jury, juror == $j1 )
-    $s2 : JurySeat( jury == $jury, juror == $j2, this != $s1 )
+    $s1 : Seat( $jury : jury, juror == $j1 )
+    $s2 : Seat( jury == $jury, juror == $j2, this != $s1 )
 then
     insertLogical( new IntConstraintOccurrence(
         drools.getRule().getName(),
@@ -217,7 +217,7 @@ end
 rule "calculateIndependentRatio"
 when
     $jury : Jury()
-    accumulate( JurySeat( jury == $jury, juror != null, juror.type == JurorType.INDEPENDENT );
+    accumulate( Seat( jury == $jury, juror != null, juror.type == JurorType.INDEPENDENT );
                 $i : count() )
 then
     insertLogical( new IndependentRatio($jury, $i) );
@@ -241,7 +241,7 @@ rule "accumulatedBias"
 when
     $wc : WeightConfig()
     $jury : Jury()
-    accumulate( JurySeat( jury == $jury, $juror : juror != null );
+    accumulate( Seat( jury == $jury, $juror : juror != null );
                 $bias : sum( $juror.getBias() ) )
 then
     insertLogical( new IntConstraintOccurrence(
@@ -259,8 +259,8 @@ rule "penalizeChairChange"
 @ConstraintType(soft)
 when
      $t : Tournament()
-    $s2 : JurySeat( position == 0, $jury := jury )
-    $s1 : JurySeat( position == 0, $jury := jury, juror != $s2.juror ) from $t.getJurySeats()
+    $s2 : Seat( position == 0, $jury := jury )
+    $s1 : Seat( position == 0, $jury := jury, juror != $s2.juror ) from $t.getSeats()
     $wc : WeightConfig()
 then
     insertLogical( new IntConstraintOccurrence(
@@ -274,8 +274,8 @@ rule "penalizeJurorWithdraw"
 @ConstraintType(soft)
 when
     $t : Tournament()
-    $s : JurySeat( $juror := juror ) from $t.jurySeats
-    not( exists JurySeat( $juror := juror) )
+    $s : Seat( $juror := juror ) from $t.Seats
+    not( exists Seat( $juror := juror) )
     $wc : WeightConfig()
 then
     insertLogical( new IntConstraintOccurrence(

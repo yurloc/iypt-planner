@@ -10,7 +10,7 @@ import org.drools.planner.api.domain.variable.ValueRangeType;
  * @author jlocker
  */
 @PlanningEntity
-public class JurySeat {
+public class Seat {
 
     // fixed
     private final Jury jury;
@@ -18,7 +18,7 @@ public class JurySeat {
     // planning variable
     private Juror juror;
 
-    public JurySeat(Jury jury, int position, Juror juror) {
+    public Seat(Jury jury, int position, Juror juror) {
         this.jury = jury;
         this.position = position;
         this.juror = juror;
@@ -40,8 +40,8 @@ public class JurySeat {
         return String.format("[%s]-[%s]", jury, juror);
     }
 
-    public JurySeat clone() {
-        return new JurySeat(jury, position, juror);
+    public Seat clone() {
+        return new Seat(jury, position, juror);
     }
 
     public boolean isOccupied() {

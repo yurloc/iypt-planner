@@ -56,7 +56,7 @@ public class SolverLargeTest extends AbstractSolverTest {
 
         // visualizing the numbers
         assertThat(t.getJurors().size(), is(38));
-        assertThat(t.getJurySeats().size() / t.getRounds().size(), is(32));
+        assertThat(t.getSeats().size() / t.getRounds().size(), is(32));
 
         assertThat(t.getDayOffsPerRound(r1), is(5));
         assertThat(t.getDayOffsPerRound(r2), is(3));

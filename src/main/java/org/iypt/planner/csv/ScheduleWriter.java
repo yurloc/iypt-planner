@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import org.iypt.planner.domain.Group;
 import org.iypt.planner.domain.Juror;
-import org.iypt.planner.domain.JurySeat;
 import org.iypt.planner.domain.Round;
+import org.iypt.planner.domain.Seat;
 import org.iypt.planner.domain.Tournament;
 import org.supercsv.io.CsvListWriter;
 import org.supercsv.io.ICsvListWriter;
@@ -36,7 +36,7 @@ public class ScheduleWriter {
                     data.add(round.getNumber());
                     data.add("Group " + group.getName());
                     // append all jurors
-                    for (JurySeat seat : tournament.getSeats(group.getJury())) {
+                    for (Seat seat : tournament.getSeats(group.getJury())) {
                         Juror juror = seat.getJuror();
                         if (juror == null) {
                             juror = Juror.NULL;

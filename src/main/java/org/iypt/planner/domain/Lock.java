@@ -16,7 +16,7 @@ public class Lock {
         this.position = position;
     }
 
-    public boolean matches(JurySeat seat) {
+    public boolean matches(Seat seat) {
         return seat.getJury() == jury && seat.getPosition() == position;
     }
 

@@ -24,9 +24,9 @@ import org.iypt.planner.csv.CSVTournamentFactory;
 import org.iypt.planner.domain.Conflict;
 import org.iypt.planner.domain.DayOff;
 import org.iypt.planner.domain.Juror;
-import org.iypt.planner.domain.JurySeat;
 import org.iypt.planner.domain.Lock;
 import org.iypt.planner.domain.Round;
+import org.iypt.planner.domain.Seat;
 import org.iypt.planner.domain.Tournament;
 import org.iypt.planner.domain.util.RoundFactory;
 import org.junit.BeforeClass;
@@ -347,7 +347,7 @@ public class ScoringRulesTest {
 
     // TODO maybe add test for accumulatedBias rule
     private void assignJurors(Tournament t, Juror... jurors) {
-        Iterator<JurySeat> it = t.getJurySeats().iterator();
+        Iterator<Seat> it = t.getSeats().iterator();
         for (int i = 0; i < jurors.length; i++) {
             it.next().setJuror(jurors[i]);
         }
@@ -383,7 +383,7 @@ public class ScoringRulesTest {
         for (Object o : t.getProblemFacts()) {
             ksession.insert(o);
         }
-        for (Object o : t.getJurySeats()) {
+        for (Object o : t.getSeats()) {
             ksession.insert(o);
         }
 

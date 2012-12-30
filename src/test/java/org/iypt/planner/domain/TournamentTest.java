@@ -65,15 +65,15 @@ public class TournamentTest {
         assertThat(t.getTeams(), hasItems(tA, tB, tC, tD, tE, tF));
         // getJuries
         assertThat(t.getJuries().size(), is(t.getGroups().size()));
-        // getJurySeats
-        assertThat(t.getJurySeats().size(), is(newCapacity * t.getJuries().size()));
+        // getSeats
+        assertThat(t.getSeats().size(), is(newCapacity * t.getJuries().size()));
 
         // setJuryCapacity
         assertThat(t.setJuryCapacity(Jury.DEFAULT_CAPACITY), is(true));
         newCapacity = Jury.DEFAULT_CAPACITY + 1;
         assertThat(t.setJuryCapacity(newCapacity), is(true));
         assertThat(t.getJuries().size(), is(t.getGroups().size()));
-        assertThat(t.getJurySeats().size(), is(newCapacity * t.getJuries().size()));
+        assertThat(t.getSeats().size(), is(newCapacity * t.getJuries().size()));
 
         assertThat(t.getProblemFacts().size(),
                 is(t.getRounds().size()
@@ -87,7 +87,7 @@ public class TournamentTest {
 
         newCapacity = 2;
         t.setJuryCapacity(newCapacity);
-        assertThat(t.getJurySeats().size(), is(newCapacity * t.getJuries().size()));
+        assertThat(t.getSeats().size(), is(newCapacity * t.getJuries().size()));
 
         t.addJurors(jA1, jA2, jA3);
         assertFalse(t.isFeasibleSolutionPossible());
@@ -132,7 +132,7 @@ public class TournamentTest {
         assertThat(t.getGroups().size(), is(6));
         assertThat(t.getTeams(), hasItems(tA, tB, tC, tD, tE, tF));
         assertThat(t.getJuries().size(), is(t.getGroups().size()));
-        assertThat(t.getJurySeats().size(), is(newCapacity * t.getJuries().size()));
+        assertThat(t.getSeats().size(), is(newCapacity * t.getJuries().size()));
     }
 
     @Test
@@ -244,8 +244,8 @@ public class TournamentTest {
         t.addRounds(r);
         int capacity = 2;
         t.setJuryCapacity(capacity);
-        assertThat(t.getJurySeats().size(), is(4));
-        assertThat(t.getJurySeats().size(), is(r.getGroups().size() * capacity));
+        assertThat(t.getSeats().size(), is(4));
+        assertThat(t.getSeats().size(), is(r.getGroups().size() * capacity));
 
         t.addJurors(jA1, jA2, jA3, jA4);
         assertTrue(t.isFeasibleSolutionPossible());
@@ -306,9 +306,9 @@ public class TournamentTest {
         assertThat(cloneFacts, is(origFacts));
 
         // same number of planning entities
-        assertThat(clone.getJurySeats().size(), is(t.getJurySeats().size()));
+        assertThat(clone.getSeats().size(), is(t.getSeats().size()));
         // no entities in common (verify planning entities are deep cloned)
-        assertThat(t.getJurySeats().removeAll(clone.getJurySeats()), is(false));
+        assertThat(t.getSeats().removeAll(clone.getSeats()), is(false));
     }
 
     private void testLoad(JurorLoad load, double value, double delta, boolean excessive) {

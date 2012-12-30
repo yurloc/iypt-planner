@@ -47,7 +47,7 @@ public class SolverMinimalTest extends AbstractSolverTest {
         t.addDayOffs(new DayOff(jH1, r2.getDay()), new DayOff(jI1, r2.getDay()));
 
         // just visualizing the numbers
-        assertThat(t.getJurySeats().size() / t.getRounds().size(), is(18));
+        assertThat(t.getSeats().size() / t.getRounds().size(), is(18));
         assertThat(t.getJurors().size(), is(28));
 
         return t;

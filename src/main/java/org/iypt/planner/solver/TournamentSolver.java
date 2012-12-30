@@ -33,9 +33,9 @@ import org.iypt.planner.domain.CountryCode;
 import org.iypt.planner.domain.DayOff;
 import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.JurorLoad;
-import org.iypt.planner.domain.JurySeat;
 import org.iypt.planner.domain.Lock;
 import org.iypt.planner.domain.Round;
+import org.iypt.planner.domain.Seat;
 import org.iypt.planner.domain.Tournament;
 import org.iypt.planner.gui.GroupRoster;
 import org.iypt.planner.gui.GroupRoster.JurorRow;
@@ -213,7 +213,7 @@ public class TournamentSolver {
             List<Juror> idleList = new ArrayList<>();
             List<Juror> awayList = new ArrayList<>();
             idleList.addAll(tournament.getJurors());
-            for (JurySeat seat : tournament.getJurySeats()) {
+            for (Seat seat : tournament.getSeats()) {
                 if (seat.isOccupied() && seat.getJury().getGroup().getRound().equals(round)) {
                     idleList.remove(seat.getJuror());
                     jurorDayMap.get(seat.getJuror()).set(round.getNumber() - 1, new JurorDay(seat.getJury().getGroup()));
@@ -273,7 +273,7 @@ public class TournamentSolver {
                 // no matter what the change is...
                 if (day.getStatus() == JurorDay.Status.ASSIGNED) {
                     // empty the seat
-                    for (JurySeat seat : tournament.getJurySeats()) {
+                    for (Seat seat : tournament.getSeats()) {
                         if (seat.getJuror() == juror && seat.getJury().getGroup().getRound().getDay() == day.getRound().getDay()) {
                             seat.setJuror(Juror.NULL);
                         }
