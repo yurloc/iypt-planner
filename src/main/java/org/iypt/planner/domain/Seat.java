@@ -4,12 +4,13 @@ import org.drools.planner.api.domain.entity.PlanningEntity;
 import org.drools.planner.api.domain.variable.PlanningVariable;
 import org.drools.planner.api.domain.variable.ValueRange;
 import org.drools.planner.api.domain.variable.ValueRangeType;
+import org.iypt.planner.solver.LockedSeatSelectionFilter;
 
 /**
  *
  * @author jlocker
  */
-@PlanningEntity
+@PlanningEntity(movableEntitySelectionFilter = LockedSeatSelectionFilter.class)
 public class Seat {
 
     // fixed

@@ -303,22 +303,27 @@ public class TournamentSolver {
     }
 
     public void lockJuror(JurorRow row) {
-        tournament.addLock(new Lock(row.getJuror(), row.getSeat().getJury(), row.getSeat().getPosition()));
+        tournament.lock(row.getSeat());
     }
 
     public void unlockJuror(JurorRow row) {
-        Lock removed = null;
-        for (Lock lock : tournament.getLocks()) {
-            if (lock.matches(row.getSeat())) {
-                removed = lock;
-            }
-        }
-        if (removed != null) {
-            tournament.removeLock(removed);
-        }
+        tournament.unlock(row.getSeat());
     }
 
-    public int getLockStatus(JurorRow row) {
+    public void lockRound(Round round) {
+        tournament.lock(round);
+    }
+
+    public void unlockRound(Round round) {
+        tournament.unlock(round);
+    }
+
+    public boolean isLocked(JurorRow row) {
+        return tournament.isLocked(row.getSeat());
+    }
+
+    // might be used later for soft-locking
+    protected int getLockStatus(JurorRow row) {
         for (Lock lock : tournament.getLocks()) {
             if (lock.matches(row.getSeat())) {
                 if (lock.getJuror() == row.getJuror()) {

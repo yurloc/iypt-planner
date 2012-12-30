@@ -1,6 +1,8 @@
 package org.iypt.planner.domain;
 
 import java.util.Collection;
+import java.util.Iterator;
+import org.iypt.planner.domain.util.RoundFactory;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.*;
@@ -281,6 +283,29 @@ public class TournamentTest {
         t.getConflicts().add(new Conflict(jA1, tF.getCountry()));
         t.getConflicts().add(new Conflict(jB1, tE.getCountry()));
         testClone(t);
+    }
+
+    @Test
+    public void testLocking() {
+        Round r1 = RoundFactory.createRound(1, tA, tB, tC, tD, tE, tF);
+        Round r2 = RoundFactory.createRound(2, tA, tB, tC, tD, tE, tF);
+        Tournament t = new Tournament();
+        t.addRounds(r1, r2);
+
+        // lock the first seat
+        Iterator<Seat> it = t.getSeats().iterator();
+        Seat seat = it.next();
+        assertThat(t.isLocked(seat), is(false));
+        assertThat(t.lock(seat), is(true));
+        assertThat(t.isLocked(seat), is(true));
+        assertThat(t.isLocked(it.next()), is(false));
+
+        // lock the second round
+        t.lock(r2);
+        for (Seat s : t.getSeats()) {
+            boolean locked = s == seat || s.getJury().getGroup().getRound() == r2;
+            assertThat(String.format("Unexpected lock state for: %s/%d", s, s.getPosition()), t.isLocked(s), is(locked));
+        }
     }
 
     private void testClone(Tournament t) {

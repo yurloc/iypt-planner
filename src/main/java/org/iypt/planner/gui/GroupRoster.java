@@ -170,19 +170,12 @@ public class GroupRoster extends Container {
     private void updateJurors() {
         TournamentSolver solver = schedule.getSolver();
         jurorList = new ArrayList<>(solver.getJuryCapacity());
-        for (Seat seat : solver.getTournament().getSeats()) {
-            if (seat.getJury().equals(group.getJury())) {
-                JurorRow row = JurorRow.newInstance(seat);
-                switch (solver.getLockStatus(row)) {
-                    case 1:
-                        row.lock();
-                        break;
-                    case 2:
-                        row.breakLock();
-                        break;
-                }
-                jurorList.add(row);
+        for (Seat seat : solver.getTournament().getSeats(group.getJury())) {
+            JurorRow row = JurorRow.newInstance(seat);
+            if (solver.isLocked(row)) {
+                row.lock();
             }
+            jurorList.add(row);
         }
     }
 

@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.drools.planner.api.domain.solution.PlanningEntityCollectionProperty;
 import org.drools.planner.core.score.buildin.hardandsoft.HardAndSoftScore;
 import org.drools.planner.core.solution.Solution;
@@ -21,6 +23,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
     private HardAndSoftScore score;
     // planning entity
     private List<Seat> seats;
+    private Set<Seat> locked;
     // facts
     private List<Round> rounds;
     private List<Team> teams;
@@ -45,6 +48,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
         juries = new ArrayList<>();
         jurors = new ArrayList<>();
         seats = new ArrayList<>();
+        locked = new HashSet<>();
         dayOffs = new ArrayList<>();
         locks = new ArrayList<>();
         dayOffsMap = new HashMap<>();
@@ -102,7 +106,11 @@ public class Tournament implements Solution<HardAndSoftScore> {
 
         // deep-clone the planning entity
         for (Seat seat : seats) {
-            clone.seats.add(seat.clone());
+            Seat seatClone = seat.clone();
+            clone.seats.add(seatClone);
+            if (isLocked(seat)) {
+                clone.locked.add(seatClone);
+            }
         }
         return clone;
     }
@@ -227,6 +235,37 @@ public class Tournament implements Solution<HardAndSoftScore> {
         calculateIratio();
     }
 
+    public boolean isLocked(Seat seat) {
+        return locked.contains(seat);
+    }
+
+    public boolean lock(Seat seat) {
+        return locked.add(seat);
+    }
+
+    public boolean unlock(Seat seat) {
+        return locked.remove(seat);
+    }
+
+    public boolean lock(Round round) {
+        return locked.addAll(getSeats(round));
+    }
+
+    public boolean unlock(Round round) {
+        return locked.removeAll(getSeats(round));
+    }
+
+    public List<Seat> getSeats(Jury jury) {
+        // XXX relying on the fixed order of juries and seats (note: cloned tournament must preserve the order!)
+        int start = juries.indexOf(jury) * juryCapacity;
+        return seats.subList(start, start + juryCapacity);
+    }
+
+    List<Seat> getSeats(Round round) {
+        int rSize = round.getGroups().size() * juryCapacity;
+        return seats.subList((round.getNumber() - 1) * rSize, round.getNumber() * rSize);
+    }
+
     public void addLock(Lock lock) {
         locks.add(lock);
     }
@@ -278,12 +317,6 @@ public class Tournament implements Solution<HardAndSoftScore> {
         stats.calculateOptimalLoad();
         calculateIratio();
         return true;
-    }
-
-    public List<Seat> getSeats(Jury jury) {
-        // XXX relying on the fixed order of juries and seats (note: cloned tournament must preserve the order!)
-        int start = juries.indexOf(jury) * juryCapacity;
-        return seats.subList(start, start + juryCapacity);
     }
 
     public void clear() {
