@@ -1,9 +1,11 @@
 package org.iypt.planner.solver;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 import org.drools.ClassObjectFilter;
 import org.drools.WorkingMemory;
 import org.drools.planner.config.EnvironmentMode;
@@ -20,6 +22,7 @@ import org.iypt.planner.domain.Tournament;
 import org.iypt.planner.solver.util.ConstraintComparator;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,18 +33,20 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractSolverTest {
 
     private static final Logger log = LoggerFactory.getLogger(AbstractSolverTest.class);
+    private static WeightConfig weightConfig;
     private String xmlConfig = "/org/iypt/planner/solver/test_config.xml";
     private Tournament solved;
     private List<ConstraintOccurrence> constraintList;
-    
+
     /**
      * Set a custom solver configuration file. Production configuration is used by default.
+     *
      * @param name absolute classpath resource name of the solver configuration file
      */
     void setXmlConfig(String name) {
         xmlConfig = name;
     }
-    
+
     Tournament getBestSolution() {
         return solved;
     }
@@ -49,11 +54,21 @@ public abstract class AbstractSolverTest {
     public List<ConstraintOccurrence> getConstraintList() {
         return constraintList;
     }
-    
+
     abstract TerminationConfig getTerminationConfig();
 
     abstract Tournament getInitialSolution();
-    
+
+    @BeforeClass
+    public static void initWeights() throws IOException {
+        weightConfig = new DefaultWeightConfig();
+        Properties weightProperties = new Properties();
+        weightProperties.load(AbstractSolverTest.class.getResourceAsStream("/weights.properties"));
+        for (String key : weightProperties.stringPropertyNames()) {
+            weightConfig.setWeight(key, Integer.parseInt(weightProperties.getProperty(key)));
+        }
+    }
+
     @Before
     public void solveInitialSolution() {
         // Build the Solver
@@ -70,6 +85,7 @@ public abstract class AbstractSolverTest {
         // Get the initial solution
         Tournament unsolved = getInitialSolution();
         Assert.assertTrue(unsolved.isFeasibleSolutionPossible());
+        unsolved.setWeightConfig(weightConfig);
 
         // Solve the problem
         solver.setPlanningProblem(unsolved);
@@ -86,7 +102,7 @@ public abstract class AbstractSolverTest {
             log.info(co.toString());
         }
     }
-    
+
     private static List<ConstraintOccurrence> getConstraintList(Solver solver, Solution<?> solution) {
         ScoreDirector scoreDirector = solver.getScoreDirectorFactory().buildScoreDirector();
         scoreDirector.setWorkingSolution(solution.cloneSolution());
