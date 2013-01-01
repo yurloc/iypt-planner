@@ -9,7 +9,6 @@ public final class Jury {
     public static final int DEFAULT_CAPACITY = 6;
     private int capacity;
     private Group group;
-    private Juror chair;
 
     public Jury() {
         setCapacity(DEFAULT_CAPACITY);
@@ -57,23 +56,5 @@ public final class Jury {
      */
     public void setCapacity(int capacity) {
         this.capacity = capacity;
-    }
-
-    /**
-     * Get the value of chair
-     *
-     * @return the value of chair
-     */
-    public Juror getChair() {
-        return chair;
-    }
-
-    /**
-     * Set the value of chair
-     *
-     * @param chair new value of chair
-     */
-    public void setChair(Juror chair) {
-        this.chair = chair;
     }
 }
