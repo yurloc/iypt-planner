@@ -1,4 +1,4 @@
-package org.iypt.core;
+package org.iypt.planner.solver;
     dialect "java"
 
 import java.util.Collection;
@@ -28,6 +28,9 @@ import static java.lang.Math.round;
 
 global HardAndSoftScoreHolder scoreHolder;
 
+// TODO really, really check the CO causes - they can avoid 5.4.8. Score trap
+// NOTE: remember, average calculation count per second should be definitely over 1000
+
 // ############################################################################
 // Hard constraints
 // ############################################################################
@@ -35,15 +38,15 @@ global HardAndSoftScoreHolder scoreHolder;
 rule "multipleSeatsInRound"
 @ConstraintType(hard)
 when
-    $r : Round()
-    $juror : Juror()
-    $s1 : Seat( juror == $juror, jury.group.round == $r )
-    $s2 : Seat( juror == $juror, jury.group.round == $r, this != $s1 )
+    $j  : Juror()
+    $r  : Round()
+    $s1 : Seat( juror == $j, jury.group.round == $r )
+    $s2 : Seat( juror == $j, jury.group.round == $r, this != $s1 )
 then
     insertLogical( new IntConstraintOccurrence(
         drools.getRule().getName(),
         ConstraintType.NEGATIVE_HARD, 1,
-        $juror, $s1, $s2
+        $j, $s1, $s2
     ));
 end
 
@@ -77,13 +80,13 @@ rule "teamAndJurorSameCountry"
 when
     $seat : Seat( $jury : jury, $juror : juror )
     $team : Team( $jury.group.teams contains this )
-    $conflict : Conflict( juror == $juror, country == $team.country )
+    $c    : Conflict( juror == $juror, country == $team.country )
     // or $jury.group.countries.contains($juror.country) ?
 then
     insertLogical( new IntConstraintOccurrence(
         drools.getRule().getName(),
         ConstraintType.NEGATIVE_HARD, 1,
-        $seat, $team, $conflict
+        $seat, $team, $c
     ));
 end
 
@@ -91,13 +94,14 @@ rule "dayOff"
 @ConstraintType(hard)
 when
     $r : Round( $day : day)
-    $m : Seat( jury.group.round == $r, $juror : juror )
+    // TODO Seat( round == $r )
+    $s : Seat( jury.group.round == $r, $juror : juror )
     $dayOff : DayOff( juror == $juror, day == $day )
 then
     insertLogical( new IntConstraintOccurrence(
         drools.getRule().getName(),
         ConstraintType.NEGATIVE_HARD, 1,
-        $m, $dayOff
+        $s, $dayOff
     ));
 end
 
@@ -137,7 +141,7 @@ end
 rule "teamAndChairMeetTwice"
 @ConstraintType(soft)
 when
-    $wc : WeightConfig()
+    $wc    : WeightConfig()
     $juror : Juror( chairCandidate )
     $team  : Team()
     // collection of all chair seats occupied by $juror and judging $team
@@ -169,7 +173,7 @@ rule "loadDeltaExceeded"
 @ConstraintType(soft)
 enabled true
 when
-    $wc : WeightConfig()
+    $wc   : WeightConfig()
     $load : JurorLoad( excessive )
 then
     insertLogical( new IntConstraintOccurrence(
@@ -182,7 +186,7 @@ end
 rule "teamAndJurorAlreadyMet"
 @ConstraintType(soft)
 when
-    $wc : WeightConfig()
+    $wc    : WeightConfig()
     $juror : Juror()
     $team  : Team()
     // collection of all seats occupied by $juror and judging $team
@@ -196,6 +200,9 @@ then
     ));
 end
 
+// TODO check 5.3.4.3. Implementing a score rule to see
+// how to get around matching the tuple twice!!!
+// hint: seats (or whatever) need to be "somehow" comparable, then match only when the second fact is "bigger"
 rule "jurorAndJurorConflict"
 @ConstraintType(soft)
 when
@@ -227,7 +234,7 @@ rule "independentRatioDeltaExceeded"
 @ConstraintType(soft)
 when
     $wc : WeightConfig()
-    $i : IndependentRatio( delta != 0 )
+    $i  : IndependentRatio( delta != 0 )
 then
     insertLogical( new IntConstraintOccurrence(
         drools.getRule().getName(),
@@ -239,7 +246,7 @@ end
 rule "accumulatedBias"
 @ConstraintType(soft)
 when
-    $wc : WeightConfig()
+    $wc   : WeightConfig()
     $jury : Jury()
     accumulate( Seat( jury == $jury, $juror : juror != null );
                 $bias : sum( $juror.getBias() ) )
@@ -258,10 +265,10 @@ end
 rule "penalizeChairChange"
 @ConstraintType(soft)
 when
-     $t : Tournament()
+    $wc : WeightConfig()
+    $t  : Tournament()
     $s2 : Seat( position == 0, $jury := jury )
     $s1 : Seat( position == 0, $jury := jury, juror != $s2.juror ) from $t.getSeats()
-    $wc : WeightConfig()
 then
     insertLogical( new IntConstraintOccurrence(
         drools.getRule().getName(),
@@ -273,10 +280,11 @@ end
 rule "penalizeJurorWithdraw"
 @ConstraintType(soft)
 when
-    $t : Tournament()
-    $s : Seat( $juror := juror ) from $t.Seats
-    not( exists Seat( $juror := juror) )
     $wc : WeightConfig()
+    $t  : Tournament()
+    $s  : Seat( $juror := juror ) from $t.seats
+    // FIXME, this most probably will not work as intended
+    not( exists Seat( $juror := juror) )
 then
     insertLogical( new IntConstraintOccurrence(
         drools.getRule().getName(),
@@ -295,7 +303,7 @@ rule "hardConstraintsBroken"
     when
         $hardTotal : Number() from accumulate(
             IntConstraintOccurrence(constraintType == ConstraintType.NEGATIVE_HARD, $weight : weight),
-            sum($weight) // Vote for http://jira.jboss.com/jira/browse/JBRULES-1075
+            sum($weight)
         )
     then
         scoreHolder.setHardConstraintsBroken($hardTotal.intValue());
@@ -307,7 +315,7 @@ rule "softConstraintsBroken"
     when
         $softTotal : Number() from accumulate(
             IntConstraintOccurrence(constraintType == ConstraintType.NEGATIVE_SOFT, $weight : weight),
-            sum($weight) // Vote for http://jira.jboss.com/jira/browse/JBRULES-1075
+            sum($weight)
         )
     then
         scoreHolder.setSoftConstraintsBroken($softTotal.intValue());
