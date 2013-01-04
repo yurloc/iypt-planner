@@ -82,6 +82,12 @@ public class ScoringRulesTest {
             public void setWeight(String ruleId, int weight) {
                 // do nothing
             }
+
+            @Override
+            public String toString() {
+                // this will appear when printing the activation list
+                return "Test weight config";
+            }
         };
     }
 
@@ -310,6 +316,7 @@ public class ScoringRulesTest {
         Round r1 = RoundFactory.createRound(1, tA, tB, tC);
         Round r2 = RoundFactory.createRound(2, tD, tE, tF);
         tOld.addRounds(r1, r2);
+        tOld.addJurors(jK1, jL1, jM1, jN1);
         assignJurors(tOld, jK1, jL1);
         Tournament tNew = (Tournament) tOld.cloneSolution();
         tNew.setOriginal(tOld);
@@ -322,26 +329,41 @@ public class ScoringRulesTest {
 
         assignJurors(tNew, jL1, jK1);
         checkSolution(tNew, true, ScoringRule.penalizeChairChange, 2);
+
+        assignJurors(tNew, jM1, jN1);
+        checkSolution(tNew, true, ScoringRule.penalizeChairChange, 2);
     }
 
     @Test
     public void testPenalizeJurorWithdraw() {
         Tournament tOld = new Tournament();
         tOld.setJuryCapacity(2);
-        Round r1 = RoundFactory.createRound(1, tA, tB, tC);
-        Round r2 = RoundFactory.createRound(2, tD, tE, tF);
+        Round r1 = RoundFactory.createRound(1, gABC, gDEF);
+        Round r2 = RoundFactory.createRound(2, gADG, gBEH);
         tOld.addRounds(r1, r2);
-        assignJurors(tOld, jM1, jM2, jN1, jN2);
+        tOld.addJurors(jM1, jM2, jM3, jN1, jN2, jN3);
+        assignJurors(tOld, jM1, jM2, jN1, jN2, jM1, jM2, jN1, jN2);
         Tournament tNew = (Tournament) tOld.cloneSolution();
         tNew.setOriginal(tOld);
 
-        assignJurors(tNew, jM1, jM2, jN1, jN2);
+        // no change, no penalty
+        assignJurors(tNew, jM1, jM2, jN1, jN2, jM1, jM2, jN1, jN2);
         checkSolution(tNew, true, ScoringRule.penalizeJurorWithdraw, 0);
 
-        assignJurors(tNew, jM1, jM2, jN1, jM2);
+        // shuffling inside rounds costs nothing
+        assignJurors(tNew, jN1, jN2, jM1, jM2, jM1, jN2, jN1, jM2);
+        checkSolution(tNew, true, ScoringRule.penalizeJurorWithdraw, 0);
+
+        // jM2 has lost a seat
+        assignJurors(tNew, jM1, jM2, jN1, jN2, jM1, jM3, jN1, jN2);
         checkSolution(tNew, true, ScoringRule.penalizeJurorWithdraw, 1);
 
-        assignJurors(tNew, jM1, jI2, jN1, jI2);
+        // jM1 and jN2 have lost one seat each
+        assignJurors(tNew, jM1, jM3, jN1, jN3, jM1, jM2, jN1, jN2);
+        checkSolution(tNew, true, ScoringRule.penalizeJurorWithdraw, 2);
+
+        // jN2 has been withdrawn completely (2 seats)
+        assignJurors(tNew, jM1, jM2, jN1, jM3, jM1, jM2, jN1, jM3);
         checkSolution(tNew, true, ScoringRule.penalizeJurorWithdraw, 2);
     }
 

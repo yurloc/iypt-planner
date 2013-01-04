@@ -266,7 +266,7 @@ rule "penalizeChairChange"
 @ConstraintType(soft)
 when
     $wc : WeightConfig()
-    $t  : Tournament()
+    $t  : Tournament() // original
     $s2 : Seat( position == 0, $jury := jury )
     $s1 : Seat( position == 0, $jury := jury, juror != $s2.juror ) from $t.getSeats()
 then
@@ -281,10 +281,10 @@ rule "penalizeJurorWithdraw"
 @ConstraintType(soft)
 when
     $wc : WeightConfig()
-    $t  : Tournament()
-    $s  : Seat( $juror := juror ) from $t.seats
-    // FIXME, this most probably will not work as intended
-    not( exists Seat( $juror := juror) )
+    $t  : Tournament() // original
+    $r  : Round()
+    $s  : Seat( $juror := juror, jury.group.round == $r ) from $t.seats
+    not( exists Seat( $juror := juror, jury.group.round == $r ) )
 then
     insertLogical( new IntConstraintOccurrence(
         drools.getRule().getName(),
