@@ -1,8 +1,6 @@
 package org.iypt.planner.gui;
 
 import java.awt.Color;
-import org.apache.pivot.collections.HashMap;
-import org.apache.pivot.collections.Map;
 import org.apache.pivot.wtk.Component;
 import org.apache.pivot.wtk.ComponentKeyListener;
 import org.apache.pivot.wtk.ComponentStateListener;
@@ -26,15 +24,7 @@ import org.iypt.planner.gui.ConstraintsConfig.Constraint;
 public class ConstraintsConfigSkin extends ContainerSkin implements ConstraintsConfigListener {
 
     private TablePane content;
-    private static final Map<String, Object> borderStyles = new HashMap<>();
-    private static final Map<String, Object> hardConstraintStyles = new HashMap<>();
     private static final String EXPLANATION = "Hard constraints are weighted equally. There's no point in modifying the weights.";
-
-    static {
-        borderStyles.put("padding", 10);
-        borderStyles.put("thickness", 0);
-        hardConstraintStyles.put("color", Color.RED.darker());
-    }
 
     /* 1. call super.install()
      * 2. cast Component to the class this Skin is designed for
@@ -51,6 +41,7 @@ public class ConstraintsConfigSkin extends ContainerSkin implements ConstraintsC
         content = new TablePane();
         content.getColumns().add(new TablePane.Column());
         content.getColumns().add(new TablePane.Column());
+        content.getStyles().put("horizontalSpacing", 12);
         config.add(content);
 
         constraintsChanged(config);
@@ -89,13 +80,17 @@ public class ConstraintsConfigSkin extends ContainerSkin implements ConstraintsC
             row.add(label);
 
             if (constraint.getType() == ConstraintType.NEGATIVE_HARD) {
-                label.setStyles(hardConstraintStyles);
+                label.getStyles().put("color", Color.RED.darker());
                 Label wLabel = new Label("--");
+                wLabel.getStyles().put("horizontalAlignment", "center");
                 row.add(wLabel);
                 label.setTooltipText(EXPLANATION);
                 wLabel.setTooltipText(EXPLANATION);
             } else {
                 TextInput textInput = new TextInput();
+                textInput.setPreferredWidth(32);
+                // TODO alignment will be available in pivot 2.0.3
+//                textInput.getStyles().put("horizontalAlignment", "right");
                 textInput.getComponentKeyListeners().add(new ComponentKeyListener.Adapter() {
                     @Override
                     public boolean keyPressed(Component component, int keyCode, KeyLocation keyLocation) {
