@@ -20,6 +20,10 @@ public final class Group {
         teams = new ArrayList<>(4);
     }
 
+    protected String coords() {
+        return round.getNumber() + name;
+    }
+
     public Group(Team... teams) {
         this();
         addTeams(teams);
@@ -48,7 +52,7 @@ public final class Group {
 
     @Override
     public String toString() {
-        return String.format("Group %d%s", round.getNumber(), name);
+        return String.format("Group %s", coords());
     }
 
     //-------------------------------------------------------------------------------------------------------------------------

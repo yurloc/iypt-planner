@@ -14,9 +14,13 @@ public final class Jury {
         setCapacity(DEFAULT_CAPACITY);
     }
 
+    protected String coords() {
+        return group.coords();
+    }
+
     @Override
     public String toString() {
-        return group.toString();
+        return String.format("Jury %s", coords());
     }
 
     // ------------------------------------------------------------------------

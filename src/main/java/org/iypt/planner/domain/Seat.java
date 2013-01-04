@@ -38,7 +38,7 @@ public class Seat {
 
     @Override
     public String toString() {
-        return String.format("[%s]-[%s]", jury, juror);
+        return String.format("[Seat %s:%d]-[%s]", jury.coords(), position + 1, juror);
     }
 
     public Seat clone() {
