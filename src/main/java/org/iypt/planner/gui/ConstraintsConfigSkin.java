@@ -4,12 +4,14 @@ import java.awt.Color;
 import org.apache.pivot.collections.HashMap;
 import org.apache.pivot.collections.Map;
 import org.apache.pivot.wtk.Component;
+import org.apache.pivot.wtk.ComponentStateListener;
 import org.apache.pivot.wtk.Dimensions;
 import org.apache.pivot.wtk.Label;
 import org.apache.pivot.wtk.TablePane;
 import org.apache.pivot.wtk.TextInput;
 import org.apache.pivot.wtk.TextInputContentListener;
 import org.apache.pivot.wtk.skin.ContainerSkin;
+import org.apache.pivot.wtk.validation.Validator;
 import org.drools.planner.core.score.constraint.ConstraintType;
 import org.iypt.planner.gui.ConstraintsConfig.Constraint;
 
@@ -90,19 +92,52 @@ public class ConstraintsConfigSkin extends ContainerSkin implements ConstraintsC
                 wLabel.setTooltipText(EXPLANATION);
             } else {
                 TextInput textInput = new TextInput();
-                row.add(textInput);
-                textInput.setText(Integer.toString(constraint.getWeight()));
-                textInput.getTextInputContentListeners().add(new TextInputContentListener.Adapter() {
+                textInput.setValidator(new Validator() {
                     @Override
-                    public void textChanged(TextInput textInput) {
-                        String text = textInput.getText();
-                        if (!text.isEmpty()) {
-                            constraint.setWeight(Integer.parseInt(text));
-                        }
+                    public boolean isValid(String text) {
+                        return text.matches("\\d+");
                     }
                 });
+                ResettingInputListener resettingInputListener = new ResettingInputListener() {
+                    @Override
+                    public void processValidText(String text) {
+                        constraint.setWeight(Integer.parseInt(text));
+                    }
+                };
+                textInput.getComponentStateListeners().add(resettingInputListener);
+                textInput.getTextInputContentListeners().add(resettingInputListener);
+                textInput.setText(Integer.toString(constraint.getWeight()));
+                row.add(textInput);
             }
-
         }
+    }
+
+    private abstract class ResettingInputListener extends TextInputContentListener.Adapter implements ComponentStateListener {
+
+        private String lastValidText;
+
+        @Override
+        public void textChanged(TextInput textInput) {
+            if (textInput.isTextValid()) {
+                lastValidText = textInput.getText();
+                processValidText(lastValidText);
+            }
+        }
+
+        @Override
+        public void enabledChanged(Component component) {
+            // not interested
+        }
+
+        @Override
+        public void focusedChanged(Component component, Component obverseComponent) {
+            TextInput textInput = (TextInput) component;
+            if (!textInput.isFocused() && !textInput.isTextValid()) {
+                // restore the last valid text
+                textInput.setText(lastValidText);
+            }
+        }
+
+        public abstract void processValidText(String text);
     }
 }
