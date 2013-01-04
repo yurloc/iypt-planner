@@ -4,8 +4,12 @@ import java.awt.Color;
 import org.apache.pivot.collections.HashMap;
 import org.apache.pivot.collections.Map;
 import org.apache.pivot.wtk.Component;
+import org.apache.pivot.wtk.ComponentKeyListener;
 import org.apache.pivot.wtk.ComponentStateListener;
 import org.apache.pivot.wtk.Dimensions;
+import org.apache.pivot.wtk.FocusTraversalDirection;
+import org.apache.pivot.wtk.Keyboard;
+import org.apache.pivot.wtk.Keyboard.KeyLocation;
 import org.apache.pivot.wtk.Label;
 import org.apache.pivot.wtk.TablePane;
 import org.apache.pivot.wtk.TextInput;
@@ -92,6 +96,35 @@ public class ConstraintsConfigSkin extends ContainerSkin implements ConstraintsC
                 wLabel.setTooltipText(EXPLANATION);
             } else {
                 TextInput textInput = new TextInput();
+                textInput.getComponentKeyListeners().add(new ComponentKeyListener.Adapter() {
+                    @Override
+                    public boolean keyPressed(Component component, int keyCode, KeyLocation keyLocation) {
+                        boolean consumed = super.keyPressed(component, keyCode, keyLocation);
+
+                        FocusTraversalDirection dir;
+                        switch (keyCode) {
+                            case Keyboard.KeyCode.DOWN:
+                                dir = FocusTraversalDirection.FORWARD;
+                                break;
+                            case Keyboard.KeyCode.UP:
+                                dir = FocusTraversalDirection.BACKWARD;
+                                break;
+                            default:
+                                // do as usual
+                                return consumed;
+                        }
+                        Component next = component;
+                        while ((next = content.getFocusTraversalPolicy().getNextComponent(content, next, dir)) != null
+                                && !next.isFocusable()) {
+                            // skip unfocusable components
+                        }
+                        if (next != null) {
+                            next.requestFocus();
+                            consumed = true;
+                        }
+                        return consumed;
+                    }
+                });
                 textInput.setValidator(new Validator() {
                     @Override
                     public boolean isValid(String text) {
