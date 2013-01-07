@@ -156,7 +156,7 @@ then
 end
 
 rule "calculateJurorLoads"
-salience 1
+salience 1 // calculate these facts before other rules
 when
     $stats : Statistics()
     $juror : Juror()
@@ -222,6 +222,7 @@ then
 end
 
 rule "calculateIndependentRatio"
+salience 1 // calculate these facts before other rules
 when
     $jury : Jury()
     accumulate( Seat( jury == $jury, juror != null, juror.type == JurorType.INDEPENDENT );
