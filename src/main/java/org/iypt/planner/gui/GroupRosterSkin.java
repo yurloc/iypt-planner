@@ -82,15 +82,18 @@ public class GroupRosterSkin extends ContainerSkin implements GroupRosterListene
             }
         });
         final Menu.Section section = new Menu.Section();
-        Menu.Item li = new Menu.Item("Lock-in");
-        Menu.Item lo = new Menu.Item("Lock-out");
-        Menu.Item ul = new Menu.Item("Unlock");
+        Menu.Item li = new Menu.Item("Lock");
         li.setAction(lockInAction);
-        lo.setAction(lockOutAction);
-        ul.setAction(unlockAction);
         section.add(li);
-        section.add(lo);
+
+        Menu.Item ul = new Menu.Item("Unlock");
+        ul.setAction(unlockAction);
         section.add(ul);
+
+        //Menu.Item lo = new Menu.Item("Lock-out");
+        //lo.setAction(lockOutAction);
+        //section.add(lo);
+
         juryTableView.setMenuHandler(new MenuHandler.Adapter() {
             @Override
             public boolean configureContextMenu(Component component, Menu menu, int x, int y) {
