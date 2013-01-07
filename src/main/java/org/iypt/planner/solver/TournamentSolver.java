@@ -111,8 +111,9 @@ public class TournamentSolver {
     }
 
     public void setTournament(Tournament tournament) {
-        this.tournament = tournament;
-        tournament.setWeightConfig(weightConfig);
+        this.tournament = (Tournament) tournament.cloneSolution();
+        this.tournament.setScore(null);
+        this.tournament.setWeightConfig(weightConfig);
         updateDetails();
     }
 
@@ -132,7 +133,7 @@ public class TournamentSolver {
         if (tournament.getScore() != null) {
             return tournament.getScore();
         }
-        scoreDirector.setWorkingSolution(tournament.cloneSolution());
+        scoreDirector.setWorkingSolution(tournament);
         return scoreDirector.calculateScore();
     }
 
@@ -242,7 +243,7 @@ public class TournamentSolver {
             ccList.add(conflict.getCountry());
         }
 
-        scoreDirector.setWorkingSolution(tournament.cloneSolution());
+        scoreDirector.setWorkingSolution(tournament);
         scoreDirector.calculateScore();
         WorkingMemory workingMemory = ((DroolsScoreDirector) scoreDirector).getWorkingMemory();
         Iterator<?> it;
