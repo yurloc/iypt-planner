@@ -20,11 +20,11 @@
     </TablePane.Row>
     <TablePane.Row>
       <Label text="Independent:"/>
-      <Checkbox bxml:id="independentCheckbox"/>
+      <Checkbox bxml:id="independentCheckbox" enabled="false"/>
     </TablePane.Row>
     <TablePane.Row>
       <Label text="Chair candidate:"/>
-      <Checkbox bxml:id="chairCheckbox"/>
+      <Checkbox bxml:id="chairCheckbox" enabled="false"/>
     </TablePane.Row>
     <TablePane.Row>
       <Label text="Bias:"/>
