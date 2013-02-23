@@ -111,8 +111,8 @@ public class TournamentSolver {
     }
 
     public void setTournament(Tournament tournament) {
-        this.tournament = (Tournament) tournament.cloneSolution();
-        this.tournament.setScore(null);
+        this.tournament = tournament;
+        // TODO only set weightConfig when setting a fresh tournament
         this.tournament.setWeightConfig(weightConfig);
         updateDetails();
     }
@@ -130,11 +130,7 @@ public class TournamentSolver {
     }
 
     public Score<?> getScore() {
-        if (tournament.getScore() != null) {
-            return tournament.getScore();
-        }
-        scoreDirector.setWorkingSolution(tournament);
-        return scoreDirector.calculateScore();
+        return tournament.getScore();
     }
 
     public List<ConstraintOccurrence> getConstraintOccurences() {
