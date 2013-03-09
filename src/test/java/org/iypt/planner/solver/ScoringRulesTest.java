@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.hamcrest.Matchers.*;
+import static org.iypt.planner.Constants.*;
 import static org.iypt.planner.domain.util.SampleFacts.*;
 import static org.junit.Assert.*;
 
@@ -53,25 +54,29 @@ public class ScoringRulesTest {
     @BeforeClass
     public static void setUpClass() {
 
-        // create ksession
+        // prepare knowledge base
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         kbuilder.add(ResourceFactory.newClassPathResource(SCORE_DRL), ResourceType.DRL);
         assertFalse(kbuilder.getErrors().toString(), kbuilder.hasErrors());
         kbase = kbuilder.newKnowledgeBase();
 
-        // check the ScoreHolder global name
-        KnowledgePackage pkg = kbase.getKnowledgePackages().iterator().next();
-        assertEquals("Unexpected ScoreHolder global name", SCORE_HOLDER_NAME, pkg.getGlobalVariables().iterator().next().getName());
-
-        // verify we are using the correct rule names (to detect typos and fail fast if a rule is renamed in DRL and not here)
+        // do some checks
         List<String> ruleNames = new ArrayList<>();
-        for (Rule rule : pkg.getRules()) {
-            ruleNames.add(rule.getName());
+        for (KnowledgePackage pkg : kbase.getKnowledgePackages()) {
+            // check the ScoreHolder global name
+            assertEquals("Unexpected ScoreHolder global name", SCORE_HOLDER_NAME, pkg.getGlobalVariables().iterator().next().getName());
+
+            // collect all rule names from kbase
+            for (Rule rule : pkg.getRules()) {
+                ruleNames.add(rule.getName());
+            }
         }
+        // verify we are using the correct rule names (to detect typos and fail fast if a rule is renamed in DRL and not here)
         for (ScoringRule rule : ScoringRule.values()) {
             assertThat(ruleNames, hasItem(rule.toString()));
         }
 
+        // prepare testing weight configuration
         wconfig = new WeightConfig() {
             @Override
             public int getWeight(String ruleId) {
@@ -89,6 +94,20 @@ public class ScoringRulesTest {
                 return "Test weight config";
             }
         };
+    }
+
+    @Test
+    public void testMetadata() {
+        for (KnowledgePackage pkg : kbase.getKnowledgePackages()) {
+            for (Rule rule : pkg.getRules()) {
+                Map<String, Object> metaData = rule.getMetaData();
+                if (metaData.containsKey(CONSTRAINT_TYPE_KEY)) {
+                    assertThat(String.format("Wrong value of '%s' metadata of rule '%s'.", CONSTRAINT_TYPE_KEY, rule.getName()),
+                            (String) metaData.get(CONSTRAINT_TYPE_KEY),
+                            anyOf(is(CONSTRAINT_TYPE_HARD), is(CONSTRAINT_TYPE_SOFT)));
+                }
+            }
+        }
     }
 
     @Test
