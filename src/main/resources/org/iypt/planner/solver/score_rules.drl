@@ -41,7 +41,8 @@ when
     $j  : Juror()
     $r  : Round()
     $s1 : Seat( juror == $j, jury.group.round == $r )
-    $s2 : Seat( juror == $j, jury.group.round == $r, this != $s1 )
+    $s2 : Seat( ( juror == $j && jury.group.round == $r )
+                && ( jury.group.name > $s1.jury.group.name || position > $s1.position ) )
 then
     insertLogical( new IntConstraintOccurrence(
         drools.getRule().getName(),
@@ -200,9 +201,6 @@ then
     ));
 end
 
-// TODO check 5.3.4.3. Implementing a score rule to see
-// how to get around matching the tuple twice!!!
-// hint: seats (or whatever) need to be "somehow" comparable, then match only when the second fact is "bigger"
 rule "jurorAndJurorConflict"
 @ConstraintType(soft)
 when
@@ -212,7 +210,7 @@ when
     $c2 : Conflict( $j2 : juror, country == $country )
     // those two jurors meet in the same jury
     $s1 : Seat( $jury : jury, juror == $j1 )
-    $s2 : Seat( jury == $jury, juror == $j2, this != $s1 )
+    $s2 : Seat( jury == $jury, juror == $j2, position > $s1.position )
 then
     insertLogical( new IntConstraintOccurrence(
         drools.getRule().getName(),

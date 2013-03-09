@@ -102,7 +102,7 @@ public class ScoringRulesTest {
         checkSolution(t, true, true,
                 new RuleFiring(ScoringRule.loadDeltaExceeded, 18),
                 new RuleFiring(ScoringRule.teamAndJurorAlreadyMet, 110),
-                new RuleFiring(ScoringRule.jurorAndJurorConflict, 16),
+                new RuleFiring(ScoringRule.jurorAndJurorConflict, 8),
                 new RuleFiring(ScoringRule.independentRatioDeltaExceeded, 2),
                 new RuleFiring(ScoringRule.accumulatedBias, 45));
     }
@@ -111,11 +111,15 @@ public class ScoringRulesTest {
     public void testMultiSeat() {
         Tournament t = new Tournament();
         t.setJuryCapacity(2);
-        t.addRounds(RoundFactory.createRound(1, tA, tB, tC));
-        t.addJurors(jD1);
+        t.addRounds(RoundFactory.createRound(1, tA, tB, tC, tD, tE, tF));
+        t.addJurors(jG1, jH1, jI1);
 
-        assignJurors(t, jD1, jD1);
-        checkSolution(t, false, ScoringRule.multipleSeatsInRound, 2);
+        assignJurors(t, jG1, jG1, jH1, jI1);
+        checkSolution(t, false, ScoringRule.multipleSeatsInRound, 1);
+
+        t.addRounds(RoundFactory.createRound(2, tA, tB, tC, tD, tE, tF));
+        assignJurors(t, jH1, jG1, jI1, jG1);
+        checkSolution(t, false, ScoringRule.multipleSeatsInRound, 1);
     }
 
     @Test
@@ -269,13 +273,13 @@ public class ScoringRulesTest {
         t.addJurors(jK1, jL1, jM1, jM2, jM3, jN1, jN2, jN3, jN4);
 
         assignJurors(t, jM1, jN1, jM2, jK1, jL1, jM3);
-        checkSolution(t, true, ScoringRule.jurorAndJurorConflict, 2);
+        checkSolution(t, true, ScoringRule.jurorAndJurorConflict, 1);
         assignJurors(t, jL1, jM2, jN4, jN1, jN2, jN3);
-        checkSolution(t, true, ScoringRule.jurorAndJurorConflict, 6);
+        checkSolution(t, true, ScoringRule.jurorAndJurorConflict, 3);
         assignJurors(t, jL1, jM2, jN4, jN1, jM3, jK1);
         t.getConflicts().add(new Conflict(jK1, jL1.getCountry()));
         t.getConflicts().add(new Conflict(jN1, jM3.getCountry()));
-        checkSolution(t, true, ScoringRule.jurorAndJurorConflict, 2); // only jN1-jM3
+        checkSolution(t, true, ScoringRule.jurorAndJurorConflict, 1); // only jN1-jM3
     }
 
     @Test
