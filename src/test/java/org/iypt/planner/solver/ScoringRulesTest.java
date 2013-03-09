@@ -119,11 +119,12 @@ public class ScoringRulesTest {
 
         log.debug("Optimal load for IYPT2012: {}", t.getStatistics().getOptimalLoad());
         checkSolution(t, true, true,
-                new RuleFiring(ScoringRule.loadDeltaExceeded, 18),
-                new RuleFiring(ScoringRule.teamAndJurorAlreadyMet, 110),
-                new RuleFiring(ScoringRule.jurorAndJurorConflict, 8),
+                new RuleFiring(ScoringRule.accumulatedBias, 45),
                 new RuleFiring(ScoringRule.independentRatioDeltaExceeded, 2),
-                new RuleFiring(ScoringRule.accumulatedBias, 45));
+                new RuleFiring(ScoringRule.jurorAndJurorConflict, 8),
+                new RuleFiring(ScoringRule.jurorMeetsBigGroupOften, 4),
+                new RuleFiring(ScoringRule.loadDeltaExceeded, 18),
+                new RuleFiring(ScoringRule.teamAndJurorAlreadyMet, 110));
     }
 
     @Test
@@ -330,6 +331,18 @@ public class ScoringRulesTest {
         checkSolution(t, true, ScoringRule.independentRatioDeltaExceeded, 0);
         assignJurors(t, jI1, jI2, jI3, jI4, jT1, jT2, jT3, jT4);
         checkSolution(t, true, ScoringRule.independentRatioDeltaExceeded, 2);
+    }
+
+    @Test
+    public void testJurorMeetsBigGroupOften() {
+        Tournament t = new Tournament();
+        t.setJuryCapacity(2);
+        Round r1 = RoundFactory.createRound(1, tA, tB, tC, tD, tE, tF, tG);
+        Round r2 = RoundFactory.createRound(2, tE, tF, tG, tH, tA, tB, tC);
+        t.addRounds(r1, r2);
+        t.addJurors(jI1, jI2, jM1, jM2);
+        assignJurors(t, jI1, jI2, jM1, jM2, jM1, jI2, jI1, jM2);
+        checkSolution(t, true, ScoringRule.jurorMeetsBigGroupOften, 1);
     }
 
     @Test
@@ -589,6 +602,7 @@ public class ScoringRulesTest {
         calculateIndependentRatio(false),
         independentRatioDeltaExceeded(false, 1),
         accumulatedBias(false, 10),
+        jurorMeetsBigGroupOften(false, 10),
         penalizeChairChange(false, 133),
         penalizeJurorWithdraw(false, 111);
         private boolean hard;

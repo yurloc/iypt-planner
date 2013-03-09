@@ -257,6 +257,21 @@ then
     ));
 end
 
+rule "jurorMeetsBigGroupOften"
+@ConstraintType(soft)
+when
+    $wc : WeightConfig()
+    $j  : Juror()
+    $c  : Collection( size > 1 )
+              from collect( Seat( juror == $j, jury.group.size == 4 ) )
+then
+    insertLogical( new IntConstraintOccurrence(
+        drools.getRule().getName(),
+        ConstraintType.NEGATIVE_SOFT, ($c.size() - 1) * $wc.getWeight(drools.getRule().getName()),
+        $c
+    ));
+end
+
 // ############################################################################
 // Change penalties
 // ############################################################################
