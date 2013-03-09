@@ -42,6 +42,10 @@ import org.iypt.planner.gui.GroupRoster.JurorRow;
 import org.iypt.planner.gui.JurorDay;
 import org.iypt.planner.solver.util.ConstraintComparator;
 
+import static org.iypt.planner.Constants.CONSTRAINT_TYPE_HARD;
+import static org.iypt.planner.Constants.CONSTRAINT_TYPE_KEY;
+import static org.iypt.planner.Constants.CONSTRAINT_TYPE_SOFT;
+
 /**
  *
  * @author jlocker
@@ -86,15 +90,14 @@ public class TournamentSolver {
         constraintRules = new ArrayList<>();
         for (KnowledgePackage pkg : kbase.getKnowledgePackages()) {
             for (Rule rule : pkg.getRules()) {
-                String key = "ConstraintType";
-                if (rule.getMetaData().containsKey(key)) {
-                    String type = (String) rule.getMetaData().get(key);
+                if (rule.getMetaData().containsKey(CONSTRAINT_TYPE_KEY)) {
+                    String type = (String) rule.getMetaData().get(CONSTRAINT_TYPE_KEY);
                     ConstraintOccurrence co;
                     switch (type) {
-                        case "hard":
+                        case CONSTRAINT_TYPE_HARD:
                             co = new UnweightedConstraintOccurrence(rule.getName(), ConstraintType.NEGATIVE_HARD);
                             break;
-                        case "soft":
+                        case CONSTRAINT_TYPE_SOFT:
                             co = new IntConstraintOccurrence(rule.getName(), ConstraintType.NEGATIVE_SOFT);
                             break;
                         default:
