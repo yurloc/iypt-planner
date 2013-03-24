@@ -4,8 +4,11 @@ import java.awt.Color;
 import java.io.File;
 import java.io.FileWriter;
 import java.net.URL;
+import java.text.DateFormat;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
+import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.pivot.beans.BXML;
 import org.apache.pivot.beans.Bindable;
 import org.apache.pivot.collections.ArrayList;
@@ -20,6 +23,7 @@ import org.apache.pivot.util.concurrent.TaskListener;
 import org.apache.pivot.wtk.Action;
 import org.apache.pivot.wtk.Alert;
 import org.apache.pivot.wtk.ApplicationContext;
+import org.apache.pivot.wtk.ApplicationContext.ScheduledCallback;
 import org.apache.pivot.wtk.Border;
 import org.apache.pivot.wtk.BoxPane;
 import org.apache.pivot.wtk.Button;
@@ -64,11 +68,17 @@ import org.slf4j.LoggerFactory;
 public class PlannerWindow extends Window implements Bindable {
 
     private static final Logger log = LoggerFactory.getLogger(PlannerWindow.class);
+    private static final DateFormat SCORE_CHANGE_FORMAT = DateFormat.getTimeInstance();
+    private static final long SCORE_CHANGE_DELAY = 5000;
+    private static final long SCORE_CHANGE_PERIOD = 5000;
     // constraints config tab controls
     @BXML private Label drlLabel;
     @BXML private ConstraintsConfig constraintConfig;
     // planning tab controls
     @BXML private Label scoreLabel;
+    @BXML private BoxPane scoreChangeBox;
+    @BXML private Label scoreChangeLabel;
+    @BXML private Label scoreChangeDiffLabel;
     @BXML private PushButton solveButton;
     @BXML private PushButton terminateButton;
     @BXML private PushButton swapButton;
@@ -107,6 +117,7 @@ public class PlannerWindow extends Window implements Bindable {
             return !(item.isDirectory() || item.getName().toLowerCase().endsWith(".csv"));
         }
     };
+    private ScheduledCallback scoreChangedTimer;
 
     private abstract class LoadFileAction extends Action {
 
@@ -313,6 +324,7 @@ public class PlannerWindow extends Window implements Bindable {
                 button.setEnabled(false);
                 terminateButton.setEnabled(true);
                 clearSwap();
+                scoreChangeBox.setVisible(false);
                 solverTask = new SolverTask(solver);
                 TaskListener<Void> taskListener = new TaskListener<Void>() {
                     @Override
@@ -329,6 +341,8 @@ public class PlannerWindow extends Window implements Bindable {
                         solveButton.setEnabled(true);
                         terminateButton.setEnabled(false);
                         scoreLabel.setText(task.getFault().toString());
+                        scoreChangedTimer.cancel();
+                        scoreChangeLabel.setText("");
                         Alert.alert(MessageType.ERROR, task.getFault().getMessage(), PlannerWindow.this);
                     }
                 };
@@ -380,7 +394,8 @@ public class PlannerWindow extends Window implements Bindable {
                 tournamentChanged();
             }
         });
-
+        scoreChangeBox.setVisible(false);
+        scoreChangeDiffLabel.getStyles().put("color", Color.GRAY);
     }
 
     private void tournamentLoaded(Tournament tournament) {
@@ -416,6 +431,7 @@ public class PlannerWindow extends Window implements Bindable {
         tournamentScheduleBoxPane.removeAll();
         tournamentScheduleBoxPane.add(tournamentSchedule);
         solveButton.setEnabled(true);
+        scoreChangeBox.setVisible(false);
         tournamentChanged();
         solutionChanged();
         updateRoundDetails(solver.getTournament().getRounds().get(0));
@@ -424,6 +440,26 @@ public class PlannerWindow extends Window implements Bindable {
 
     void solutionChanged() {
         scoreLabel.setText(solver.getScore().toString());
+        if (scoreChangedTimer != null) {
+            scoreChangedTimer.cancel();
+        }
+        if (solver.isSolving()) {
+            final Date lastScoreChange = new Date();
+            scoreChangeBox.setVisible(true);
+            scoreChangeLabel.setText(SCORE_CHANGE_FORMAT.format(lastScoreChange));
+            scoreChangeDiffLabel.setText("");
+            scoreChangedTimer = ApplicationContext.scheduleRecurringCallback(new Runnable() {
+                @Override
+                public void run() {
+                    long diff = new Date().getTime() - lastScoreChange.getTime();
+                    String s = DurationFormatUtils.formatDurationWords(diff, true, false);
+                    scoreChangeDiffLabel.setText(String.format("(%s ago)", s));
+                }
+            }, SCORE_CHANGE_DELAY, SCORE_CHANGE_PERIOD);
+        } else {
+            // hide if not solving
+            scoreChangeDiffLabel.setText("");
+        }
 
         constraintsBoxPane.removeAll();
         HashMap<String, List<Constraint>> map = new HashMap<>();

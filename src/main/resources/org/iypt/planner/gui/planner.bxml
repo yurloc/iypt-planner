@@ -96,8 +96,14 @@
 
                 <!-- Overall score -->
                 <TablePane.Row height="-1">
-                  <BoxPane orientation="vertical" styles="{padding:{bottom:10,top:10}}">
-                    <Label Form.label="Overall score" bxml:id="scoreLabel" styles="{font:{bold:true}}"/>
+                  <BoxPane orientation="horizontal" styles="{padding:{bottom:10,top:10}}">
+                    <Label text="Overall score:"/>
+                    <Label bxml:id="scoreLabel" styles="{font:{bold:true}}"/>
+                    <BoxPane bxml:id="scoreChangeBox" orientation="horizontal">
+                      <Label text="Last change:"/>
+                      <Label bxml:id="scoreChangeLabel"/>
+                      <Label bxml:id="scoreChangeDiffLabel"/>
+                    </BoxPane>
                   </BoxPane>
                 </TablePane.Row>
 
