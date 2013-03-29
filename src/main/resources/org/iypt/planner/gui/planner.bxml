@@ -32,6 +32,11 @@
                   <content:MenuItemData text="Load jurors"/>
                 </buttonData>
               </Menu.Item>
+              <Menu.Item action="loadBiases">
+                <buttonData>
+                  <content:MenuItemData text="Load biases"/>
+                </buttonData>
+              </Menu.Item>
               <Menu.Item action="loadSchedule">
                 <buttonData>
                   <content:MenuItemData text="Load schedule"/>

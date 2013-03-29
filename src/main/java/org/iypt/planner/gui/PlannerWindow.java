@@ -164,6 +164,12 @@ public class PlannerWindow extends Window implements Bindable {
             loadScheduleAction.setEnabled(factory.canReadSchedule());
         }
     };
+    private LoadFileAction loadBiasesAction = new LoadFileAction("biases") {
+        @Override
+        void processFile(File f) throws Exception {
+            factory.readBiasData(f);
+        }
+    };
     private LoadFileAction loadScheduleAction = new LoadFileAction("schedule") {
         @Override
         void processFile(File f) throws Exception {
@@ -211,6 +217,7 @@ public class PlannerWindow extends Window implements Bindable {
             factory = new CSVTournamentFactory();
             loadTeamsAction.setEnabled(true);
             loadJurorsAction.setEnabled(true);
+            loadBiasesAction.setEnabled(true);
             loadScheduleAction.setEnabled(false);
             clearScheduleAction.setEnabled(false);
             saveScheduleAction.setEnabled(false);
@@ -240,6 +247,7 @@ public class PlannerWindow extends Window implements Bindable {
         });
         Action.getNamedActions().put("loadTeams", loadTeamsAction);
         Action.getNamedActions().put("loadJurors", loadJurorsAction);
+        Action.getNamedActions().put("loadBiases", loadBiasesAction);
         Action.getNamedActions().put("loadSchedule", loadScheduleAction);
         Action.getNamedActions().put("saveSchedule", saveScheduleAction);
         Action.getNamedActions().put("clearSchedule", clearScheduleAction);
@@ -252,6 +260,7 @@ public class PlannerWindow extends Window implements Bindable {
         newTournamentAction.setEnabled(false);
         loadTeamsAction.setEnabled(false);
         loadJurorsAction.setEnabled(false);
+        loadBiasesAction.setEnabled(false);
         loadScheduleAction.setEnabled(false);
         saveScheduleAction.setEnabled(false);
         clearScheduleAction.setEnabled(false);
@@ -401,6 +410,7 @@ public class PlannerWindow extends Window implements Bindable {
     private void tournamentLoaded(Tournament tournament) {
         loadTeamsAction.setEnabled(false);
         loadJurorsAction.setEnabled(false);
+        loadBiasesAction.setEnabled(false);
         loadScheduleAction.setEnabled(true);
         clearScheduleAction.setEnabled(true);
         saveScheduleAction.setEnabled(true);
