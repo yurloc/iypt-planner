@@ -60,4 +60,9 @@ public class Tournament {
     public int getMarksRecorded() {
         return marksRecorded;
     }
+
+    @Override
+    public String toString() {
+        return getName();
+    }
 }

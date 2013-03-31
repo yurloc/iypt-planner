@@ -37,7 +37,7 @@
                         maximumWidth="80"
                         horizontalScrollBarPolicy="fill"
                         verticalScrollBarPolicy="fill_to_capacity">
-              <ListView bxml:id="unselectedListView" selectMode="multi"/>
+              <ListView bxml:id="unselectedListView" selectMode="single"/>
             </ScrollPane>
           </Border>
 
@@ -50,14 +50,14 @@
             <ScrollPane preferredHeight="80"
                         horizontalScrollBarPolicy="fill"
                         verticalScrollBarPolicy="fill_to_capacity">
-              <ListView bxml:id="selectedListView" selectMode="multi"/>
+              <ListView bxml:id="selectedListView" selectMode="single"/>
             </ScrollPane>
           </Border>
         </TablePane.Row>
       </TablePane>
     </TablePane.Row>
 
-    <TablePane.Row height="2*">
+    <TablePane.Row height="-1">
       <TablePane.Filler/>
     </TablePane.Row>
 

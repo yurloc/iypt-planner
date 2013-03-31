@@ -112,7 +112,7 @@ public class PlannerWindow extends Window implements Bindable {
     private Juror juror1;
     private Juror juror2;
     private CSVTournamentFactory factory;
-    private Filter<File> csvFileFilter = new Filter<File>() {
+    protected static final Filter<File> CSV_FILE_FILTER = new Filter<File>() {
         @Override
         public boolean include(File item) {
             return !(item.isDirectory() || item.getName().toLowerCase().endsWith(".csv"));
@@ -133,7 +133,7 @@ public class PlannerWindow extends Window implements Bindable {
         public void perform(Component source) {
             // TODO set root folder to last selected file parent
             final FileBrowserSheet fileBrowserSheet = new FileBrowserSheet();
-            fileBrowserSheet.setDisabledFileFilter(csvFileFilter);
+            fileBrowserSheet.setDisabledFileFilter(CSV_FILE_FILTER);
             fileBrowserSheet.open(PlannerWindow.this, new SheetCloseListener() {
                 @Override
                 public void sheetClosed(Sheet sheet) {
@@ -192,7 +192,7 @@ public class PlannerWindow extends Window implements Bindable {
             // create new FileBrowser to make sure a fresh file list is displayed
             // TODO set root folder
             final FileBrowserSheet fileBrowserSheet = new FileBrowserSheet(FileBrowserSheet.Mode.SAVE_AS);
-            fileBrowserSheet.setDisabledFileFilter(csvFileFilter);
+            fileBrowserSheet.setDisabledFileFilter(CSV_FILE_FILTER);
             fileBrowserSheet.setSelectedFile(new File(fileBrowserSheet.getRootDirectory(), "schedule.csv"));
             fileBrowserSheet.open(PlannerWindow.this, new SheetCloseListener() {
                 @Override
