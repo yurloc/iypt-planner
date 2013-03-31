@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.HashMap;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.pivot.beans.BXML;
+import org.apache.pivot.beans.BXMLSerializer;
 import org.apache.pivot.beans.Bindable;
 import org.apache.pivot.collections.ArrayList;
 import org.apache.pivot.collections.List;
@@ -225,6 +226,19 @@ public class PlannerWindow extends Window implements Bindable {
             tournamentScheduleBoxPane.removeAll();
         }
     };
+    private Action computeBiasesAction = new Action() {
+        @Override
+        public void perform(Component source) {
+            BXMLSerializer bxmlSerializer = new BXMLSerializer();
+            try {
+                Sheet wizard = (Sheet) bxmlSerializer.readObject(PlannerWindow.class, "bias_wizard.bxml");
+                wizard.open(getDisplay(), getWindow());
+            } catch (Exception ex) {
+                log.error("Cannot open bias computation wizard", ex);
+                Alert.alert(MessageType.ERROR, ex.toString(), PlannerWindow.this);
+            }
+        }
+    };
     private Action loadExampleAction = new Action() {
         @Override
         public void perform(Component source) {
@@ -252,6 +266,7 @@ public class PlannerWindow extends Window implements Bindable {
         Action.getNamedActions().put("saveSchedule", saveScheduleAction);
         Action.getNamedActions().put("clearSchedule", clearScheduleAction);
         Action.getNamedActions().put("newTournament", newTournamentAction);
+        Action.getNamedActions().put("computeBiases", computeBiasesAction);
         Action.getNamedActions().put("loadExample", loadExampleAction);
     }
 
