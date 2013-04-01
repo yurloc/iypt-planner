@@ -1,7 +1,7 @@
 <iypt:BiasComputationWizard xmlns:bxml="http://pivot.apache.org/bxml"
                             xmlns:iypt="org.iypt.planner.gui"
                             xmlns="org.apache.pivot.wtk">
-  <TablePane styles="{showHorizontalGridLines:true, verticalSpacing:10, horizontalSpacing:10, padding:10}">
+  <TablePane styles="{showHorizontalGridLines:false, verticalSpacing:10, horizontalSpacing:10, padding:10}">
     <columns>
       <TablePane.Column width="1*"/>
     </columns>
@@ -28,8 +28,6 @@
       <TablePane styles="{verticalSpacing:10, horizontalSpacing:10}">
         <columns>
           <TablePane.Column width="1*"/>
-          <TablePane.Column width="-1"/>
-          <TablePane.Column width="1*"/>
         </columns>
         <TablePane.Row height="1*">
           <Border styles="{color:10}">
@@ -37,43 +35,52 @@
                         maximumWidth="80"
                         horizontalScrollBarPolicy="fill"
                         verticalScrollBarPolicy="fill_to_capacity">
-              <ListView bxml:id="unselectedListView" selectMode="single"/>
-            </ScrollPane>
-          </Border>
-
-          <BoxPane orientation="vertical" styles="{verticalAlignment:'center'}">
-            <PushButton bxml:id="selectButton" buttonData="&gt;"/>
-            <PushButton bxml:id="unselectButton" buttonData="&lt;"/>
-          </BoxPane>
-
-          <Border styles="{color:10}">
-            <ScrollPane preferredHeight="80"
-                        horizontalScrollBarPolicy="fill"
-                        verticalScrollBarPolicy="fill_to_capacity">
-              <ListView bxml:id="selectedListView" selectMode="single"/>
+              <ListView bxml:id="tournamentListView" selectMode="single"/>
             </ScrollPane>
           </Border>
         </TablePane.Row>
       </TablePane>
     </TablePane.Row>
 
+    <!-- Juror table -->
     <TablePane.Row height="-1">
-      <TablePane.Filler/>
+      <Border styles="{color:10}">
+        <ScrollPane preferredHeight="120">
+          <TableView bxml:id="jurorsTableView">
+            <columns>
+              <TableView.Column name="givenName" width="120" headerData="First Name"/>
+              <TableView.Column name="lastName" width="120" headerData="Last Name"/>
+              <TableView.Column name="averageBias" width="120" headerData="Bias"/>
+            </columns>
+          </TableView>
+
+          <columnHeader>
+            <TableViewHeader tableView="$jurorsTableView"/>
+          </columnHeader>
+        </ScrollPane>
+      </Border>
     </TablePane.Row>
 
+    <!-- Buttons -->
     <TablePane.Row height="-1">
       <TablePane>
         <columns>
+          <TablePane.Column width="-1"/>
           <TablePane.Column width="1*"/>
           <TablePane.Column width="-1"/>
         </columns>
 
         <TablePane.Row>
-          <TablePane.Filler/>
           <FillPane orientation="horizontal">
-            <PushButton bxml:id="cancelButton" buttonData="Cancel" minimumWidth="100"/>
-            <PushButton bxml:id="okButton" buttonData="Ok"/>
+            <PushButton bxml:id="exportButton" buttonData="Export to CSV..."/>
           </FillPane>
+          <TablePane.Filler/>
+          <BoxPane orientation="horizontal">
+            <PushButton bxml:id="cancelButton" buttonData="Cancel"/>
+            <PushButton bxml:id="loadButton" buttonData="Load selected data set"/>
+            <ImageView bxml:id="tipImageView" image="@img/information.png" tooltipDelay="100"
+                       tooltipText="Loading biases into existing schedule is not allowed"/>
+          </BoxPane>
         </TablePane.Row>
       </TablePane>
     </TablePane.Row>

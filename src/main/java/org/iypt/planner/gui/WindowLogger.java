@@ -25,4 +25,9 @@ public class WindowLogger {
         delegate.error(string, thrwbl);
         Alert.alert(MessageType.ERROR, format("%s: %s", string, thrwbl), window);
     }
+
+    void info(String string) {
+        delegate.info(string);
+        Alert.alert(MessageType.INFO, string, window);
+    }
 }

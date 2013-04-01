@@ -279,6 +279,11 @@ public class CSVTournamentFactory {
         state.biasesReady();
     }
 
+    public void setBiases(Map<String, Double> biases) {
+        this.biases = biases;
+        state.biasesReady();
+    }
+
     private void readSchedule(Source src) throws IOException {
         if (!state.canReadSchedule()) {
             throw new IllegalStateException("Not ready to read schedule. Teams and jurors must be read first.");
@@ -365,7 +370,8 @@ public class CSVTournamentFactory {
 
         if (state.haveBiasData()) {
             for (Juror juror : jurors.values()) {
-                juror.setBias(biases.get(juror.fullName()));
+                Double bias = biases.get(juror.fullName());
+                juror.setBias((bias == null || Double.isNaN(bias)) ? 0 : bias);
             }
         }
 

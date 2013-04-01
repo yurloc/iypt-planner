@@ -72,6 +72,7 @@ public class PlannerWindow extends Window implements Bindable {
     private static final DateFormat SCORE_CHANGE_FORMAT = DateFormat.getTimeInstance();
     private static final long SCORE_CHANGE_DELAY = 5000;
     private static final long SCORE_CHANGE_PERIOD = 5000;
+    private WindowLogger wlog = new WindowLogger(log, this);
     // constraints config tab controls
     @BXML private Label drlLabel;
     @BXML private ConstraintsConfig constraintConfig;
@@ -222,6 +223,7 @@ public class PlannerWindow extends Window implements Bindable {
             loadScheduleAction.setEnabled(false);
             clearScheduleAction.setEnabled(false);
             saveScheduleAction.setEnabled(false);
+            computeBiasesAction.setEnabled(true);
             loadExampleAction.setEnabled(true);
             tournamentScheduleBoxPane.removeAll();
         }
@@ -231,11 +233,16 @@ public class PlannerWindow extends Window implements Bindable {
         public void perform(Component source) {
             BXMLSerializer bxmlSerializer = new BXMLSerializer();
             try {
-                Sheet wizard = (Sheet) bxmlSerializer.readObject(PlannerWindow.class, "bias_wizard.bxml");
-                wizard.open(getDisplay(), getWindow());
+                final BiasComputationWizard wizard = (BiasComputationWizard) bxmlSerializer.readObject(PlannerWindow.class, "bias_wizard.bxml");
+                wizard.setLoadEnabled(loadTeamsAction.isEnabled());
+                wizard.open(getDisplay(), getWindow(), new SheetCloseListener() {
+                    @Override
+                    public void sheetClosed(Sheet sheet) {
+                        factory.setBiases(wizard.getBiases());
+                    }
+                });
             } catch (Exception ex) {
-                log.error("Cannot open bias computation wizard", ex);
-                Alert.alert(MessageType.ERROR, ex.toString(), PlannerWindow.this);
+                wlog.error("Cannot open bias computation wizard", ex);
             }
         }
     };
@@ -279,6 +286,7 @@ public class PlannerWindow extends Window implements Bindable {
         loadScheduleAction.setEnabled(false);
         saveScheduleAction.setEnabled(false);
         clearScheduleAction.setEnabled(false);
+        computeBiasesAction.setEnabled(false);
         loadExampleAction.setEnabled(false);
         solveButton.setEnabled(false);
         TaskListener<TournamentSolver> newSolverTaskListener = new TaskListener<TournamentSolver>() {
