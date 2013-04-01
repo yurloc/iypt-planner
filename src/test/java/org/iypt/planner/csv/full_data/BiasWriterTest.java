@@ -74,9 +74,9 @@ public class BiasWriterTest {
         // check the stored lines
         String[] expectedLines = {
             "given_name,last_name,bias",
-            "Florian,Ostermaier,-0.81",
-            "Władysław,Borgieł,0.81",
-            "Michael,Gierling,0.89",
+            "Florian,Ostermaier,-0.8111",
+            "Władysław,Borgieł,0.8056",
+            "Michael,Gierling,0.8889",
             "Nien,Cheng-Hsun,0",
             "Uno,Uno,0"};
         assertThat(actualLines, contains(expectedLines));

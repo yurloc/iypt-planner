@@ -42,7 +42,7 @@ public class BiasWriter {
     private final CellProcessor[] processors = new CellProcessor[]{
         new NotNull(),
         new NotNull(),
-        new FmtNumber(new DecimalFormat("#.##"))
+        new FmtNumber(new DecimalFormat("#.####"))
     };
 
     public BiasWriter(Collection<Juror> jurors) {
