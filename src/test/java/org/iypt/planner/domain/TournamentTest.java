@@ -273,7 +273,7 @@ public class TournamentTest {
         t.addRounds(r2);
         testClone(t);
 
-        t.setJuryCapacity(Jury.DEFAULT_CAPACITY);
+        t.setJuryCapacity(Jury.DEFAULT_CAPACITY * 10);
         testClone(t);
 
         t.addJurors(jA1, jB1, jC1);
@@ -282,6 +282,7 @@ public class TournamentTest {
 
         t.getConflicts().add(new Conflict(jA1, tF.getCountry()));
         t.getConflicts().add(new Conflict(jB1, tE.getCountry()));
+        t.setJuryCapacity(1);
         testClone(t);
     }
 
@@ -322,6 +323,7 @@ public class TournamentTest {
         assertThat(clone.getLocks(), is(t.getLocks()));
         assertThat(clone.getStatistics(), is(t.getStatistics()));
         assertThat(clone.getWeightConfig(), is(t.getWeightConfig()));
+        assertThat(clone.getJuryCapacity(), is(t.getJuryCapacity()));
 
         // check getProblemFacts
         @SuppressWarnings("unchecked")

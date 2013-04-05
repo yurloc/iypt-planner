@@ -103,6 +103,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
         clone.stats = stats;
         clone.config = config;
         clone.original = original;
+        clone.juryCapacity = juryCapacity;
 
         // deep-clone the planning entity
         for (Seat seat : seats) {
