@@ -182,7 +182,8 @@ public class PlannerWindow extends Window implements Bindable {
     private Action clearScheduleAction = new Action() {
         @Override
         public void perform(Component source) {
-            saveScheduleAction.setEnabled(false);
+            // FIXME find a way to detect changes in the schedule (better than solutionChanged())
+//            saveScheduleAction.setEnabled(false);
             solver.clearSchedule();
             solutionChanged();
         }
