@@ -344,6 +344,11 @@ public class TournamentSolver {
         return tournament.getJuryCapacity();
     }
 
+    public void changeJuryCapacity(Integer capacity) {
+        tournament.setJuryCapacity(capacity);
+        updateDetails();
+    }
+
     public void clearSchedule() {
         tournament.clear();
         updateDetails();

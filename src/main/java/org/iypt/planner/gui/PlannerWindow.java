@@ -424,8 +424,9 @@ public class PlannerWindow extends Window implements Bindable {
             public void selectedItemChanged(Spinner spinner, Object previousSelectedItem) {
                 Integer capacity = (Integer) spinner.getSelectedItem();
                 // TODO schedule the capacity change and apply it only when new solving starts
-                solver.getTournament().setJuryCapacity(capacity);
+                solver.changeJuryCapacity(capacity);
                 tournamentChanged();
+                solutionChanged();
             }
         });
         scoreChangeBox.setVisible(false);
