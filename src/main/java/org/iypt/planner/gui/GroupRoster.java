@@ -30,6 +30,7 @@ public class GroupRoster extends Container {
         private boolean chair;
 
         private JurorRow() {
+            this.icon = Images.getImage(Images.PERSON_DEFAULT);
         }
 
         private JurorRow(Juror juror) {

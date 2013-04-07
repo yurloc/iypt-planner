@@ -4,13 +4,13 @@
            xmlns="org.apache.pivot.wtk">
 
   <columns>
-    <TableView.Column name="icon" width="-1">
+    <TableView.Column name="icon" width="16">
       <cellRenderer>
         <content:TableViewImageCellRenderer/>
       </cellRenderer>
     </TableView.Column>
 
-    <TableView.Column name="flag" width="-1" headerData="Country">
+    <TableView.Column name="flag" width="16" headerData="Country">
       <cellRenderer>
         <content:TableViewImageCellRenderer/>
       </cellRenderer>
