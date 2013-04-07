@@ -341,7 +341,7 @@ public class TournamentSolver {
     }
 
     public int getJuryCapacity() {
-        return tournament.getJuries().get(0).getCapacity();
+        return tournament.getJuryCapacity();
     }
 
     public void clearSchedule() {

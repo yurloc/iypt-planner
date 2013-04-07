@@ -20,6 +20,7 @@ import org.iypt.planner.solver.WeightConfig;
  */
 public class Tournament implements Solution<HardAndSoftScore> {
 
+    public static final int DEFAULT_CAPACITY = 5;
     private HardAndSoftScore score;
     // planning entity
     private List<Seat> seats;
@@ -35,7 +36,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
     private List<Lock> locks;
     private Tournament original = null;
 
-    private int juryCapacity = Jury.DEFAULT_CAPACITY;
+    private int juryCapacity = DEFAULT_CAPACITY;
     private Statistics stats;
     private Map<Integer, List<DayOff>> dayOffsMap;
     private WeightConfig config = new DefaultWeightConfig();
@@ -164,10 +165,9 @@ public class Tournament implements Solution<HardAndSoftScore> {
                 groups.add(g);
                 teams.addAll(g.getTeams());
                 Jury jury = g.getJury();
-                jury.setCapacity(juryCapacity);
                 juries.add(jury);
 
-                for (int i = 0; i < jury.getCapacity(); i++) {
+                for (int i = 0; i < juryCapacity; i++) {
                     Seat seat = new Seat(jury, i, null);
                     seats.add(seat);
                 }
@@ -284,7 +284,6 @@ public class Tournament implements Solution<HardAndSoftScore> {
      */
     public boolean isFeasibleSolutionPossible() {
         for (Round r : rounds) {
-            // TODO (?) don't assume all juries have the same capacity
             int jurorsNeeded = r.getGroups().size() * juryCapacity;
             int jurorsAvailable = jurors.size() - getDayOffsPerRound(r);
             if (jurorsNeeded > jurorsAvailable) return false;
@@ -319,7 +318,6 @@ public class Tournament implements Solution<HardAndSoftScore> {
 
         ArrayList<Seat> newSeats = new ArrayList<>(newCapacity * juries.size());
         for (Jury jury : juries) {
-            jury.setCapacity(newCapacity);
             // copy old seats up to min{old capacity, new capacity}
             int fromIndex = juries.indexOf(jury) * juryCapacity;
             int toIndex = fromIndex + Math.min(juryCapacity, newCapacity);
