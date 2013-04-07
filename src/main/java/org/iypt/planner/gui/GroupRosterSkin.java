@@ -142,6 +142,10 @@ public class GroupRosterSkin extends ContainerSkin implements GroupRosterListene
             teamsBoxPane.add(teamFlag);
         }
 
+        if (juryTableView.getTableData().getLength() != group.getJurorList().getLength()) {
+            preferredSize = null;
+        }
+
         juryTableView.setTableData(group.getJurorList());
     }
 }

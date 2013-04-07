@@ -289,6 +289,7 @@ public class PlannerWindow extends Window implements Bindable {
         computeBiasesAction.setEnabled(false);
         loadExampleAction.setEnabled(false);
         solveButton.setEnabled(false);
+        juryCapacitySpinner.setEnabled(false);
         TaskListener<TournamentSolver> newSolverTaskListener = new TaskListener<TournamentSolver>() {
             @Override
             public void taskExecuted(Task<TournamentSolver> task) {
@@ -437,6 +438,7 @@ public class PlannerWindow extends Window implements Bindable {
         loadScheduleAction.setEnabled(true);
         clearScheduleAction.setEnabled(true);
         saveScheduleAction.setEnabled(true);
+        juryCapacitySpinner.setEnabled(true);
         solver.setTournament(tournament);
         tournamentSchedule = new TournamentSchedule(solver);
         tournamentSchedule.getTournamentScheduleListeners().add(new TournamentScheduleListener.Adapter() {
