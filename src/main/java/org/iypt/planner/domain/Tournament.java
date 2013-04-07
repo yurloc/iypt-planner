@@ -158,6 +158,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
 
     private void addRounds(Collection<Round> rounds) {
         this.rounds.addAll(rounds);
+        stats.setRounds(this.rounds.size());
         for (Round r : rounds) {
             for (Group g : r.getGroups()) {
                 groups.add(g);
@@ -172,7 +173,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
                 }
             }
         }
-        stats.calculateOptimalLoad();
+        stats.setOptimalLoad(calculateOptimalLoad());
         calculateIratio();
     }
 
@@ -203,7 +204,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
             this.jurors.add(juror);
             this.conflicts.add(new Conflict(juror, juror.getCountry()));
         }
-        stats.calculateOptimalLoad();
+        stats.setOptimalLoad(calculateOptimalLoad());
         calculateIratio();
     }
 
@@ -221,7 +222,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
             dayOffList.add(dayOff);
             this.dayOffs.add(dayOff);
         }
-        stats.calculateOptimalLoad();
+        stats.setOptimalLoad(calculateOptimalLoad());
         calculateIratio();
     }
 
@@ -262,7 +263,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
         return seats.subList(start, start + juryCapacity);
     }
 
-    List<Seat> getSeats(Round round) {
+    private List<Seat> getSeats(Round round) {
         int rSize = round.getGroups().size() * juryCapacity;
         return seats.subList((round.getNumber() - 1) * rSize, round.getNumber() * rSize);
     }
@@ -292,30 +293,45 @@ public class Tournament implements Solution<HardAndSoftScore> {
     }
 
     /**
-     * Sets or changes jury capacities for this tournament. All juries contained in this tournament and all that will be added
-     * in future will have this capacity.
-     * <p><em>NOTE: effective change of jury capacities will clear the current seat occupations.</em></p>
-     * @param capacity number of jurors in each jury
-     * @return <code>true</code> if jury capacity change has affected any juries
+     * Changes jury capacity for this tournament. It can be set anytime. If the tournament has no rounds
+     * (and juries) yet, the capacity will be effective when they are added.
+     * If juries have already been created, number of seats (planning entities returned by {@link #getSeats()}) will be adjusted.
+     * If the capacity increases, empty seats will be added and existing ones will not be touched.
+     * If the capacity decreases, the redundant seats will be removed while, again, the rest will be preserved.
+     * @param newCapacity number of jurors in each jury
+     * @return <code>true</code> if the number of seats has changed
      */
-    public boolean setJuryCapacity(int capacity) {
-        if (capacity < 1) {
-            throw new IllegalArgumentException("Capacity must be positive, got: " + capacity);
+    public boolean setJuryCapacity(int newCapacity) {
+        if (newCapacity < 1) {
+            throw new IllegalArgumentException("Capacity must be positive, got: " + newCapacity);
         }
-        this.juryCapacity = capacity; // remember the new capacity
-        if (juries.isEmpty()) return false;
 
-        if (juries.iterator().next().getCapacity() == capacity) return false;
+        // no change
+        if (juryCapacity == newCapacity) {
+            return false;
+        }
 
-        seats.clear();
+        // nothing to update
+        if (juries.isEmpty()) {
+            juryCapacity = newCapacity;
+            return false;
+        }
+
+        ArrayList<Seat> newSeats = new ArrayList<>(newCapacity * juries.size());
         for (Jury jury : juries) {
-            jury.setCapacity(capacity);
-            for (int i = 0; i < capacity; i++) {
-                Seat seat = new Seat(jury, i, null);
-                seats.add(seat);
+            jury.setCapacity(newCapacity);
+            // copy old seats up to min{old capacity, new capacity}
+            int fromIndex = juries.indexOf(jury) * juryCapacity;
+            int toIndex = fromIndex + Math.min(juryCapacity, newCapacity);
+            newSeats.addAll(seats.subList(fromIndex, toIndex));
+            // add empty seats (if the capacity was increased)
+            for (int i = juryCapacity; i < newCapacity; i++) {
+                newSeats.add(new Seat(jury, i, null));
             }
         }
-        stats.calculateOptimalLoad();
+        seats = newSeats;
+        juryCapacity = newCapacity;
+        stats.setOptimalLoad(calculateOptimalLoad());
         calculateIratio();
         return true;
     }
@@ -447,26 +463,35 @@ public class Tournament implements Solution<HardAndSoftScore> {
         sb.append('\n');
         sb.append("Total jury seats:    ").append(this.getSeats().size()).append('\n');
         sb.append("Total juror mandays: ").append(md).append('\n');
-        sb.append(String.format("Optimal juror load:  %.4f%n", this.getStatistics().getOptimalLoad()));
+        sb.append(String.format("Optimal juror load:  %.4f%n", stats.getOptimalLoad()));
         return sb.toString();
     }
 
-    public class Statistics {
+    private double calculateOptimalLoad() {
+        if (jurors.size() > 0 && rounds.size() > 0 && dayOffs.size() != jurors.size() * rounds.size()) {
+            return ((double) seats.size()) / (jurors.size() * rounds.size() - dayOffs.size());
+        }
+        return 0.0;
+    }
 
+    public static class Statistics {
         private double optimalLoad = 0.0;
+        private int rounds = 0;
 
-        private void calculateOptimalLoad() {
-            if (jurors.size() > 0 && rounds.size() > 0 && dayOffs.size() != jurors.size() * rounds.size()) {
-                optimalLoad = ((double) seats.size()) / (jurors.size() * rounds.size() - dayOffs.size());
-            }
+        public void setOptimalLoad(double optimalLoad) {
+            this.optimalLoad = optimalLoad;
         }
 
         public double getOptimalLoad() {
             return optimalLoad;
         }
 
+        public void setRounds(int rounds) {
+            this.rounds = rounds;
+        }
+
         public int getRounds() {
-            return rounds.size();
+            return rounds;
         }
     }
 }

@@ -172,6 +172,7 @@ public class TournamentTest {
         t.addJurors(jA1, jA2, jA3, jA4);
         assertEquals(0.0, t.getStatistics().getOptimalLoad(), Double.MIN_VALUE);
         t.addRounds(r1);
+        assertThat(t.getStatistics().getRounds(), is(1));
         assertEquals(1.0, t.getStatistics().getOptimalLoad(), Double.MIN_VALUE);
 
         t.addJurors(jA5, jA6, jB1, jB2, jB3);
@@ -184,10 +185,16 @@ public class TournamentTest {
         r2.createGroup("A").addTeams(tA, tB, tC);
         r2.createGroup("B").addTeams(tD, tE, tF);
         t.addRounds(r2);
-        assertEquals(6.0 / 9, t.getStatistics().getOptimalLoad(), Double.MIN_VALUE);
+        assertThat(t.getStatistics().getRounds(), is(2));
+        assertEquals(2 * 6.0 / 18, t.getStatistics().getOptimalLoad(), Double.MIN_VALUE);
 
         t.addDayOffs(new DayOff(jA1, 1), new DayOff(jA2, 1));
-        assertEquals(12.0 / (18 - 2), t.getStatistics().getOptimalLoad(), Double.MIN_VALUE);
+        assertEquals(2 * 6.0 / (18 - 2), t.getStatistics().getOptimalLoad(), Double.MIN_VALUE);
+
+        // check that cloneed solution calculates statistics correctly
+        Tournament clone = (Tournament) t.cloneSolution();
+        clone.setJuryCapacity(2);
+        assertEquals(2 * 4.0 / (18 - 2), clone.getStatistics().getOptimalLoad(), Double.MIN_VALUE);
     }
 
     @Test
@@ -336,6 +343,11 @@ public class TournamentTest {
         assertThat(clone.getSeats().size(), is(t.getSeats().size()));
         // no entities in common (verify planning entities are deep cloned)
         assertThat(t.getSeats().removeAll(clone.getSeats()), is(false));
+        // verify getSeats(jury) works on cloned solution
+        Jury firstJury = t.getJuries().get(0);
+        Jury lastJury = t.getJuries().get(t.getJuries().size() - 1);
+        assertThat(clone.getSeats(), hasItems(clone.getSeats(firstJury).toArray(new Seat[clone.getJuryCapacity()])));
+        assertThat(clone.getSeats(), hasItems(clone.getSeats(lastJury).toArray(new Seat[clone.getJuryCapacity()])));
     }
 
     private void testLoad(JurorLoad load, double value, double delta, boolean excessive) {
