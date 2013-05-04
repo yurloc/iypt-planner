@@ -52,6 +52,11 @@
 
   <dependencies>
     <dependency>
+      <groupId>com.itextpdf</groupId>
+      <artifactId>itextpdf</artifactId>
+      <version>5.4.1</version>
+    </dependency>
+    <dependency>
       <groupId>com.neovisionaries</groupId>
       <artifactId>nv-i18n</artifactId>
       <version>1.1</version>
