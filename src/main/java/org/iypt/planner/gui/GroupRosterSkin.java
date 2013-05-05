@@ -147,5 +147,6 @@ public class GroupRosterSkin extends ContainerSkin implements GroupRosterListene
         }
 
         juryTableView.setTableData(group.getJurorList());
+        juryTableView.setEnabled(!group.isRoundLocked());
     }
 }

@@ -120,6 +120,11 @@ public class GroupRoster extends Container {
     private TournamentSchedule schedule;
     private Group group;
     private List<JurorRow> jurorList = new ArrayList<>();
+    private boolean roundLocked;
+
+    boolean isRoundLocked() {
+        return roundLocked;
+    }
 
     // TODO move this into the skin?
     void jurorSelected(Object row) {
@@ -171,9 +176,10 @@ public class GroupRoster extends Container {
     private void updateJurors() {
         TournamentSolver solver = schedule.getSolver();
         jurorList = new ArrayList<>(solver.getJuryCapacity());
+        roundLocked = solver.getTournament().isLocked(group.getRound());
         for (Seat seat : solver.getTournament().getSeats(group.getJury())) {
             JurorRow row = JurorRow.newInstance(seat);
-            if (solver.isLocked(row)) {
+            if (!roundLocked && solver.isLocked(row)) {
                 row.lock();
             }
             jurorList.add(row);
