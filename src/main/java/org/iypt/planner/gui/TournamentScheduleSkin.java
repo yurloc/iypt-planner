@@ -1,36 +1,43 @@
 package org.iypt.planner.gui;
 
 import java.util.List;
-import org.apache.pivot.collections.HashMap;
+import org.apache.pivot.wtk.BoxPane;
+import org.apache.pivot.wtk.Button;
+import org.apache.pivot.wtk.ButtonPressListener;
 import org.apache.pivot.wtk.Component;
+import org.apache.pivot.wtk.ComponentMouseListener;
 import org.apache.pivot.wtk.Dimensions;
+import org.apache.pivot.wtk.Orientation;
+import org.apache.pivot.wtk.PushButton;
 import org.apache.pivot.wtk.TabPane;
 import org.apache.pivot.wtk.TabPaneSelectionListener;
 import org.apache.pivot.wtk.content.ButtonData;
 import org.apache.pivot.wtk.skin.ContainerSkin;
 import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.Round;
+import org.iypt.planner.domain.Tournament;
 import org.iypt.planner.gui.GroupRoster.JurorRow;
+import org.iypt.planner.solver.TournamentSolver;
+
+import static org.iypt.planner.gui.Images.LOCK;
+import static org.iypt.planner.gui.Images.LOCK_LIGHT;
+import static org.iypt.planner.gui.Images.getImage;
 
 /**
  *
  * @author jlocker
  */
-public class TournamentScheduleSkin extends ContainerSkin implements TournamentScheduleListener {
+public class TournamentScheduleSkin extends ContainerSkin implements TournamentScheduleListener, LockListener {
 
     private TabPane content;
     private RoundView[] views;
-    private static final HashMap<String, String> tabPaneStyles = new HashMap<>();
-
-    static {
-        tabPaneStyles.put("tabOrientation", "horizontal");
-    }
 
     @Override
     public void install(Component component) {
         super.install(component);
         final TournamentSchedule schedule = (TournamentSchedule) component;
         schedule.getTournamentScheduleListeners().add(this);
+        schedule.getSolver().getLockListeners().add(this);
         content = new TabPane();
         content.getTabPaneSelectionListeners().add(new TabPaneSelectionListener.Adapter() {
             @Override
@@ -38,8 +45,30 @@ public class TournamentScheduleSkin extends ContainerSkin implements TournamentS
                 schedule.roundSelected(tabPane.getSelectedIndex());
             }
         });
-        content.setStyles(tabPaneStyles);
+        content.getStyles().put("tabOrientation", Orientation.HORIZONTAL);
         schedule.add(content);
+        PushButton lockButton = new PushButton(getImage(LOCK_LIGHT));
+        lockButton.getStyles().put("toolbar", true);
+        lockButton.getButtonPressListeners().add(new ButtonPressListener() {
+            @Override
+            public void buttonPressed(Button button) {
+                schedule.requestRoundLock();
+            }
+        });
+        lockButton.getComponentMouseListeners().add(new ComponentMouseListener.Adapter() {
+            @Override
+            public void mouseOver(Component component) {
+                ((PushButton) component).setButtonData(getImage(LOCK));
+            }
+
+            @Override
+            public void mouseOut(Component component) {
+                ((PushButton) component).setButtonData(getImage(LOCK_LIGHT));
+            }
+        });
+        BoxPane corner = new BoxPane(Orientation.HORIZONTAL);
+        corner.add(lockButton);
+        content.setCorner(corner);
 
         // initialize round views
         List<Round> rounds = schedule.getSolver().getTournament().getRounds();
@@ -48,7 +77,7 @@ public class TournamentScheduleSkin extends ContainerSkin implements TournamentS
             RoundView roundView = new RoundView(schedule, rounds.get(i));
             views[i] = roundView;
             content.getTabs().add(roundView);
-            TabPane.setTabData(roundView, new ButtonData("Round #" + rounds.get(i).getNumber()));
+            TabPane.setTabData(roundView, new ButtonData(getImage(LOCK_LIGHT), "Round #" + rounds.get(i).getNumber()));
         }
     }
 
@@ -102,5 +131,24 @@ public class TournamentScheduleSkin extends ContainerSkin implements TournamentS
     @Override
     public void jurorUnlocked(JurorRow jurorRow) {
         // not interested
+    }
+
+    @Override
+    public void requestRoundLock() {
+        // not interested
+    }
+
+    @Override
+    public void roundLockChanged(TournamentSolver solver) {
+        for (int i = 0; i < views.length; i++) {
+            ButtonData tabData = (ButtonData) TabPane.getTabData(views[i]);
+            Tournament t = solver.getTournament();
+            Round round = t.getRounds().get(i);
+            if (t.isLocked(round)) {
+                tabData.setIcon(LOCK);
+            } else {
+                tabData.setIcon(LOCK_LIGHT);
+            }
+        }
     }
 }

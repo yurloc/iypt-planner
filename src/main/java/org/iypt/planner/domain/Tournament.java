@@ -27,6 +27,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
     private Set<Seat> locked;
     // facts
     private List<Round> rounds;
+    private Set<Round> lockedRounds;
     private List<Team> teams;
     private List<Group> groups;
     private List<Jury> juries;
@@ -50,6 +51,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
         jurors = new ArrayList<>();
         seats = new ArrayList<>();
         locked = new HashSet<>();
+        lockedRounds = new HashSet<>();
         dayOffs = new ArrayList<>();
         locks = new ArrayList<>();
         dayOffsMap = new HashMap<>();
@@ -93,6 +95,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
         Tournament clone = new Tournament();
         clone.score = score;
         clone.rounds = rounds;
+        clone.lockedRounds = lockedRounds;
         clone.teams = teams;
         clone.groups = groups;
         clone.juries = juries;
@@ -249,11 +252,17 @@ public class Tournament implements Solution<HardAndSoftScore> {
         return locked.remove(seat);
     }
 
+    public boolean isLocked(Round round) {
+        return lockedRounds.contains(round);
+    }
+
     public boolean lock(Round round) {
+        lockedRounds.add(round);
         return locked.addAll(getSeats(round));
     }
 
     public boolean unlock(Round round) {
+        lockedRounds.remove(round);
         return locked.removeAll(getSeats(round));
     }
 

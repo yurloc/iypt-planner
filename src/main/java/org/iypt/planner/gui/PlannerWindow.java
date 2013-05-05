@@ -464,6 +464,12 @@ public class PlannerWindow extends Window implements Bindable {
             public void jurorUnlocked(JurorRow jurorRow) {
                 solver.unlockJuror(jurorRow);
             }
+
+            @Override
+            public void requestRoundLock() {
+                solver.requestRoundLockChange(selectedRound);
+                solutionChanged();
+            }
         });
         tournamentScheduleBoxPane.removeAll();
         tournamentScheduleBoxPane.add(tournamentSchedule);

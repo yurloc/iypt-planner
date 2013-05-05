@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import org.apache.pivot.util.ListenerList;
 import org.drools.ClassObjectFilter;
 import org.drools.KnowledgeBase;
 import org.drools.WorkingMemory;
@@ -40,6 +41,7 @@ import org.iypt.planner.domain.Tournament;
 import org.iypt.planner.gui.GroupRoster;
 import org.iypt.planner.gui.GroupRoster.JurorRow;
 import org.iypt.planner.gui.JurorDay;
+import org.iypt.planner.gui.LockListener;
 import org.iypt.planner.solver.util.ConstraintComparator;
 
 import static org.iypt.planner.Constants.CONSTRAINT_TYPE_HARD;
@@ -66,6 +68,21 @@ public class TournamentSolver {
     private Map<Juror, List<CountryCode>> conflictMap = new HashMap<>();
     private Map<Juror, JurorLoad> loadMap = new HashMap<>();
     private Map<Juror, List<JurorDay>> jurorDayMap = new HashMap<>();
+
+    private static final class LockListenerList extends ListenerList<LockListener> implements LockListener {
+
+        @Override
+        public void roundLockChanged(TournamentSolver solver) {
+            for (LockListener lockListener : this) {
+                lockListener.roundLockChanged(solver);
+            }
+        }
+    }
+    private LockListenerList lockListenerList = new LockListenerList();
+
+    public ListenerList<LockListener> getLockListeners() {
+        return lockListenerList;
+    }
 
     public TournamentSolver(String solverConfigResource) {
         weightConfig = new DefaultWeightConfig();
@@ -275,7 +292,7 @@ public class TournamentSolver {
                     // empty the seat
                     for (Seat seat : tournament.getSeats()) {
                         if (seat.getJuror() == juror && seat.getJury().getGroup().getRound().getDay() == day.getRound().getDay()) {
-                            seat.setJuror(Juror.NULL);
+                            seat.setJuror(null);
                         }
                     }
                 } else if (day.getStatus() == JurorDay.Status.AWAY) {
@@ -310,8 +327,23 @@ public class TournamentSolver {
         tournament.unlock(row.getSeat());
     }
 
-    public void lockRound(Round round) {
-        tournament.lock(round);
+    public void requestRoundLockChange(Round round) {
+        if (!tournament.isLocked(round)) {
+            // lock rounds up to this
+            for (Round r : tournament.getRounds()) {
+                if (r.getNumber() <= round.getNumber()) {
+                    tournament.lock(r);
+                }
+            }
+            tournament.setOriginal((Tournament) tournament.cloneSolution());
+        } else {
+            // unlock all rounds
+            for (Round r : tournament.getRounds()) {
+                tournament.unlock(r);
+            }
+            tournament.setOriginal(null);
+        }
+        lockListenerList.roundLockChanged(this);
     }
 
     public void unlockRound(Round round) {

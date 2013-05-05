@@ -49,6 +49,13 @@ public class TournamentSchedule extends Container {
                 listener.jurorUnlocked(jurorRow);
             }
         }
+
+        @Override
+        public void requestRoundLock() {
+            for (TournamentScheduleListener listener : this) {
+                listener.requestRoundLock();
+            }
+        }
     }
     private TournamentScheduleListenerList tournamentScheduleListeners = new TournamentScheduleListenerList();
     private TournamentSolver solver;
@@ -70,6 +77,10 @@ public class TournamentSchedule extends Container {
         if (roundNumber >= 0) {
             tournamentScheduleListeners.roundSelected(solver.getRound(roundNumber));
         }
+    }
+
+    void requestRoundLock() {
+        tournamentScheduleListeners.requestRoundLock();
     }
 
     void jurorSelected(Juror juror) {

@@ -20,6 +20,8 @@ public interface TournamentScheduleListener {
 
     public void jurorUnlocked(JurorRow jurorRow);
 
+    public void requestRoundLock();
+
     public class Adapter implements TournamentScheduleListener {
 
         @Override
@@ -44,6 +46,11 @@ public interface TournamentScheduleListener {
 
         @Override
         public void jurorUnlocked(JurorRow jurorRow) {
+            // do nothing
+        }
+
+        @Override
+        public void requestRoundLock() {
             // do nothing
         }
     }
