@@ -138,18 +138,20 @@ public class ScoringRulesTest {
         checkSolution(t, false, ScoringRule.multipleSeatsInRound, 1);
 
         t.addRounds(RoundFactory.createRound(2, tA, tB, tC, tD, tE, tF));
-        assignJurors(t, jH1, jG1, jI1, jG1);
-        checkSolution(t, false, ScoringRule.multipleSeatsInRound, 1);
+        assignJurors(t, jG1, jG1, jH1, jI1, jH1, jG1, jI1, jG1);
+        checkSolution(t, false, ScoringRule.multipleSeatsInRound, 2);
     }
 
     @Test
     public void testEmptySeat() {
         Tournament t = new Tournament();
-        t.setJuryCapacity(2);
+        t.setJuryCapacity(3);
         t.addRounds(RoundFactory.createRound(1, tA, tB, tC));
         t.addJurors(jD1);
 
-        assignJurors(t, jD1, Juror.NULL);
+        // detecting 'null' jurors was intentionally dropped from scoring rules since uninitialized entities are not inserted
+        // into working memory
+        assignJurors(t, null, Juror.NULL, jD1);
         checkSolution(t, false, ScoringRule.emptySeat, 1);
     }
 

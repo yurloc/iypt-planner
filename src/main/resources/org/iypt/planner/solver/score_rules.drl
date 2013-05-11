@@ -51,6 +51,8 @@ then
     ));
 end
 
+// No need to detect 'null' jurors. Planner does not insert uninitialized
+// entities into working memory.
 rule "emptySeat"
 @ConstraintType(hard)
 when
