@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 import static org.hamcrest.Matchers.*;
 import static org.iypt.planner.Constants.*;
 import static org.iypt.planner.domain.util.SampleFacts.*;
+import static org.iypt.planner.solver.ScoringRulesTest.RuleType.*;
 import static org.junit.Assert.*;
 
 /**
@@ -45,7 +46,7 @@ import static org.junit.Assert.*;
  */
 public class ScoringRulesTest {
 
-    private static final Logger log = LoggerFactory.getLogger(ScoringRulesTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ScoringRulesTest.class);
     private static final String SCORE_DRL = "org/iypt/planner/solver/score_rules.drl";
     private static final String SCORE_HOLDER_NAME = "scoreHolder";
     private static KnowledgeBase kbase;
@@ -61,19 +62,16 @@ public class ScoringRulesTest {
         kbase = kbuilder.newKnowledgeBase();
 
         // do some checks
-        List<String> ruleNames = new ArrayList<>();
         for (KnowledgePackage pkg : kbase.getKnowledgePackages()) {
             // check the ScoreHolder global name
             assertEquals("Unexpected ScoreHolder global name", SCORE_HOLDER_NAME, pkg.getGlobalVariables().iterator().next().getName());
 
-            // collect all rule names from kbase
+            // enforce that each rule is enumerated in ScoreRules
+            // for example this will make sure that each rule either has correct constraint type metadata
+            // or is marked as auxiliary, no typos in rule names, etc.
             for (Rule rule : pkg.getRules()) {
-                ruleNames.add(rule.getName());
+                ScoringRule.valueOf(rule.getName());
             }
-        }
-        // verify we are using the correct rule names (to detect typos and fail fast if a rule is renamed in DRL and not here)
-        for (ScoringRule rule : ScoringRule.values()) {
-            assertThat(ruleNames, hasItem(rule.toString()));
         }
 
         // prepare testing weight configuration
@@ -96,6 +94,10 @@ public class ScoringRulesTest {
         };
     }
 
+    /**
+     * Make sure that each scoring rule has constraint type metadata with a correct value (hard or soft). Non-constraint rules
+     * must be marked as auxiliary in {@link ScoringRule} enumeration.
+     */
     @Test
     public void testMetadata() {
         for (KnowledgePackage pkg : kbase.getKnowledgePackages()) {
@@ -105,6 +107,9 @@ public class ScoringRulesTest {
                     assertThat(String.format("Wrong value of '%s' metadata of rule '%s'.", CONSTRAINT_TYPE_KEY, rule.getName()),
                             (String) metaData.get(CONSTRAINT_TYPE_KEY),
                             anyOf(is(CONSTRAINT_TYPE_HARD), is(CONSTRAINT_TYPE_SOFT)));
+                } else {
+                    assertThat(String.format("Rule %s is probably missing %s metadata:", rule.getName(), CONSTRAINT_TYPE_KEY),
+                            ScoringRule.valueOf(rule.getName()).type, is(AUX));
                 }
             }
         }
@@ -117,7 +122,7 @@ public class ScoringRulesTest {
         Tournament t = factory.newTournament();
         t.setWeightConfig(wconfig);
 
-        log.debug("Optimal load for IYPT2012: {}", t.getStatistics().getOptimalLoad());
+        LOG.debug("Optimal load for IYPT2012: {}", t.getStatistics().getOptimalLoad());
         checkSolution(t, true, true,
                 new RuleFiring(ScoringRule.accumulatedBias, 45),
                 new RuleFiring(ScoringRule.independentRatioDeltaExceeded, 2),
@@ -465,21 +470,14 @@ public class ScoringRulesTest {
 
     private ActivationListener createActivationListener(boolean strict, RuleFiring... firings) {
         ActivationListener activationListener = new ActivationListener();
-        if (strict) {
-            // if strict, only ignore non-constraint rules
-            activationListener.ignoreRule(ScoringRule.hardConstraintsBroken.toString());
-            activationListener.ignoreRule(ScoringRule.softConstraintsBroken.toString());
-            activationListener.ignoreRule(ScoringRule.calculateJurorLoads.toString());
-            activationListener.ignoreRule(ScoringRule.calculateIndependentRatio.toString());
-        } else {
-            // if not strict, listen for hard constraint rules only
-            for (ScoringRule rule : ScoringRule.values()) {
-                if (!rule.hard) {
-                    activationListener.ignoreRule(rule.toString());
-                }
+        // if strict, only ignore auxiliary (non-constraint) rules
+        // if non-strict, also ignore soft constraints (still listen for hard constraints)
+        for (ScoringRule rule : ScoringRule.values()) {
+            if (rule.type == AUX || !strict && rule.type == SOFT) {
+                activationListener.ignoreRule(rule.toString());
             }
         }
-        // however, don't ignore the tested rules
+        // however, never ignore the tested rules
         for (RuleFiring firing : firings) {
             activationListener.unignoreRule(firing.rule.toString());
         }
@@ -528,14 +526,24 @@ public class ScoringRulesTest {
             Integer count = firedRules.get(ruleName);
             firedRules.put(ruleName, count == null ? 1 : ++count);
             totalFired++;
-            log.debug("{}", activation);
+            LOG.debug("{}", activation);
+        }
+    }
+
+    private class RuleFiring {
+
+        private ScoringRule rule;
+        private int count;
+
+        public RuleFiring(ScoringRule rule, int count) {
+            this.rule = rule;
+            this.count = count;
         }
     }
 
     private static class ScoringResult {
 
         private ActivationListener activationListener;
-        private StatefulKnowledgeSession ksession;
         private HardAndSoftScore score;
 
         public int getTotalFireCount() {
@@ -559,10 +567,9 @@ public class ScoringRulesTest {
         }
 
         public void setKnowledgeSession(StatefulKnowledgeSession ksession) {
-            this.ksession = ksession;
             ScoreHolder holder = (ScoreHolder) ksession.getGlobal(SCORE_HOLDER_NAME);
             score = (HardAndSoftScore) holder.extractScore();
-            log.debug(score.toString());
+            LOG.debug(score.toString());
         }
     }
 
@@ -582,52 +589,67 @@ public class ScoringRulesTest {
         }
     }
 
-    private enum ScoringRule {
+    /**
+     * There are three types of rules used to calculate score.
+     */
+    public enum RuleType {
 
-        // score calculation
-        hardConstraintsBroken(false),
-        softConstraintsBroken(false),
-        // hard constraints
-        emptySeat(true),
-        multipleSeatsInRound(true),
-        invalidChair(true),
-        teamAndJurorSameCountry(true),
-        teamAndChairMeetOften(true),
-        dayOff(true),
-        brokenLock(true),
-        // soft constraints
-        teamAndChairMeetTwice(false, 200),
-        teamAndJurorAlreadyMet(false, 1),
-        calculateJurorLoads(false),
-        loadDeltaExceeded(false, 100),
-        jurorAndJurorConflict(false, 10),
-        calculateIndependentRatio(false),
-        independentRatioDeltaExceeded(false, 1),
-        accumulatedBias(false, 10),
-        jurorMeetsBigGroupOften(false, 10),
-        penalizeChairChange(false, 133),
-        penalizeJurorWithdraw(false, 111);
-        private boolean hard;
-        private int weight = 1;
-
-        private ScoringRule(boolean hard) {
-            this.hard = hard;
-        }
-
-        private ScoringRule(boolean hard, int weight) {
-            this.hard = hard;
-            this.weight = weight;
-        }
+        /**
+         * This is a rule that inserts hard constraint occurrences.
+         */
+        HARD,
+        /**
+         * This is a rule that inserts soft constraint occurrences.
+         */
+        SOFT,
+        /**
+         * This is a rule that doesn't insert any constraint occurrences. This type covers rules that either insert logically
+         * inferred facts or collects constraint occurrences to calculate the score.
+         */
+        AUX
     }
 
-    private class RuleFiring {
+    /**
+     * Enumeration of all rules used to calculate solution score. This helps to reference DRL rules from a Java test and makes
+     * sure that all rules are covered.
+     */
+    public enum ScoringRule {
 
-        private ScoringRule rule;
-        private int count;
+        // score calculation
+        hardConstraintsBroken(AUX),
+        softConstraintsBroken(AUX),
+        // fact calculations
+        calculateJurorLoads(AUX),
+        calculateIndependentRatio(AUX),
+        // hard constraints
+        emptySeat(HARD),
+        multipleSeatsInRound(HARD),
+        invalidChair(HARD),
+        teamAndJurorSameCountry(HARD),
+        teamAndChairMeetOften(HARD),
+        dayOff(HARD),
+        brokenLock(HARD),
+        // soft constraints
+        teamAndChairMeetTwice(SOFT, 200),
+        teamAndJurorAlreadyMet(SOFT, 1),
+        loadDeltaExceeded(SOFT, 100),
+        jurorAndJurorConflict(SOFT, 10),
+        independentRatioDeltaExceeded(SOFT, 1),
+        accumulatedBias(SOFT, 10),
+        jurorMeetsBigGroupOften(SOFT, 10),
+        penalizeChairChange(SOFT, 5),
+        penalizeJurorWithdraw(SOFT, 5);
+        private final RuleType type;
+        private final int weight;
 
-        public RuleFiring(ScoringRule rule, int count) {
-            this.rule = rule;
-            this.count = count;
+        private ScoringRule(RuleType type) {
+            this.type = type;
+            this.weight = 1;
+        }
+
+        private ScoringRule(RuleType type, int weight) {
+            this.type = type;
+            this.weight = weight;
         }
     }
 }
