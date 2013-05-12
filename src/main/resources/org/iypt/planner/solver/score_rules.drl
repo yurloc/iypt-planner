@@ -278,11 +278,27 @@ end
 // Change penalties
 // ############################################################################
 
+// TODO decide if this rule should detect swaps inside juries (I think "no", such moves should be filtered out)
+rule "penalizeJurorChange"
+@ConstraintType(soft)
+when
+    $wc : WeightConfig()
+    $t  : Tournament() // original schedule
+    $s2 : Seat( !chair, $jury := jury, $p := position )
+    $s1 : Seat( !chair, $jury := jury, $p := position, juror != $s2.juror ) from $t.getSeats()
+then
+    insertLogical( new IntConstraintOccurrence(
+        drools.getRule().getName(),
+        ConstraintType.NEGATIVE_SOFT, $wc.getWeight(drools.getRule().getName()),
+        $s1, $s2
+    ));
+end
+
 rule "penalizeChairChange"
 @ConstraintType(soft)
 when
     $wc : WeightConfig()
-    $t  : Tournament() // original
+    $t  : Tournament() // original schedule
     $s2 : Seat( position == 0, $jury := jury )
     $s1 : Seat( position == 0, $jury := jury, juror != $s2.juror ) from $t.getSeats()
 then
@@ -297,9 +313,10 @@ rule "penalizeJurorWithdraw"
 @ConstraintType(soft)
 when
     $wc : WeightConfig()
-    $t  : Tournament() // original
+    $t  : Tournament() // original schedule
     $r  : Round()
-    $s  : Seat( $juror := juror, jury.group.round == $r ) from $t.seats
+    // note: do not penalize filling an empty seat!
+    $s  : Seat( $juror := juror && $juror != null, jury.group.round == $r ) from $t.seats
     not( exists Seat( $juror := juror, jury.group.round == $r ) )
 then
     insertLogical( new IntConstraintOccurrence(

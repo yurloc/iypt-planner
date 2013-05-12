@@ -46,6 +46,9 @@ import static org.junit.Assert.*;
  */
 public class ScoringRulesTest {
 
+    // TODO maybe add test for accumulatedBias rule
+    // TODO test that each soft constraint rule reads CO weight from WeightConfig fact!
+
     private static final Logger LOG = LoggerFactory.getLogger(ScoringRulesTest.class);
     private static final String SCORE_DRL = "org/iypt/planner/solver/score_rules.drl";
     private static final String SCORE_HOLDER_NAME = "scoreHolder";
@@ -378,6 +381,42 @@ public class ScoringRulesTest {
     }
 
     @Test
+    public void testPenalizeJurorChange() {
+        Tournament tOld = new Tournament();
+        tOld.setJuryCapacity(3);
+        Round r1 = RoundFactory.createRound(1, gABC, gDEF);
+        tOld.addRounds(r1);
+        tOld.addJurors(jL1, jM1, jM2, jM3, jN1, jN2, jN3);
+        assignJurors(tOld, jM1, jM2, jM3, jN1, jN2, jL1);
+        Tournament tNew = (Tournament) tOld.cloneSolution();
+        tNew.setOriginal(tOld);
+
+        // no change, no penalty
+        assignJurors(tNew, jM1, jM2, jM3, jN1, jN2, jL1);
+        checkSolution(tNew, true, ScoringRule.penalizeJurorChange, 0);
+
+        // shuffling inside jury is not a change
+        assignJurors(tNew, jM1, jM3, jM2, jL1, jN1, jN2);
+        checkSolution(tNew, true, ScoringRule.penalizeJurorChange, 2 + 2);
+
+        // chair changes are ignored (covered by other rule)
+        assignJurors(tNew, jN1, jM2, jM3, jM1, jN2, jL1);
+        checkSolution(tNew, true, ScoringRule.penalizeJurorChange, 0);
+
+        // swap = 2 changes
+        assignJurors(tNew, jM1, jM2, jL1, jN1, jN2, jM3);
+        checkSolution(tNew, true, ScoringRule.penalizeJurorChange, 2);
+
+        // single change
+        assignJurors(tNew, jM1, jM2, jM3, jN1, jN2, jN3);
+        checkSolution(tNew, true, ScoringRule.penalizeJurorChange, 1);
+
+        // single change B3: jL1->jM1 (chairs ignored)
+        assignJurors(tNew, jN1, jM2, jM3, jL1, jN2, jM1);
+        checkSolution(tNew, true, ScoringRule.penalizeJurorChange, 1);
+    }
+
+    @Test
     public void testPenalizeJurorWithdraw() {
         Tournament tOld = new Tournament();
         tOld.setJuryCapacity(2);
@@ -410,7 +449,6 @@ public class ScoringRulesTest {
         checkSolution(tNew, true, ScoringRule.penalizeJurorWithdraw, 2);
     }
 
-    // TODO maybe add test for accumulatedBias rule
     private void assignJurors(Tournament t, Juror... jurors) {
         Iterator<Seat> it = t.getSeats().iterator();
         for (int i = 0; i < jurors.length; i++) {
@@ -630,14 +668,18 @@ public class ScoringRulesTest {
         dayOff(HARD),
         brokenLock(HARD),
         // soft constraints
+        // * across rounds
         teamAndChairMeetTwice(SOFT, 200),
         teamAndJurorAlreadyMet(SOFT, 1),
         loadDeltaExceeded(SOFT, 100),
+        jurorMeetsBigGroupOften(SOFT, 10),
+        // * inside jury
         jurorAndJurorConflict(SOFT, 10),
         independentRatioDeltaExceeded(SOFT, 1),
         accumulatedBias(SOFT, 10),
-        jurorMeetsBigGroupOften(SOFT, 10),
+        // * change penalties
         penalizeChairChange(SOFT, 5),
+        penalizeJurorChange(SOFT, 5),
         penalizeJurorWithdraw(SOFT, 5);
         private final RuleType type;
         private final int weight;
