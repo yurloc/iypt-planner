@@ -7,70 +7,43 @@ import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.Font.FontFamily;
 import com.itextpdf.text.Phrase;
-import com.itextpdf.text.pdf.ColumnText;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import org.iypt.planner.domain.Group;
+import org.iypt.planner.domain.Seat;
 import org.iypt.planner.domain.Team;
 import org.iypt.planner.domain.Tournament;
 
 public class PdfCreator {
- 
-    public static final String RESULT = "testung.pdf";
 
- 
-   
+    public static final String RESULT = "testung.pdf";
+    private Tournament t;
+
     public void createPdf(Tournament t)
-        throws DocumentException, FileNotFoundException {
+            throws DocumentException, FileNotFoundException {
+        this.t = t;
         // step 1
         Document document = new Document();
         // step 2
-        PdfWriter writer
-            = PdfWriter.getInstance(document, new FileOutputStream(RESULT));
+        PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(RESULT));
         // step 3
         document.open();
         // step 4
-        ColumnText column = new ColumnText(writer.getDirectContent());
-        // COlumn definition
-        float[][] x = {
-                { document.left(), document.left() + 380 },
-                { document.right() - 380, document.right() }
-            };
-        
-        /////////////////////////////////////////////////////////////////////////////
-        
-        // Loop over the festival days
-        //for (Date day : days) {
-            // add content to the column
-        for(Group group : t.getGroups()) {
-            int count = 0;
+
+        for (Group group : t.getGroups()) {
             float height = 0;
-            int status = ColumnText.START_COLUMN;
-            // render the column as long as it has content
-            while (ColumnText.hasMoreText(status)) {
-            	// add the top-level header to each new page
-                if (count == 0) {
-                    height = addHeaderTable(
-                        document, group);
-                }
-                // set the dimensions of the current column
-                column.setSimpleColumn(
-                    x[count][0], document.bottom(),
-                    x[count][1], document.top() - height - 10);
-                // render as much content as possible
-                status = column.go();  
-            }
+            height = addHeaderTable(document, group);
             addGroupTable(document, group);
+            addJurorTable(document, group);
             document.newPage();
         }
-        
+
         // step 5
         document.close();
     }
-    
-    
+
     public float addHeaderTable(Document document, Group group) throws DocumentException {
         PdfPTable header = new PdfPTable(1);
         header.setWidthPercentage(100);
@@ -83,22 +56,41 @@ public class PdfCreator {
         Phrase pRound = new Phrase(String.format("%s", group.getRound()), fRound);
         header.addCell(pRound);
         document.add(header);
-        System.out.printf("header: %s, %s%n", group.getRound(), group);
         return header.getTotalHeight();
     }
-    
+
     public float addGroupTable(Document document, Group group) throws DocumentException {
         PdfPTable teams = new PdfPTable(1);
         teams.setWidthPercentage(100);
         teams.getDefaultCell().setBorderColor(BaseColor.WHITE);
-        Font fTeams = new Font(FontFamily.HELVETICA, 40, Font.NORMAL, BaseColor.BLACK);
-        System.out.printf("group: %s%n", group);
-        for(Team team : group.getTeams()) {
-            System.out.printf("team: %s%n", team);
-            Phrase pTeams = new Phrase(String.format("%s asasd", team.getCountry().getName(), fTeams));
+//        teams.getDefaultCell().setHorizontalAlignment(Element.ALIGN_CENTER);
+        Font fTeams = new Font(FontFamily.HELVETICA, 30, Font.NORMAL, BaseColor.BLACK);
+        int count = 1;
+        for (Team team : group.getTeams()) {
+            Phrase pTeams = new Phrase(String.format("Team %d: %s", count, team.getCountry().getName()), fTeams);
             teams.addCell(pTeams);
+            count++;
         }
         document.add(teams);
         return teams.getTotalHeight();
+    }
+
+    public float addJurorTable(Document document, Group group) throws DocumentException {
+        PdfPTable juror = new PdfPTable(1);
+        juror.setWidthPercentage(100);
+        juror.getDefaultCell().setBorderColor(BaseColor.WHITE);
+        juror.getDefaultCell().setHorizontalAlignment(Element.ALIGN_CENTER);
+        Font fJuror;
+        for (Seat s : t.getSeats(group.getJury())) {
+            if (s.isChair()) {
+                fJuror = new Font(FontFamily.HELVETICA, 20, Font.BOLD, BaseColor.RED);
+            } else {
+                fJuror = new Font(FontFamily.HELVETICA, 20, Font.NORMAL, BaseColor.BLACK);
+            }
+            Phrase pJuror = new Phrase(String.format("%s", s.getJuror().fullName()), fJuror);
+            juror.addCell(pJuror);
+        }
+        document.add(juror);
+        return juror.getTotalHeight();
     }
 }
