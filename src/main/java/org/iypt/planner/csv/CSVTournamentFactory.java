@@ -26,11 +26,10 @@ import org.supercsv.io.CsvListReader;
 import org.supercsv.prefs.CsvPreference;
 
 /**
- * This CSV processor ignores whitespace-only (empty) lines and trailing separators if the last value is whitespace-only
- * (warning is logged).
+ * This CSV processor ignores whitespace-only (empty) lines and trailing separators if the last value is whitespace-only.
  *
- * <p>NOTE: According to <a href="http://tools.ietf.org/html/rfc4180">RFC 4180</a> trailing commas are not allowed,
- * whitespace is part of the entry.</p>
+ * <p>NOTE: According to <a href="http://tools.ietf.org/html/rfc4180">RFC 4180</a> trailing commas are not allowed, whitespace
+ * is part of the entry.</p>
  *
  * @author jlocker
  */
@@ -49,7 +48,7 @@ public class CSVTournamentFactory {
         countryNameMap.put("Korea", CountryCode.KR);
         countryNameMap.put("Russia", CountryCode.RU);
     }
-    
+
     private CsvPreference preference = CsvPreference.EXCEL_NORTH_EUROPE_PREFERENCE;
     private Map<Integer, Round> rounds;
     private Map<CountryCode, Team> teams;
@@ -62,80 +61,81 @@ public class CSVTournamentFactory {
     private Tournament tournament;
     private State state = new State();
 
-    public void readDataFromClasspath(String commonPath, String teamFile, String juryFile) throws IOException {
-        readTeamData(CSVTournamentFactory.class, commonPath + teamFile);
-        readJuryData(CSVTournamentFactory.class, commonPath + juryFile);
+    private class Source {
+
+        private final String name;
+        private final CsvListReader reader;
+
+        public Source(Class<?> baseType, String resourcePath) {
+            name = getResourceName(resourcePath);
+            reader = getReader(baseType, resourcePath);
+        }
+
+        public Source(File file) throws FileNotFoundException {
+            name = file.getName();
+            reader = getReader(file);
+        }
+
+        public Source(String name, CsvListReader reader) {
+            this.name = name;
+            this.reader = reader;
+        }
     }
 
-    public void readDataFromClasspath(String commonPath, String teamFile, String juryFile, String scheduleFile) throws IOException {
-        readDataFromClasspath(commonPath, teamFile, juryFile);
-        readSchedule(CSVTournamentFactory.class, commonPath + scheduleFile);
-    }
+    private class State {
 
-    public void readDataFromClasspath(String commonPath, String teamFile, String juryFile, String biasFile, String scheduleFile) throws IOException {
-        readDataFromClasspath(commonPath, teamFile, juryFile);
-        readBiasData(CSVTournamentFactory.class, commonPath + biasFile);
-        readSchedule(CSVTournamentFactory.class, commonPath + scheduleFile);
-    }
+        private boolean teams = false;
+        private boolean jurors = false;
+        private boolean biases = false;
 
-    public void readTeamData(Class<?> baseType, String resourcePath) throws IOException {
-        readTeams(new Source(baseType, resourcePath));
-    }
+        private void teamsReady() {
+            teams = true;
+        }
 
-    public void readJuryData(Class<?> baseType, String resourcePath) throws IOException {
-        readJuries(new Source(baseType, resourcePath));
-    }
+        private void biasesReady() {
+            biases = true;
+        }
 
-    public void readBiasData(Class<?> baseType, String resourcePath) throws IOException {
-        readBiases(new InputStreamReader(baseType.getResourceAsStream(resourcePath)));
-    }
+        private void jurorsReady() {
+            jurors = true;
+        }
 
-    public void readBiasData(File dataFile) throws IOException {
-        readBiases(new FileReader(dataFile));
-    }
+        private boolean canReadSchedule() {
+            return teams && jurors;
+        }
 
-    public void readSchedule(Class<?> baseType, String resourcePath) throws IOException {
-        readSchedule(new Source(baseType, resourcePath));
-    }
+        private boolean canCreateTournament() {
+            return teams && jurors;
+        }
 
-    public void readTeamData(File dataFile) throws IOException {
-        readTeams(new Source(dataFile));
-    }
-
-    public void readJuryData(File dataFile) throws IOException {
-        readJuries(new Source(dataFile));
-    }
-
-    public void readSchedule(File dataFile) throws IOException {
-        readSchedule(new Source(dataFile));
-    }
-
-    private CsvListReader getReader(Class<?> baseType, String resource) {
-        return new CsvListReader(new InputStreamReader(baseType.getResourceAsStream(resource)), preference);
-    }
-
-    private CsvListReader getReader(File file) throws FileNotFoundException {
-        return new CsvListReader(new FileReader(file), preference);
+        private boolean hasBiasData() {
+            return biases;
+        }
     }
 
     private String getResourceName(String resource) {
         return resource.substring(resource.lastIndexOf('/') + 1);
     }
 
-    private void throwIOE(String message, String cause, String fileName, int lineNumber, int valuePosition) throws IOException {
-        throw new IOException(String.format("%s '%s' in %s [%d:%d]", message, cause, fileName, lineNumber, valuePosition));
-    }
-
-    private void throwIOE(String message, String fileName, int lineNumber, int valuePosition) throws IOException {
-        throw new IOException(String.format("%s in %s [%d:%d]", message, fileName, lineNumber, valuePosition));
-    }
-
     private String getGroupName(String value) {
         return value.replaceAll("Group ", "");
     }
 
+    /**
+     * Determines if the line should be ignored. We are ignoring:
+     *
+     * <ul>
+     * <li>comment lines starting with {@code '#'} character (ignoring leading spaces)</li>
+     * <li>empty lines (including non-empty whitespace-only lines)</li>
+     * </ul>
+     *
+     * @param line
+     * @return
+     */
     private boolean ignore(List<String> line) {
-        if (line.isEmpty()) return true;
+        if (line.isEmpty()) {
+            return true;
+        }
         if (line.get(0).trim().isEmpty()) {
             // ignore empty lines
             if (line.size() == 1) {
@@ -150,11 +150,33 @@ public class CSVTournamentFactory {
         return false;
     }
 
+    private void throwIOE(String message, String cause, String fileName, int lineNumber, int valuePosition) throws IOException {
+        throw new IOException(String.format("%s '%s' in %s [%d:%d]", message, cause, fileName, lineNumber, valuePosition));
+    }
+
+    private void throwIOE(String message, String fileName, int lineNumber, int valuePosition) throws IOException {
+        throw new IOException(String.format("%s in %s [%d:%d]", message, fileName, lineNumber, valuePosition));
+    }
+
+    private CsvListReader getReader(Class<?> baseType, String resource) {
+        return new CsvListReader(new InputStreamReader(baseType.getResourceAsStream(resource)), preference);
+    }
+
+    private CsvListReader getReader(File file) throws FileNotFoundException {
+        return new CsvListReader(new FileReader(file), preference);
+    }
+
+    private void readBiases(Reader reader) throws IOException {
+        BiasReader br = new BiasReader();
+        biases = br.read(reader);
+        state.biasesReady();
+    }
+
     private void readTeams(Source src) throws IOException {
         // initialize collections
         rounds = new HashMap<>(5);
         teams = new HashMap<>(30);
-        
+
         int ln = 1; // line number
         List<String> line;
         while ((line = src.reader.read()) != null) {
@@ -186,7 +208,7 @@ public class CSVTournamentFactory {
             // get the teams in group
             for (int i = 2; i < line.size(); i++) {
                 if (i == line.size() - 1 && line.get(i) == null) {
-                    log.warn("Ignoring trailing '{}' in {}[{}:{}]", new Object[]{(char) preference.getDelimiterChar(), src.name, ln, i});
+                    log.trace("Ignoring trailing '{}' in {}[{}:{}]", new Object[]{(char) preference.getDelimiterChar(), src.name, ln, i});
                     break;
                 }
                 CountryCode cc = countryNameMap.get(line.get(i));
@@ -220,11 +242,17 @@ public class CSVTournamentFactory {
 
             // check minmal number of values
             if (line.size() < 4) {
-                if (line.size() == 1) throwIOE("Incomplete entry: missing juror's last name", src.name, ln, 1);
-                if (line.size() == 2) throwIOE("Incomplete entry: missing juror's type tag", src.name, ln, 2);
-                if (line.size() == 3) throwIOE("Incomplete entry: missing juror's country", src.name, ln, 3);
+                if (line.size() == 1) {
+                    throwIOE("Incomplete entry: missing juror's last name", src.name, ln, 1);
+                }
+                if (line.size() == 2) {
+                    throwIOE("Incomplete entry: missing juror's type tag", src.name, ln, 2);
+                }
+                if (line.size() == 3) {
+                    throwIOE("Incomplete entry: missing juror's country", src.name, ln, 3);
+                }
             }
-            
+
             // get JurorType tag
             JurorType jt = null;
             try {
@@ -252,7 +280,7 @@ public class CSVTournamentFactory {
                         juror.setChairCandidate(true);
                         break;
                     } else if (line.get(i) == null) {
-                        log.warn("Ignoring trailing '{}' in {}[{}:{}]", new Object[]{(char) preference.getDelimiterChar(), src.name, ln, i});
+                        log.trace("Ignoring trailing '{}' in {}[{}:{}]", new Object[]{(char) preference.getDelimiterChar(), src.name, ln, i});
                         break;
                     }
                 }
@@ -271,17 +299,6 @@ public class CSVTournamentFactory {
             ln++;
         }
         state.jurorsReady();
-    }
-
-    private void readBiases(Reader reader) throws IOException {
-        BiasReader br = new BiasReader();
-        biases = br.read(reader);
-        state.biasesReady();
-    }
-
-    public void setBiases(Map<String, Double> biases) {
-        this.biases = biases;
-        state.biasesReady();
     }
 
     private void readSchedule(Source src) throws IOException {
@@ -304,7 +321,7 @@ public class CSVTournamentFactory {
                 int capacity = line.size() - 2;
                 if (line.get(line.size() - 1) == null) {
                     // don't break the capacity with trailing ';'
-                    log.warn("Ignoring trailing '{}' in {}[{}:{}]", new Object[]{(char) preference.getDelimiterChar(), src.name, ln, line.size() - 1});
+                    log.trace("Ignoring trailing '{}' in {}[{}:{}]", new Object[]{(char) preference.getDelimiterChar(), src.name, ln, line.size() - 1});
                     capacity--;
                 }
                 log.debug("Inferred jury capacity: {}.", capacity);
@@ -358,7 +375,84 @@ public class CSVTournamentFactory {
         }
     }
 
-    public Tournament newTournament() throws IOException {
+    //-------------------------------------------------------------------------------------------------------------------------
+    // Shortcuts to read multiple classpath resources
+    //-------------------------------------------------------------------------------------------------------------------------
+    public void readDataFromClasspath(String commonPath, String teamFile, String juryFile) throws IOException {
+        readTeamData(CSVTournamentFactory.class, commonPath + teamFile);
+        readJuryData(CSVTournamentFactory.class, commonPath + juryFile);
+    }
+
+    public void readDataFromClasspath(String commonPath, String teamFile, String juryFile, String scheduleFile) throws IOException {
+        readDataFromClasspath(commonPath, teamFile, juryFile);
+        readSchedule(CSVTournamentFactory.class, commonPath + scheduleFile);
+    }
+
+    public void readDataFromClasspath(String commonPath, String teamFile, String juryFile, String biasFile, String scheduleFile) throws IOException {
+        readDataFromClasspath(commonPath, teamFile, juryFile);
+        readBiasData(CSVTournamentFactory.class, commonPath + biasFile);
+        readSchedule(CSVTournamentFactory.class, commonPath + scheduleFile);
+    }
+
+    //-------------------------------------------------------------------------------------------------------------------------
+    // Reading teams data
+    //-------------------------------------------------------------------------------------------------------------------------
+    public void readTeamData(Class<?> baseType, String resourcePath) throws IOException {
+        readTeams(new Source(baseType, resourcePath));
+    }
+
+    public void readTeamData(File dataFile) throws IOException {
+        readTeams(new Source(dataFile));
+    }
+
+    //-------------------------------------------------------------------------------------------------------------------------
+    // Reading jurors data
+    //-------------------------------------------------------------------------------------------------------------------------
+    public void readJuryData(Class<?> baseType, String resourcePath) throws IOException {
+        readJuries(new Source(baseType, resourcePath));
+    }
+
+    public void readJuryData(File dataFile) throws IOException {
+        readJuries(new Source(dataFile));
+    }
+
+    //-------------------------------------------------------------------------------------------------------------------------
+    // Reading biases data
+    //-------------------------------------------------------------------------------------------------------------------------
+    public void readBiasData(Class<?> baseType, String resourcePath) throws IOException {
+        readBiases(new InputStreamReader(baseType.getResourceAsStream(resourcePath)));
+    }
+
+    public void readBiasData(File dataFile) throws IOException {
+        readBiases(new FileReader(dataFile));
+    }
+
+    //-------------------------------------------------------------------------------------------------------------------------
+    // Reading jury schedule
+    //-------------------------------------------------------------------------------------------------------------------------
+    public void readSchedule(Class<?> baseType, String resourcePath) throws IOException {
+        readSchedule(new Source(baseType, resourcePath));
+    }
+
+    public void readSchedule(File dataFile) throws IOException {
+        readSchedule(new Source(dataFile));
+    }
+
+    public void setBiases(Map<String, Double> biases) {
+        this.biases = biases;
+        state.biasesReady();
+    }
+
+    /**
+     * Creates a new Tournament instance defined by the data that were previously read from CSV files. It is necessary to
+     * {@link #readTeamData(java.io.File)} and {@link #readJuryData(java.io.File)} before calling this method. Optionally,
+     * an existing schedule can be loaded with {@link #readSchedule(java.io.File)} if you don't want to start from scratch.
+     *
+     * @return new Tournament instance
+     * @throws IllegalStateException if the factory is missing some data that is required to create a new Tournament.
+     * @see #readTeamData(java.io.File)
+     */
+    public Tournament newTournament() {
         if (!state.canCreateTournament()) {
             throw new IllegalStateException("Missing some data to create new tournament. Read teams and jurors first.");
         }
@@ -368,7 +462,7 @@ public class CSVTournamentFactory {
         tournament.setDayOffs(dayOffs);
         tournament.setConflicts(conflicts);
 
-        if (state.haveBiasData()) {
+        if (state.hasBiasData()) {
             for (Juror juror : jurors.values()) {
                 Double bias = biases.get(juror.fullName());
                 juror.setBias((bias == null || Double.isNaN(bias)) ? 0 : bias);
@@ -388,56 +482,5 @@ public class CSVTournamentFactory {
 
     public boolean canReadSchedule() {
         return state.canReadSchedule();
-    }
-
-    private class Source {
-
-        private final String name;
-        private final CsvListReader reader;
-
-        public Source(Class<?> baseType, String resourcePath) {
-            name = getResourceName(resourcePath);
-            reader = getReader(baseType, resourcePath);
-        }
-
-        public Source(File file) throws FileNotFoundException {
-            name = file.getName();
-            reader = getReader(file);
-        }
-
-        public Source(String name, CsvListReader reader) {
-            this.name = name;
-            this.reader = reader;
-        }
-    }
-
-    private class State {
-        private boolean teams = false;
-        private boolean jurors = false;
-        private boolean biases = false;
-
-        private void teamsReady() {
-            teams = true;
-        }
-
-        private void biasesReady() {
-            biases = true;
-        }
-
-        private void jurorsReady() {
-            jurors = true;
-        }
-
-        private boolean canReadSchedule() {
-            return teams && jurors;
-        }
-
-        private boolean canCreateTournament() {
-            return teams && jurors;
-        }
-
-        private boolean haveBiasData() {
-            return biases;
-        }
     }
 }
