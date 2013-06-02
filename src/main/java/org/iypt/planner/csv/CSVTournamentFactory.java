@@ -2,11 +2,14 @@ package org.iypt.planner.csv;
 
 import com.neovisionaries.i18n.CountryCode;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,6 +21,7 @@ import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.JurorType;
 import org.iypt.planner.domain.Jury;
 import org.iypt.planner.domain.Round;
+import org.iypt.planner.domain.Seat;
 import org.iypt.planner.domain.Team;
 import org.iypt.planner.domain.Tournament;
 import org.slf4j.Logger;
@@ -48,7 +52,6 @@ public class CSVTournamentFactory {
         countryNameMap.put("Korea", CountryCode.KR);
         countryNameMap.put("Russia", CountryCode.RU);
     }
-
     private CsvPreference preference = CsvPreference.EXCEL_NORTH_EUROPE_PREFERENCE;
     private Map<Integer, Round> rounds;
     private Map<CountryCode, Team> teams;
@@ -66,9 +69,9 @@ public class CSVTournamentFactory {
         private final String name;
         private final CsvListReader reader;
 
-        public Source(Class<?> baseType, String resourcePath) {
+        public Source(Class<?> baseType, String resourcePath, Charset charset) {
             name = getResourceName(resourcePath);
-            reader = getReader(baseType, resourcePath);
+            reader = getReader(baseType, resourcePath, charset);
         }
 
         public Source(File file) throws FileNotFoundException {
@@ -76,9 +79,9 @@ public class CSVTournamentFactory {
             reader = getReader(file);
         }
 
-        public Source(String name, CsvListReader reader) {
-            this.name = name;
-            this.reader = reader;
+        public Source(File file, Charset charset) throws FileNotFoundException {
+            name = file.getName();
+            reader = getReader(file, charset);
         }
     }
 
@@ -158,12 +161,16 @@ public class CSVTournamentFactory {
         throw new IOException(String.format("%s in %s [%d:%d]", message, fileName, lineNumber, valuePosition));
     }
 
-    private CsvListReader getReader(Class<?> baseType, String resource) {
-        return new CsvListReader(new InputStreamReader(baseType.getResourceAsStream(resource)), preference);
+    private CsvListReader getReader(Class<?> baseType, String resource, Charset charset) {
+        return new CsvListReader(new InputStreamReader(baseType.getResourceAsStream(resource), charset), preference);
     }
 
     private CsvListReader getReader(File file) throws FileNotFoundException {
         return new CsvListReader(new FileReader(file), preference);
+    }
+
+    private CsvListReader getReader(File file, Charset charset) throws FileNotFoundException {
+        return new CsvListReader(new InputStreamReader(new FileInputStream(file), charset), preference);
     }
 
     private void readBiases(Reader reader) throws IOException {
@@ -398,44 +405,80 @@ public class CSVTournamentFactory {
     // Reading teams data
     //-------------------------------------------------------------------------------------------------------------------------
     public void readTeamData(Class<?> baseType, String resourcePath) throws IOException {
-        readTeams(new Source(baseType, resourcePath));
+        readTeamData(baseType, resourcePath, StandardCharsets.UTF_8);
+    }
+
+    // for testing only
+    protected void readTeamData(Class<?> baseType, String resourcePath, Charset charset) throws IOException {
+        readTeams(new Source(baseType, resourcePath, charset));
     }
 
     public void readTeamData(File dataFile) throws IOException {
         readTeams(new Source(dataFile));
     }
 
+    public void readTeamData(File dataFile, Charset charset) throws IOException {
+        readTeams(new Source(dataFile, charset));
+    }
+
     //-------------------------------------------------------------------------------------------------------------------------
     // Reading jurors data
     //-------------------------------------------------------------------------------------------------------------------------
     public void readJuryData(Class<?> baseType, String resourcePath) throws IOException {
-        readJuries(new Source(baseType, resourcePath));
+        readJuryData(baseType, resourcePath, StandardCharsets.UTF_8);
+    }
+
+    // for testing only
+    protected void readJuryData(Class<?> baseType, String resourcePath, Charset charset) throws IOException {
+        readJuries(new Source(baseType, resourcePath, charset));
     }
 
     public void readJuryData(File dataFile) throws IOException {
         readJuries(new Source(dataFile));
     }
 
+    public void readJuryData(File dataFile, Charset charset) throws IOException {
+        readJuries(new Source(dataFile, charset));
+    }
+
     //-------------------------------------------------------------------------------------------------------------------------
     // Reading biases data
     //-------------------------------------------------------------------------------------------------------------------------
     public void readBiasData(Class<?> baseType, String resourcePath) throws IOException {
-        readBiases(new InputStreamReader(baseType.getResourceAsStream(resourcePath)));
+        readBiasData(baseType, resourcePath, StandardCharsets.UTF_8);
+    }
+
+    // for testing only
+    protected void readBiasData(Class<?> baseType, String resourcePath, Charset charset) throws IOException {
+        readBiases(new InputStreamReader(baseType.getResourceAsStream(resourcePath), charset));
     }
 
     public void readBiasData(File dataFile) throws IOException {
         readBiases(new FileReader(dataFile));
     }
 
+    public void readBiasData(File dataFile, Charset charset) throws IOException {
+        readBiases(new InputStreamReader(new FileInputStream(dataFile), charset));
+    }
+
     //-------------------------------------------------------------------------------------------------------------------------
     // Reading jury schedule
     //-------------------------------------------------------------------------------------------------------------------------
     public void readSchedule(Class<?> baseType, String resourcePath) throws IOException {
-        readSchedule(new Source(baseType, resourcePath));
+        readSchedule(baseType, resourcePath, StandardCharsets.UTF_8);
+    }
+
+    // for testing only
+    protected void readSchedule(Class<?> baseType, String resourcePath, Charset charset) throws IOException {
+        readSchedule(new Source(baseType, resourcePath, charset));
     }
 
     public void readSchedule(File dataFile) throws IOException {
         readSchedule(new Source(dataFile));
+    }
+
+    public void readSchedule(File dataFile, Charset charset) throws IOException {
+        readSchedule(new Source(dataFile, charset));
     }
 
     public void setBiases(Map<String, Double> biases) {
@@ -472,9 +515,23 @@ public class CSVTournamentFactory {
         if (juryCapacity > 0) {
             tournament.setJuryCapacity(juryCapacity);
         }
-        for (Jury jury : tournament.getJuries()) {
-            for (int i = 0; i < juryCapacity; i++) {
-                tournament.getSeats(jury).get(i).setJuror(juries.get(jury).get(i));
+
+        if (juries != null) {
+            // compare the number of juries coming from team data to number of juries in jury schedule
+            int size = tournament.getJuries().size();
+            if (size != juries.size()) {
+                log.debug("Juries needed: {}, juries scheduled: {}", size, juries.size());
+            }
+
+            for (Jury jury : tournament.getJuries()) {
+                List<Juror> scheduledJury = juries.get(jury);
+                // don't fail if only partial jury schedule is provided
+                if (scheduledJury != null) {
+                    for (int i = 0; i < juryCapacity; i++) {
+                        Seat seat = tournament.getSeats(jury).get(i);
+                        seat.setJuror(scheduledJury.get(i));
+                    }
+                }
             }
         }
         return tournament;
