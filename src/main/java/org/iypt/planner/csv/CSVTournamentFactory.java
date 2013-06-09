@@ -127,10 +127,8 @@ public class CSVTournamentFactory {
     /**
      * Determines if the line should be ignored. We are ignoring:
      *
-     * <ul>
-     * <li>comment lines starting with {@code '#'} character (ignoring leading spaces)</li>
-     * <li>empty lines (including non-empty whitespace-only lines)</li>
-     * </ul>
+     * <ul> <li>comment lines starting with {@code '#'} character (ignoring leading spaces)</li> <li>empty lines (including
+     * non-empty whitespace-only lines)</li> </ul>
      *
      * @param line
      * @return
@@ -215,7 +213,8 @@ public class CSVTournamentFactory {
             // get the teams in group
             for (int i = 2; i < line.size(); i++) {
                 if (i == line.size() - 1 && line.get(i) == null) {
-                    log.trace("Ignoring trailing '{}' in {}[{}:{}]", new Object[]{(char) preference.getDelimiterChar(), src.name, ln, i});
+                    log.trace("Ignoring trailing '{}' in {}[{}:{}]",
+                            new Object[]{(char) preference.getDelimiterChar(), src.name, ln, i});
                     break;
                 }
                 CountryCode cc = countryNameMap.get(line.get(i));
@@ -243,64 +242,63 @@ public class CSVTournamentFactory {
         int ln = 1; // line number
         List<String> line;
         while ((line = src.reader.read()) != null) {
-            if (ignore(line)) {
-                continue;
-            }
-
-            // check minmal number of values
-            if (line.size() < 4) {
-                if (line.size() == 1) {
-                    throwIOE("Incomplete entry: missing juror's last name", src.name, ln, 1);
-                }
-                if (line.size() == 2) {
-                    throwIOE("Incomplete entry: missing juror's type tag", src.name, ln, 2);
-                }
-                if (line.size() == 3) {
-                    throwIOE("Incomplete entry: missing juror's country", src.name, ln, 3);
-                }
-            }
-
-            // get JurorType tag
-            JurorType jt = null;
-            try {
-                jt = JurorType.getByLetter(line.get(2).charAt(0));
-            } catch (IllegalArgumentException e) {
-                throwIOE("Invalid juror type tag", line.get(2), src.name, ln, 2);
-            }
-
-            // get first country
-            CountryCode cc = countryNameMap.get(line.get(3));
-            if (cc == null) {
-                throwIOE("Unknown country", line.get(3), src.name, ln, 3);
-            }
-
-            // create the juror
-            Juror juror = new Juror(line.get(0), line.get(1), cc, jt);
-            jurors.put(String.format("%s, %s", line.get(1), line.get(0)), juror);
-            conflicts.add(new Conflict(juror, cc));
-
-            // read country conflicts, day offs, and optional chair tag
-            boolean dayOffMode = false;
-            for (int i = 4; i < line.size(); i++) {
-                if (i == line.size() - 1) {
-                    if ("C".equals(line.get(i))) {
-                        juror.setChairCandidate(true);
-                        break;
-                    } else if (line.get(i) == null) {
-                        log.trace("Ignoring trailing '{}' in {}[{}:{}]", new Object[]{(char) preference.getDelimiterChar(), src.name, ln, i});
-                        break;
+            if (!ignore(line)) {
+                // check minmal number of values
+                if (line.size() < 4) {
+                    if (line.size() == 1) {
+                        throwIOE("Incomplete entry: missing juror's last name", src.name, ln, 1);
+                    }
+                    if (line.size() == 2) {
+                        throwIOE("Incomplete entry: missing juror's type tag", src.name, ln, 2);
+                    }
+                    if (line.size() == 3) {
+                        throwIOE("Incomplete entry: missing juror's country", src.name, ln, 3);
                     }
                 }
+
+                // get JurorType tag
+                JurorType jt = null;
                 try {
-                    dayOffs.add(new DayOff(juror, Integer.valueOf(line.get(i))));
-                    dayOffMode = true;
-                } catch (NumberFormatException ex) {
-                    if (dayOffMode) {
-                        // when the first day off is read, the rest of values should be all numbers (except for optional C)
-                        throwIOE("Invalid day off number", line.get(i), src.name, ln, i);
+                    jt = JurorType.getByLetter(line.get(2).charAt(0));
+                } catch (IllegalArgumentException e) {
+                    throwIOE("Invalid juror type tag", line.get(2), src.name, ln, 2);
+                }
+
+                // get first country
+                CountryCode cc = countryNameMap.get(line.get(3));
+                if (cc == null) {
+                    throwIOE("Unknown country", line.get(3), src.name, ln, 3);
+                }
+
+                // create the juror
+                Juror juror = new Juror(line.get(0), line.get(1), cc, jt);
+                jurors.put(String.format("%s, %s", line.get(1), line.get(0)), juror);
+                conflicts.add(new Conflict(juror, cc));
+
+                // read country conflicts, day offs, and optional chair tag
+                boolean dayOffMode = false;
+                for (int i = 4; i < line.size(); i++) {
+                    if (i == line.size() - 1) {
+                        if ("C".equals(line.get(i))) {
+                            juror.setChairCandidate(true);
+                            break;
+                        } else if (line.get(i) == null) {
+                            log.trace("Ignoring trailing '{}' in {}[{}:{}]",
+                                    new Object[]{(char) preference.getDelimiterChar(), src.name, ln, i});
+                            break;
+                        }
                     }
-                    log.debug("Juror with multiple conflicts: {} {}", countryNameMap.get(line.get(i)), juror);
-                    conflicts.add(new Conflict(juror, countryNameMap.get(line.get(i))));
+                    try {
+                        dayOffs.add(new DayOff(juror, Integer.valueOf(line.get(i))));
+                        dayOffMode = true;
+                    } catch (NumberFormatException ex) {
+                        if (dayOffMode) {
+                            // when the first day off is read, the rest of values should be all numbers (except for optional C)
+                            throwIOE("Invalid day off number", line.get(i), src.name, ln, i);
+                        }
+                        log.debug("Juror with multiple conflicts: {} {}", countryNameMap.get(line.get(i)), juror);
+                        conflicts.add(new Conflict(juror, countryNameMap.get(line.get(i))));
+                    }
                 }
             }
             ln++;
@@ -328,7 +326,8 @@ public class CSVTournamentFactory {
                 int capacity = line.size() - 2;
                 if (line.get(line.size() - 1) == null) {
                     // don't break the capacity with trailing ';'
-                    log.trace("Ignoring trailing '{}' in {}[{}:{}]", new Object[]{(char) preference.getDelimiterChar(), src.name, ln, line.size() - 1});
+                    log.trace("Ignoring trailing '{}' in {}[{}:{}]",
+                            new Object[]{(char) preference.getDelimiterChar(), src.name, ln, line.size() - 1});
                     capacity--;
                 }
                 log.debug("Inferred jury capacity: {}.", capacity);
@@ -488,8 +487,8 @@ public class CSVTournamentFactory {
 
     /**
      * Creates a new Tournament instance defined by the data that were previously read from CSV files. It is necessary to
-     * {@link #readTeamData(java.io.File)} and {@link #readJuryData(java.io.File)} before calling this method. Optionally,
-     * an existing schedule can be loaded with {@link #readSchedule(java.io.File)} if you don't want to start from scratch.
+     * {@link #readTeamData(java.io.File)} and {@link #readJuryData(java.io.File)} before calling this method. Optionally, an
+     * existing schedule can be loaded with {@link #readSchedule(java.io.File)} if you don't want to start from scratch.
      *
      * @return new Tournament instance
      * @throws IllegalStateException if the factory is missing some data that is required to create a new Tournament.
