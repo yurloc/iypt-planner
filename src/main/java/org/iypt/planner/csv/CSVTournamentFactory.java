@@ -278,26 +278,35 @@ public class CSVTournamentFactory {
                 // read country conflicts, day offs, and optional chair tag
                 boolean dayOffMode = false;
                 for (int i = 4; i < line.size(); i++) {
-                    if (i == line.size() - 1) {
-                        if ("C".equals(line.get(i))) {
-                            juror.setChairCandidate(true);
-                            break;
-                        } else if (line.get(i) == null) {
-                            log.trace("Ignoring trailing '{}' in {}[{}:{}]",
-                                    new Object[]{(char) preference.getDelimiterChar(), src.name, ln, i});
-                            break;
-                        }
+                    if (i == line.size() - 1 && line.get(i) == null) {
+                        log.trace("Ignoring trailing '{}' in {}[{}:{}]",
+                                new Object[]{(char) preference.getDelimiterChar(), src.name, ln, i});
+                        break;
                     }
-                    try {
-                        dayOffs.add(new DayOff(juror, Integer.valueOf(line.get(i))));
-                        dayOffMode = true;
-                    } catch (NumberFormatException ex) {
-                        if (dayOffMode) {
-                            // when the first day off is read, the rest of values should be all numbers (except for optional C)
-                            throwIOE("Invalid day off number", line.get(i), src.name, ln, i);
+
+                    // chair tag
+                    if ("C".equals(line.get(i))) {
+                        if (juror.isChairCandidate()) {
+                            throwIOE("Duplicate chair tag", src.name, ln, i);
                         }
-                        log.debug("Juror with multiple conflicts: {} {}", countryNameMap.get(line.get(i)), juror);
-                        conflicts.add(new Conflict(juror, countryNameMap.get(line.get(i))));
+                        juror.setChairCandidate(true);
+                    } else {
+
+                        try {
+                            dayOffs.add(new DayOff(juror, Integer.valueOf(line.get(i))));
+                            dayOffMode = true;
+                        } catch (NumberFormatException ex) {
+                            if (dayOffMode) {
+                                // when the first day off is read, the rest of values should be all numbers (except for optional C)
+                                throwIOE("Invalid day off number", line.get(i), src.name, ln, i);
+                            }
+                            CountryCode conflict = countryNameMap.get(line.get(i));
+                            if (conflict == null) {
+                                throwIOE("Unknown country", line.get(i), src.name, ln, 3);
+                            }
+                            log.debug("Juror with multiple conflicts: {} {}", conflict, juror);
+                            conflicts.add(new Conflict(juror, conflict));
+                        }
                     }
                 }
             }
