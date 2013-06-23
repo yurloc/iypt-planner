@@ -2,8 +2,7 @@
          xmlns:content="org.apache.pivot.wtk.content"
          xmlns:iypt="org.iypt.planner.gui"
          xmlns="org.apache.pivot.wtk"
-         orientation="vertical"
-         styles="{padding:{left:6, right:6}, fill:true}">
+         orientation="vertical">
 
   <TablePane>
     <columns>
