@@ -402,7 +402,6 @@ public class PlannerWindow extends Window implements Bindable {
                     }
                 }
                 solver.setTournament(t);
-                clearSwap();
                 solutionChanged();
             }
         });
@@ -641,7 +640,9 @@ public class PlannerWindow extends Window implements Bindable {
             awayLabel.setText(String.format("Away (%d)", solver.getAway(round).size()));
             idleTableView.setTableData(new ListAdapter<>(solver.getIdleRows(round)));
             awayTableView.setTableData(new ListAdapter<>(solver.getAwayRows(round)));
-            clearSwap();
+            if (solver.isSolving()) {
+                clearSwap();
+            }
         }
     }
 
