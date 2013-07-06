@@ -101,12 +101,12 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>1.7.2</version>
+      <version>1.7.5</version>
     </dependency>
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <version>1.0.9</version>
+      <version>1.0.13</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
@@ -120,7 +120,6 @@
       <artifactId>fest-assert-core</artifactId>
       <version>2.0M10</version>
       <scope>test</scope>
-      <type>jar</type>
     </dependency>
     <dependency>
       <groupId>org.hamcrest</groupId>
