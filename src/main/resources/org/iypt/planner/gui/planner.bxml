@@ -170,6 +170,17 @@
                   <iypt:ConstraintsConfig bxml:id="constraintConfig"/>
                 </BoxPane>
               </Border>
+              <!-- Solver config -->
+              <Border title="Solver configuration" styles="{padding:10}">
+                <BoxPane orientation="horizontal">
+                  <Label text="Environment:"/>
+                  <ListButton bxml:id="envListButton" buttonData="Environment">
+                    <content:ListItem text="PRODUCTION"/>
+                    <content:ListItem text="REPRODUCIBLE"/>
+                    <content:ListItem text="DEBUG"/>
+                  </ListButton>
+                </BoxPane>
+              </Border>
 
             </BoxPane>
           </ScrollPane>

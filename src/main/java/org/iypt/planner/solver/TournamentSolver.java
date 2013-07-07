@@ -19,6 +19,7 @@ import org.drools.builder.ResourceType;
 import org.drools.definition.KnowledgePackage;
 import org.drools.definition.rule.Rule;
 import org.drools.io.ResourceFactory;
+import org.drools.planner.config.EnvironmentMode;
 import org.drools.planner.config.SolverFactory;
 import org.drools.planner.config.XmlSolverFactory;
 import org.drools.planner.core.Solver;
@@ -54,12 +55,14 @@ import static org.iypt.planner.Constants.CONSTRAINT_TYPE_SOFT;
  */
 public class TournamentSolver {
 
-    private SolverFactory solverFactory;
     private Tournament tournament;
     private WeightConfig weightConfig;
     private List<ConstraintOccurrence> constraintRules;
     private List<ConstraintOccurrence> constraintOccurences;
+    private SolverFactory solverFactory;
+    private EnvironmentMode environmentMode;
     private Solver solver;
+    private SolverEventListener listener;
     private ScoreDirector scoreDirector;
     private boolean solving;
     // tournament details
@@ -84,7 +87,8 @@ public class TournamentSolver {
         return lockListenerList;
     }
 
-    public TournamentSolver(String solverConfigResource) {
+    public TournamentSolver(String solverConfigResource, SolverEventListener listener) {
+        this.listener = listener;
         weightConfig = new DefaultWeightConfig();
         // FIXME temporary solution for persistent weights configuration
         try {
@@ -126,8 +130,9 @@ public class TournamentSolver {
         }
         Collections.sort(constraintRules, new ConstraintComparator());
 
-        solver = solverFactory.buildSolver();
-        scoreDirector = solver.getScoreDirectorFactory().buildScoreDirector();
+        environmentMode = solverFactory.getSolverConfig().getEnvironmentMode();
+        // initial scoreDirector
+        scoreDirector = solverFactory.buildSolver().getScoreDirectorFactory().buildScoreDirector();
     }
 
     public void setTournament(Tournament tournament) {
@@ -157,12 +162,20 @@ public class TournamentSolver {
         return Collections.unmodifiableList(constraintOccurences);
     }
 
-    public void addEventListener(SolverEventListener solverListener) {
-        solver.addEventListener(solverListener);
+    public void setEnvironmentMode(String mode) {
+        environmentMode = EnvironmentMode.valueOf(mode);
+    }
+
+    public EnvironmentMode getEnvironmentMode() {
+        return environmentMode;
     }
 
     public void solve() {
         solving = true;
+        scoreDirector = solverFactory.buildSolver().getScoreDirectorFactory().buildScoreDirector();
+        solverFactory.getSolverConfig().setEnvironmentMode(environmentMode);
+        solver = solverFactory.buildSolver();
+        solver.addEventListener(listener);
         solver.setPlanningProblem(tournament);
         solver.solve();
         solving = false;

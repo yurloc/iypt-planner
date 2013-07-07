@@ -29,6 +29,7 @@ import org.apache.pivot.wtk.Border;
 import org.apache.pivot.wtk.BoxPane;
 import org.apache.pivot.wtk.Button;
 import org.apache.pivot.wtk.Button.State;
+import org.apache.pivot.wtk.ButtonListener;
 import org.apache.pivot.wtk.ButtonPressListener;
 import org.apache.pivot.wtk.Checkbox;
 import org.apache.pivot.wtk.Component;
@@ -36,6 +37,8 @@ import org.apache.pivot.wtk.ComponentStateListener;
 import org.apache.pivot.wtk.DesktopApplicationContext;
 import org.apache.pivot.wtk.FileBrowserSheet;
 import org.apache.pivot.wtk.Label;
+import org.apache.pivot.wtk.ListButton;
+import org.apache.pivot.wtk.ListButtonSelectionListener;
 import org.apache.pivot.wtk.ListView;
 import org.apache.pivot.wtk.MessageType;
 import org.apache.pivot.wtk.PushButton;
@@ -48,6 +51,7 @@ import org.apache.pivot.wtk.TableView;
 import org.apache.pivot.wtk.TableViewSelectionListener;
 import org.apache.pivot.wtk.TaskAdapter;
 import org.apache.pivot.wtk.Window;
+import org.apache.pivot.wtk.content.ListItem;
 import org.drools.planner.core.event.BestSolutionChangedEvent;
 import org.drools.planner.core.event.SolverEventListener;
 import org.drools.planner.core.score.constraint.ConstraintOccurrence;
@@ -76,6 +80,7 @@ public class PlannerWindow extends Window implements Bindable {
     // constraints config tab controls
     @BXML private Label drlLabel;
     @BXML private ConstraintsConfig constraintConfig;
+    @BXML private ListButton envListButton;
     // planning tab controls
     @BXML private Label scoreLabel;
     @BXML private BoxPane scoreChangeBox;
@@ -296,6 +301,12 @@ public class PlannerWindow extends Window implements Bindable {
             public void taskExecuted(Task<TournamentSolver> task) {
                 solver = task.getResult();
                 drlLabel.setText(solver.getScoreDrlList().get(0));
+                for (Object obj : envListButton.getListData()) {
+                    ListItem item = (ListItem) obj;
+                    if (solver.getEnvironmentMode().toString().equals(item.getText())) {
+                        envListButton.setSelectedItem(item);
+                    }
+                }
                 constraintConfig.setSolver(solver);
                 jurorDetails.setSolver(solver);
                 newTournamentAction.setEnabled(true);
@@ -316,6 +327,13 @@ public class PlannerWindow extends Window implements Bindable {
                 return newSolver();
             }
         }.execute(new TaskAdapter<>(newSolverTaskListener));
+
+        envListButton.getListButtonSelectionListeners().add(new ListButtonSelectionListener.Adapter() {
+            @Override
+            public void selectedItemChanged(ListButton listButton, Object previousSelectedItem) {
+                solver.setEnvironmentMode(((ListItem) listButton.getSelectedItem()).getText());
+            }
+        });
 
         TableViewSelectionListener.Adapter selectedJurorListener = new TableViewSelectionListener.Adapter() {
             @Override
@@ -578,9 +596,7 @@ public class PlannerWindow extends Window implements Bindable {
     }
 
     private TournamentSolver newSolver() {
-        TournamentSolver solver = new TournamentSolver("/org/iypt/planner/solver/config.xml");
-        solver.addEventListener(new SolverListener());
-        return solver;
+        return new TournamentSolver("/org/iypt/planner/solver/config.xml", new SolverListener());
     }
 
     //=========================================================================================================================
