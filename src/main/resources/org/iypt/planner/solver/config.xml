@@ -23,9 +23,6 @@
   </constructionHeuristic>
   <localSearch>
     <termination>
-      <terminationCompositionStyle>OR</terminationCompositionStyle>
-      <maximumSecondsSpend>60</maximumSecondsSpend>
-      <maximumUnimprovedStepCount>500</maximumUnimprovedStepCount>
       <scoreAttained>0hard/0soft</scoreAttained>
     </termination>
     <unionMoveSelector>
