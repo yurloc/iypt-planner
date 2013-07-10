@@ -10,6 +10,7 @@ public class JurorLoad {
     private Juror juror;
     private double load;
     private double delta;
+    private double cost;
     private boolean excessive;
 
     public JurorLoad(Juror juror, Number seats, int rounds, Number dayOffs, double optimal) {
@@ -32,7 +33,13 @@ public class JurorLoad {
             allowed = 1.0 / (rounds - dayOffs);
         }
         delta = load - optimal;
-        excessive = Math.abs(delta) > allowed;
+        if (seats == 0) {
+            cost = 1.0;
+            excessive = true;
+        } else {
+            cost = Math.abs(delta);
+            excessive = Math.abs(delta) > allowed;
+        }
     }
 
     public Juror getJuror() {
@@ -45,6 +52,10 @@ public class JurorLoad {
 
     public double getDelta() {
         return delta;
+    }
+
+    public double getCost() {
+        return cost;
     }
 
     public boolean isExcessive() {

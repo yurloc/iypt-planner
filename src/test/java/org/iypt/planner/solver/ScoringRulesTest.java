@@ -131,7 +131,7 @@ public class ScoringRulesTest {
                 new RuleFiring(ScoringRule.independentRatioDeltaExceeded, 2),
                 new RuleFiring(ScoringRule.jurorAndJurorConflict, 8),
                 new RuleFiring(ScoringRule.jurorMeetsBigGroupOften, 4),
-                new RuleFiring(ScoringRule.loadDeltaExceeded, 18),
+                new RuleFiring(ScoringRule.loadDeltaExceeded, 19),
                 new RuleFiring(ScoringRule.teamAndJurorAlreadyMet, 110));
     }
 

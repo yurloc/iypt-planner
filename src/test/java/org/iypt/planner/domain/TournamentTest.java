@@ -142,8 +142,8 @@ public class TournamentTest {
         testLoad(new JurorLoad(jA1, 0, 5, 1, .77), .00, -.77, true);
         testLoad(new JurorLoad(jA1, 0, 5, 2, .77), .00, -.77, true);
         testLoad(new JurorLoad(jA1, 0, 5, 3, .77), .00, -.77, true);
-        testLoad(new JurorLoad(jA1, 0, 5, 4, .77), .00, -.77, false);
-        testLoad(new JurorLoad(jA1, 0, 5, 5, .77), .00, -.77, false);
+        testLoad(new JurorLoad(jA1, 0, 5, 4, .77), .00, -.77, true);
+        testLoad(new JurorLoad(jA1, 0, 5, 5, .77), .00, -.77, true);
 
         testLoad(new JurorLoad(jA1, 1, 5, 0, .77), .20, -.57, true);
         testLoad(new JurorLoad(jA1, 1, 5, 1, .77), .25, -.52, true);
