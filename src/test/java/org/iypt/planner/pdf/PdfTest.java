@@ -27,7 +27,7 @@ public class PdfTest {
     public void test() throws DocumentException, IOException {
         PdfCreator c = new PdfCreator();
 
-        c.classPdf(tournament);
-        c.roundPdf(tournament);
+        c.printRooms(tournament);
+        c.printRounds(tournament);
     }
 }
