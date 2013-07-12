@@ -13,10 +13,12 @@ import com.itextpdf.text.pdf.ColumnText;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
+import com.neovisionaries.i18n.CountryCode;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang.StringUtils;
 import org.iypt.planner.domain.Group;
 import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Seat;
@@ -27,11 +29,8 @@ public class PdfCreator {
 
     public static final String RESULT = "rooms.pdf";
     public static final String RESULT2 = "rounds.pdf";
-    private Tournament t;
-//    public static File fontFile = new File("arialuni.ttf");
 
     public void printRooms(Tournament t) throws DocumentException, IOException {
-        this.t = t;
         // step 1
         Document document = new Document();
         // step 2
@@ -59,8 +58,6 @@ public class PdfCreator {
     }
 
     public void printRounds(Tournament t) throws DocumentException, IOException {
-
-        this.t = t;
         //step 1
         Document document = new Document(PageSize.A4.rotate());
         //step 2
@@ -85,7 +82,7 @@ public class PdfCreator {
         Font fGroup = new Font(FontFamily.HELVETICA, 80, Font.BOLD, BaseColor.BLACK);
         Font fRound = new Font(FontFamily.HELVETICA, 20, Font.NORMAL, BaseColor.BLACK);
         Phrase pGroup = new Phrase(String.format("GROUP %s", group.getName()), fGroup);
-        Phrase pRound = new Phrase(String.format("%s", group.getRound()), fRound);
+        Phrase pRound = new Phrase(group.getRound().toString(), fRound);
 
         PdfPTable header = new PdfPTable(1);
         header.setWidthPercentage(100);
@@ -98,41 +95,9 @@ public class PdfCreator {
         return header.getTotalHeight();
     }
 
-//    public float addTeamTable(Document document, Group group) throws DocumentException {
-//        PdfPTable teams = new PdfPTable(1);
-//        teams.setWidthPercentage(100);
-//        teams.getDefaultCell().setBorderColor(BaseColor.WHITE);
-//        Font fTeams = new Font(FontFamily.HELVETICA, 30, Font.NORMAL, BaseColor.BLACK);
-//        int count = 1;
-//        for (Team team : group.getTeams()) {
-//            Phrase pTeams = new Phrase(String.format("Team %d: %s", count, team.getCountry().getName()), fTeams);
-//            teams.addCell(pTeams);
-//            count++;
-//        }
-//        document.add(teams);
-//        return teams.getTotalHeight();
-//    }
-//    public float addJurorTable(Document document, Group group) throws DocumentException {
-//        PdfPTable juror = new PdfPTable(1);
-//        juror.setWidthPercentage(100);
-//        juror.getDefaultCell().setBorderColor(BaseColor.WHITE);
-//        juror.getDefaultCell().setHorizontalAlignment(Element.ALIGN_CENTER);
-//        Font fJuror;
-//        for (Seat s : t.getSeats(group.getJury())) {
-//            if (s.isChair()) {
-//                fJuror = new Font(FontFamily.HELVETICA, 20, Font.BOLD, BaseColor.RED);
-//            } else {
-//                fJuror = new Font(FontFamily.HELVETICA, 20, Font.NORMAL, BaseColor.BLACK);
-//            }
-//            Phrase pJuror = new Phrase(String.format("%s", s.getJuror().fullName()), fJuror);
-//            juror.addCell(pJuror);
-//        }
-//        document.add(juror);
-//        return juror.getTotalHeight();
-//    }
     private float addHeaderRoomTable(Document document, Round round) throws DocumentException {
         Font fGroup = new Font(FontFamily.HELVETICA, 60, Font.BOLD, BaseColor.BLACK);
-        Phrase pGroup = new Phrase(String.format("Round #%s", round.getNumber()), fGroup);
+        Phrase pGroup = new Phrase(round.toString(), fGroup);
 
         PdfPTable header = new PdfPTable(1);
         header.setWidthPercentage(100);
@@ -159,23 +124,16 @@ public class PdfCreator {
             Phrase pRounds = new Phrase(String.format("Group %s", group.getName()), fRounds);
             table.addCell(pRounds);
         }
+        table.getDefaultCell().setBackgroundColor(BaseColor.WHITE);
 
         // Teams in each group
-        table.getDefaultCell().setBackgroundColor(BaseColor.WHITE);
-        String teams = "";
         for (Group g : r.getGroups()) {
-            int count = 0;
+            List<CountryCode> cList = new ArrayList<>(4);
             for (Team tm : g.getTeams()) {
-                if (count == 0) {
-                    teams += tm.getCountry();
-                } else {
-                    teams += ", " + tm.getCountry();
-                }
-                count++;
+                cList.add(tm.getCountry());
             }
-            Phrase pTeams = new Phrase(String.format("%s", teams), fTeams);
+            Phrase pTeams = new Phrase(StringUtils.join(cList, ", "), fTeams);
             table.addCell(pTeams);
-            teams = "";
         }
 
         // Empty row
@@ -192,7 +150,7 @@ public class PdfCreator {
                 juryRow.add(t.getSeats(g.getJury()).get(i).getJuror().fullName());
             }
             for (String s : juryRow) {
-                Phrase pJury = new Phrase(String.format("%s", s), fJury);
+                Phrase pJury = new Phrase(s, fJury);
                 PdfPCell cell = new PdfPCell(pJury);
                 cell.setFixedHeight(30f);
                 cell.setHorizontalAlignment(Element.ALIGN_CENTER);
@@ -213,7 +171,7 @@ public class PdfCreator {
         for (Team team : g.getTeams()) {
             Phrase pNum = new Phrase(String.format("Team %d:", count), fTeams);
             table.addCell(pNum);
-            Phrase pTeams = new Phrase(String.format("%s", team.getCountry().getName()), fTeams);
+            Phrase pTeams = new Phrase(team.getCountry().getName(), fTeams);
             table.addCell(pTeams);
             count++;
         }
@@ -221,7 +179,6 @@ public class PdfCreator {
     }
 
     private PdfPTable getJuryRoomTable(Tournament t, Group g) throws DocumentException, IOException {
-
         BaseFont unicode = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.WINANSI, BaseFont.EMBEDDED);
 //        FontSelector fs = new FontSelector();
 //        fs.addFont(new Font(unicode));
@@ -241,7 +198,7 @@ public class PdfCreator {
         table.getDefaultCell().setBackgroundColor(BaseColor.WHITE);
 
         for (Seat s : t.getSeats(g.getJury())) {
-            Phrase pJuror = new Phrase(String.format("%s", s.getJuror().fullName()), s.isChair() ? fChair : fJuror);
+            Phrase pJuror = new Phrase(s.getJuror().fullName(), s.isChair() ? fChair : fJuror);
             table.addCell(pJuror);
         }
         return table;
