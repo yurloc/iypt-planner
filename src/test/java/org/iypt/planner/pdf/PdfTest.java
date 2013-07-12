@@ -1,9 +1,7 @@
 package org.iypt.planner.pdf;
 
 import com.itextpdf.text.DocumentException;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.sql.SQLException;
 import org.iypt.planner.csv.CSVTournamentFactory;
 import org.iypt.planner.domain.Tournament;
 import org.junit.BeforeClass;
@@ -26,7 +24,7 @@ public class PdfTest {
     }
 
     @Test
-    public void test() throws DocumentException, FileNotFoundException, SQLException, IOException {
+    public void test() throws DocumentException, IOException {
         PdfCreator c = new PdfCreator();
 
         c.classPdf(tournament);

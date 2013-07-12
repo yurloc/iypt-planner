@@ -13,10 +13,8 @@ import com.itextpdf.text.pdf.ColumnText;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import org.iypt.planner.domain.Group;
@@ -32,8 +30,7 @@ public class PdfCreator {
     private Tournament t;
 //    public static File fontFile = new File("arialuni.ttf");
 
-    public void classPdf(Tournament t)
-            throws DocumentException, FileNotFoundException, IOException {
+    public void classPdf(Tournament t) throws DocumentException, IOException {
         this.t = t;
         // step 1
         Document document = new Document();
@@ -62,8 +59,7 @@ public class PdfCreator {
         document.close();
     }
 
-    public void roundPdf(Tournament t)
-            throws DocumentException, FileNotFoundException, SQLException, IOException {
+    public void roundPdf(Tournament t) throws DocumentException, IOException {
 
         this.t = t;
         //step 1
@@ -145,8 +141,7 @@ public class PdfCreator {
         return header.getTotalHeight();
     }
 
-    public PdfPTable getRoundTable(Tournament t, Round r)
-            throws DocumentException, IOException {
+    public PdfPTable getRoundTable(Tournament t, Round r) {
 
         PdfPTable table = new PdfPTable(t.getRounds().get(1).getGroups().size());
         table.getDefaultCell().setHorizontalAlignment(Element.ALIGN_CENTER);
@@ -199,8 +194,7 @@ public class PdfCreator {
         return table;
     }
 
-    public PdfPTable getTeamRoomTable(Tournament t, Group g)
-            throws DocumentException, IOException {
+    public PdfPTable getTeamRoomTable(Tournament t, Group g) {
 
 
         PdfPTable table = new PdfPTable(new float[]{40, 100});
@@ -219,8 +213,7 @@ public class PdfCreator {
 
     }
 
-    public PdfPTable getJuryRoomTable(Tournament t, Group g)
-            throws DocumentException, IOException {
+    public PdfPTable getJuryRoomTable(Tournament t, Group g) throws DocumentException, IOException {
 
         BaseFont unicode = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.WINANSI, BaseFont.EMBEDDED);
 //        FontSelector fs = new FontSelector();
