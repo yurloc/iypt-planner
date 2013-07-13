@@ -25,9 +25,10 @@ public class PdfTest {
 
     @Test
     public void test() throws DocumentException, IOException {
-        PdfCreator c = new PdfCreator();
+        PdfCreator c = new PdfCreator(tournament);
+        c.setFilePrefix("iypt2012_");
 
-        c.printRooms(tournament);
-        c.printRounds(tournament);
+        c.printRooms();
+        c.printRounds();
     }
 }

@@ -14,6 +14,7 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.neovisionaries.i18n.CountryCode;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,14 +28,32 @@ import org.iypt.planner.domain.Tournament;
 
 public class PdfCreator {
 
-    public static final String RESULT = "rooms.pdf";
-    public static final String RESULT2 = "rounds.pdf";
+    private final Tournament t;
+    private String filePrefix = "";
+    private File outputDir = null;
 
-    public void printRooms(Tournament t) throws DocumentException, IOException {
+    public PdfCreator(Tournament tournament) {
+        this.t = tournament;
+    }
+
+    public void setOutputDir(File outputDir) {
+        this.outputDir = outputDir;
+    }
+
+    public void setFilePrefix(String prefix) {
+        this.filePrefix = prefix;
+    }
+
+    private File getOutputFile(String id) {
+        String fileName = String.format("%s%s.pdf", filePrefix, id);
+        return outputDir == null ? new File(fileName) : new File(outputDir, fileName);
+    }
+
+    public void printRooms() throws DocumentException, IOException {
         // step 1
         Document document = new Document();
         // step 2
-        PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(RESULT));
+        PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(getOutputFile("rooms")));
         // step 3
         document.open();
         // step 4
@@ -62,11 +81,11 @@ public class PdfCreator {
         document.close();
     }
 
-    public void printRounds(Tournament t) throws DocumentException, IOException {
+    public void printRounds() throws DocumentException, IOException {
         //step 1
         Document document = new Document(PageSize.A4.rotate());
         //step 2
-        PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(RESULT2));
+        PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(getOutputFile("rounds")));
         //step 3
         document.open();
         //step 4
