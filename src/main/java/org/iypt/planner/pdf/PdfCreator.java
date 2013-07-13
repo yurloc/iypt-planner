@@ -115,7 +115,7 @@ public class PdfCreator {
         Font fJury = new Font(FontFamily.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK);
 
         PdfPTable table = new PdfPTable(t.getRounds().get(1).getGroups().size());
-        table.setWidthPercentage(105);
+        table.setWidthPercentage(100);
         table.getDefaultCell().setHorizontalAlignment(Element.ALIGN_CENTER);
         table.getDefaultCell().setBackgroundColor(BaseColor.LIGHT_GRAY);
 
@@ -161,18 +161,39 @@ public class PdfCreator {
         return table;
     }
 
+    private PdfPCell getHeaderCell(String text) {
+        PdfPCell cell = new PdfPCell(new Phrase(text, new Font(FontFamily.HELVETICA, 30, Font.BOLD, BaseColor.BLACK)));
+        cell.setBackgroundColor(BaseColor.LIGHT_GRAY);
+        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+        cell.setPadding(10);
+        cell.setColspan(2);
+        cell.setBorderColor(BaseColor.WHITE);
+        return cell;
+    }
+
+    private PdfPCell getNumberCell(int count, Font font) {
+        PdfPCell cell = new PdfPCell(new Phrase(String.valueOf(count), font));
+        cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+        cell.setBorderColor(BaseColor.WHITE);
+        cell.setPaddingRight(20);
+        return cell;
+    }
+
     private PdfPTable getTeamRoomTable(Group g) {
         Font fTeams = new Font(FontFamily.HELVETICA, 30, Font.NORMAL, BaseColor.BLACK);
 
-        PdfPTable table = new PdfPTable(new float[]{40, 100});
+        PdfPTable table = new PdfPTable(new float[]{1, 4});
         table.setWidthPercentage(100);
         table.getDefaultCell().setBorderColor(BaseColor.WHITE);
+
+        // header cell
+        table.addCell(getHeaderCell("T E A M S"));
+
         int count = 1;
         for (Team team : g.getTeams()) {
-            Phrase pNum = new Phrase(String.format("Team %d:", count), fTeams);
-            table.addCell(pNum);
-            Phrase pTeams = new Phrase(team.getCountry().getName(), fTeams);
-            table.addCell(pTeams);
+            table.addCell(getNumberCell(count, fTeams));
+            table.addCell(new Phrase(team.getCountry().getName(), fTeams));
             count++;
         }
         return table;
@@ -182,23 +203,27 @@ public class PdfCreator {
         BaseFont unicode = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.WINANSI, BaseFont.EMBEDDED);
 //        FontSelector fs = new FontSelector();
 //        fs.addFont(new Font(unicode));
-        Font fHeader = new Font(FontFamily.HELVETICA, 40, Font.BOLD, BaseColor.BLACK);
-        Font fChair = new Font(unicode, 25, Font.BOLD, BaseColor.RED);
-        Font fJuror = new Font(unicode, 25, Font.NORMAL, BaseColor.BLACK);
+        Font fChair = new Font(unicode, 30, Font.BOLD, BaseColor.BLACK);
+        Font fJuror = new Font(unicode, 30, Font.NORMAL, BaseColor.BLACK);
 
-        PdfPTable table = new PdfPTable(1);
-        table.setWidthPercentage(60);
-        table.getDefaultCell().setHorizontalAlignment(Element.ALIGN_CENTER);
-//        table.getDefaultCell().setVerticalAlignment(Element.ALIGN_CENTER);
+        PdfPTable table = new PdfPTable(new float[]{1, 4});
+        table.setWidthPercentage(100);
         table.getDefaultCell().setBorderColor(BaseColor.WHITE);
-//        table.getDefaultCell().setBackgroundColor(BaseColor.LIGHT_GRAY);
-        Phrase pHeader = new Phrase("Jury", fHeader);
-        table.addCell(pHeader);
+
+        // header
+        table.addCell(getHeaderCell("J U R Y"));
+
         table.getDefaultCell().setVerticalAlignment(Element.ALIGN_BASELINE);
         table.getDefaultCell().setBackgroundColor(BaseColor.WHITE);
-
+        int count = 1;
         for (Seat s : t.getSeats(g.getJury())) {
-            Phrase pJuror = new Phrase(s.getJuror().fullName(), s.isChair() ? fChair : fJuror);
+            table.addCell(getNumberCell(count++, fJuror));
+            Phrase pJuror;
+            if (s.isChair()) {
+                pJuror = new Phrase(String.format("%s (chair)", s.getJuror().fullName()), fChair);
+            } else {
+                pJuror = new Phrase(s.getJuror().fullName(), fJuror);
+            }
             table.addCell(pJuror);
         }
         return table;
