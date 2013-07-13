@@ -38,21 +38,26 @@ public class PdfCreator {
         // step 3
         document.open();
         // step 4
-
         ColumnText column = new ColumnText(writer.getDirectContent());
-
         for (Group group : t.getGroups()) {
-            float height = 0;
-            height = addHeaderTable(document, group);
-            column.addElement(getTeamRoomTable(group));
-            column.setSimpleColumn(document.left(), document.bottom(), document.right(), document.top() - 180);
+            // group header
+            PdfPTable header = getRoomHeaderTable(group);
+            document.add(header);
+
+            // teams
+            PdfPTable teams = getRoomTeamTable(group);
+            column.addElement(teams);
+            column.setSimpleColumn(document.left(), document.bottom(), document.right(),
+                    document.top() - header.getTotalHeight() - 40);
             column.go();
-            column.addElement(getJuryRoomTable(t, group));
-            column.setSimpleColumn(document.left(), document.bottom(), document.right(), document.top() - 450);
+
+            // jury
+            column.addElement(getRoomJuryTable(t, group));
+            column.setSimpleColumn(document.left(), document.bottom(), document.right(),
+                    document.top() - header.getTotalHeight() - teams.getTotalHeight() - 80);
             column.go();
             document.newPage();
         }
-
         // step 5
         document.close();
     }
@@ -65,12 +70,13 @@ public class PdfCreator {
         //step 3
         document.open();
         //step 4
-
         ColumnText column = new ColumnText(writer.getDirectContent());
         for (Round round : t.getRounds()) {
-            float height = addHeaderRoomTable(document, round);
+            PdfPTable header = getRoundHeaderTable(round);
+            document.add(header);
             column.addElement(getRoundTable(t, round));
-            column.setSimpleColumn(document.left(), document.bottom(), document.right(), document.top() - height - 40);
+            column.setSimpleColumn(document.left(), document.bottom(), document.right(),
+                    document.top() - header.getTotalHeight() - 40);
             column.go();
             document.newPage();
         }
@@ -78,24 +84,7 @@ public class PdfCreator {
         document.close();
     }
 
-    private float addHeaderTable(Document document, Group group) throws DocumentException {
-        Font fGroup = new Font(FontFamily.HELVETICA, 80, Font.BOLD, BaseColor.BLACK);
-        Font fRound = new Font(FontFamily.HELVETICA, 20, Font.NORMAL, BaseColor.BLACK);
-        Phrase pGroup = new Phrase(String.format("GROUP %s", group.getName()), fGroup);
-        Phrase pRound = new Phrase(group.getRound().toString(), fRound);
-
-        PdfPTable header = new PdfPTable(1);
-        header.setWidthPercentage(100);
-        header.getDefaultCell().setBorderColor(BaseColor.WHITE);
-        header.getDefaultCell().setHorizontalAlignment(Element.ALIGN_CENTER);
-        header.addCell(pGroup);
-        header.addCell(pRound);
-
-        document.add(header);
-        return header.getTotalHeight();
-    }
-
-    private float addHeaderRoomTable(Document document, Round round) throws DocumentException {
+    private PdfPTable getRoundHeaderTable(Round round) {
         Font fGroup = new Font(FontFamily.HELVETICA, 60, Font.BOLD, BaseColor.BLACK);
         Phrase pGroup = new Phrase(round.toString(), fGroup);
 
@@ -105,8 +94,7 @@ public class PdfCreator {
         header.getDefaultCell().setHorizontalAlignment(Element.ALIGN_CENTER);
         header.addCell(pGroup);
 
-        document.add(header);
-        return header.getTotalHeight();
+        return header;
     }
 
     private PdfPTable getRoundTable(Tournament t, Round r) {
@@ -180,7 +168,23 @@ public class PdfCreator {
         return cell;
     }
 
-    private PdfPTable getTeamRoomTable(Group g) {
+    private PdfPTable getRoomHeaderTable(Group group) {
+        Font fGroup = new Font(FontFamily.HELVETICA, 80, Font.BOLD, BaseColor.BLACK);
+        Font fRound = new Font(FontFamily.HELVETICA, 20, Font.NORMAL, BaseColor.BLACK);
+        Phrase pGroup = new Phrase(String.format("GROUP %s", group.getName()), fGroup);
+        Phrase pRound = new Phrase(group.getRound().toString(), fRound);
+
+        PdfPTable header = new PdfPTable(1);
+        header.setWidthPercentage(100);
+        header.getDefaultCell().setBorderColor(BaseColor.WHITE);
+        header.getDefaultCell().setHorizontalAlignment(Element.ALIGN_CENTER);
+        header.addCell(pGroup);
+        header.addCell(pRound);
+
+        return header;
+    }
+
+    private PdfPTable getRoomTeamTable(Group g) {
         Font fTeams = new Font(FontFamily.HELVETICA, 30, Font.NORMAL, BaseColor.BLACK);
 
         PdfPTable table = new PdfPTable(new float[]{1, 4});
@@ -199,7 +203,7 @@ public class PdfCreator {
         return table;
     }
 
-    private PdfPTable getJuryRoomTable(Tournament t, Group g) throws DocumentException, IOException {
+    private PdfPTable getRoomJuryTable(Tournament t, Group g) throws DocumentException, IOException {
         BaseFont unicode = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.WINANSI, BaseFont.EMBEDDED);
 //        FontSelector fs = new FontSelector();
 //        fs.addFont(new Font(unicode));
