@@ -47,6 +47,11 @@
                   <content:MenuItemData text="Save schedule"/>
                 </buttonData>
               </Menu.Item>
+              <Menu.Item action="exportPdf">
+                <buttonData>
+                  <content:MenuItemData text="Export PDF"/>
+                </buttonData>
+              </Menu.Item>
               <Menu.Item action="clearSchedule">
                 <buttonData>
                   <content:MenuItemData text="Clear schedule"/>

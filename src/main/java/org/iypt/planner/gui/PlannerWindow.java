@@ -62,6 +62,7 @@ import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Seat;
 import org.iypt.planner.domain.Tournament;
 import org.iypt.planner.gui.GroupRoster.JurorRow;
+import org.iypt.planner.pdf.PdfCreator;
 import org.iypt.planner.solver.TournamentSolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -219,6 +220,41 @@ public class PlannerWindow extends Window implements Bindable {
             });
         }
     };
+    private Action exportPdfAction = new Action() {
+        @Override
+        public void perform(Component source) {
+            // create new FileBrowser to make sure a fresh file list is displayed
+            // TODO set root folder
+            final FileBrowserSheet fileBrowserSheet = new FileBrowserSheet(FileBrowserSheet.Mode.SAVE_TO);
+            fileBrowserSheet.setDisabledFileFilter(new Filter<File>() {
+                @Override
+                public boolean include(File item) {
+                    return !item.isDirectory();
+                }
+            });
+            fileBrowserSheet.open(PlannerWindow.this, new SheetCloseListener() {
+                @Override
+                public void sheetClosed(Sheet sheet) {
+                    if (sheet.getResult()) {
+                        File dir = fileBrowserSheet.getSelectedFile();
+                        try {
+                            Date d = new Date();
+                            String time = String.format("%ty%tm%te_%tH%tM%tS_", d, d, d, d, d, d);
+                            PdfCreator pdf = new PdfCreator(solver.getTournament());
+                            pdf.setOutputDir(dir);
+                            pdf.setFilePrefix(time);
+                            pdf.printRooms();
+                            pdf.printRounds();
+                            log.info("Written PDFs with timestamp '{}'.", time);
+                        } catch (Exception ex) {
+                            log.error("Error while exporting PDFs", ex);
+                            Alert.alert(MessageType.ERROR, ex.getMessage(), PlannerWindow.this);
+                        }
+                    }
+                }
+            });
+        }
+    };
     private Action newTournamentAction = new Action() {
         @Override
         public void perform(Component source) {
@@ -229,6 +265,7 @@ public class PlannerWindow extends Window implements Bindable {
             loadScheduleAction.setEnabled(false);
             clearScheduleAction.setEnabled(false);
             saveScheduleAction.setEnabled(false);
+            exportPdfAction.setEnabled(false);
             computeBiasesAction.setEnabled(true);
             loadExampleAction.setEnabled(true);
             tournamentScheduleBoxPane.removeAll();
@@ -277,6 +314,7 @@ public class PlannerWindow extends Window implements Bindable {
         Action.getNamedActions().put("loadBiases", loadBiasesAction);
         Action.getNamedActions().put("loadSchedule", loadScheduleAction);
         Action.getNamedActions().put("saveSchedule", saveScheduleAction);
+        Action.getNamedActions().put("exportPdf", exportPdfAction);
         Action.getNamedActions().put("clearSchedule", clearScheduleAction);
         Action.getNamedActions().put("newTournament", newTournamentAction);
         Action.getNamedActions().put("computeBiases", computeBiasesAction);
@@ -291,6 +329,7 @@ public class PlannerWindow extends Window implements Bindable {
         loadBiasesAction.setEnabled(false);
         loadScheduleAction.setEnabled(false);
         saveScheduleAction.setEnabled(false);
+        exportPdfAction.setEnabled(false);
         clearScheduleAction.setEnabled(false);
         computeBiasesAction.setEnabled(false);
         loadExampleAction.setEnabled(false);
@@ -457,6 +496,7 @@ public class PlannerWindow extends Window implements Bindable {
         loadScheduleAction.setEnabled(true);
         clearScheduleAction.setEnabled(true);
         saveScheduleAction.setEnabled(true);
+        exportPdfAction.setEnabled(true);
         juryCapacitySpinner.setEnabled(true);
         solver.setTournament(tournament);
         tournamentSchedule = new TournamentSchedule(solver);
