@@ -55,7 +55,7 @@ public class BiasReader {
         if (!rows.isEmpty()) {
             throw new UnsupportedOperationException("Repeated reading not supported.");
         }
-        try (ICsvBeanReader beanReader = new CsvBeanReader(reader, CsvPreference.STANDARD_PREFERENCE)) {
+        try (ICsvBeanReader beanReader = new CsvBeanReader(reader, CsvPreference.EXCEL_NORTH_EUROPE_PREFERENCE)) {
 
             // the header elements are used to map the values to the bean (names must match)
             final String[] header = beanReader.getHeader(true);

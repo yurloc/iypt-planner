@@ -51,7 +51,7 @@ public class BiasWriter {
     private final Collection<Juror> jurors;
 
     public void write(Writer writer) throws IOException {
-        try (ICsvBeanWriter beanWriter = new CsvBeanWriter(writer, CsvPreference.STANDARD_PREFERENCE)) {
+        try (ICsvBeanWriter beanWriter = new CsvBeanWriter(writer, CsvPreference.EXCEL_NORTH_EUROPE_PREFERENCE)) {
 
             // write the header
             beanWriter.writeHeader(header);

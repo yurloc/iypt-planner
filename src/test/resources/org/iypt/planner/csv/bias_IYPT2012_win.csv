@@ -1,5 +1,5 @@
-given_name,last_name,bias
-Martin,Plesch,-0.7
-František,Kundracik,-0.18
-Tomáš,Bzdušek,-0.01
-W³adys³aw,Borgie³,0.81
+given_name;last_name;bias
+Martin;Plesch;-0.7
+František;Kundracik;-0.18
+Tomáš;Bzdušek;-0.01
+W³adys³aw;Borgie³;0.81

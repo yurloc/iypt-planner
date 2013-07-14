@@ -2,6 +2,7 @@ package org.iypt.planner.csv.full_data;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import org.iypt.planner.csv.full_data.FightReader.FightRow;
 import org.iypt.planner.csv.full_data.JurorReader.JurorRow;
 import org.iypt.planner.csv.full_data.MarkReader.MarkRow;
@@ -23,7 +24,7 @@ public class ReadersTest {
     @BeforeClass
     public static void setUpClass() throws IOException {
         processor = new CsvTablesProcessor();
-        processor.process(new InputStreamReader(ReadersTest.class.getResourceAsStream("full_data.csv")));
+        processor.process(new InputStreamReader(ReadersTest.class.getResourceAsStream("full_data.csv"), StandardCharsets.UTF_8));
     }
 
     @Test
@@ -40,6 +41,10 @@ public class ReadersTest {
         PersonRow person = reader.getRows().get(9437);
         assertThat(person.getFull_name(), is("Prapun Manyum"));
         assertThat(person.isJuror(), is(true));
+
+        assertThat(reader.getRows().get(9416).getFull_name(), is("Tomáš Bzdušek"));
+        assertThat(reader.getRows().get(9425).getFull_name(), is("Władysław Borgieł"));
+        assertThat(reader.getRows().get(9427).getFull_name(), is("František Kundracik"));
     }
 
     @Test
