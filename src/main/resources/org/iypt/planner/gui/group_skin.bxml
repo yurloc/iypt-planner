@@ -1,27 +1,26 @@
-<BoxPane orientation="vertical"
-         xmlns:bxml="http://pivot.apache.org/bxml"
-         xmlns:content="org.apache.pivot.wtk.content"
-         xmlns:iypt="org.iypt.planner.gui"
-         xmlns="org.apache.pivot.wtk">
+<TablePane styles="{verticalSpacing:4, showHorizontalGridLines:false}"
+           xmlns:bxml="http://pivot.apache.org/bxml"
+           xmlns:content="org.apache.pivot.wtk.content"
+           xmlns:iypt="org.iypt.planner.gui"
+           xmlns="org.apache.pivot.wtk">
+  <columns>
+    <TablePane.Column width="1*"/>
+  </columns>
 
   <!-- Group header -->
-  <Border styles="{padding:10}">
-    <BoxPane orientation="horizontal">
+  <TablePane.Row height="-1">
+    <Border styles="{padding:10}">
       <BoxPane orientation="horizontal">
         <Label bxml:id="groupNameLabel" styles="{font:{bold:true}}"/>
+        <BoxPane bxml:id="teamsBoxPane" orientation="horizontal"/>
       </BoxPane>
-      <BoxPane bxml:id="teamsBoxPane" orientation="horizontal"/>
-    </BoxPane>
-  </Border>
+    </Border>
+  </TablePane.Row>
 
   <!-- Jury roster -->
-  <Border styles="{padding:10}">
-    <bxml:include bxml:id="juryTableView" src="juror_list.bxml" inline="true"/>
-
-<!--    <columnHeader>
-      <TableViewHeader tableView="$juryTableView" styles="{headersPressable:false}"/>
-    </columnHeader>-->
-
-  </Border>
-
-</BoxPane>
+  <TablePane.Row height="-1">
+    <Border styles="{padding:10}">
+      <bxml:include bxml:id="juryTableView" src="juror_list.bxml" inline="true"/>
+    </Border>
+  </TablePane.Row>
+</TablePane>
