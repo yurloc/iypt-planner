@@ -1,11 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
+
   <groupId>org.iypt</groupId>
   <artifactId>iypt-planner</artifactId>
   <version>0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
+
   <name>iypt-planner</name>
+  <description>Utility application for scheduling IYPT juries</description>
+  <inceptionYear>2012</inceptionYear>
+  <url>https://github.com/yurloc/iypt-planner/</url>
+
+  <scm>
+    <connection>scm:git:git@github.com:yurloc/iypt-planner.git</connection>
+    <developerConnection>scm:git:git@github.com:yurloc/iypt-planner.git</developerConnection>
+    <url>https://github.com/yurloc/iypt-planner</url>
+  </scm>
+
+  <issueManagement>
+    <system>github</system>
+    <url>https://github.com/yurloc/iypt-planner/issues</url>
+  </issueManagement>
+
+  <developers>
+    <developer>
+      <id>yurloc</id>
+      <name>Jiří Locker</name>
+      <email>jiri.locker@gmail.com</email>
+      <timezone>+1</timezone>
+    </developer>
+  </developers>
+  <contributors>
+    <contributor>
+      <email>tomas.locker@gmail.com</email>
+      <name>Tomáš Locker</name>
+      <timezone>+1</timezone>
+    </contributor>
+  </contributors>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
