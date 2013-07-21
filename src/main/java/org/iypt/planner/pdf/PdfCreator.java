@@ -25,6 +25,7 @@ import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Seat;
 import org.iypt.planner.domain.Team;
 import org.iypt.planner.domain.Tournament;
+import org.iypt.planner.domain.util.CountryCodeIO;
 
 public class PdfCreator {
 
@@ -218,7 +219,7 @@ public class PdfCreator {
         int count = 1;
         for (Team team : g.getTeams()) {
             table.addCell(getNumberCell(count, fTeams));
-            table.addCell(new Phrase(team.getCountry().getName(), fTeams));
+            table.addCell(new Phrase(CountryCodeIO.getShortName(team.getCountry()), fTeams));
             count++;
         }
         return table;

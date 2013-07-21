@@ -24,6 +24,7 @@ import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Seat;
 import org.iypt.planner.domain.Team;
 import org.iypt.planner.domain.Tournament;
+import org.iypt.planner.domain.util.CountryCodeIO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.supercsv.io.CsvListReader;
@@ -40,18 +41,6 @@ import org.supercsv.prefs.CsvPreference;
 public class CSVTournamentFactory {
 
     private static final Logger log = LoggerFactory.getLogger(CSVTournamentFactory.class);
-    private static final Map<String, CountryCode> countryNameMap = new HashMap<>();
-
-    static {
-        for (CountryCode cc : CountryCode.values()) {
-            countryNameMap.put(cc.getName(), cc);
-        }
-        // support custom country names
-        countryNameMap.put("Chinese Taipei", CountryCode.TW);
-        countryNameMap.put("Iran", CountryCode.IR);
-        countryNameMap.put("Korea", CountryCode.KR);
-        countryNameMap.put("Russia", CountryCode.RU);
-    }
     private CsvPreference preference = CsvPreference.EXCEL_NORTH_EUROPE_PREFERENCE;
     private Map<Integer, Round> rounds;
     private Map<CountryCode, Team> teams;
@@ -217,7 +206,7 @@ public class CSVTournamentFactory {
                             new Object[]{(char) preference.getDelimiterChar(), src.name, ln, i});
                     break;
                 }
-                CountryCode cc = countryNameMap.get(line.get(i));
+                CountryCode cc = CountryCodeIO.getByShortName(line.get(i));
                 if (cc == null) {
                     throwIOE("Unknown country", line.get(i), src.name, ln, i);
                 }
@@ -265,7 +254,7 @@ public class CSVTournamentFactory {
                 }
 
                 // get first country
-                CountryCode cc = countryNameMap.get(line.get(3));
+                CountryCode cc = CountryCodeIO.getByShortName(line.get(3));
                 if (cc == null) {
                     throwIOE("Unknown country", line.get(3), src.name, ln, 3);
                 }
@@ -300,7 +289,7 @@ public class CSVTournamentFactory {
                                 // when the first day off is read, the rest of values should be all numbers (except for optional C)
                                 throwIOE("Invalid day off number", line.get(i), src.name, ln, i);
                             }
-                            CountryCode conflict = countryNameMap.get(line.get(i));
+                            CountryCode conflict = CountryCodeIO.getByShortName(line.get(i));
                             if (conflict == null) {
                                 throwIOE("Unknown country", line.get(i), src.name, ln, 3);
                             }

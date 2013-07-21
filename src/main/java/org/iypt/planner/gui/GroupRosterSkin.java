@@ -16,6 +16,7 @@ import org.apache.pivot.wtk.MenuHandler;
 import org.apache.pivot.wtk.TableView;
 import org.apache.pivot.wtk.TableViewSelectionListener;
 import org.apache.pivot.wtk.skin.ContainerSkin;
+import org.iypt.planner.domain.util.CountryCodeIO;
 
 /**
  *
@@ -137,7 +138,7 @@ public class GroupRosterSkin extends ContainerSkin implements GroupRosterListene
         teamsBoxPane.removeAll();
         for (CountryCode country : group.getTeams()) {
             ImageView teamFlag = new ImageView(Images.getFlag(country));
-            teamFlag.setTooltipText(country.getName());
+            teamFlag.setTooltipText(CountryCodeIO.getShortName(country));
             teamFlag.setTooltipDelay(200);
             teamsBoxPane.add(teamFlag);
         }

@@ -31,6 +31,7 @@ import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.JurorLoad;
 import org.iypt.planner.domain.JurorType;
 import org.iypt.planner.domain.Team;
+import org.iypt.planner.domain.util.CountryCodeIO;
 import org.iypt.planner.solver.TournamentSolver;
 
 /**
@@ -136,7 +137,7 @@ public class JurorDetailsSkin extends ContainerSkin {
         conflictsBoxPane.removeAll();
         for (CountryCode cc : solver.getConflicts(juror)) {
             ImageView flag = new ImageView(Images.getFlag(cc));
-            flag.setTooltipText(cc.getName());
+            flag.setTooltipText(CountryCodeIO.getShortName(cc));
             flag.setTooltipDelay(200);
             conflictsBoxPane.add(flag);
         }
