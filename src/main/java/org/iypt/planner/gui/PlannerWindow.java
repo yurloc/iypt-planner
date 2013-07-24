@@ -2,8 +2,10 @@ package org.iypt.planner.gui;
 
 import java.awt.Color;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.util.Comparator;
 import java.util.Date;
@@ -29,7 +31,6 @@ import org.apache.pivot.wtk.Border;
 import org.apache.pivot.wtk.BoxPane;
 import org.apache.pivot.wtk.Button;
 import org.apache.pivot.wtk.Button.State;
-import org.apache.pivot.wtk.ButtonListener;
 import org.apache.pivot.wtk.ButtonPressListener;
 import org.apache.pivot.wtk.Checkbox;
 import org.apache.pivot.wtk.Component;
@@ -161,27 +162,27 @@ public class PlannerWindow extends Window implements Bindable {
     private LoadFileAction loadTeamsAction = new LoadFileAction("teams") {
         @Override
         void processFile(File f) throws Exception {
-            factory.readTeamData(f);
+            factory.readTeamData(f, StandardCharsets.UTF_8);
             loadScheduleAction.setEnabled(factory.canReadSchedule());
         }
     };
     private LoadFileAction loadJurorsAction = new LoadFileAction("jurors") {
         @Override
         void processFile(File f) throws Exception {
-            factory.readJuryData(f);
+            factory.readJuryData(f, StandardCharsets.UTF_8);
             loadScheduleAction.setEnabled(factory.canReadSchedule());
         }
     };
     private LoadFileAction loadBiasesAction = new LoadFileAction("biases") {
         @Override
         void processFile(File f) throws Exception {
-            factory.readBiasData(f);
+            factory.readBiasData(f, StandardCharsets.UTF_8);
         }
     };
     private LoadFileAction loadScheduleAction = new LoadFileAction("schedule") {
         @Override
         void processFile(File f) throws Exception {
-            factory.readSchedule(f);
+            factory.readSchedule(f, StandardCharsets.UTF_8);
             tournamentLoaded(factory.newTournament());
         }
     };
@@ -209,7 +210,8 @@ public class PlannerWindow extends Window implements Bindable {
                         File f = fileBrowserSheet.getSelectedFile();
                         // TODO check if the file exists and ask to overwrite
                         try {
-                            new ScheduleWriter(solver.getTournament()).write(new FileWriter(f));
+                            OutputStreamWriter os = new OutputStreamWriter(new FileOutputStream(f), StandardCharsets.UTF_8);
+                            new ScheduleWriter(solver.getTournament()).write(os);
                             log.info("Schedule written to '{}'", f.getAbsolutePath());
                         } catch (Exception ex) {
                             log.error("Error writing schedule file", ex);
