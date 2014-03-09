@@ -4,9 +4,15 @@ import java.io.IOException;
 import org.iypt.planner.domain.Tournament;
 import org.junit.Test;
 
-import static com.neovisionaries.i18n.CountryCode.*;
-import static org.fest.assertions.api.Assertions.*;
-import static org.iypt.planner.domain.JurorType.*;
+import static com.neovisionaries.i18n.CountryCode.CH;
+import static com.neovisionaries.i18n.CountryCode.CZ;
+import static com.neovisionaries.i18n.CountryCode.DE;
+import static com.neovisionaries.i18n.CountryCode.GB;
+import static com.neovisionaries.i18n.CountryCode.NZ;
+import static com.neovisionaries.i18n.CountryCode.RU;
+import static com.neovisionaries.i18n.CountryCode.SK;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.iypt.planner.domain.JurorType.INDEPENDENT;
 
 /**
  *

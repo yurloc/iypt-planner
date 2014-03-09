@@ -11,7 +11,7 @@ import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.JurorType;
 import org.iypt.planner.domain.Tournament;
 
-import static org.fest.assertions.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  *
