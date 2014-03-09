@@ -19,11 +19,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.iypt.planner.domain.util.SampleFacts.*;
-import static org.junit.Assert.assertThat;
 
 /**
  *
@@ -71,7 +68,7 @@ public class ScheduleWriterTest {
         }
 
         // all lines have been read
-        assertThat(br.readLine(), nullValue());
+        assertThat(br.readLine()).isNull();
 
         // check the stored lines
         String[] expectedLines = {
@@ -79,7 +76,7 @@ public class ScheduleWriterTest {
             "1;Group B;2, null;2, null;2, null",
             "2;Group A;1, null;2, null;1, null",
             "2;Group B;2, null;2, null;2, null"};
-        assertThat(actualLines, contains(expectedLines));
+        assertThat(actualLines).containsExactly(expectedLines);
     }
 
     @Test
@@ -103,7 +100,7 @@ public class ScheduleWriterTest {
 
         // verify that what has been written is exactly what has been read (first line only)
         log.info("Comparing input/output:\n[{}]\n[{}]", expected, actual);
-        assertThat(actual, is(expected));
+        assertThat(actual).isEqualTo(expected);
     }
 
     @Test
@@ -116,6 +113,6 @@ public class ScheduleWriterTest {
         ScheduleWriter writer = new ScheduleWriter(t);
         writer.write(sw);
         log.debug("[{}]", sw.toString());
-        assertThat(sw.toString(), is("1;Group A;null, null;null, null\n"));
+        assertThat(sw.toString()).isEqualTo("1;Group A;null, null;null, null\n");
     }
 }

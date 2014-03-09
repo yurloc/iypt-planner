@@ -5,8 +5,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+
 /**
  *
  * @author jlocker
@@ -20,9 +21,9 @@ public class CsvTablesProcessorTest {
 
         String[] tables = {"Tournaments", "Persons", "Problems", "Teams", "Fights", "Locks", "Marks",
             "Jurors", "Members", "Stages", "Rejections", "FightStatusCache"};
-        assertThat(proc.getTables().size(), is(tables.length));
-        assertThat(proc.getTables(), containsInAnyOrder(tables));
-        assertThat(new BufferedReader(proc.getTableReader("Tournaments")).readLine(), is("id,tournament_name,rule_set"));
+        assertThat(proc.getTables()).hasSize(tables.length);
+        assertThat(proc.getTables()).containsOnly(tables);
+        assertThat(new BufferedReader(proc.getTableReader("Tournaments")).readLine()).isEqualTo("id,tournament_name,rule_set");
 
         try {
             proc.process(new InputStreamReader(getClass().getResourceAsStream("full_data.csv")));

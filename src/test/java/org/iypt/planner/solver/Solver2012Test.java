@@ -7,8 +7,7 @@ import org.iypt.planner.domain.Tournament;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  *
@@ -28,7 +27,7 @@ public class Solver2012Test extends AbstractSolverTest {
 
     @Test
     public void test() {
-        assertThat(getBestSolution().getScore().getHardScore(), is(0));
+        assertThat(getBestSolution().getScore().getHardScore()).isZero();
     }
 
     @Override

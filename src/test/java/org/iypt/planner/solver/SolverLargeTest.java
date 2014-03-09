@@ -7,9 +7,8 @@ import org.iypt.planner.domain.Tournament;
 import org.iypt.planner.domain.util.RoundFactory;
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.iypt.planner.domain.util.SampleFacts.*;
-import static org.junit.Assert.*;
 
 /**
  *
@@ -19,7 +18,7 @@ public class SolverLargeTest extends AbstractSolverTest {
 
     @Test
     public void test() {
-        assertThat(getBestSolution().getScore().getHardScore(), is(0));
+        assertThat(getBestSolution().getScore().getHardScore()).isZero();
     }
 
     @Override
@@ -55,14 +54,14 @@ public class SolverLargeTest extends AbstractSolverTest {
         t.addDayOffs(new DayOff(jN1, r1.getDay()), new DayOff(jN1, r2.getDay()));
 
         // visualizing the numbers
-        assertThat(t.getJurors().size(), is(38));
-        assertThat(t.getSeats().size() / t.getRounds().size(), is(32));
+        assertThat(t.getJurors().size()).isEqualTo(38);
+        assertThat(t.getSeats().size() / t.getRounds().size()).isEqualTo(32);
 
-        assertThat(t.getDayOffsPerRound(r1), is(5));
-        assertThat(t.getDayOffsPerRound(r2), is(3));
-        assertThat(t.getDayOffsPerRound(r3), is(3));
-        assertThat(t.getDayOffsPerRound(r4), is(1));
-        assertThat(t.getDayOffsPerRound(r5), is(2));
+        assertThat(t.getDayOffsPerRound(r1)).isEqualTo(5);
+        assertThat(t.getDayOffsPerRound(r2)).isEqualTo(3);
+        assertThat(t.getDayOffsPerRound(r3)).isEqualTo(3);
+        assertThat(t.getDayOffsPerRound(r4)).isEqualTo(1);
+        assertThat(t.getDayOffsPerRound(r5)).isEqualTo(2);
 
         return t;
     }

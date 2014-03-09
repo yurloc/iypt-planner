@@ -5,10 +5,10 @@ import java.util.Iterator;
 import org.iypt.planner.domain.util.RoundFactory;
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.offset;
 import static org.iypt.planner.domain.JurorLoad.INFINITE_LOAD_VALUE;
 import static org.iypt.planner.domain.util.SampleFacts.*;
-import static org.junit.Assert.*;
 
 /**
  *
@@ -24,24 +24,24 @@ public class TournamentTest {
         // createGroup
         Round r1 = new Round(1, 1);
         Group g1A = r1.createGroup("A");
-        assertThat(g1A.getRound(), sameInstance(r1));
+        assertThat(g1A.getRound()).isSameAs(r1);
 
         // addGroups
         Group g1B = new Group("B");
         Group g1C = new Group("C");
         r1.addGroups(g1B, g1C);
-        assertThat(g1B.getRound(), sameInstance(r1));
-        assertThat(g1C.getRound(), sameInstance(r1));
-        assertThat(r1.getGroups(), hasItems(g1A, g1B, g1C));
+        assertThat(g1B.getRound()).isSameAs(r1);
+        assertThat(g1C.getRound()).isSameAs(r1);
+        assertThat(r1.getGroups()).contains(g1A, g1B, g1C);
     }
 
     @Test
     public void testGroup() {
         Group empty = new Group("A");
-        assertThat(empty.getSize(), is(0));
+        assertThat(empty.getSize()).isZero();
 
-        assertThat(new Group(tA, tB, tC).getSize(), is(3));
-        assertThat(new Group(tA, tB, tC, tD).getSize(), is(4));
+        assertThat(new Group(tA, tB, tC).getSize()).isEqualTo(3);
+        assertThat(new Group(tA, tB, tC, tD).getSize()).isEqualTo(4);
     }
 
     @Test
@@ -56,84 +56,85 @@ public class TournamentTest {
 
         Tournament t = new Tournament();
         int newCapacity = Tournament.DEFAULT_CAPACITY - 1;
-        assertThat(t.setJuryCapacity(newCapacity), is(false)); // affects no juries
+        assertThat(t.setJuryCapacity(newCapacity)).isFalse(); // affects no juries
 
         t.addRounds(r1, r2);
         // getRounds, getGroups, getTeams
-        assertThat(t.getRounds(), hasItems(r1, r2));
-        assertThat(t.getGroups(), hasItems(g1A, g1B, g2A, g2B));
-        assertThat(t.getGroups().size(), is(4));
-        assertThat(t.getTeams(), hasItems(tA, tB, tC, tD, tE, tF));
+        assertThat(t.getRounds()).contains(r1, r2);
+        assertThat(t.getGroups()).contains(g1A, g1B, g2A, g2B);
+        assertThat(t.getGroups()).hasSize(4);
+        assertThat(t.getTeams()).contains(tA, tB, tC, tD, tE, tF);
         // getJuries
-        assertThat(t.getJuries().size(), is(t.getGroups().size()));
+        assertThat(t.getJuries()).hasSameSizeAs(t.getGroups());
         // getSeats
-        assertThat(t.getSeats().size(), is(newCapacity * t.getJuries().size()));
+        assertThat(t.getSeats()).hasSize(newCapacity * t.getJuries().size());
 
         // setJuryCapacity
-        assertThat(t.setJuryCapacity(Tournament.DEFAULT_CAPACITY), is(true));
+        assertThat(t.setJuryCapacity(Tournament.DEFAULT_CAPACITY)).isTrue();
         newCapacity = Tournament.DEFAULT_CAPACITY + 1;
-        assertThat(t.setJuryCapacity(newCapacity), is(true));
-        assertThat(t.getJuries().size(), is(t.getGroups().size()));
-        assertThat(t.getSeats().size(), is(newCapacity * t.getJuries().size()));
+        assertThat(t.setJuryCapacity(newCapacity)).isTrue();
+        assertThat(t.getJuries()).hasSameSizeAs(t.getGroups());
+        assertThat(t.getSeats()).hasSize(newCapacity * t.getJuries().size());
 
-        assertThat(t.getProblemFacts().size(),
-                is(t.getRounds().size()
+        assertThat(t.getProblemFacts()).hasSize(
+                t.getRounds().size()
                 + t.getGroups().size()
                 + t.getTeams().size()
-                + t.getJuries().size() + EXTRA_FACTS));
+                + t.getJuries().size()
+                + EXTRA_FACTS);
 
-        assertFalse(t.isFeasibleSolutionPossible());
-        assertThat(t.getDayOffsPerRound(r1), is(0));
-        assertThat(t.getDayOffsPerRound(r2), is(0));
+        assertThat(t.isFeasibleSolutionPossible()).isFalse();
+        assertThat(t.getDayOffsPerRound(r1)).isZero();
+        assertThat(t.getDayOffsPerRound(r2)).isZero();
 
         newCapacity = 2;
         t.setJuryCapacity(newCapacity);
-        assertThat(t.getSeats().size(), is(newCapacity * t.getJuries().size()));
+        assertThat(t.getSeats()).hasSize(newCapacity * t.getJuries().size());
 
         t.addJurors(jA1, jA2, jA3);
-        assertFalse(t.isFeasibleSolutionPossible());
+        assertThat(t.isFeasibleSolutionPossible()).isFalse();
         t.addJurors(jA4);
-        assertTrue(t.isFeasibleSolutionPossible());
+        assertThat(t.isFeasibleSolutionPossible()).isTrue();
         t.addJurors(jA5, jA6);
-        assertTrue(t.isFeasibleSolutionPossible());
-        
+        assertThat(t.isFeasibleSolutionPossible()).isTrue();
+
         // add some day offs
         t.addDayOffs(new DayOff(jA1, 1));
         t.addDayOffs(new DayOff(jA3, 1));
         t.addDayOffs(new DayOff(jA2, 2));
         t.addDayOffs(new DayOff(jA4, 2));
-        assertThat(t.getDayOffsPerRound(r1), is(2));
-        assertThat(t.getDayOffsPerRound(r2), is(2));
-        assertTrue(t.isFeasibleSolutionPossible());
+        assertThat(t.getDayOffsPerRound(r1)).isEqualTo(2);
+        assertThat(t.getDayOffsPerRound(r2)).isEqualTo(2);
+        assertThat(t.isFeasibleSolutionPossible()).isTrue();
 
         // one more day off
         t.addDayOffs(new DayOff(jA1, 2));
-        assertFalse(t.isFeasibleSolutionPossible());
-        assertThat(t.getDayOffsPerRound(r2), is(3));
+        assertThat(t.isFeasibleSolutionPossible()).isFalse();
+        assertThat(t.getDayOffsPerRound(r2)).isEqualTo(3);
 
-        assertThat(t.getProblemFacts().size(),
-                is(t.getRounds().size()
+        assertThat(t.getProblemFacts()).hasSize(
+                t.getRounds().size()
                 + t.getGroups().size()
                 + t.getTeams().size()
                 + t.getJuries().size()
                 + t.getJurors().size()
                 + t.getDayOffs().size()
-                + t.getConflicts().size() + EXTRA_FACTS));
+                + t.getConflicts().size() + EXTRA_FACTS);
 
         t.clearDayOffs();
-        assertTrue(t.isFeasibleSolutionPossible());
+        assertThat(t.isFeasibleSolutionPossible()).isTrue();
 
         // add one more round
         Round r3 = new Round(3, 3);
         Group g3A = r3.createGroup("A").addTeams(tA, tB, tF);
         Group g3B = r3.createGroup("B").addTeams(tD, tE, tC);
         t.addRounds(r3);
-        assertThat(t.getRounds(), hasItems(r1, r2, r3));
-        assertThat(t.getGroups(), hasItems(g1A, g1B, g2A, g2B, g3A, g3B));
-        assertThat(t.getGroups().size(), is(6));
-        assertThat(t.getTeams(), hasItems(tA, tB, tC, tD, tE, tF));
-        assertThat(t.getJuries().size(), is(t.getGroups().size()));
-        assertThat(t.getSeats().size(), is(newCapacity * t.getJuries().size()));
+        assertThat(t.getRounds()).contains(r1, r2, r3);
+        assertThat(t.getGroups()).contains(g1A, g1B, g2A, g2B, g3A, g3B);
+        assertThat(t.getGroups()).hasSize(6);
+        assertThat(t.getTeams()).contains(tA, tB, tC, tD, tE, tF);
+        assertThat(t.getJuries()).hasSize(t.getGroups().size());
+        assertThat(t.getSeats()).hasSize(newCapacity * t.getJuries().size());
     }
 
     @Test
@@ -160,40 +161,40 @@ public class TournamentTest {
     @Test
     public void testOptimalLoad() {
         Tournament t = new Tournament();
-        assertEquals(0.0, t.getStatistics().getOptimalLoad(), Double.MIN_VALUE);
+        assertThat(t.getStatistics().getOptimalLoad()).isEqualTo(0.0, offset(Double.MIN_VALUE));
 
         Round r1 = new Round(1, 1);
         r1.createGroup("A").addTeams(tA, tB, tC);
         r1.createGroup("B").addTeams(tD, tE, tF);
-        assertEquals(0.0, t.getStatistics().getOptimalLoad(), Double.MIN_VALUE);
+        assertThat(t.getStatistics().getOptimalLoad()).isEqualTo(0.0, offset(Double.MIN_VALUE));
 
         t.setJuryCapacity(2);
         t.addJurors(jA1, jA2, jA3, jA4);
-        assertEquals(0.0, t.getStatistics().getOptimalLoad(), Double.MIN_VALUE);
+        assertThat(t.getStatistics().getOptimalLoad()).isEqualTo(0.0, offset(Double.MIN_VALUE));
         t.addRounds(r1);
-        assertThat(t.getStatistics().getRounds(), is(1));
-        assertEquals(1.0, t.getStatistics().getOptimalLoad(), Double.MIN_VALUE);
+        assertThat(t.getStatistics().getRounds()).isEqualTo(1);
+        assertThat(t.getStatistics().getOptimalLoad()).isEqualTo(1.0, offset(Double.MIN_VALUE));
 
         t.addJurors(jA5, jA6, jB1, jB2, jB3);
-        assertEquals(4.0 / 9, t.getStatistics().getOptimalLoad(), Double.MIN_VALUE);
+        assertThat(t.getStatistics().getOptimalLoad()).isEqualTo(4.0 / 9, offset(Double.MIN_VALUE));
 
         t.setJuryCapacity(3);
-        assertEquals(6.0 / 9, t.getStatistics().getOptimalLoad(), Double.MIN_VALUE);
+        assertThat(t.getStatistics().getOptimalLoad()).isEqualTo(6.0 / 9, offset(Double.MIN_VALUE));
 
         Round r2 = new Round(2, 2);
         r2.createGroup("A").addTeams(tA, tB, tC);
         r2.createGroup("B").addTeams(tD, tE, tF);
         t.addRounds(r2);
-        assertThat(t.getStatistics().getRounds(), is(2));
-        assertEquals(2 * 6.0 / 18, t.getStatistics().getOptimalLoad(), Double.MIN_VALUE);
+        assertThat(t.getStatistics().getRounds()).isEqualTo(2);
+        assertThat(t.getStatistics().getOptimalLoad()).isEqualTo(2 * 6.0 / 18, offset(Double.MIN_VALUE));
 
         t.addDayOffs(new DayOff(jA1, 1), new DayOff(jA2, 1));
-        assertEquals(2 * 6.0 / (18 - 2), t.getStatistics().getOptimalLoad(), Double.MIN_VALUE);
+        assertThat(t.getStatistics().getOptimalLoad()).isEqualTo(2 * 6.0 / (18 - 2), offset(Double.MIN_VALUE));
 
         // check that cloneed solution calculates statistics correctly
         Tournament clone = (Tournament) t.cloneSolution();
         clone.setJuryCapacity(2);
-        assertEquals(2 * 4.0 / (18 - 2), clone.getStatistics().getOptimalLoad(), Double.MIN_VALUE);
+        assertThat(clone.getStatistics().getOptimalLoad()).isEqualTo(2 * 4.0 / (18 - 2), offset(Double.MIN_VALUE));
     }
 
     @Test
@@ -203,15 +204,15 @@ public class TournamentTest {
         jury.setGroup(round.createGroup("A"));
 
         round.setOptimalIndependentCount(3.3);
-        assertThat(new IndependentRatio(jury, 0).getDelta(), is(-3));
-        assertThat(new IndependentRatio(jury, 3).getDelta(), is(0));
-        assertThat(new IndependentRatio(jury, 4).getDelta(), is(0));
-        assertThat(new IndependentRatio(jury, 5).getDelta(), is(1));
+        assertThat(new IndependentRatio(jury, 0).getDelta()).isEqualTo(-3);
+        assertThat(new IndependentRatio(jury, 3).getDelta()).isEqualTo(0);
+        assertThat(new IndependentRatio(jury, 4).getDelta()).isEqualTo(0);
+        assertThat(new IndependentRatio(jury, 5).getDelta()).isEqualTo(1);
 
         round.setOptimalIndependentCount(3.0);
-        assertThat(new IndependentRatio(jury, 2).getDelta(), is(-1));
-        assertThat(new IndependentRatio(jury, 3).getDelta(), is(0));
-        assertThat(new IndependentRatio(jury, 4).getDelta(), is(1));
+        assertThat(new IndependentRatio(jury, 2).getDelta()).isEqualTo(-1);
+        assertThat(new IndependentRatio(jury, 3).getDelta()).isEqualTo(0);
+        assertThat(new IndependentRatio(jury, 4).getDelta()).isEqualTo(1);
     }
 
     @Test
@@ -223,24 +224,24 @@ public class TournamentTest {
 
         Tournament t = new Tournament();
         t.addRounds(r1, r2);
-        assertEquals(0, r1.getOptimalIndependentCount(), Double.MIN_VALUE);
-        assertEquals(0, r2.getOptimalIndependentCount(), Double.MIN_VALUE);
+        assertThat(r1.getOptimalIndependentCount()).isEqualTo(0, offset(Double.MIN_VALUE));
+        assertThat(r2.getOptimalIndependentCount()).isEqualTo(0, offset(Double.MIN_VALUE));
 
         t.addJurors(jI1, jI2, jT1, jT2);
-        assertEquals(Tournament.DEFAULT_CAPACITY * 0.5, r1.getOptimalIndependentCount(), Double.MIN_VALUE);
-        assertEquals(Tournament.DEFAULT_CAPACITY * 0.5, r2.getOptimalIndependentCount(), Double.MIN_VALUE);
+        assertThat(r1.getOptimalIndependentCount()).isEqualTo(Tournament.DEFAULT_CAPACITY * 0.5, offset(Double.MIN_VALUE));
+        assertThat(r2.getOptimalIndependentCount()).isEqualTo(Tournament.DEFAULT_CAPACITY * 0.5, offset(Double.MIN_VALUE));
 
         t.setJuryCapacity(2);
-        assertEquals(1, r1.getOptimalIndependentCount(), Double.MIN_VALUE);
-        assertEquals(1, r2.getOptimalIndependentCount(), Double.MIN_VALUE);
+        assertThat(r1.getOptimalIndependentCount()).isEqualTo(1, offset(Double.MIN_VALUE));
+        assertThat(r2.getOptimalIndependentCount()).isEqualTo(1, offset(Double.MIN_VALUE));
 
         t.setJuryCapacity(3);
-        assertEquals(1.5, r1.getOptimalIndependentCount(), Double.MIN_VALUE);
-        assertEquals(1.5, r2.getOptimalIndependentCount(), Double.MIN_VALUE);
+        assertThat(r1.getOptimalIndependentCount()).isEqualTo(1.5, offset(Double.MIN_VALUE));
+        assertThat(r2.getOptimalIndependentCount()).isEqualTo(1.5, offset(Double.MIN_VALUE));
 
         t.addDayOffs(new DayOff(jI1, r1.getDay()), new DayOff(jT2, r2.getDay()));
-        assertEquals(1, r1.getOptimalIndependentCount(), Double.MIN_VALUE);
-        assertEquals(2, r2.getOptimalIndependentCount(), Double.MIN_VALUE);
+        assertThat(r1.getOptimalIndependentCount()).isEqualTo(1, offset(Double.MIN_VALUE));
+        assertThat(r2.getOptimalIndependentCount()).isEqualTo(2, offset(Double.MIN_VALUE));
     }
 
     @Test
@@ -252,15 +253,15 @@ public class TournamentTest {
         t.addRounds(r);
         int capacity = 2;
         t.setJuryCapacity(capacity);
-        assertThat(t.getSeats().size(), is(4));
-        assertThat(t.getSeats().size(), is(r.getGroups().size() * capacity));
+        assertThat(t.getSeats()).hasSize(4);
+        assertThat(t.getSeats()).hasSize(r.getGroups().size() * capacity);
 
         t.addJurors(jA1, jA2, jA3, jA4);
-        assertTrue(t.isFeasibleSolutionPossible());
+        assertThat(t.isFeasibleSolutionPossible()).isTrue();
 
         t.addDayOffs(new DayOff(jA1, r.getDay()));
-        assertThat(t.getDayOffsPerRound(r), is(1));
-        assertFalse(t.isFeasibleSolutionPossible());
+        assertThat(t.getDayOffsPerRound(r)).isEqualTo(1);
+        assertThat(t.isFeasibleSolutionPossible()).isFalse();
     }
 
     @Test
@@ -302,16 +303,16 @@ public class TournamentTest {
         // lock the first seat
         Iterator<Seat> it = t.getSeats().iterator();
         Seat seat = it.next();
-        assertThat(t.isLocked(seat), is(false));
-        assertThat(t.lock(seat), is(true));
-        assertThat(t.isLocked(seat), is(true));
-        assertThat(t.isLocked(it.next()), is(false));
+        assertThat(t.isLocked(seat)).isFalse();
+        assertThat(t.lock(seat)).isTrue();
+        assertThat(t.isLocked(seat)).isTrue();
+        assertThat(t.isLocked(it.next())).isFalse();
 
         // lock the second round
         t.lock(r2);
         for (Seat s : t.getSeats()) {
             boolean locked = s == seat || s.getJury().getGroup().getRound() == r2;
-            assertThat(String.format("Unexpected lock state for: %s/%d", s, s.getPosition()), t.isLocked(s), is(locked));
+            assertThat(t.isLocked(s)).as(String.format("Unexpected lock state for: %s/%d", s, s.getPosition())).isEqualTo(locked);
         }
     }
 
@@ -319,39 +320,39 @@ public class TournamentTest {
         Tournament clone = (Tournament) t.cloneSolution();
 
         // check ordinary getters
-        assertThat(clone.getRounds(), is(t.getRounds()));
-        assertThat(clone.getGroups(), is(t.getGroups()));
-        assertThat(clone.getTeams(), is(t.getTeams()));
-        assertThat(clone.getJuries(), is(t.getJuries()));
-        assertThat(clone.getJurors(), is(t.getJurors()));
-        assertThat(clone.getDayOffs(), is(t.getDayOffs()));
-        assertThat(clone.getConflicts(), is(t.getConflicts()));
-        assertThat(clone.getLocks(), is(t.getLocks()));
-        assertThat(clone.getStatistics(), is(t.getStatistics()));
-        assertThat(clone.getWeightConfig(), is(t.getWeightConfig()));
-        assertThat(clone.getJuryCapacity(), is(t.getJuryCapacity()));
+        assertThat(clone.getRounds()).isEqualTo(t.getRounds());
+        assertThat(clone.getGroups()).isEqualTo(t.getGroups());
+        assertThat(clone.getTeams()).isEqualTo(t.getTeams());
+        assertThat(clone.getJuries()).isEqualTo(t.getJuries());
+        assertThat(clone.getJurors()).isEqualTo(t.getJurors());
+        assertThat(clone.getDayOffs()).isEqualTo(t.getDayOffs());
+        assertThat(clone.getConflicts()).isEqualTo(t.getConflicts());
+        assertThat(clone.getLocks()).isEqualTo(t.getLocks());
+        assertThat(clone.getStatistics()).isEqualTo(t.getStatistics());
+        assertThat(clone.getWeightConfig()).isEqualTo(t.getWeightConfig());
+        assertThat(clone.getJuryCapacity()).isEqualTo(t.getJuryCapacity());
 
         // check getProblemFacts
         @SuppressWarnings("unchecked")
         Collection<Object> origFacts = (Collection<Object>) t.getProblemFacts();
         @SuppressWarnings("unchecked")
         Collection<Object> cloneFacts = (Collection<Object>) clone.getProblemFacts();
-        assertThat(cloneFacts, is(origFacts));
+        assertThat(cloneFacts).isEqualTo(origFacts);
 
         // same number of planning entities
-        assertThat(clone.getSeats().size(), is(t.getSeats().size()));
+        assertThat(clone.getSeats()).hasSameSizeAs(t.getSeats());
         // no entities in common (verify planning entities are deep cloned)
-        assertThat(t.getSeats().removeAll(clone.getSeats()), is(false));
+        assertThat(clone.getSeats()).doesNotContainAnyElementsOf(t.getSeats());
         // verify getSeats(jury) works on cloned solution
         Jury firstJury = t.getJuries().get(0);
         Jury lastJury = t.getJuries().get(t.getJuries().size() - 1);
-        assertThat(clone.getSeats(), hasItems(clone.getSeats(firstJury).toArray(new Seat[clone.getJuryCapacity()])));
-        assertThat(clone.getSeats(), hasItems(clone.getSeats(lastJury).toArray(new Seat[clone.getJuryCapacity()])));
+        assertThat(clone.getSeats()).containsAll(clone.getSeats(firstJury));
+        assertThat(clone.getSeats()).containsAll(clone.getSeats(lastJury));
     }
 
-    private void testLoad(JurorLoad load, double value, double delta, boolean excessive) {
-        assertEquals(load.toString(), value, load.getLoad(), .005);
-        assertEquals(load.toString(), delta, load.getDelta(), .005);
-        assertThat(load.toString(), load.isExcessive(), is(excessive));
+    private void testLoad(JurorLoad load, double expectedLoad, double expectedDelta, boolean excessive) {
+        assertThat(load.getLoad()).as(load.toString()).isEqualTo(expectedLoad, offset(.005));
+        assertThat(load.getDelta()).as(load.toString()).isEqualTo(expectedDelta, offset(.005));
+        assertThat(load.isExcessive()).as(load.toString()).isEqualTo(excessive);
     }
 }

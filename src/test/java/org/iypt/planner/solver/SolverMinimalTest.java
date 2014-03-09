@@ -7,9 +7,8 @@ import org.iypt.planner.domain.Tournament;
 import org.iypt.planner.domain.util.RoundFactory;
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.iypt.planner.domain.util.SampleFacts.*;
-import static org.junit.Assert.*;
 
 /**
  *
@@ -19,7 +18,7 @@ public class SolverMinimalTest extends AbstractSolverTest {
 
     @Test
     public void test() {
-        assertThat(getBestSolution().getScore().getHardScore(), is(0));
+        assertThat(getBestSolution().getScore().getHardScore()).isZero();
     }
 
     @Override
@@ -47,8 +46,8 @@ public class SolverMinimalTest extends AbstractSolverTest {
         t.addDayOffs(new DayOff(jH1, r2.getDay()), new DayOff(jI1, r2.getDay()));
 
         // just visualizing the numbers
-        assertThat(t.getSeats().size() / t.getRounds().size(), is(18));
-        assertThat(t.getJurors().size(), is(28));
+        assertThat(t.getSeats().size() / t.getRounds().size()).isEqualTo(18);
+        assertThat(t.getJurors().size()).isEqualTo(28);
 
         return t;
     }

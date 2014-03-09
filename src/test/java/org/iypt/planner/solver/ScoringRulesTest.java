@@ -34,11 +34,11 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.offset;
 import static org.iypt.planner.Constants.*;
 import static org.iypt.planner.domain.util.SampleFacts.*;
 import static org.iypt.planner.solver.ScoringRulesTest.RuleType.*;
-import static org.junit.Assert.*;
 
 /**
  *
@@ -61,13 +61,14 @@ public class ScoringRulesTest {
         // prepare knowledge base
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         kbuilder.add(ResourceFactory.newClassPathResource(SCORE_DRL), ResourceType.DRL);
-        assertFalse(kbuilder.getErrors().toString(), kbuilder.hasErrors());
+        assertThat(kbuilder.hasErrors()).as(kbuilder.getErrors().toString()).isFalse();
         kbase = kbuilder.newKnowledgeBase();
 
         // do some checks
         for (KnowledgePackage pkg : kbase.getKnowledgePackages()) {
             // check the ScoreHolder global name
-            assertEquals("Unexpected ScoreHolder global name", SCORE_HOLDER_NAME, pkg.getGlobalVariables().iterator().next().getName());
+            assertThat(pkg.getGlobalVariables().iterator().next().getName()).as("Unexpected ScoreHolder global name")
+                    .isEqualTo(SCORE_HOLDER_NAME);
 
             // enforce that each rule is enumerated in ScoreRules
             // for example this will make sure that each rule either has correct constraint type metadata
@@ -107,12 +108,14 @@ public class ScoringRulesTest {
             for (Rule rule : pkg.getRules()) {
                 Map<String, Object> metaData = rule.getMetaData();
                 if (metaData.containsKey(CONSTRAINT_TYPE_KEY)) {
-                    assertThat(String.format("Wrong value of '%s' metadata of rule '%s'.", CONSTRAINT_TYPE_KEY, rule.getName()),
-                            (String) metaData.get(CONSTRAINT_TYPE_KEY),
-                            anyOf(is(CONSTRAINT_TYPE_HARD), is(CONSTRAINT_TYPE_SOFT)));
+                    assertThat(metaData.get(CONSTRAINT_TYPE_KEY))
+                            .as(String.format("Wrong value of '%s' metadata of rule '%s'.", CONSTRAINT_TYPE_KEY, rule.getName()))
+                            .isIn(CONSTRAINT_TYPE_HARD, CONSTRAINT_TYPE_SOFT);
                 } else {
-                    assertThat(String.format("Rule %s is probably missing %s metadata:", rule.getName(), CONSTRAINT_TYPE_KEY),
-                            ScoringRule.valueOf(rule.getName()).type, is(AUX));
+                    assertThat(ScoringRule.valueOf(rule.getName()).type)
+                            .as(String.format("Rule %s is probably missing %s metadata:", rule.getName(), CONSTRAINT_TYPE_KEY))
+                            .isEqualTo(AUX);
+
                 }
             }
         }
@@ -285,7 +288,7 @@ public class ScoringRulesTest {
         t.addRounds(RoundFactory.createRound(5, tA, tB, tC));
         t.addJurors(jI1, jJ1, jK1, jL1, jM1); // chairs
         t.addJurors(jM2, jM3, jM4);
-        assertEquals(2.0 / 8, t.getStatistics().getOptimalLoad(), Double.MIN_VALUE);
+        assertThat(t.getStatistics().getOptimalLoad()).isEqualTo(2.0 / 8, offset(Double.MIN_VALUE));
         assignJurors(t, jI1, jM2, jJ1, jM3, jK1, jM4, jL1, jM3, jM1, jM2); // ok
         checkSolutionFeasible(t);
 
@@ -320,7 +323,7 @@ public class ScoringRulesTest {
         t.addRounds(r1);
         // 0.6 independent jurors
         t.addJurors(jI1, jI2, jI3, jI4, jI5, jI6, jT1, jT2, jT3, jT4);
-        assertEquals(2.4, r1.getOptimalIndependentCount(), Double.MIN_VALUE);
+        assertThat(r1.getOptimalIndependentCount()).isEqualTo(2.4, offset(Double.MIN_VALUE));
         assignJurors(t, jI1, jT2, jI3, jT4);
         checkSolution(t, true, ScoringRule.independentRatioDeltaExceeded, 0);
         assignJurors(t, jI1, jI2, jI3, jT4);
@@ -335,8 +338,8 @@ public class ScoringRulesTest {
         t.addRounds(r2);
         t.addDayOffs(new DayOff(jT1, r1.getDay()));
         t.addDayOffs(new DayOff(jI1, r2.getDay()), new DayOff(jI2, r2.getDay()), new DayOff(jI3, r2.getDay()));
-        assertEquals(2.7, r1.getOptimalIndependentCount(), .05);
-        assertEquals(1.7, r2.getOptimalIndependentCount(), .05);
+        assertThat(r1.getOptimalIndependentCount()).isEqualTo(2.7, offset(.05));
+        assertThat(r2.getOptimalIndependentCount()).isEqualTo(1.7, offset(.05));
         assignJurors(t, jI1, jI2, jI3, jT4, jT1, jT2, jT3, jI4);
         checkSolution(t, true, ScoringRule.independentRatioDeltaExceeded, 0);
         assignJurors(t, jI1, jI2, jI3, jI4, jT1, jT2, jT3, jT4);
@@ -458,8 +461,8 @@ public class ScoringRulesTest {
 
     private void checkSolutionFeasible(Tournament t) {
         ScoringResult result = calculateScore(t, createActivationListener(false));
-        assertThat(result.getRuleActivations(), is(Collections.EMPTY_LIST));
-        assertThat(result.getScore().isFeasible(), is(true));
+        assertThat(result.getRuleActivations()).isEmpty();
+        assertThat(result.getScore().isFeasible()).isTrue();
     }
 
     private void checkSolution(Tournament t, boolean feasibile, ScoringRule ruleFired, int fireCount) {
@@ -471,11 +474,11 @@ public class ScoringRulesTest {
 
         int total = 0;
         for (RuleFiring firing : firings) {
-            assertThat(result.getFireCount(firing.rule.toString()), is(firing.count));
+            assertThat(result.getFireCount(firing.rule.toString())).isEqualTo(firing.count);
             total += firing.count;
         }
-        assertThat(result.getTotalFireCount(), is(total));
-        assertThat(result.getScore().isFeasible(), is(feasibile));
+        assertThat(result.getTotalFireCount()).isEqualTo(total);
+        assertThat(result.getScore().isFeasible()).isEqualTo(feasibile);
     }
 
     private ScoringResult calculateScore(Tournament t, ActivationListener activationListener) {
