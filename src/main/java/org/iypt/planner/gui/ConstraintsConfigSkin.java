@@ -89,8 +89,8 @@ public class ConstraintsConfigSkin extends ContainerSkin implements ConstraintsC
             } else {
                 TextInput textInput = new TextInput();
                 textInput.setPreferredWidth(32);
-                // TODO alignment will be available in pivot 2.0.3
-//                textInput.getStyles().put("horizontalAlignment", "right");
+                // Pivot 2.0.3 (not in 2.1.0) issue: PIVOT-455
+                textInput.getStyles().put("horizontalAlignment", "right");
                 textInput.getComponentKeyListeners().add(new ComponentKeyListener.Adapter() {
                     @Override
                     public boolean keyPressed(Component component, int keyCode, KeyLocation keyLocation) {
