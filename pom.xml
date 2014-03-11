@@ -43,7 +43,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <java.version>1.7</java.version>
-    <pivot.version>2.0.2</pivot.version>
+    <pivot.version>2.0.3</pivot.version>
     <drools.version>5.5.0.Final</drools.version>
   </properties>
 
