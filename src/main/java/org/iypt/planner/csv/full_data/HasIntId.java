@@ -6,5 +6,5 @@ package org.iypt.planner.csv.full_data;
  */
 public interface HasIntId {
 
-    public int getId();
+    int getId();
 }

@@ -6,5 +6,5 @@ package org.iypt.planner.gui;
  */
 public interface ConstraintsConfigListener {
 
-    public void constraintsChanged(ConstraintsConfig config);
+    void constraintsChanged(ConstraintsConfig config);
 }

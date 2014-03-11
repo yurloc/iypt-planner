@@ -8,5 +8,5 @@ import org.iypt.planner.solver.TournamentSolver;
  */
 public interface LockListener {
 
-    public void roundLockChanged(TournamentSolver solver);
+    void roundLockChanged(TournamentSolver solver);
 }

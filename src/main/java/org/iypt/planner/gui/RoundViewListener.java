@@ -6,5 +6,5 @@ package org.iypt.planner.gui;
  */
 public interface RoundViewListener {
 
-    public void scheduleChanged(RoundView round);
+    void scheduleChanged(RoundView round);
 }

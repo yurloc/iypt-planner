@@ -10,19 +10,19 @@ import org.iypt.planner.gui.GroupRoster.JurorRow;
  */
 public interface TournamentScheduleListener {
 
-    public void scheduleChanged(TournamentSchedule tournament);
+    void scheduleChanged(TournamentSchedule tournament);
 
-    public void roundSelected(Round round);
+    void roundSelected(Round round);
 
-    public void jurorSelected(Juror juror);
+    void jurorSelected(Juror juror);
 
-    public void jurorLocked(JurorRow jurorRow);
+    void jurorLocked(JurorRow jurorRow);
 
-    public void jurorUnlocked(JurorRow jurorRow);
+    void jurorUnlocked(JurorRow jurorRow);
 
-    public void requestRoundLock();
+    void requestRoundLock();
 
-    public class Adapter implements TournamentScheduleListener {
+    class Adapter implements TournamentScheduleListener {
 
         @Override
         public void scheduleChanged(TournamentSchedule tournament) {

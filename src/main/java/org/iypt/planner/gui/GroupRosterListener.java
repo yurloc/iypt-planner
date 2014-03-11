@@ -6,5 +6,5 @@ package org.iypt.planner.gui;
  */
 public interface GroupRosterListener {
 
-    public void groupRosterChanged(GroupRoster group);
+    void groupRosterChanged(GroupRoster group);
 }
