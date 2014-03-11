@@ -33,15 +33,17 @@ import org.supercsv.prefs.CsvPreference;
 /**
  * This CSV processor ignores whitespace-only (empty) lines and trailing separators if the last value is whitespace-only.
  *
- * <p>NOTE: According to <a href="http://tools.ietf.org/html/rfc4180">RFC 4180</a> trailing commas are not allowed, whitespace
- * is part of the entry.</p>
+ * <p>
+ * NOTE: According to <a href="http://tools.ietf.org/html/rfc4180">RFC 4180</a> trailing commas are not allowed, whitespace is
+ * part of the entry.</p>
  *
  * @author jlocker
  */
 public class CSVTournamentFactory {
 
-    private static final Logger log = LoggerFactory.getLogger(CSVTournamentFactory.class);
-    private CsvPreference preference = CsvPreference.EXCEL_NORTH_EUROPE_PREFERENCE;
+    private static final Logger LOG = LoggerFactory.getLogger(CSVTournamentFactory.class);
+    private static final CsvPreference PREFERENCE = CsvPreference.EXCEL_NORTH_EUROPE_PREFERENCE;
+    private final State state = new State();
     private Map<Integer, Round> rounds;
     private Map<CountryCode, Team> teams;
     private Map<String, Juror> jurors;
@@ -51,7 +53,6 @@ public class CSVTournamentFactory {
     private Map<Jury, List<Juror>> juries;
     private int juryCapacity = 0;
     private Tournament tournament;
-    private State state = new State();
 
     private static class Source {
 
@@ -140,21 +141,21 @@ public class CSVTournamentFactory {
     private Source makeSource(Class<?> baseType, String resourcePath, Charset charset) {
         String resourceName = resourcePath.substring(resourcePath.lastIndexOf('/') + 1);
         CsvListReader csvReader = new CsvListReader(
-                new InputStreamReader(baseType.getResourceAsStream(resourcePath), charset), preference);
+                new InputStreamReader(baseType.getResourceAsStream(resourcePath), charset), PREFERENCE);
         return new Source(resourceName, csvReader);
     }
 
     private Source makeSource(File file, Charset charset) throws FileNotFoundException {
         String resourceName = file.getName();
         CsvListReader csvReader = new CsvListReader(
-                new InputStreamReader(new FileInputStream(file), charset), preference);
+                new InputStreamReader(new FileInputStream(file), charset), PREFERENCE);
         return new Source(resourceName, csvReader);
     }
 
     private Source makeSource(File file) throws FileNotFoundException {
         String resourceName = file.getName();
         CsvListReader csvReader = new CsvListReader(
-                new FileReader(file), preference);
+                new FileReader(file), PREFERENCE);
         return new Source(resourceName, csvReader);
     }
 
@@ -200,8 +201,8 @@ public class CSVTournamentFactory {
             // get the teams in group
             for (int i = 2; i < line.size(); i++) {
                 if (i == line.size() - 1 && line.get(i) == null) {
-                    log.trace("Ignoring trailing '{}' in {}[{}:{}]",
-                            new Object[]{(char) preference.getDelimiterChar(), src.name, ln, i});
+                    LOG.trace("Ignoring trailing '{}' in {}[{}:{}]",
+                            new Object[]{(char) PREFERENCE.getDelimiterChar(), src.name, ln, i});
                     break;
                 }
                 CountryCode cc = CountryCodeIO.getByShortName(line.get(i));
@@ -266,8 +267,8 @@ public class CSVTournamentFactory {
                 boolean dayOffMode = false;
                 for (int i = 4; i < line.size(); i++) {
                     if (i == line.size() - 1 && line.get(i) == null) {
-                        log.trace("Ignoring trailing '{}' in {}[{}:{}]",
-                                new Object[]{(char) preference.getDelimiterChar(), src.name, ln, i});
+                        LOG.trace("Ignoring trailing '{}' in {}[{}:{}]",
+                                new Object[]{(char) PREFERENCE.getDelimiterChar(), src.name, ln, i});
                         break;
                     }
 
@@ -291,7 +292,7 @@ public class CSVTournamentFactory {
                             if (conflict == null) {
                                 throwIOE("Unknown country", line.get(i), src.name, ln, 3);
                             }
-                            log.debug("Juror with multiple conflicts: {} {}", conflict, juror);
+                            LOG.debug("Juror with multiple conflicts: {} {}", conflict, juror);
                             conflicts.add(new Conflict(juror, conflict));
                         }
                     }
@@ -322,11 +323,11 @@ public class CSVTournamentFactory {
                 int capacity = line.size() - 2;
                 if (line.get(line.size() - 1) == null) {
                     // don't break the capacity with trailing ';'
-                    log.trace("Ignoring trailing '{}' in {}[{}:{}]",
-                            new Object[]{(char) preference.getDelimiterChar(), src.name, ln, line.size() - 1});
+                    LOG.trace("Ignoring trailing '{}' in {}[{}:{}]",
+                            new Object[]{(char) PREFERENCE.getDelimiterChar(), src.name, ln, line.size() - 1});
                     capacity--;
                 }
-                log.debug("Inferred jury capacity: {}.", capacity);
+                LOG.debug("Inferred jury capacity: {}.", capacity);
                 juryCapacity = capacity;
                 capacitySet = true;
             }
@@ -503,7 +504,7 @@ public class CSVTournamentFactory {
         if (state.hasBiasData()) {
             for (Juror juror : jurors.values()) {
                 Double bias = biases.get(juror.fullName());
-                juror.setBias((bias == null || Double.isNaN(bias)) ? 0 : bias);
+                juror.setBias(bias == null || Double.isNaN(bias) ? 0 : bias);
             }
         }
 
@@ -515,7 +516,7 @@ public class CSVTournamentFactory {
             // compare the number of juries coming from team data to number of juries in jury schedule
             int size = tournament.getJuries().size();
             if (size != juries.size()) {
-                log.debug("Juries needed: {}, juries scheduled: {}", size, juries.size());
+                LOG.debug("Juries needed: {}, juries scheduled: {}", size, juries.size());
             }
 
             for (Jury jury : tournament.getJuries()) {
