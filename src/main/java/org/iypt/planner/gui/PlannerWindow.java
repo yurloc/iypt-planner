@@ -665,7 +665,7 @@ public class PlannerWindow extends Window implements Bindable {
     //=========================================================================================================================
     // tasks
     //=========================================================================================================================
-    private class SolverTask extends Task<Void> {
+    private static class SolverTask extends Task<Void> {
 
         private final TournamentSolver solver;
 

@@ -63,7 +63,7 @@ public class Fight {
         return String.format("%s, Round #%d, %s", tournament.getName(), row.getRound(), row.getGroup_name());
     }
 
-    public class Stage {
+    public static class Stage {
 
         private JudgingEvent[] events = new JudgingEvent[3];
 

@@ -17,7 +17,7 @@ import org.supercsv.prefs.CsvPreference;
  */
 public class BiasWriter {
 
-    public class JurorBiasRow {
+    public static class JurorBiasRow {
 
         private final Juror juror;
 
