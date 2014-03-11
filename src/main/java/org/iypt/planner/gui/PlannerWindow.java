@@ -10,6 +10,7 @@ import java.text.DateFormat;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map.Entry;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.pivot.beans.BXML;
 import org.apache.pivot.beans.BXMLSerializer;
@@ -573,8 +574,9 @@ public class PlannerWindow extends Window implements Bindable {
             map.get(co.getRuleId()).add(new Constraint(co));
         }
 
-        for (String coId : map.keySet()) {
-            List<Constraint> coList = map.get(coId);
+        for (Entry<String, List<Constraint>> entry : map.entrySet()) {
+            String coId = entry.getKey();
+            List<Constraint> coList = entry.getValue();
             String type = "";
             if (coList.getLength() > 0) {
                 type = coList.get(0).getType().toLowerCase();
@@ -591,7 +593,7 @@ public class PlannerWindow extends Window implements Bindable {
                 rollup.setEnabled(false);
                 rollup.getHeading().setEnabled(false);
             } else {
-                if (map.get(coId).get(0).isHard()) {
+                if (coList.get(0).isHard()) {
                     heading.getStyles().put("color", Color.RED.darker());
                 }
             }
