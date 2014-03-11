@@ -53,28 +53,18 @@ public class CSVTournamentFactory {
     private Tournament tournament;
     private State state = new State();
 
-    private class Source {
+    private static class Source {
 
         private final String name;
         private final CsvListReader reader;
 
-        public Source(Class<?> baseType, String resourcePath, Charset charset) {
-            name = getResourceName(resourcePath);
-            reader = getReader(baseType, resourcePath, charset);
-        }
-
-        public Source(File file) throws FileNotFoundException {
-            name = file.getName();
-            reader = getReader(file);
-        }
-
-        public Source(File file, Charset charset) throws FileNotFoundException {
-            name = file.getName();
-            reader = getReader(file, charset);
+        public Source(String name, CsvListReader reader) {
+            this.name = name;
+            this.reader = reader;
         }
     }
 
-    private class State {
+    private static class State {
 
         private boolean teams = false;
         private boolean jurors = false;
@@ -103,10 +93,6 @@ public class CSVTournamentFactory {
         private boolean hasBiasData() {
             return biases;
         }
-    }
-
-    private String getResourceName(String resource) {
-        return resource.substring(resource.lastIndexOf('/') + 1);
     }
 
     private String getGroupName(String value) {
@@ -148,16 +134,28 @@ public class CSVTournamentFactory {
         throw new IOException(String.format("%s in %s [%d:%d]", message, fileName, lineNumber, valuePosition));
     }
 
-    private CsvListReader getReader(Class<?> baseType, String resource, Charset charset) {
-        return new CsvListReader(new InputStreamReader(baseType.getResourceAsStream(resource), charset), preference);
+    //-------------------------------------------------------------------------------------------------------------------------
+    // Source factory methods
+    //-------------------------------------------------------------------------------------------------------------------------
+    private Source makeSource(Class<?> baseType, String resourcePath, Charset charset) {
+        String resourceName = resourcePath.substring(resourcePath.lastIndexOf('/') + 1);
+        CsvListReader csvReader = new CsvListReader(
+                new InputStreamReader(baseType.getResourceAsStream(resourcePath), charset), preference);
+        return new Source(resourceName, csvReader);
     }
 
-    private CsvListReader getReader(File file) throws FileNotFoundException {
-        return new CsvListReader(new FileReader(file), preference);
+    private Source makeSource(File file, Charset charset) throws FileNotFoundException {
+        String resourceName = file.getName();
+        CsvListReader csvReader = new CsvListReader(
+                new InputStreamReader(new FileInputStream(file), charset), preference);
+        return new Source(resourceName, csvReader);
     }
 
-    private CsvListReader getReader(File file, Charset charset) throws FileNotFoundException {
-        return new CsvListReader(new InputStreamReader(new FileInputStream(file), charset), preference);
+    private Source makeSource(File file) throws FileNotFoundException {
+        String resourceName = file.getName();
+        CsvListReader csvReader = new CsvListReader(
+                new FileReader(file), preference);
+        return new Source(resourceName, csvReader);
     }
 
     private void readBiases(Reader reader) throws IOException {
@@ -407,15 +405,15 @@ public class CSVTournamentFactory {
 
     // for testing only
     protected void readTeamData(Class<?> baseType, String resourcePath, Charset charset) throws IOException {
-        readTeams(new Source(baseType, resourcePath, charset));
-    }
-
-    public void readTeamData(File dataFile) throws IOException {
-        readTeams(new Source(dataFile));
+        readTeams(makeSource(baseType, resourcePath, charset));
     }
 
     public void readTeamData(File dataFile, Charset charset) throws IOException {
-        readTeams(new Source(dataFile, charset));
+        readTeams(makeSource(dataFile, charset));
+    }
+
+    public void readTeamData(File dataFile) throws IOException {
+        readTeams(makeSource(dataFile));
     }
 
     //-------------------------------------------------------------------------------------------------------------------------
@@ -427,15 +425,15 @@ public class CSVTournamentFactory {
 
     // for testing only
     protected void readJuryData(Class<?> baseType, String resourcePath, Charset charset) throws IOException {
-        readJuries(new Source(baseType, resourcePath, charset));
-    }
-
-    public void readJuryData(File dataFile) throws IOException {
-        readJuries(new Source(dataFile));
+        readJuries(makeSource(baseType, resourcePath, charset));
     }
 
     public void readJuryData(File dataFile, Charset charset) throws IOException {
-        readJuries(new Source(dataFile, charset));
+        readJuries(makeSource(dataFile, charset));
+    }
+
+    public void readJuryData(File dataFile) throws IOException {
+        readJuries(makeSource(dataFile));
     }
 
     //-------------------------------------------------------------------------------------------------------------------------
@@ -450,12 +448,12 @@ public class CSVTournamentFactory {
         readBiases(new InputStreamReader(baseType.getResourceAsStream(resourcePath), charset));
     }
 
-    public void readBiasData(File dataFile) throws IOException {
-        readBiases(new FileReader(dataFile));
-    }
-
     public void readBiasData(File dataFile, Charset charset) throws IOException {
         readBiases(new InputStreamReader(new FileInputStream(dataFile), charset));
+    }
+
+    public void readBiasData(File dataFile) throws IOException {
+        readBiases(new FileReader(dataFile));
     }
 
     //-------------------------------------------------------------------------------------------------------------------------
@@ -467,15 +465,15 @@ public class CSVTournamentFactory {
 
     // for testing only
     protected void readSchedule(Class<?> baseType, String resourcePath, Charset charset) throws IOException {
-        readSchedule(new Source(baseType, resourcePath, charset));
-    }
-
-    public void readSchedule(File dataFile) throws IOException {
-        readSchedule(new Source(dataFile));
+        readSchedule(makeSource(baseType, resourcePath, charset));
     }
 
     public void readSchedule(File dataFile, Charset charset) throws IOException {
-        readSchedule(new Source(dataFile, charset));
+        readSchedule(makeSource(dataFile, charset));
+    }
+
+    public void readSchedule(File dataFile) throws IOException {
+        readSchedule(makeSource(dataFile));
     }
 
     public void setBiases(Map<String, Double> biases) {
