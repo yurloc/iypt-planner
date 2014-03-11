@@ -102,12 +102,13 @@ public class CSVTournamentFactory {
 
     /**
      * Determines if the line should be ignored. We are ignoring:
+     * <ul>
+     * <li>comment lines starting with {@code '#'} character (ignoring leading spaces)</li>
+     * <li>empty lines (including non-empty whitespace-only lines)</li>
+     * </ul>
      *
-     * <ul> <li>comment lines starting with {@code '#'} character (ignoring leading spaces)</li> <li>empty lines (including
-     * non-empty whitespace-only lines)</li> </ul>
-     *
-     * @param line
-     * @return
+     * @param line the line to check
+     * @return True if the line should be ignored
      */
     private boolean ignore(List<String> line) {
         if (line.isEmpty()) {

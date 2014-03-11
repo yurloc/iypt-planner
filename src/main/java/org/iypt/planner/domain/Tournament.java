@@ -121,9 +121,9 @@ public class Tournament implements Solution<HardAndSoftScore> {
     }
 
     /**
-     * This is collection of planning entities.
+     * This is the collection of planning entities.
      *
-     * @return 
+     * @return all seats in all juries
      */
     @PlanningEntityCollectionProperty
     public Collection<Seat> getSeats() {
@@ -288,24 +288,31 @@ public class Tournament implements Solution<HardAndSoftScore> {
     /**
      * Performs a sanity-check on this tournament. Checks the included problem facts and indicates if some hard constraints
      * obviously cannot be satisfied.
-     * @return <code>false</code> if a feasible solution certainly does not exist,
-     * <code>true</code> if a feasible solution <em>may</em> be found
+     *
+     * @return <code>false</code> if a feasible solution certainly does not exist, <code>true</code> if a feasible solution
+     * <em>may</em> be found
      */
     public boolean isFeasibleSolutionPossible() {
         for (Round r : rounds) {
             int jurorsNeeded = r.getGroups().size() * juryCapacity;
             int jurorsAvailable = jurors.size() - getDayOffsPerRound(r);
-            if (jurorsNeeded > jurorsAvailable) return false;
+            if (jurorsNeeded > jurorsAvailable) {
+                return false;
+            }
         }
         return true;
     }
 
     /**
-     * Changes jury capacity for this tournament. It can be set anytime. If the tournament has no rounds
-     * (and juries) yet, the capacity will be effective when they are added.
-     * If juries have already been created, number of seats (planning entities returned by {@link #getSeats()}) will be adjusted.
-     * If the capacity increases, empty seats will be added and existing ones will not be touched.
-     * If the capacity decreases, the redundant seats will be removed while, again, the rest will be preserved.
+     * Changes jury capacity for this tournament. It can be set anytime and does the following:
+     * <ul>
+     * <li>If the tournament has no rounds (and juries) yet, the capacity will be effective when they are added.</li>
+     * <li>If juries have already been created, number of seats (planning entities returned by {@link #getSeats()}) will be
+     * adjusted.</li>
+     * <li>If the capacity increases, empty seats will be added and existing ones will not be touched.</li>
+     * <li>If the capacity decreases, the redundant seats will be removed while, again, the rest will be preserved.</li>
+     * </ul>
+     *
      * @param newCapacity number of jurors in each jury
      * @return <code>true</code> if the number of seats has changed
      */
@@ -352,7 +359,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
     // ------------------------------------------------------------------------
     // Getters & Setters
     // ------------------------------------------------------------------------
-
+    //
     public void setSeats(List<Seat> seats) {
         this.seats = seats;
     }
@@ -432,15 +439,21 @@ public class Tournament implements Solution<HardAndSoftScore> {
                 for (Team t : g.getTeams()) {
                     sb.append(t.getCountry()).append(' ');
                 }
-                if (g.getSize() == 3) sb.append("   ");
+                if (g.getSize() == 3) {
+                    sb.append("   ");
+                }
                 sb.append("| ");
                 for (Seat s : this.getSeats()) {
                     if (s.getJury().equals(g.getJury())) {
                         idle.remove(s.getJuror());
                         Juror juror = s.getJuror();
-                        if (s.isChair()) sb.append('[');
+                        if (s.isChair()) {
+                            sb.append('[');
+                        }
                         sb.append(juror == null ? "----" : juror);
-                        if (s.isChair()) sb.append(']');
+                        if (s.isChair()) {
+                            sb.append(']');
+                        }
                         sb.append(',');
                     }
                 }
@@ -482,6 +495,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
     }
 
     public static class Statistics {
+
         private double optimalLoad = 0.0;
         private int rounds = 0;
 
