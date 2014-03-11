@@ -1,5 +1,6 @@
 package org.iypt.planner.csv.full_data;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -59,7 +60,9 @@ public class Juror {
         return String.format("%s {averageBias=%+.2f, marksRecorded=%d}", getName(), getAverageBias(), biases.size());
     }
 
-    public static class BiasComparator implements Comparator<Juror> {
+    public static class BiasComparator implements Comparator<Juror>, Serializable {
+
+        private static final long serialVersionUID = 1L;
 
         @Override
         public int compare(Juror o1, Juror o2) {

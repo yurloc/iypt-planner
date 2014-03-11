@@ -1,5 +1,6 @@
 package org.iypt.planner.solver.util;
 
+import java.io.Serializable;
 import java.util.Comparator;
 import org.drools.planner.core.score.constraint.ConstraintOccurrence;
 import org.drools.planner.core.score.constraint.ConstraintType;
@@ -12,7 +13,9 @@ import org.drools.planner.core.score.constraint.UnweightedConstraintOccurrence;
  *
  * @author jlocker
  */
-public class ConstraintComparator implements Comparator<ConstraintOccurrence> {
+public class ConstraintComparator implements Comparator<ConstraintOccurrence>, Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Override
     public int compare(ConstraintOccurrence o1, ConstraintOccurrence o2) {
