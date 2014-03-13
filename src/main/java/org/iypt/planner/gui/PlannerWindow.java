@@ -632,7 +632,7 @@ public class PlannerWindow extends Window implements Bindable {
     private void tournamentChanged() {
         Tournament t = solver.getTournament();
         totalJurorsLabel.setText(Integer.toString(t.getJurors().size()));
-        juryCapacitySpinner.setSelectedItem(Integer.valueOf(t.getJuryCapacity()));
+        juryCapacitySpinner.setSelectedItem(t.getJuryCapacity());
         totalSeatsLabel.setText(Integer.toString(t.getSeats().size()));
         totalMandaysLabel.setText(Integer.toString(t.getJurors().size() * t.getRounds().size() - t.getDayOffs().size()));
         optimalLoadLabel.setText(String.format("%.4f", t.getStatistics().getOptimalLoad()));
