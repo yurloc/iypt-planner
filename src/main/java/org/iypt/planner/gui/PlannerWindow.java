@@ -57,6 +57,7 @@ import org.apache.pivot.wtk.content.ListItem;
 import org.drools.planner.core.event.BestSolutionChangedEvent;
 import org.drools.planner.core.event.SolverEventListener;
 import org.drools.planner.core.score.constraint.ConstraintOccurrence;
+import org.iypt.planner.Constants;
 import org.iypt.planner.csv.CSVTournamentFactory;
 import org.iypt.planner.csv.ScheduleWriter;
 import org.iypt.planner.domain.Juror;
@@ -640,7 +641,7 @@ public class PlannerWindow extends Window implements Bindable {
     }
 
     private TournamentSolver newSolver() {
-        return new TournamentSolver("/org/iypt/planner/solver/config.xml", new SolverListener());
+        return new TournamentSolver(Constants.SOLVER_CONFIG_PATH, new SolverListener());
     }
 
     //=========================================================================================================================
