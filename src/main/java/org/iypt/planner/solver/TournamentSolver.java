@@ -41,7 +41,8 @@ import org.iypt.planner.domain.Seat;
 import org.iypt.planner.domain.Tournament;
 import org.iypt.planner.gui.GroupRoster;
 import org.iypt.planner.gui.GroupRoster.JurorRow;
-import org.iypt.planner.gui.JurorDay;
+import org.iypt.planner.gui.JurorAssignment;
+import org.iypt.planner.gui.JurorInfo;
 import org.iypt.planner.gui.LockListener;
 import org.iypt.planner.solver.util.ConstraintComparator;
 
@@ -70,7 +71,7 @@ public class TournamentSolver {
     private Map<Round, List<Juror>> awayMap = new HashMap<>();
     private Map<Juror, List<CountryCode>> conflictMap = new HashMap<>();
     private Map<Juror, JurorLoad> loadMap = new HashMap<>();
-    private Map<Juror, List<JurorDay>> jurorDayMap = new HashMap<>();
+    private Map<Juror, List<JurorAssignment>> jurorAssignmentMap = new HashMap<>();
 
     private static final class LockListenerList extends ListenerList<LockListener> implements LockListener {
 
@@ -216,26 +217,18 @@ public class TournamentSolver {
         return list;
     }
 
-    public List<CountryCode> getConflicts(Juror juror) {
-        return conflictMap.get(juror);
-    }
-
-    public JurorLoad getLoad(Juror juror) {
-        return loadMap.get(juror);
-    }
-
-    public List<JurorDay> getJurorDays(Juror juror) {
-        return jurorDayMap.get(juror);
+    public JurorInfo getJurorInfo(Juror juror) {
+        return new JurorInfo(juror, conflictMap.get(juror), jurorAssignmentMap.get(juror), loadMap.get(juror));
     }
 
     // TODO refactor me, duplicating some code from Tournament.toDisplayString()
     private void updateDetails() {
         for (Juror juror : tournament.getJurors()) {
-            ArrayList<JurorDay> days = new ArrayList<>(tournament.getRounds().size());
-            jurorDayMap.put(juror, days);
+            ArrayList<JurorAssignment> assignments = new ArrayList<>(tournament.getRounds().size());
+            jurorAssignmentMap.put(juror, assignments);
             for (Round round : tournament.getRounds()) {
                 // idle all days by default
-                days.add(round.getNumber() - 1, new JurorDay(round, true));
+                assignments.add(round.getNumber() - 1, new JurorAssignment(round, true));
             }
         }
         // collect the lists of idle and away jurors per round
@@ -246,13 +239,13 @@ public class TournamentSolver {
             for (Seat seat : tournament.getSeats()) {
                 if (seat.isOccupied() && seat.getJury().getGroup().getRound().equals(round)) {
                     idleList.remove(seat.getJuror());
-                    jurorDayMap.get(seat.getJuror()).set(round.getNumber() - 1, new JurorDay(seat.getJury().getGroup()));
+                    jurorAssignmentMap.get(seat.getJuror()).set(round.getNumber() - 1, new JurorAssignment(seat.getJury().getGroup()));
                 }
             }
             for (DayOff dayOff : tournament.getDayOffs()) {
                 if (dayOff.getDay() == round.getDay()) {
                     awayList.add(dayOff.getJuror());
-                    jurorDayMap.get(dayOff.getJuror()).set(round.getNumber() - 1, new JurorDay(round, false));
+                    jurorAssignmentMap.get(dayOff.getJuror()).set(round.getNumber() - 1, new JurorAssignment(round, false));
                 }
             }
             idleList.removeAll(awayList); // idle = all -busy -away
@@ -296,37 +289,36 @@ public class TournamentSolver {
         return solving;
     }
 
-    public void applyChanges(Juror juror) {
-        for (JurorDay day : jurorDayMap.get(juror)) {
-            if (day.isDirty()) {
+    public void applyChanges(JurorInfo jurorInfo) {
+        Juror juror = jurorInfo.getJuror();
+        for (JurorAssignment assignment : jurorInfo.getSchedule()) {
+            if (assignment.isDirty()) {
 
                 // no matter what the change is...
-                if (day.getStatus() == JurorDay.Status.ASSIGNED) {
+                if (assignment.getOriginalStatus() == JurorAssignment.Status.ASSIGNED) {
                     // empty the seat
                     for (Seat seat : tournament.getSeats()) {
-                        if (seat.getJuror() == juror && seat.getJury().getGroup().getRound().getDay() == day.getRound().getDay()) {
+                        if (seat.getJuror() == juror && seat.getJury().getGroup().getRound().getDay() == assignment.getRound().getDay()) {
                             seat.setJuror(null);
                         }
                     }
-                } else if (day.getStatus() == JurorDay.Status.AWAY) {
+                } else if (assignment.getOriginalStatus() == JurorAssignment.Status.AWAY) {
                     // cancel day off
                     ArrayList<DayOff> cancelled = new ArrayList<>();
                     for (DayOff dayOff : tournament.getDayOffs()) {
                         // FIXME this would cancel multiple day offs if there were multiple rounds in one day
-                        if (dayOff.getJuror() == juror && dayOff.getDay() == day.getRound().getDay()) {
+                        if (dayOff.getJuror() == juror && dayOff.getDay() == assignment.getRound().getDay()) {
                             cancelled.add(dayOff);
                         }
                     }
                     tournament.getDayOffs().removeAll(cancelled);
                 }
 
-                // no matter what the original state is
-                if (day.getChange() == JurorDay.Status.AWAY) {
+                // no matter what the original status is
+                if (assignment.getCurrentStatus() == JurorAssignment.Status.AWAY) {
                     // add day off
-                    tournament.addDayOffs(new DayOff(juror, day.getRound().getDay()));
+                    tournament.addDayOffs(new DayOff(juror, assignment.getRound().getDay()));
                 }
-
-                day.applyChange();
             }
         }
         updateDetails();

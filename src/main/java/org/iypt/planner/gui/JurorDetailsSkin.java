@@ -32,13 +32,12 @@ import org.iypt.planner.domain.JurorLoad;
 import org.iypt.planner.domain.JurorType;
 import org.iypt.planner.domain.Team;
 import org.iypt.planner.domain.util.CountryCodeIO;
-import org.iypt.planner.solver.TournamentSolver;
 
 /**
  *
  * @author jlocker
  */
-public class JurorDetailsSkin extends ContainerSkin {
+class JurorDetailsSkin extends ContainerSkin {
 
     private static final Font fontOrig = (Font) new Label().getStyles().get("font");
     private static final Font fontBold = fontOrig.deriveFont(fontOrig.getStyle() | Font.BOLD);
@@ -46,14 +45,14 @@ public class JurorDetailsSkin extends ContainerSkin {
     private static final ListItem busyItem = new ListItem(Images.getImage("script_edit.png"));
     private static final ListItem idleItem = new ListItem(Images.getImage("cup.png"));
     private static final ListItem awayItem = new ListItem(Images.getImage("delete.png"));
-    private static final Filter<ListItem> filter = new Filter<ListItem>() {
+    private static final Filter<ListItem> statusChoiceFilter = new Filter<ListItem>() {
         @Override
         public boolean include(ListItem item) {
             return item == busyDisabledItem;
         }
     };
-    private final Map<JurorDay, ListButton> stateButtons = new HashMap<>();
-    private final Map<JurorDay, Label> roundLables = new HashMap<>();
+    private final Map<JurorAssignment, ListButton> roundStatusMap = new HashMap<>();
+    private final Map<JurorAssignment, Label> roundLabelMap = new HashMap<>();
     private Component content;
     private Label fullNameLabel;
     private BoxPane conflictsBoxPane;
@@ -70,7 +69,7 @@ public class JurorDetailsSkin extends ContainerSkin {
     @Override
     public void install(Component component) {
         super.install(component);
-        JurorDetails details = (JurorDetails) component;
+        final JurorDetails details = (JurorDetails) component;
 
         BXMLSerializer bxmlSerializer = new BXMLSerializer();
         try {
@@ -95,14 +94,14 @@ public class JurorDetailsSkin extends ContainerSkin {
         revertButton.getButtonPressListeners().add(new ButtonPressListener() {
             @Override
             public void buttonPressed(Button button) {
-                revert();
+                details.revertSchedule();
             }
         });
 
         saveButton.getButtonPressListeners().add(new ButtonPressListener() {
             @Override
             public void buttonPressed(Button button) {
-                save();
+                details.saveChanges();
             }
         });
     }
@@ -128,14 +127,13 @@ public class JurorDetailsSkin extends ContainerSkin {
         content.setSize(getWidth(), getHeight());
     }
 
-    public void showJuror(Juror juror) {
-        JurorDetails details = (JurorDetails) getComponent();
-        TournamentSolver solver = details.getSolver();
+    void showJuror(final JurorInfo jurorInfo) {
+        Juror juror = jurorInfo.getJuror();
 
         // full name
         fullNameLabel.setText(juror.fullName());
         conflictsBoxPane.removeAll();
-        for (CountryCode cc : solver.getConflicts(juror)) {
+        for (CountryCode cc : jurorInfo.getConflicts()) {
             ImageView flag = new ImageView(Images.getFlag(cc));
             flag.setTooltipText(CountryCodeIO.getShortName(cc));
             flag.setTooltipDelay(200);
@@ -160,7 +158,7 @@ public class JurorDetailsSkin extends ContainerSkin {
         }
 
         // load
-        JurorLoad load = solver.getLoad(juror);
+        JurorLoad load = jurorInfo.getLoad();
         loadMeter.setPercentage(load.getLoad());
         loadMeter.setText(String.format("%.2f", load.getLoad()));
         Component.StyleDictionary loadStyles = loadMeter.getStyles();
@@ -171,90 +169,66 @@ public class JurorDetailsSkin extends ContainerSkin {
         }
 
         // schedule
-        roundLables.clear();
-        stateButtons.clear();
+        roundLabelMap.clear();
+        roundStatusMap.clear();
         jurorScheduleTablePane.getRows().remove(0, jurorScheduleTablePane.getRows().getLength());
-        final java.util.List<JurorDay> jurorDays = solver.getJurorDays(juror);
-        for (final JurorDay jurorDay : jurorDays) {
-            TablePane.Row row = new TablePane.Row();
-            jurorScheduleTablePane.getRows().add(row);
+        for (final JurorAssignment assignment : jurorInfo.getSchedule()) {
+            TablePane.Row roundRow = new TablePane.Row();
+            jurorScheduleTablePane.getRows().add(roundRow);
 
-            final Label label = new Label(jurorDay.getRound().toString());
-            roundLables.put(jurorDay, label);
-            row.add(label);
+            final Label roundLabel = new Label(assignment.getRound().toString());
+            roundLabelMap.put(assignment, roundLabel);
+            roundRow.add(roundLabel);
 
-            ListButton listButton = new ListButton();
-            stateButtons.put(jurorDay, listButton);
-            listButton.setDisabledItemFilter(filter);
+            ListButton roundStatusListButton = new ListButton();
+            roundStatusMap.put(assignment, roundStatusListButton);
+            roundStatusListButton.setDisabledItemFilter(statusChoiceFilter);
             ListViewItemRenderer renderer = new ListViewItemRenderer();
             renderer.setShowIcon(true);
-            listButton.setItemRenderer(renderer);
-            List<ListItem> list = new ArrayList<>(3);
-            listButton.setListData(list);
-            row.add(listButton);
+            roundStatusListButton.setItemRenderer(renderer);
+            List<ListItem> statusChoiceList = new ArrayList<>(JurorAssignment.Status.values().length);
+            roundStatusListButton.setListData(statusChoiceList);
+            roundRow.add(roundStatusListButton);
 
-            if (jurorDay.getStatus() == JurorDay.Status.ASSIGNED) {
-                list.add(busyItem);
+            if (assignment.getCurrentStatus() == JurorAssignment.Status.ASSIGNED) {
+                statusChoiceList.add(busyItem);
                 BoxPane teams = new BoxPane();
-                row.add(teams);
-                teams.add(new Label(jurorDay.getGroup().getName()));
-                for (Team team : jurorDay.getGroup().getTeams()) {
+                roundRow.add(teams);
+                teams.add(new Label(assignment.getGroup().getName()));
+                for (Team team : assignment.getGroup().getTeams()) {
                     teams.add(new ImageView(Images.getFlag(team.getCountry())));
                 }
             } else {
-                list.add(busyDisabledItem);
+                statusChoiceList.add(busyDisabledItem);
             }
-            list.add(idleItem);
-            list.add(awayItem);
-            setSelectedIndex(listButton, jurorDay);
+            statusChoiceList.add(idleItem);
+            statusChoiceList.add(awayItem);
 
-            revertButton.setEnabled(false);
-            saveButton.setEnabled(false);
-
-            listButton.getListButtonSelectionListeners().add(new ListButtonSelectionListener.Adapter() {
+            roundStatusListButton.getListButtonSelectionListeners().add(new ListButtonSelectionListener.Adapter() {
                 @Override
                 public void selectedIndexChanged(ListButton listButton, int previousSelectedIndex) {
-                    boolean dirty;
-                    dirty = jurorDay.change(JurorDay.Status.values()[listButton.getSelectedIndex()]);
-                    // if this button is dirty, higlight it's label
-                    label.getStyles().put("font", dirty ? fontBold : fontOrig);
-
-                    // now decide if revert and save button should be enabled
-                    if (!dirty) {
-                        // need to check the rest
-                        for (JurorDay jd : jurorDays) {
-                            if (jd.isDirty()) {
-                                dirty |= true;
-                            }
-                        }
-                    }
-                    revertButton.setEnabled(dirty);
-                    saveButton.setEnabled(dirty);
+                    ((JurorDetails) getComponent()).changeStatus(assignment, listButton.getSelectedIndex());
                 }
             });
         }
-
+        // finally render the schedule
+        renderSchedule(jurorInfo);
     }
 
-    private void setSelectedIndex(ListButton button, JurorDay jd) {
-        button.setSelectedIndex(jd.getStatus().ordinal());
-    }
-
-    private void revert() {
-        JurorDetails details = (JurorDetails) getComponent();
-        TournamentSolver solver = details.getSolver();
-
-        for (JurorDay day : solver.getJurorDays(details.getJuror())) {
-            if (day.isDirty()) {
-                setSelectedIndex(stateButtons.get(day), day);
-                roundLables.get(day).getStyles().put("font", fontOrig);
-                day.reset();
-            }
+    void renderSchedule(JurorInfo jurorInfo) {
+        boolean scheduleHasChanges = false;
+        for (JurorAssignment assignment : jurorInfo.getSchedule()) {
+            // update overall dirty flag
+            scheduleHasChanges = scheduleHasChanges |= assignment.isDirty();
+            // if this assignment is dirty, higlight the round label
+            roundLabelMap.get(assignment).getStyles().put("font", assignment.isDirty() ? fontBold : fontOrig);
+            // set selected status
+            ListButton statusChoiceButton = roundStatusMap.get(assignment);
+            statusChoiceButton.setSelectedIndex(assignment.getCurrentStatus().ordinal());
         }
-    }
 
-    private void save() {
-        JurorDetails details = (JurorDetails) getComponent();
-        details.saveChanges();
+        // finally enable/disable save & revert buttons
+        revertButton.setEnabled(scheduleHasChanges);
+        saveButton.setEnabled(scheduleHasChanges);
     }
 }

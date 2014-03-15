@@ -8,42 +8,49 @@ import org.iypt.planner.solver.TournamentSolver;
  *
  * @author jlocker
  */
-public class JurorDetails extends Container {
+class JurorDetails extends Container {
 
     private final JurorDetailsSkin skin;
     private TournamentSolver solver;
-    private Juror juror;
+    private JurorInfo jurorInfo;
     private PlannerWindow listener;
 
-    public JurorDetails() {
+    JurorDetails() {
         skin = new JurorDetailsSkin();
         super.setSkin(skin);
     }
 
-    public TournamentSolver getSolver() {
-        return solver;
-    }
-
-    public void showJuror(Juror juror) {
-        this.juror = juror;
-        skin.showJuror(juror);
-    }
-
-    public Juror getJuror() {
-        return juror;
-    }
-
-    public void setListener(PlannerWindow listener) {
+    void setListener(PlannerWindow listener) {
         this.listener = listener;
-    }
-
-    void saveChanges() {
-        solver.applyChanges(juror);
-        skin.showJuror(juror);
-        listener.solutionChanged();
     }
 
     void setSolver(TournamentSolver solver) {
         this.solver = solver;
+    }
+
+    void showJuror(Juror juror) {
+        this.jurorInfo = solver.getJurorInfo(juror);
+        skin.showJuror(jurorInfo);
+    }
+
+    void changeStatus(JurorAssignment assignment, int statusId) {
+        JurorAssignment.Status newStatus = JurorAssignment.Status.values()[statusId];
+        assignment.change(newStatus);
+        skin.renderSchedule(jurorInfo);
+    }
+
+    void saveChanges() {
+        // TODO review and improve this
+        solver.applyChanges(jurorInfo);
+        jurorInfo = solver.getJurorInfo(jurorInfo.getJuror());
+        skin.showJuror(jurorInfo);
+        listener.solutionChanged();
+    }
+
+    void revertSchedule() {
+        for (JurorAssignment assignment : jurorInfo.getSchedule()) {
+            assignment.reset();
+        }
+        skin.renderSchedule(jurorInfo);
     }
 }
