@@ -5,13 +5,8 @@ import org.apache.pivot.collections.ArrayList;
 import org.apache.pivot.collections.List;
 import org.apache.pivot.util.ListenerList;
 import org.apache.pivot.wtk.Container;
-import org.apache.pivot.wtk.media.Image;
 import org.iypt.planner.domain.Group;
-import org.iypt.planner.domain.Juror;
-import org.iypt.planner.domain.JurorType;
-import org.iypt.planner.domain.Seat;
 import org.iypt.planner.domain.Team;
-import org.iypt.planner.solver.TournamentSolver;
 
 /**
  *
@@ -19,93 +14,6 @@ import org.iypt.planner.solver.TournamentSolver;
  */
 public class GroupRoster extends Container {
 
-    public static class JurorRow {
-
-        private Seat seat;
-        private Juror juror;
-        private Image icon;
-        private Image flag;
-        private String name;
-        private boolean type;
-        private boolean chair;
-
-        private JurorRow() {
-            this.icon = Images.getImage(Images.PERSON_DEFAULT);
-        }
-
-        private JurorRow(Juror juror) {
-            this.juror = juror;
-            this.icon = Images.getImage(Images.PERSON_DEFAULT);
-            this.flag = Images.getFlag(juror.getCountry());
-            this.name = toDisplayName2(juror);
-            this.type = juror.getType() == JurorType.INDEPENDENT;
-            this.chair = juror.isChairCandidate();
-        }
-
-        public static JurorRow newInstance(Juror juror) {
-            if (juror == Juror.NULL || juror == null) {
-                return new JurorRow();
-            }
-            return new JurorRow(juror);
-        }
-
-        private static JurorRow newInstance(Seat seat) {
-            JurorRow row = newInstance(seat.getJuror());
-            row.seat = seat;
-            return row;
-        }
-
-        private static String toDisplayName1(Juror juror) {
-            StringBuilder sb = new StringBuilder(20);
-            if (juror.getLastName().length() > 10) {
-                sb.append(juror.getLastName(), 0, 9).append("_");
-            } else {
-                sb.append(juror.getLastName());
-            }
-            sb.append(", ").append(juror.getFirstName(), 0, 1).append(".");
-            return sb.toString();
-        }
-
-        private static String toDisplayName2(Juror juror) {
-            return juror.getFirstName().substring(0, 1) + juror.getLastName().charAt(0);
-        }
-
-        public Seat getSeat() {
-            return seat;
-        }
-
-        public Juror getJuror() {
-            return juror;
-        }
-
-        public Image getIcon() {
-            return icon;
-        }
-
-        public Image getFlag() {
-            return flag;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public boolean isType() {
-            return type;
-        }
-
-        public boolean isChair() {
-            return chair;
-        }
-
-        public void breakLock() {
-            icon = Images.getImage(Images.PERSON_BROKEN_LOCK);
-        }
-
-        public void lock() {
-            icon = Images.getImage(Images.PERSON_LOCKED);
-        }
-    }
 
     private static final class GroupRosterListenerList extends ListenerList<GroupRosterListener> implements GroupRosterListener {
 
@@ -119,7 +27,7 @@ public class GroupRoster extends Container {
     private GroupRosterListenerList groupRosterListenerList = new GroupRosterListenerList();
     private TournamentSchedule schedule;
     private Group group;
-    private List<JurorRow> jurorList = new ArrayList<>();
+    private List<SeatInfo> seats = new ArrayList<>();
     private boolean roundLocked;
 
     boolean isRoundLocked() {
@@ -129,15 +37,14 @@ public class GroupRoster extends Container {
     // TODO move this into the skin?
     void jurorSelected(Object row) {
         if (row != null) {
-            JurorRow jurorRow = (JurorRow) row;
-            schedule.jurorSelected(jurorRow.juror);
+            SeatInfo seat = (SeatInfo) row;
+            schedule.seatSelected(seat);
         }
     }
 
     void lockIn(int rowIndex) {
-        JurorRow row = getJurorList().get(rowIndex);
-        schedule.lockJuror(row);
-
+        SeatInfo seat = getJurorList().get(rowIndex);
+        schedule.lockSeat(seat);
     }
 
     void lockOut(int rowIndex) {
@@ -145,11 +52,12 @@ public class GroupRoster extends Container {
     }
 
     void unlock(int rowIndex) {
-        JurorRow row = getJurorList().get(rowIndex);
-        schedule.unlockJuror(row);
+        SeatInfo seat = getJurorList().get(rowIndex);
+        schedule.unlockSeat(seat);
     }
 
     public GroupRoster() {
+        super();
         setSkin(new GroupRosterSkin());
     }
 
@@ -174,20 +82,15 @@ public class GroupRoster extends Container {
     }
 
     private void updateJurors() {
-        TournamentSolver solver = schedule.getSolver();
-        jurorList = new ArrayList<>(solver.getJuryCapacity());
-        roundLocked = solver.getTournament().isLocked(group.getRound());
-        for (Seat seat : solver.getTournament().getSeats(group.getJury())) {
-            JurorRow row = JurorRow.newInstance(seat);
-            if (!roundLocked && solver.isLocked(row)) {
-                row.lock();
-            }
-            jurorList.add(row);
+        seats = new ArrayList<>();
+        for (SeatInfo seat : schedule.getSeats(group)) {
+            seats.add(seat);
         }
+        roundLocked = schedule.getTournament().isLocked(group.getRound());
     }
 
-    public List<JurorRow> getJurorList() {
-        return jurorList;
+    public List<SeatInfo> getJurorList() {
+        return seats;
     }
 
     void update(Group group) {

@@ -9,7 +9,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import org.apache.pivot.util.ListenerList;
 import org.drools.ClassObjectFilter;
 import org.drools.KnowledgeBase;
 import org.drools.WorkingMemory;
@@ -39,11 +38,9 @@ import org.iypt.planner.domain.Lock;
 import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Seat;
 import org.iypt.planner.domain.Tournament;
-import org.iypt.planner.gui.GroupRoster;
-import org.iypt.planner.gui.GroupRoster.JurorRow;
 import org.iypt.planner.gui.JurorAssignment;
 import org.iypt.planner.gui.JurorInfo;
-import org.iypt.planner.gui.LockListener;
+import org.iypt.planner.gui.SeatInfo;
 import org.iypt.planner.solver.util.ConstraintComparator;
 
 import static org.iypt.planner.Constants.CONSTRAINT_TYPE_HARD;
@@ -72,21 +69,6 @@ public class TournamentSolver {
     private Map<Juror, List<CountryCode>> conflictMap = new HashMap<>();
     private Map<Juror, JurorLoad> loadMap = new HashMap<>();
     private Map<Juror, List<JurorAssignment>> jurorAssignmentMap = new HashMap<>();
-
-    private static final class LockListenerList extends ListenerList<LockListener> implements LockListener {
-
-        @Override
-        public void roundLockChanged(TournamentSolver solver) {
-            for (LockListener lockListener : this) {
-                lockListener.roundLockChanged(solver);
-            }
-        }
-    }
-    private LockListenerList lockListenerList = new LockListenerList();
-
-    public ListenerList<LockListener> getLockListeners() {
-        return lockListenerList;
-    }
 
     public TournamentSolver(String solverConfigResource, SolverEventListener listener) {
         this.listener = listener;
@@ -199,20 +181,20 @@ public class TournamentSolver {
         return idleMap.get(round);
     }
 
-    public List<GroupRoster.JurorRow> getAwayRows(Round round) {
+    public List<SeatInfo> getAwayRows(Round round) {
         // FIXME temporary solution
-        List<GroupRoster.JurorRow> list = new ArrayList<>();
+        List<SeatInfo> list = new ArrayList<>();
         for (Juror j : getAway(round)) {
-            list.add(GroupRoster.JurorRow.newInstance(j));
+            list.add(SeatInfo.newInstance(j));
         }
         return list;
     }
 
-    public List<GroupRoster.JurorRow> getIdleRows(Round round) {
+    public List<SeatInfo> getIdleRows(Round round) {
         // FIXME temporary solution
-        List<GroupRoster.JurorRow> list = new ArrayList<>();
+        List<SeatInfo> list = new ArrayList<>();
         for (Juror j : getIdle(round)) {
-            list.add(GroupRoster.JurorRow.newInstance(j));
+            list.add(SeatInfo.newInstance(j));
         }
         return list;
     }
@@ -324,12 +306,12 @@ public class TournamentSolver {
         updateDetails();
     }
 
-    public void lockJuror(JurorRow row) {
-        tournament.lock(row.getSeat());
+    public void lockSeat(SeatInfo seatInfo) {
+        tournament.lock(seatInfo.getSeat());
     }
 
-    public void unlockJuror(JurorRow row) {
-        tournament.unlock(row.getSeat());
+    public void unlockSeat(SeatInfo seatInfo) {
+        tournament.unlock(seatInfo.getSeat());
     }
 
     public void requestRoundLockChange(Round round) {
@@ -348,22 +330,17 @@ public class TournamentSolver {
             }
             tournament.setOriginal(null);
         }
-        lockListenerList.roundLockChanged(this);
     }
 
     public void unlockRound(Round round) {
         tournament.unlock(round);
     }
 
-    public boolean isLocked(JurorRow row) {
-        return tournament.isLocked(row.getSeat());
-    }
-
     // might be used later for soft-locking
-    protected int getLockStatus(JurorRow row) {
+    protected int getLockStatus(SeatInfo seatInfo) {
         for (Lock lock : tournament.getLocks()) {
-            if (lock.matches(row.getSeat())) {
-                if (lock.getJuror() == row.getJuror()) {
+            if (lock.matches(seatInfo.getSeat())) {
+                if (lock.getJuror() == seatInfo.getJuror()) {
                     return 1;
                 } else {
                     return 2;

@@ -1,8 +1,7 @@
 package org.iypt.planner.gui;
 
-import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.Round;
-import org.iypt.planner.gui.GroupRoster.JurorRow;
+import org.iypt.planner.domain.Tournament;
 
 /**
  *
@@ -14,13 +13,15 @@ public interface TournamentScheduleListener {
 
     void roundSelected(Round round);
 
-    void jurorSelected(Juror juror);
+    void roundLockRequested(Round round);
 
-    void jurorLocked(JurorRow jurorRow);
+    void roundLocksChanged(Tournament tournament);
 
-    void jurorUnlocked(JurorRow jurorRow);
+    void seatSelected(SeatInfo seatInfo);
 
-    void requestRoundLock();
+    void seatLocked(SeatInfo seatInfo);
+
+    void seatUnlocked(SeatInfo seatInfo);
 
     class Adapter implements TournamentScheduleListener {
 
@@ -35,22 +36,27 @@ public interface TournamentScheduleListener {
         }
 
         @Override
-        public void jurorSelected(Juror juror) {
+        public void roundLockRequested(Round round) {
             // do nothing
         }
 
         @Override
-        public void jurorLocked(JurorRow jurorRow) {
+        public void roundLocksChanged(Tournament tournament) {
             // do nothing
         }
 
         @Override
-        public void jurorUnlocked(JurorRow jurorRow) {
+        public void seatSelected(SeatInfo seatInfo) {
             // do nothing
         }
 
         @Override
-        public void requestRoundLock() {
+        public void seatLocked(SeatInfo seatInfo) {
+            // do nothing
+        }
+
+        @Override
+        public void seatUnlocked(SeatInfo seatInfo) {
             // do nothing
         }
     }

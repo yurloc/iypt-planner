@@ -1,10 +1,13 @@
 package org.iypt.planner.gui;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.pivot.util.ListenerList;
 import org.apache.pivot.wtk.Container;
-import org.iypt.planner.domain.Juror;
+import org.iypt.planner.domain.Group;
 import org.iypt.planner.domain.Round;
-import org.iypt.planner.gui.GroupRoster.JurorRow;
+import org.iypt.planner.domain.Seat;
+import org.iypt.planner.domain.Tournament;
 import org.iypt.planner.solver.TournamentSolver;
 
 /**
@@ -30,47 +33,67 @@ public class TournamentSchedule extends Container {
         }
 
         @Override
-        public void jurorSelected(Juror juror) {
+        public void seatSelected(SeatInfo seatInfo) {
             for (TournamentScheduleListener listener : this) {
-                listener.jurorSelected(juror);
+                listener.seatSelected(seatInfo);
             }
         }
 
         @Override
-        public void jurorLocked(JurorRow jurorRow) {
+        public void seatLocked(SeatInfo seatInfo) {
             for (TournamentScheduleListener listener : this) {
-                listener.jurorLocked(jurorRow);
+                listener.seatLocked(seatInfo);
             }
         }
 
         @Override
-        public void jurorUnlocked(JurorRow jurorRow) {
+        public void seatUnlocked(SeatInfo seatInfo) {
             for (TournamentScheduleListener listener : this) {
-                listener.jurorUnlocked(jurorRow);
+                listener.seatUnlocked(seatInfo);
             }
         }
 
         @Override
-        public void requestRoundLock() {
+        public void roundLockRequested(Round round) {
             for (TournamentScheduleListener listener : this) {
-                listener.requestRoundLock();
+                listener.roundLockRequested(round);
+            }
+        }
+
+        @Override
+        public void roundLocksChanged(Tournament tournament) {
+            for (TournamentScheduleListener listener : this) {
+                listener.roundLocksChanged(tournament);
             }
         }
     }
-    private TournamentScheduleListenerList tournamentScheduleListeners = new TournamentScheduleListenerList();
-    private TournamentSolver solver;
+    private final TournamentScheduleListenerList tournamentScheduleListeners = new TournamentScheduleListenerList();
+    private final TournamentSolver solver;
 
     public TournamentSchedule(TournamentSolver solver) {
         this.solver = solver;
         setSkin(new TournamentScheduleSkin());
     }
 
-    TournamentSolver getSolver() {
-        return solver;
+    List<SeatInfo> getSeats(Group group) {
+        ArrayList<SeatInfo> seats = new ArrayList<>();
+        for (Seat seat : solver.getTournament().getSeats(group.getJury())) {
+            SeatInfo seatInfo = SeatInfo.newInstance(seat);
+            if (solver.getTournament().isLocked(seat)) {
+                seatInfo.lock();
+            }
+            seats.add(seatInfo);
+        }
+        return seats;
+    }
+
+    Tournament getTournament() {
+        return solver.getTournament();
     }
 
     public void updateSchedule() {
         tournamentScheduleListeners.scheduleChanged(this);
+        tournamentScheduleListeners.roundLocksChanged(getTournament());
     }
 
     void roundSelected(int roundNumber) {
@@ -79,21 +102,21 @@ public class TournamentSchedule extends Container {
         }
     }
 
-    void requestRoundLock() {
-        tournamentScheduleListeners.requestRoundLock();
+    void requestRoundLock(Round round) {
+        tournamentScheduleListeners.roundLockRequested(round);
     }
 
-    void jurorSelected(Juror juror) {
-        tournamentScheduleListeners.jurorSelected(juror);
+    void seatSelected(SeatInfo seatInfo) {
+        tournamentScheduleListeners.seatSelected(seatInfo);
     }
 
-    void lockJuror(JurorRow row) {
-        tournamentScheduleListeners.jurorLocked(row);
+    void lockSeat(SeatInfo seatInfo) {
+        tournamentScheduleListeners.seatLocked(seatInfo);
         tournamentScheduleListeners.scheduleChanged(this);
     }
 
-    void unlockJuror(JurorRow row) {
-        tournamentScheduleListeners.jurorUnlocked(row);
+    void unlockSeat(SeatInfo seatInfo) {
+        tournamentScheduleListeners.seatUnlocked(seatInfo);
         tournamentScheduleListeners.scheduleChanged(this);
     }
 

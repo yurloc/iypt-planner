@@ -64,7 +64,6 @@ import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Seat;
 import org.iypt.planner.domain.Tournament;
-import org.iypt.planner.gui.GroupRoster.JurorRow;
 import org.iypt.planner.pdf.PdfCreator;
 import org.iypt.planner.solver.TournamentSolver;
 import org.slf4j.Logger;
@@ -381,9 +380,9 @@ public class PlannerWindow extends Window implements Bindable {
         TableViewSelectionListener.Adapter selectedJurorListener = new TableViewSelectionListener.Adapter() {
             @Override
             public void selectedRowChanged(TableView tableView, Object previousSelectedRow) {
-                JurorRow row = (JurorRow) tableView.getSelectedRow();
-                if (row != null) {
-                    showJuror(row.getJuror());
+                SeatInfo seat = (SeatInfo) tableView.getSelectedRow();
+                if (seat != null) {
+                    showJurorDetails(seat.getJuror());
                 }
             }
         };
@@ -391,9 +390,9 @@ public class PlannerWindow extends Window implements Bindable {
             @Override
             public void focusedChanged(Component component, Component obverseComponent) {
                 if (component.isFocused()) {
-                    JurorRow row = (JurorRow) ((TableView) component).getSelectedRow();
-                    if (row != null) {
-                        showJuror(row.getJuror());
+                    SeatInfo seat = (SeatInfo) ((TableView) component).getSelectedRow();
+                    if (seat != null) {
+                        showJurorDetails(seat.getJuror());
                     }
                 }
             }
@@ -406,9 +405,9 @@ public class PlannerWindow extends Window implements Bindable {
         idleTableView.getTableViewSelectionListeners().add(new TableViewSelectionListener.Adapter() {
             @Override
             public void selectedRowChanged(TableView tableView, Object previousSelectedRow) {
-                JurorRow row = (JurorRow) tableView.getSelectedRow();
-                if (row != null) {
-                    prepareSwap(row.getJuror());
+                SeatInfo seat = (SeatInfo) tableView.getSelectedRow();
+                if (seat != null) {
+                    prepareSwap(seat.getJuror());
                 }
             }
         });
@@ -511,23 +510,23 @@ public class PlannerWindow extends Window implements Bindable {
             }
 
             @Override
-            public void jurorSelected(Juror juror) {
-                showJuror(juror);
-                prepareSwap(juror);
+            public void seatSelected(SeatInfo seatInfo) {
+                showJurorDetails(seatInfo.getJuror());
+                prepareSwap(seatInfo.getJuror());
             }
 
             @Override
-            public void jurorLocked(JurorRow jurorRow) {
-                solver.lockJuror(jurorRow);
+            public void seatLocked(SeatInfo seatInfo) {
+                solver.lockSeat(seatInfo);
             }
 
             @Override
-            public void jurorUnlocked(JurorRow jurorRow) {
-                solver.unlockJuror(jurorRow);
+            public void seatUnlocked(SeatInfo seatInfo) {
+                solver.unlockSeat(seatInfo);
             }
 
             @Override
-            public void requestRoundLock() {
+            public void roundLockRequested(Round round) {
                 solver.requestRoundLockChange(selectedRound);
                 solutionChanged();
             }
@@ -707,7 +706,7 @@ public class PlannerWindow extends Window implements Bindable {
         }
     }
 
-    private void showJuror(Juror juror) {
+    private void showJurorDetails(Juror juror) {
         if (juror != null) {
             jurorDetails.showJuror(juror);
         }
@@ -726,10 +725,10 @@ public class PlannerWindow extends Window implements Bindable {
         }
 
         if (juror1 != null) {
-            swap1TableView.setTableData(new ArrayList<>(JurorRow.newInstance(juror1)));
+            swap1TableView.setTableData(new ArrayList<>(SeatInfo.newInstance(juror1)));
         }
         if (juror2 != null) {
-            swap2TableView.setTableData(new ArrayList<>(JurorRow.newInstance(juror2)));
+            swap2TableView.setTableData(new ArrayList<>(SeatInfo.newInstance(juror2)));
             if (!solver.isSolving()) {
                 swapButton.setEnabled(true);
             }
