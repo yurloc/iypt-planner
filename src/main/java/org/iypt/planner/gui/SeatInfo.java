@@ -10,6 +10,7 @@ import org.iypt.planner.domain.Seat;
  * @author jlocker
  */
 public class SeatInfo {
+
     private final Seat seat;
     private final Juror juror;
     private final Image flag;
@@ -19,9 +20,14 @@ public class SeatInfo {
     private Image icon;
     private boolean locked;
 
-    private SeatInfo() {
+    /**
+     * Construct empty seat info.
+     *
+     * @param seat may be null
+     */
+    private SeatInfo(Seat seat) {
         this.icon = Images.getImage(Images.PERSON_DEFAULT);
-        this.seat = null;
+        this.seat = seat;
         this.juror = null;
         this.flag = null;
         this.name = null;
@@ -30,7 +36,16 @@ public class SeatInfo {
         this.locked = false;
     }
 
+    /**
+     * Construct juror info.
+     *
+     * @param seat may be null (idle juror)
+     * @param juror must not be null
+     */
     private SeatInfo(Seat seat, Juror juror) {
+        if (juror == null) {
+            throw new IllegalArgumentException("Argument 'juror' must not be null");
+        }
         this.seat = seat;
         this.juror = juror;
         this.icon = Images.getImage(Images.PERSON_DEFAULT);
@@ -41,14 +56,18 @@ public class SeatInfo {
     }
 
     public static SeatInfo newInstance(Juror juror) {
+        // TODO properly implement null object for Juror (and country) and never use null
         if (juror == Juror.NULL || juror == null) {
-            return new SeatInfo();
+            return new SeatInfo(null);
         }
         return new SeatInfo(null, juror);
     }
 
     static SeatInfo newInstance(Seat seat) {
-        return new SeatInfo(seat, seat.getJuror());
+        if (seat.getJuror() != null) {
+            return new SeatInfo(seat, seat.getJuror());
+        }
+        return new SeatInfo(seat);
     }
 
     private static String toDisplayName1(Juror juror) {
