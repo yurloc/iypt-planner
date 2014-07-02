@@ -1,5 +1,6 @@
 package org.iypt.planner.domain;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import org.iypt.planner.domain.util.RoundFactory;
@@ -98,6 +99,13 @@ public class TournamentTest {
         t.addJurors(jA5, jA6);
         assertThat(t.isFeasibleSolutionPossible()).isTrue();
 
+        // conflicts
+        assertThat(t.getConflicts()).hasSize(6);
+        t.addConflicts(new Conflict(jA1, tB.getCountry()));
+        assertThat(t.getConflicts()).hasSize(7);
+        t.addConflicts(new Conflict(jA2, tA.getCountry()));
+        assertThat(t.getConflicts()).hasSize(8); // duplicate conflicts are not removed
+
         // add some day offs
         t.addDayOffs(new DayOff(jA1, 1));
         t.addDayOffs(new DayOff(jA3, 1));
@@ -121,7 +129,7 @@ public class TournamentTest {
                 + t.getDayOffs().size()
                 + t.getConflicts().size() + EXTRA_FACTS);
 
-        t.clearDayOffs();
+        t.removeDayOffs(t.getDayOffs());
         assertThat(t.isFeasibleSolutionPossible()).isTrue();
 
         // add one more round
@@ -287,8 +295,10 @@ public class TournamentTest {
         t.addDayOffs(new DayOff(jA1, 1), new DayOff(jB1, 2));
         t.addLock(new Lock(jA1, t.getJuries().get(0), 0));
 
-        t.getConflicts().add(new Conflict(jA1, tF.getCountry()));
-        t.getConflicts().add(new Conflict(jB1, tE.getCountry()));
+        t.addConflicts(
+                new Conflict(jA1, tF.getCountry()),
+                new Conflict(jB1, tE.getCountry())
+        );
         t.setJuryCapacity(1);
         testClone(t);
     }

@@ -3,6 +3,7 @@ package org.iypt.planner.domain;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -125,6 +126,10 @@ public class Tournament implements Solution<HardAndSoftScore> {
         return clone;
     }
 
+    //-------------------------------------------------------------------------
+    // Seats
+    //-------------------------------------------------------------------------
+    //
     /**
      * This is the collection of planning entities.
      *
@@ -135,7 +140,39 @@ public class Tournament implements Solution<HardAndSoftScore> {
         return seats;
     }
 
-    private void calculateIratio() {
+    public List<Seat> getSeats(Jury jury) {
+        // XXX relying on the fixed order of juries and seats (note: cloned tournament must preserve the order!)
+        int start = juries.indexOf(jury) * juryCapacity;
+        return seats.subList(start, start + juryCapacity);
+    }
+
+    private List<Seat> getSeats(Round round) {
+        int rSize = round.getGroups().size() * juryCapacity;
+        return seats.subList((round.getNumber() - 1) * rSize, round.getNumber() * rSize);
+    }
+
+    public void setSeats(List<Seat> seats) {
+        this.seats = new ArrayList<>(seats);
+    }
+
+    public void clear() {
+        for (Seat seat : seats) {
+            seat.setJuror(null);
+        }
+    }
+
+    //-------------------------------------------------------------------------
+    // Inferred statistics
+    //-------------------------------------------------------------------------
+    //
+    private double calculateOptimalLoad() {
+        if (jurors.size() > 0 && rounds.size() > 0 && dayOffs.size() != jurors.size() * rounds.size()) {
+            return ((double) seats.size()) / (jurors.size() * rounds.size() - dayOffs.size());
+        }
+        return 0.0;
+    }
+
+    private void calculateIndependentRatio() {
         for (Round round : rounds) {
             double i = 0;
             int total = 0;
@@ -181,6 +218,27 @@ public class Tournament implements Solution<HardAndSoftScore> {
         }
     }
 
+    //-------------------------------------------------------------------------
+    // Rounds
+    //-------------------------------------------------------------------------
+    //
+    public List<Round> getRounds() {
+        return Collections.unmodifiableList(rounds);
+    }
+
+    public void setRounds(Collection<Round> rounds) {
+        this.rounds.clear();
+        this.groups.clear();
+        this.teams.clear();
+        this.juries.clear();
+        this.seats.clear();
+        addRounds(rounds);
+    }
+
+    public void addRounds(Round... rounds) {
+        addRounds(Arrays.asList(rounds));
+    }
+
     private void addRounds(Collection<Round> rounds) {
         this.rounds.addAll(rounds);
         stats.setRounds(this.rounds.size());
@@ -198,24 +256,20 @@ public class Tournament implements Solution<HardAndSoftScore> {
             }
         }
         stats.setOptimalLoad(calculateOptimalLoad());
-        calculateIratio();
+        calculateIndependentRatio();
     }
 
-    public void addRounds(Round... rounds) {
-        addRounds(Arrays.asList(rounds));
-    }
-
-    public void setRounds(Collection<Round> rounds) {
-        this.rounds.clear();
-        this.groups.clear();
-        this.teams.clear();
-        this.juries.clear();
-        this.seats.clear();
-        addRounds(rounds);
+    //-------------------------------------------------------------------------
+    // Jurors
+    //-------------------------------------------------------------------------
+    //
+    public List<Juror> getJurors() {
+        return Collections.unmodifiableList(jurors);
     }
 
     public void setJurors(Collection<Juror> jurors) {
         this.jurors.clear();
+        this.jurorDayOffsMap.clear();
         addJurors(jurors);
     }
 
@@ -230,7 +284,23 @@ public class Tournament implements Solution<HardAndSoftScore> {
             this.jurorDayOffsMap.put(juror, new ArrayList<DayOff>());
         }
         stats.setOptimalLoad(calculateOptimalLoad());
-        calculateIratio();
+        calculateIndependentRatio();
+    }
+
+    //-------------------------------------------------------------------------
+    // Day offs
+    //-------------------------------------------------------------------------
+    //
+    public List<DayOff> getDayOffs() {
+        return Collections.unmodifiableList(dayOffs);
+    }
+
+    public void setDayOffs(List<DayOff> dayOffs) {
+        roundDayOffsMap.clear();
+        for (Map.Entry<Juror, List<DayOff>> entry : jurorDayOffsMap.entrySet()) {
+            entry.getValue().clear();
+        }
+        addDayOffs(dayOffs);
     }
 
     public void addDayOffs(DayOff... dayOffs) {
@@ -253,7 +323,20 @@ public class Tournament implements Solution<HardAndSoftScore> {
             this.dayOffs.add(dayOff);
         }
         stats.setOptimalLoad(calculateOptimalLoad());
-        calculateIratio();
+        calculateIndependentRatio();
+        calculateFirstAvailableRounds();
+    }
+
+    public void removeDayOffs(List<DayOff> dayOffs) {
+        for (DayOff dayOff : dayOffs) {
+            if (!this.dayOffs.contains(dayOff)) {
+                throw new IllegalArgumentException("Cannot remove: " + dayOff);
+            }
+            roundDayOffsMap.get(dayOff.getDay()).remove(dayOff);
+            jurorDayOffsMap.get(dayOff.getJuror()).remove(dayOff);
+        }
+        stats.setOptimalLoad(calculateOptimalLoad());
+        calculateIndependentRatio();
         calculateFirstAvailableRounds();
     }
 
@@ -262,10 +345,20 @@ public class Tournament implements Solution<HardAndSoftScore> {
         return list == null ? 0 : list.size();
     }
 
-    public void clearDayOffs() {
-        dayOffs.clear();
-        roundDayOffsMap.clear();
-        calculateIratio();
+    //-------------------------------------------------------------------------
+    // Locking
+    //-------------------------------------------------------------------------
+    //
+    public List<Lock> getLocks() {
+        return Collections.unmodifiableList(locks);
+    }
+
+    public void addLock(Lock lock) {
+        locks.add(lock);
+    }
+
+    public void removeLock(Lock lock) {
+        locks.remove(lock);
     }
 
     public boolean isLocked(Seat seat) {
@@ -294,41 +387,12 @@ public class Tournament implements Solution<HardAndSoftScore> {
         return locked.removeAll(getSeats(round));
     }
 
-    public List<Seat> getSeats(Jury jury) {
-        // XXX relying on the fixed order of juries and seats (note: cloned tournament must preserve the order!)
-        int start = juries.indexOf(jury) * juryCapacity;
-        return seats.subList(start, start + juryCapacity);
-    }
-
-    private List<Seat> getSeats(Round round) {
-        int rSize = round.getGroups().size() * juryCapacity;
-        return seats.subList((round.getNumber() - 1) * rSize, round.getNumber() * rSize);
-    }
-
-    public void addLock(Lock lock) {
-        locks.add(lock);
-    }
-
-    public void removeLock(Lock lock) {
-        locks.remove(lock);
-    }
-
-    /**
-     * Performs a sanity-check on this tournament. Checks the included problem facts and indicates if some hard constraints
-     * obviously cannot be satisfied.
-     *
-     * @return <code>false</code> if a feasible solution certainly does not exist, <code>true</code> if a feasible solution
-     * <em>may</em> be found
-     */
-    public boolean isFeasibleSolutionPossible() {
-        for (Round r : rounds) {
-            int jurorsNeeded = r.getGroups().size() * juryCapacity;
-            int jurorsAvailable = jurors.size() - getDayOffsPerRound(r);
-            if (jurorsNeeded > jurorsAvailable) {
-                return false;
-            }
-        }
-        return true;
+    //-------------------------------------------------------------------------
+    // Capacity
+    //-------------------------------------------------------------------------
+    //
+    public int getJuryCapacity() {
+        return juryCapacity;
     }
 
     /**
@@ -374,67 +438,54 @@ public class Tournament implements Solution<HardAndSoftScore> {
         seats = newSeats;
         juryCapacity = newCapacity;
         stats.setOptimalLoad(calculateOptimalLoad());
-        calculateIratio();
+        calculateIndependentRatio();
         return true;
     }
 
-    public void clear() {
-        for (Seat seat : seats) {
-            seat.setJuror(null);
+    /**
+     * Performs a sanity-check on this tournament. Checks the included problem facts and indicates if some hard constraints
+     * obviously cannot be satisfied.
+     *
+     * @return <code>false</code> if a feasible solution certainly does not exist, <code>true</code> if a feasible solution
+     * <em>may</em> be found
+     */
+    public boolean isFeasibleSolutionPossible() {
+        for (Round r : rounds) {
+            int jurorsNeeded = r.getGroups().size() * juryCapacity;
+            int jurorsAvailable = jurors.size() - getDayOffsPerRound(r);
+            if (jurorsNeeded > jurorsAvailable) {
+                return false;
+            }
         }
+        return true;
     }
 
-    // ------------------------------------------------------------------------
-    // Getters & Setters
-    // ------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
+    // Other accessors
+    //-------------------------------------------------------------------------
     //
-    public void setSeats(List<Seat> seats) {
-        this.seats = seats;
-    }
-
-    public List<Round> getRounds() {
-        return rounds;
-    }
-
     public List<Team> getTeams() {
-        return teams;
-    }
-
-    public List<Juror> getJurors() {
-        return jurors;
+        return Collections.unmodifiableList(teams);
     }
 
     public List<Group> getGroups() {
-        return groups;
+        return Collections.unmodifiableList(groups);
     }
 
     public List<Jury> getJuries() {
-        return juries;
-    }
-
-    public List<DayOff> getDayOffs() {
-        return dayOffs;
-    }
-
-    public void setDayOffs(List<DayOff> dayOffs) {
-        roundDayOffsMap.clear();
-        addDayOffs(dayOffs);
+        return Collections.unmodifiableList(juries);
     }
 
     public List<Conflict> getConflicts() {
-        return conflicts;
+        return Collections.unmodifiableList(conflicts);
     }
 
-    public void setConflicts(List<Conflict> conflicts) {
-        this.conflicts = conflicts;
+    public void addConflicts(Conflict... conflicts) {
+        addConflicts(Arrays.asList(conflicts));
     }
 
-    public List<Lock> getLocks() {
-        return locks;
-    }
-
-    public int getJuryCapacity() {
-        return juryCapacity;
+    public void addConflicts(List<Conflict> conflicts) {
+        this.conflicts.addAll(conflicts);
     }
 
     public Statistics getStatistics() {
@@ -513,13 +564,6 @@ public class Tournament implements Solution<HardAndSoftScore> {
         sb.append("Total juror mandays: ").append(md).append('\n');
         sb.append(String.format("Optimal juror load:  %.4f%n", stats.getOptimalLoad()));
         return sb.toString();
-    }
-
-    private double calculateOptimalLoad() {
-        if (jurors.size() > 0 && rounds.size() > 0 && dayOffs.size() != jurors.size() * rounds.size()) {
-            return ((double) seats.size()) / (jurors.size() * rounds.size() - dayOffs.size());
-        }
-        return 0.0;
     }
 
     public static class Statistics {

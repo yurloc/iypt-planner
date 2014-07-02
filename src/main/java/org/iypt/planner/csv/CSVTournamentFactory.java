@@ -262,7 +262,6 @@ public class CSVTournamentFactory {
                 // create the juror
                 Juror juror = new Juror(line.get(0), line.get(1), cc, jt);
                 jurors.put(String.format("%s, %s", line.get(1), line.get(0)), juror);
-                conflicts.add(new Conflict(juror, cc));
 
                 // read country conflicts, day offs, and optional chair tag
                 boolean dayOffMode = false;
@@ -500,7 +499,7 @@ public class CSVTournamentFactory {
         tournament.setRounds(rounds.values());
         tournament.setJurors(jurors.values());
         tournament.setDayOffs(dayOffs);
-        tournament.setConflicts(conflicts);
+        tournament.addConflicts(conflicts);
 
         if (state.hasBiasData()) {
             for (Juror juror : jurors.values()) {

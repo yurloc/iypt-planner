@@ -48,7 +48,6 @@ public class ScoringRulesTest {
 
     // TODO maybe add test for accumulatedBias rule
     // TODO test that each soft constraint rule reads CO weight from WeightConfig fact!
-
     private static final Logger LOG = LoggerFactory.getLogger(ScoringRulesTest.class);
     private static final String SCORE_DRL = "org/iypt/planner/solver/score_rules.drl";
     private static final String SCORE_HOLDER_NAME = "scoreHolder";
@@ -180,8 +179,10 @@ public class ScoringRulesTest {
         // add another juror with multiple conflicts
         t.setJuryCapacity(2);
         assignJurors(t, jA1, jD1);
-        t.getConflicts().add(new Conflict(jD1, tB.getCountry()));
-        t.getConflicts().add(new Conflict(jD1, tC.getCountry()));
+        t.addConflicts(
+                new Conflict(jD1, tB.getCountry()),
+                new Conflict(jD1, tC.getCountry())
+        );
         checkSolution(t, false, ScoringRule.teamAndJurorSameCountry, 3);
     }
 
@@ -310,8 +311,10 @@ public class ScoringRulesTest {
         assignJurors(t, jL1, jM2, jN4, jN1, jN2, jN3);
         checkSolution(t, true, ScoringRule.jurorAndJurorConflict, 3);
         assignJurors(t, jL1, jM2, jN4, jN1, jM3, jK1);
-        t.getConflicts().add(new Conflict(jK1, jL1.getCountry()));
-        t.getConflicts().add(new Conflict(jN1, jM3.getCountry()));
+        t.addConflicts(
+                new Conflict(jK1, jL1.getCountry()),
+                new Conflict(jN1, jM3.getCountry())
+        );
         checkSolution(t, true, ScoringRule.jurorAndJurorConflict, 1); // only jN1-jM3
     }
 
