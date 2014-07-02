@@ -15,6 +15,8 @@ public class Juror {
     private final CountryCode country;
     private final JurorType type;
     private boolean chairCandidate = false;
+    private boolean experienced = true;
+    private int firstAvailable = 1;
     private double bias = 0;
 
     public Juror(CountryCode country, JurorType type) {
@@ -98,6 +100,22 @@ public class Juror {
 
     public void setChairCandidate(boolean chairCandidate) {
         this.chairCandidate = chairCandidate;
+    }
+
+    public boolean isExperienced() {
+        return experienced;
+    }
+
+    public void setExperienced(boolean experienced) {
+        this.experienced = experienced;
+    }
+
+    public int getFirstAvailable() {
+        return firstAvailable;
+    }
+
+    public void setFirstAvailable(int firstAvailable) {
+        this.firstAvailable = firstAvailable;
     }
 
     public double getBias() {

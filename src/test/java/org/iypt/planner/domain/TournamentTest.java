@@ -316,6 +316,18 @@ public class TournamentTest {
         }
     }
 
+    @Test
+    public void testFirstAvailableRound() {
+        Tournament t = new Tournament();
+        t.addJurors(jA1, jA2, jA3);
+        t.addDayOffs(new DayOff(jA1, 2), new DayOff(jA2, 4));
+        t.addDayOffs(new DayOff(jA2, 1), new DayOff(jA2, 3), new DayOff(jA2, 5));
+        t.addDayOffs(new DayOff(jA3, 1), new DayOff(jA3, 2), new DayOff(jA3, 3), new DayOff(jA3, 4));
+        assertThat(jA1.getFirstAvailable()).isEqualTo(1);
+        assertThat(jA2.getFirstAvailable()).isEqualTo(2);
+        assertThat(jA3.getFirstAvailable()).isEqualTo(5);
+    }
+
     private void testClone(Tournament t) {
         Tournament clone = (Tournament) t.cloneSolution();
 

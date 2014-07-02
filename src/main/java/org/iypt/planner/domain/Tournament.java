@@ -8,6 +8,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import org.drools.planner.api.domain.solution.PlanningEntityCollectionProperty;
 import org.drools.planner.core.score.buildin.hardandsoft.HardAndSoftScore;
 import org.drools.planner.core.solution.Solution;
@@ -39,7 +41,8 @@ public class Tournament implements Solution<HardAndSoftScore> {
 
     private int juryCapacity = DEFAULT_CAPACITY;
     private Statistics stats;
-    private Map<Integer, List<DayOff>> dayOffsMap;
+    private Map<Integer, List<DayOff>> roundDayOffsMap;
+    private Map<Juror, List<DayOff>> jurorDayOffsMap;
     private WeightConfig config = new DefaultWeightConfig();
 
     public Tournament() {
@@ -54,7 +57,8 @@ public class Tournament implements Solution<HardAndSoftScore> {
         lockedRounds = new HashSet<>();
         dayOffs = new ArrayList<>();
         locks = new ArrayList<>();
-        dayOffsMap = new HashMap<>();
+        roundDayOffsMap = new HashMap<>();
+        jurorDayOffsMap = new HashMap<>();
         conflicts = new ArrayList<>();
         stats = new Statistics();
     }
@@ -101,7 +105,8 @@ public class Tournament implements Solution<HardAndSoftScore> {
         clone.juries = juries;
         clone.jurors = jurors;
         clone.dayOffs = dayOffs;
-        clone.dayOffsMap = dayOffsMap;
+        clone.roundDayOffsMap = roundDayOffsMap;
+        clone.jurorDayOffsMap = jurorDayOffsMap;
         clone.conflicts = conflicts;
         clone.locks = locks;
         clone.stats = stats;
@@ -136,7 +141,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
             int total = 0;
             for (Juror juror : jurors) {
                 boolean present = true;
-                List<DayOff> dayOffList = dayOffsMap.get(round.getDay());
+                List<DayOff> dayOffList = roundDayOffsMap.get(round.getDay());
                 if (dayOffList != null) {
                     for (DayOff dayOff : dayOffList) {
                         if (dayOff.getJuror().equals(juror)) {
@@ -157,6 +162,22 @@ public class Tournament implements Solution<HardAndSoftScore> {
             if (total > 0) {
                 round.setOptimalIndependentCount(i / total * juryCapacity);
             }
+        }
+    }
+
+    private void calculateFirstAvailableRounds() {
+        for (Juror juror : jurors) {
+            SortedSet<Integer> away = new TreeSet<>();
+            away.add(0);
+            for (DayOff dayOff : jurorDayOffsMap.get(juror)) {
+                away.add(dayOff.getDay());
+            }
+            SortedSet<Integer> available = new TreeSet<>();
+            for (int i = 1; i <= away.last() + 1; i++) {
+                available.add(i);
+            }
+            available.removeAll(away);
+            juror.setFirstAvailable(available.first());
         }
     }
 
@@ -206,6 +227,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
         for (Juror juror : jurors) {
             this.jurors.add(juror);
             this.conflicts.add(new Conflict(juror, juror.getCountry()));
+            this.jurorDayOffsMap.put(juror, new ArrayList<DayOff>());
         }
         stats.setOptimalLoad(calculateOptimalLoad());
         calculateIratio();
@@ -217,26 +239,32 @@ public class Tournament implements Solution<HardAndSoftScore> {
 
     public void addDayOffs(List<DayOff> dayOffs) {
         for (DayOff dayOff : dayOffs) {
-            List<DayOff> dayOffList = dayOffsMap.get(dayOff.getDay());
-            if (dayOffList == null) {
-                dayOffList = new ArrayList<>();
-                dayOffsMap.put(dayOff.getDay(), dayOffList);
+            // cache round's day offs
+            List<DayOff> roundDayOffList = roundDayOffsMap.get(dayOff.getDay());
+            if (roundDayOffList == null) {
+                roundDayOffList = new ArrayList<>();
+                roundDayOffsMap.put(dayOff.getDay(), roundDayOffList);
             }
-            dayOffList.add(dayOff);
+            roundDayOffList.add(dayOff);
+
+            // cache juror's day offs
+            jurorDayOffsMap.get(dayOff.getJuror()).add(dayOff);
+
             this.dayOffs.add(dayOff);
         }
         stats.setOptimalLoad(calculateOptimalLoad());
         calculateIratio();
+        calculateFirstAvailableRounds();
     }
 
     public int getDayOffsPerRound(Round r) {
-        List<DayOff> list = dayOffsMap.get(r.getDay());
+        List<DayOff> list = roundDayOffsMap.get(r.getDay());
         return list == null ? 0 : list.size();
     }
 
     public void clearDayOffs() {
         dayOffs.clear();
-        dayOffsMap.clear();
+        roundDayOffsMap.clear();
         calculateIratio();
     }
 
@@ -389,7 +417,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
     }
 
     public void setDayOffs(List<DayOff> dayOffs) {
-        dayOffsMap.clear();
+        roundDayOffsMap.clear();
         addDayOffs(dayOffs);
     }
 
