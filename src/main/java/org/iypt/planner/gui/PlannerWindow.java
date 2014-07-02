@@ -541,7 +541,7 @@ public class PlannerWindow extends Window implements Bindable {
         log.info("Tournament loaded\n{}", tournament.toDisplayString());
     }
 
-    void solutionChanged() {
+    synchronized void solutionChanged() {
         scoreLabel.setText(solver.getScore().toString());
         if (scoreChangedTimer != null) {
             scoreChangedTimer.cancel();
