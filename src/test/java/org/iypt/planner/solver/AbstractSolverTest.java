@@ -20,11 +20,12 @@ import org.drools.planner.core.score.director.drools.DroolsScoreDirector;
 import org.drools.planner.core.solution.Solution;
 import org.iypt.planner.domain.Tournament;
 import org.iypt.planner.solver.util.ConstraintComparator;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  *
@@ -84,7 +85,7 @@ public abstract class AbstractSolverTest {
 
         // Get the initial solution
         Tournament unsolved = getInitialSolution();
-        Assert.assertTrue(unsolved.isFeasibleSolutionPossible());
+        assertThat(unsolved.isFeasibleSolutionPossible()).isTrue();
         unsolved.setWeightConfig(weightConfig);
 
         // Solve the problem
