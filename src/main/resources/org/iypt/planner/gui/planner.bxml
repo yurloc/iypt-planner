@@ -100,10 +100,16 @@
                 <!-- Buttons -->
                 <TablePane.Row height="-1">
                   <BoxPane styles="{padding:{top:10}}">
-                    <PushButton bxml:id="solveButton" buttonData="Solve"/>
-                    <PushButton bxml:id="terminateButton" buttonData="Terminate"/>
+                    <PushButton bxml:id="solveButton">
+                      <content:ButtonData icon="@img/cog_go.png" text="Solve"/>
+                    </PushButton>
+                    <PushButton bxml:id="terminateButton">
+                      <content:ButtonData icon="@img/stop.png" text="Terminate"/>
+                    </PushButton>
                     <Checkbox bxml:id="showChangesCheckbox" buttonData="Show changes on the fly"/>
-                    <PushButton bxml:id="swapButton" buttonData="Swap"/>
+                    <PushButton bxml:id="swapButton">
+                      <content:ButtonData icon="@img/arrow_refresh_small.png" text="Swap"/>
+                    </PushButton>
                     <bxml:include bxml:id="swap1TableView" src="juror_list.bxml" inline="true"/>
                     <bxml:include bxml:id="swap2TableView" src="juror_list.bxml" inline="true"/>
                   </BoxPane>

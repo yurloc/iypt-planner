@@ -47,7 +47,11 @@
   </TablePane>
 
   <BoxPane styles="{horizontalAlignment:'right'}">
-    <PushButton bxml:id="revertButton" buttonData="Revert"/>
-    <PushButton bxml:id="saveButton" buttonData="Save"/>
+    <PushButton bxml:id="revertButton">
+      <content:ButtonData icon="@img/arrow_undo.png" text="Revert"/>
+    </PushButton>
+    <PushButton bxml:id="saveButton">
+      <content:ButtonData icon="@img/disk.png" text="Save"/>
+    </PushButton>
   </BoxPane>
 </BoxPane>
