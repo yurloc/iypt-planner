@@ -166,6 +166,26 @@ public class ScoringRulesTest {
     }
 
     @Test
+    public void testInexperiencedVoting() {
+        Tournament t = new Tournament();
+        t.setJuryCapacity(2);
+        t.addRounds(RoundFactory.createRound(1, tA, tB, tC));
+        t.addRounds(RoundFactory.createRound(2, tD, tE, tF));
+        t.addRounds(RoundFactory.createRound(3, tG, tH, tI));
+        t.addJurors(jM1, jM2, jM7);
+
+        assignJurors(t, jM1, jM7, jM1, jM7, jM1, jM7);
+        checkSolution(t, true, ScoringRule.inexperiencedJurorVoting, 1);
+
+        assignJurors(t, jM1, jM2, jM1, jM7, jM1, jM7);
+        checkSolution(t, true, ScoringRule.inexperiencedJurorVoting, 0);
+
+        // add day off and keep the assignment
+        t.addDayOffs(new DayOff(jM7, 1));
+        checkSolution(t, true, ScoringRule.inexperiencedJurorVoting, 1);
+    }
+
+    @Test
     public void testTeamAndJurorSameCountry() {
         Tournament t = new Tournament();
         t.setJuryCapacity(1);
@@ -683,6 +703,7 @@ public class ScoringRulesTest {
         jurorAndJurorConflict(SOFT, 10),
         independentRatioDeltaExceeded(SOFT, 1),
         accumulatedBias(SOFT, 10),
+        inexperiencedJurorVoting(SOFT, 500),
         // * change penalties
         penalizeChairChange(SOFT, 5),
         penalizeJurorChange(SOFT, 5),

@@ -8,7 +8,7 @@ import com.neovisionaries.i18n.CountryCode;
  */
 public class Juror {
 
-    public static final Juror NULL = new Juror(null, null, null, null, false);
+    public static final Juror NULL = new Juror(null, null, null, null, false, true);
     private String firstName;
     private String lastName;
     private String compactName;
@@ -25,12 +25,13 @@ public class Juror {
         setCompactName();
     }
 
-    public Juror(String firstName, String lastName, CountryCode country, JurorType type, boolean chairCandidate) {
+    public Juror(String firstName, String lastName, CountryCode country, JurorType type, boolean chairCandidate, boolean experienced) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.country = country;
         this.type = type;
         this.chairCandidate = chairCandidate;
+        this.experienced = experienced;
         setCompactName();
     }
 

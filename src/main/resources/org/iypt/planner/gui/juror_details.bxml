@@ -26,6 +26,10 @@
       <Checkbox bxml:id="chairCheckbox" enabled="false"/>
     </TablePane.Row>
     <TablePane.Row>
+      <Label text="Experienced:"/>
+      <Checkbox bxml:id="experiencedCheckbox" enabled="false"/>
+    </TablePane.Row>
+    <TablePane.Row>
       <Label text="Bias:"/>
       <Label bxml:id="biasLabel"/>
     </TablePane.Row>

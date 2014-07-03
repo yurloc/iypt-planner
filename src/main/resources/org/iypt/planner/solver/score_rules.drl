@@ -274,6 +274,21 @@ then
     ));
 end
 
+rule "inexperiencedJurorVoting"
+@ConstraintType(soft)
+when
+    $wc    : WeightConfig()
+    $juror : Juror( !experienced, $firstRound : firstAvailable )
+    $round : Round( number == $firstRound )
+    $seat  : Seat( juror == $juror, jury.group.round == $round )
+then
+    insertLogical( new IntConstraintOccurrence(
+        drools.getRule().getName(),
+        ConstraintType.NEGATIVE_SOFT, $wc.getWeight(drools.getRule().getName()),
+        $seat
+    ));
+end
+
 // ############################################################################
 // Change penalties
 // ############################################################################

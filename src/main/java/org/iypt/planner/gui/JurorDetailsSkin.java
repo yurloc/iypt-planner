@@ -58,6 +58,7 @@ class JurorDetailsSkin extends ContainerSkin {
     private BoxPane conflictsBoxPane;
     private Checkbox independentCheckbox;
     private Checkbox chairCheckbox;
+    private Checkbox experiencedCheckbox;
     private Label biasLabel;
     private Meter loadMeter;
     private Color loadOkColor;
@@ -82,6 +83,7 @@ class JurorDetailsSkin extends ContainerSkin {
         conflictsBoxPane = (BoxPane) bxmlSerializer.getNamespace().get("conflictsBoxPane");
         independentCheckbox = (Checkbox) bxmlSerializer.getNamespace().get("independentCheckbox");
         chairCheckbox = (Checkbox) bxmlSerializer.getNamespace().get("chairCheckbox");
+        experiencedCheckbox = (Checkbox) bxmlSerializer.getNamespace().get("experiencedCheckbox");
         biasLabel = (Label) bxmlSerializer.getNamespace().get("biasLabel");
         loadMeter = (Meter) bxmlSerializer.getNamespace().get("loadMeter");
         loadOkColor = (Color) loadMeter.getStyles().get("color");
@@ -145,6 +147,9 @@ class JurorDetailsSkin extends ContainerSkin {
 
         // chair candidate status
         chairCheckbox.setState(juror.isChairCandidate() ? Button.State.SELECTED : Button.State.UNSELECTED);
+
+        // chair experience status
+        experiencedCheckbox.setState(juror.isExperienced()? Button.State.SELECTED : Button.State.UNSELECTED);
 
         // bias
         biasLabel.setText(String.format("%+.2f", juror.getBias()));

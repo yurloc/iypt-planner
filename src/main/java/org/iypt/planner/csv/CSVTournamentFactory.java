@@ -278,6 +278,9 @@ public class CSVTournamentFactory {
                             throwIOE("Duplicate chair tag", src.name, ln, i);
                         }
                         juror.setChairCandidate(true);
+                    } else if ("E0".equals(line.get(i))) {
+                        //experience tag
+                        juror.setExperienced(false);
                     } else {
 
                         try {
