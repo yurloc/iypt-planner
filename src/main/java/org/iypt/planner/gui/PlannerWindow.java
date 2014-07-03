@@ -164,20 +164,33 @@ public class PlannerWindow extends Window implements Bindable {
         @Override
         void processFile(File f) throws Exception {
             factory.readTeamData(f, StandardCharsets.UTF_8);
+            if (factory.canCreateTournament()) {
+                tournamentLoaded(factory.newTournament());
+            }
             loadScheduleAction.setEnabled(factory.canReadSchedule());
+            loadTeamsAction.setEnabled(false);
         }
     };
     private LoadFileAction loadJurorsAction = new LoadFileAction("jurors") {
         @Override
         void processFile(File f) throws Exception {
             factory.readJuryData(f, StandardCharsets.UTF_8);
+            if (factory.canCreateTournament()) {
+                tournamentLoaded(factory.newTournament());
+            }
             loadScheduleAction.setEnabled(factory.canReadSchedule());
+            loadJurorsAction.setEnabled(false);
         }
     };
     private LoadFileAction loadBiasesAction = new LoadFileAction("biases") {
         @Override
         void processFile(File f) throws Exception {
             factory.readBiasData(f, StandardCharsets.UTF_8);
+            if (factory.canCreateTournament()) {
+                tournamentLoaded(factory.newTournament());
+            }
+            loadScheduleAction.setEnabled(factory.canReadSchedule());
+            loadBiasesAction.setEnabled(false);
         }
     };
     private LoadFileAction loadScheduleAction = new LoadFileAction("schedule") {
@@ -495,7 +508,6 @@ public class PlannerWindow extends Window implements Bindable {
     private void tournamentLoaded(Tournament tournament) {
         loadTeamsAction.setEnabled(false);
         loadJurorsAction.setEnabled(false);
-        loadBiasesAction.setEnabled(false);
         loadScheduleAction.setEnabled(true);
         clearScheduleAction.setEnabled(true);
         saveScheduleAction.setEnabled(true);

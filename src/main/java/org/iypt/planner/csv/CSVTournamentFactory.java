@@ -539,4 +539,8 @@ public class CSVTournamentFactory {
     public boolean canReadSchedule() {
         return state.canReadSchedule();
     }
+
+    public boolean canCreateTournament() {
+        return state.canCreateTournament();
+    }
 }
