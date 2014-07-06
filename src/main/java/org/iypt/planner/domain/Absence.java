@@ -14,6 +14,11 @@ public class Absence {
         this.roundNumber = roundNumber;
     }
 
+    public Absence(Juror juror, Round round) {
+        this.juror = juror;
+        this.roundNumber = round.getNumber();
+    }
+
     public Juror getJuror() {
         return juror;
     }

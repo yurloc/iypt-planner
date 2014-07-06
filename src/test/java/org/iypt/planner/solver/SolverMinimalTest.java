@@ -42,8 +42,8 @@ public class SolverMinimalTest extends AbstractSolverTest {
         t.addJurors(jD1, jD2, jE1, jE2, jF1, jF2, jG1, jH1, jI1);
         t.addJurors(jM2, jM3, jM4, jM5, jM6);
 
-        t.addAbsences(new Absence(jE1, r1.getNumber()), new Absence(jE1, r3.getNumber()));
-        t.addAbsences(new Absence(jH1, r2.getNumber()), new Absence(jI1, r2.getNumber()));
+        t.addAbsences(new Absence(jE1, r1), new Absence(jE1, r3));
+        t.addAbsences(new Absence(jH1, r2), new Absence(jI1, r2));
 
         // just visualizing the numbers
         assertThat(t.getSeats().size() / t.getRounds().size()).isEqualTo(18);

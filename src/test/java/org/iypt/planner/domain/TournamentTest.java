@@ -246,7 +246,7 @@ public class TournamentTest {
         assertThat(r1.getOptimalIndependentCount()).isEqualTo(1.5, offset(Double.MIN_VALUE));
         assertThat(r2.getOptimalIndependentCount()).isEqualTo(1.5, offset(Double.MIN_VALUE));
 
-        t.addAbsences(new Absence(jI1, r1.getNumber()), new Absence(jT2, r2.getNumber()));
+        t.addAbsences(new Absence(jI1, r1), new Absence(jT2, r2));
         assertThat(r1.getOptimalIndependentCount()).isEqualTo(1, offset(Double.MIN_VALUE));
         assertThat(r2.getOptimalIndependentCount()).isEqualTo(2, offset(Double.MIN_VALUE));
     }
@@ -266,7 +266,7 @@ public class TournamentTest {
         t.addJurors(jA1, jA2, jA3, jA4);
         assertThat(t.isFeasibleSolutionPossible()).isTrue();
 
-        t.addAbsences(new Absence(jA1, r.getNumber()));
+        t.addAbsences(new Absence(jA1, r));
         assertThat(t.getAbsencesPerRound(r)).isEqualTo(1);
         assertThat(t.isFeasibleSolutionPossible()).isFalse();
     }

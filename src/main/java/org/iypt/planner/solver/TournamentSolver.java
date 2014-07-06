@@ -298,7 +298,7 @@ public class TournamentSolver {
                 // no matter what the original status is
                 if (assignment.getCurrentStatus() == JurorAssignment.Status.AWAY) {
                     // add absence
-                    tournament.addAbsences(new Absence(juror, assignment.getRound().getNumber()));
+                    tournament.addAbsences(new Absence(juror, assignment.getRound()));
                 }
             }
         }
