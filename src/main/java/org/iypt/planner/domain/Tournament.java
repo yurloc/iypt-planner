@@ -35,15 +35,15 @@ public class Tournament implements Solution<HardAndSoftScore> {
     private List<Group> groups;
     private List<Jury> juries;
     private List<Juror> jurors;
-    private List<Absence> dayOffs;
+    private List<Absence> absences;
     private List<Conflict> conflicts;
     private List<Lock> locks;
     private Tournament original = null;
 
     private int juryCapacity = DEFAULT_CAPACITY;
     private Statistics stats;
-    private Map<Integer, List<Absence>> roundDayOffsMap;
-    private Map<Juror, List<Absence>> jurorDayOffsMap;
+    private Map<Integer, List<Absence>> absencesPerRoundMap;
+    private Map<Juror, List<Absence>> absencesPerJurorMap;
     private WeightConfig config = new DefaultWeightConfig();
 
     public Tournament() {
@@ -56,10 +56,10 @@ public class Tournament implements Solution<HardAndSoftScore> {
         seats = new ArrayList<>();
         locked = new HashSet<>();
         lockedRounds = new HashSet<>();
-        dayOffs = new ArrayList<>();
+        absences = new ArrayList<>();
         locks = new ArrayList<>();
-        roundDayOffsMap = new HashMap<>();
-        jurorDayOffsMap = new HashMap<>();
+        absencesPerRoundMap = new HashMap<>();
+        absencesPerJurorMap = new HashMap<>();
         conflicts = new ArrayList<>();
         stats = new Statistics();
     }
@@ -82,7 +82,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
         facts.addAll(groups);
         facts.addAll(juries);
         facts.addAll(jurors);
-        facts.addAll(dayOffs);
+        facts.addAll(absences);
         facts.addAll(conflicts);
         facts.addAll(locks);
         facts.add(stats);
@@ -105,9 +105,9 @@ public class Tournament implements Solution<HardAndSoftScore> {
         clone.groups = groups;
         clone.juries = juries;
         clone.jurors = jurors;
-        clone.dayOffs = dayOffs;
-        clone.roundDayOffsMap = roundDayOffsMap;
-        clone.jurorDayOffsMap = jurorDayOffsMap;
+        clone.absences = absences;
+        clone.absencesPerRoundMap = absencesPerRoundMap;
+        clone.absencesPerJurorMap = absencesPerJurorMap;
         clone.conflicts = conflicts;
         clone.locks = locks;
         clone.stats = stats;
@@ -166,8 +166,8 @@ public class Tournament implements Solution<HardAndSoftScore> {
     //-------------------------------------------------------------------------
     //
     private double calculateOptimalLoad() {
-        if (jurors.size() > 0 && rounds.size() > 0 && dayOffs.size() != jurors.size() * rounds.size()) {
-            return ((double) seats.size()) / (jurors.size() * rounds.size() - dayOffs.size());
+        if (jurors.size() > 0 && rounds.size() > 0 && absences.size() != jurors.size() * rounds.size()) {
+            return ((double) seats.size()) / (jurors.size() * rounds.size() - absences.size());
         }
         return 0.0;
     }
@@ -178,10 +178,10 @@ public class Tournament implements Solution<HardAndSoftScore> {
             int total = 0;
             for (Juror juror : jurors) {
                 boolean present = true;
-                List<Absence> dayOffList = roundDayOffsMap.get(round.getDay());
-                if (dayOffList != null) {
-                    for (Absence dayOff : dayOffList) {
-                        if (dayOff.getJuror().equals(juror)) {
+                List<Absence> absenceList = absencesPerRoundMap.get(round.getDay());
+                if (absenceList != null) {
+                    for (Absence absence : absenceList) {
+                        if (absence.getJuror().equals(juror)) {
                             present = false;
                             break;
                         }
@@ -206,8 +206,8 @@ public class Tournament implements Solution<HardAndSoftScore> {
         for (Juror juror : jurors) {
             SortedSet<Integer> away = new TreeSet<>();
             away.add(0);
-            for (Absence dayOff : jurorDayOffsMap.get(juror)) {
-                away.add(dayOff.getDay());
+            for (Absence absence : absencesPerJurorMap.get(juror)) {
+                away.add(absence.getDay());
             }
             SortedSet<Integer> available = new TreeSet<>();
             for (int i = 1; i <= away.last() + 1; i++) {
@@ -269,7 +269,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
 
     public void setJurors(Collection<Juror> jurors) {
         this.jurors.clear();
-        this.jurorDayOffsMap.clear();
+        this.absencesPerJurorMap.clear();
         addJurors(jurors);
     }
 
@@ -281,67 +281,67 @@ public class Tournament implements Solution<HardAndSoftScore> {
         for (Juror juror : jurors) {
             this.jurors.add(juror);
             this.conflicts.add(new Conflict(juror, juror.getCountry()));
-            this.jurorDayOffsMap.put(juror, new ArrayList<Absence>());
+            this.absencesPerJurorMap.put(juror, new ArrayList<Absence>());
         }
         stats.setOptimalLoad(calculateOptimalLoad());
         calculateIndependentRatio();
     }
 
     //-------------------------------------------------------------------------
-    // Day offs
+    // Absences
     //-------------------------------------------------------------------------
     //
-    public List<Absence> getDayOffs() {
-        return Collections.unmodifiableList(dayOffs);
+    public List<Absence> getAbsences() {
+        return Collections.unmodifiableList(absences);
     }
 
-    public void setDayOffs(List<Absence> dayOffs) {
-        roundDayOffsMap.clear();
-        for (Map.Entry<Juror, List<Absence>> entry : jurorDayOffsMap.entrySet()) {
+    public void setAbsences(List<Absence> absences) {
+        absencesPerRoundMap.clear();
+        for (Map.Entry<Juror, List<Absence>> entry : absencesPerJurorMap.entrySet()) {
             entry.getValue().clear();
         }
-        addDayOffs(dayOffs);
+        addAbsences(absences);
     }
 
-    public void addDayOffs(Absence... dayOffs) {
-        addDayOffs(Arrays.asList(dayOffs));
+    public void addAbsences(Absence... absences) {
+        addAbsences(Arrays.asList(absences));
     }
 
-    public void addDayOffs(List<Absence> dayOffs) {
-        for (Absence dayOff : dayOffs) {
-            // cache round's day offs
-            List<Absence> roundDayOffList = roundDayOffsMap.get(dayOff.getDay());
-            if (roundDayOffList == null) {
-                roundDayOffList = new ArrayList<>();
-                roundDayOffsMap.put(dayOff.getDay(), roundDayOffList);
+    public void addAbsences(List<Absence> absences) {
+        for (Absence absence : absences) {
+            // cache round's absences
+            List<Absence> roundAbsencesList = absencesPerRoundMap.get(absence.getDay());
+            if (roundAbsencesList == null) {
+                roundAbsencesList = new ArrayList<>();
+                absencesPerRoundMap.put(absence.getDay(), roundAbsencesList);
             }
-            roundDayOffList.add(dayOff);
+            roundAbsencesList.add(absence);
 
-            // cache juror's day offs
-            jurorDayOffsMap.get(dayOff.getJuror()).add(dayOff);
+            // cache juror's absences
+            absencesPerJurorMap.get(absence.getJuror()).add(absence);
 
-            this.dayOffs.add(dayOff);
+            this.absences.add(absence);
         }
         stats.setOptimalLoad(calculateOptimalLoad());
         calculateIndependentRatio();
         calculateFirstAvailableRounds();
     }
 
-    public void removeDayOffs(List<Absence> dayOffs) {
-        for (Absence dayOff : dayOffs) {
-            if (!this.dayOffs.contains(dayOff)) {
-                throw new IllegalArgumentException("Cannot remove: " + dayOff);
+    public void removeAbsences(List<Absence> absences) {
+        for (Absence absence : absences) {
+            if (!this.absences.contains(absence)) {
+                throw new IllegalArgumentException("Cannot remove: " + absence);
             }
-            roundDayOffsMap.get(dayOff.getDay()).remove(dayOff);
-            jurorDayOffsMap.get(dayOff.getJuror()).remove(dayOff);
+            absencesPerRoundMap.get(absence.getDay()).remove(absence);
+            absencesPerJurorMap.get(absence.getJuror()).remove(absence);
         }
         stats.setOptimalLoad(calculateOptimalLoad());
         calculateIndependentRatio();
         calculateFirstAvailableRounds();
     }
 
-    public int getDayOffsPerRound(Round r) {
-        List<Absence> list = roundDayOffsMap.get(r.getDay());
+    public int getAbsencesPerRound(Round r) {
+        List<Absence> list = absencesPerRoundMap.get(r.getDay());
         return list == null ? 0 : list.size();
     }
 
@@ -452,7 +452,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
     public boolean isFeasibleSolutionPossible() {
         for (Round r : rounds) {
             int jurorsNeeded = r.getGroups().size() * juryCapacity;
-            int jurorsAvailable = jurors.size() - getDayOffsPerRound(r);
+            int jurorsAvailable = jurors.size() - getAbsencesPerRound(r);
             if (jurorsNeeded > jurorsAvailable) {
                 return false;
             }
@@ -538,9 +538,9 @@ public class Tournament implements Solution<HardAndSoftScore> {
                 }
                 sb.replace(sb.length() - 1, sb.length(), "\n");
             }
-            for (Absence dayOff : this.getDayOffs()) {
-                if (dayOff.getDay() == r.getDay()) {
-                    away.add(dayOff.getJuror());
+            for (Absence absence : this.getAbsences()) {
+                if (absence.getDay() == r.getDay()) {
+                    away.add(absence.getJuror());
                 }
             }
             idle.removeAll(away); // idle = all -busy -away
@@ -558,7 +558,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
             sb.replace(sb.length() - 1, sb.length(), "\n");
             sb.append(String.format("Optimal number of independent jurors: %.4f%n", r.getOptimalIndependentCount()));
         }
-        int md = this.getJurors().size() * this.getRounds().size() - this.getDayOffs().size();
+        int md = this.getJurors().size() * this.getRounds().size() - this.getAbsences().size();
         sb.append('\n');
         sb.append("Total jury seats:    ").append(this.getSeats().size()).append('\n');
         sb.append("Total juror mandays: ").append(md).append('\n');

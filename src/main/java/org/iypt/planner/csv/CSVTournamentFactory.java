@@ -48,7 +48,7 @@ public class CSVTournamentFactory {
     private Map<CountryCode, Team> teams;
     private Map<String, Juror> jurors;
     private Map<String, Double> biases;
-    private List<Absence> dayOffs;
+    private List<Absence> absences;
     private List<Conflict> conflicts;
     private Map<Jury, List<Juror>> juries;
     private int juryCapacity = 0;
@@ -225,7 +225,7 @@ public class CSVTournamentFactory {
     private void readJuries(Source src) throws IOException {
         // initialize collections
         jurors = new HashMap<>(100);
-        dayOffs = new ArrayList<>(100);
+        absences = new ArrayList<>(100);
         conflicts = new ArrayList<>(100);
 
         int ln = 1; // line number
@@ -263,8 +263,8 @@ public class CSVTournamentFactory {
                 Juror juror = new Juror(line.get(0), line.get(1), cc, jt);
                 jurors.put(String.format("%s, %s", line.get(1), line.get(0)), juror);
 
-                // read country conflicts, day offs, and optional chair tag
-                boolean dayOffMode = false;
+                // read country conflicts, absences, and optional chair tag
+                boolean readingAbsences = false;
                 for (int i = 4; i < line.size(); i++) {
                     if (i == line.size() - 1 && line.get(i) == null) {
                         LOG.trace("Ignoring trailing '{}' in {}[{}:{}]",
@@ -284,12 +284,12 @@ public class CSVTournamentFactory {
                     } else {
 
                         try {
-                            dayOffs.add(new Absence(juror, Integer.valueOf(line.get(i))));
-                            dayOffMode = true;
+                            absences.add(new Absence(juror, Integer.valueOf(line.get(i))));
+                            readingAbsences = true;
                         } catch (NumberFormatException ex) {
-                            if (dayOffMode) {
-                                // when the first day off is read, the rest of values should be all numbers (except for optional C)
-                                throwIOE("Invalid day off number", line.get(i), src.name, ln, i);
+                            if (readingAbsences) {
+                                // when the first absence is read, the rest of values should all be numbers (except for optional tags)
+                                throwIOE("Invalid round number for juror absence", line.get(i), src.name, ln, i);
                             }
                             CountryCode conflict = CountryCodeIO.getByShortName(line.get(i));
                             if (conflict == null) {
@@ -501,7 +501,7 @@ public class CSVTournamentFactory {
         tournament = new Tournament();
         tournament.setRounds(rounds.values());
         tournament.setJurors(jurors.values());
-        tournament.setDayOffs(dayOffs);
+        tournament.setAbsences(absences);
         tournament.addConflicts(conflicts);
 
         if (state.hasBiasData()) {

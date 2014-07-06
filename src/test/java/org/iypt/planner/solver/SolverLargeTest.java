@@ -45,23 +45,23 @@ public class SolverLargeTest extends AbstractSolverTest {
         t.addJurors(jE1, jF1, jG1, jH1, jI1, jJ1, jK1, jL1, jY1, jZ1);
         t.addJurors(jM1, jM2, jM3, jM4, jM5, jM6);
         t.addJurors(jN1, jN2, jN3, jN4, jN5, jN6);
-        t.addDayOffs(new Absence(jE1, r1.getDay()), new Absence(jE1, r3.getDay()));
-        t.addDayOffs(new Absence(jA1, r1.getDay()), new Absence(jA1, r3.getDay()));
-        t.addDayOffs(new Absence(jA2, r2.getDay()), new Absence(jA2, r3.getDay()));
-        t.addDayOffs(new Absence(jA3, r1.getDay()), new Absence(jA3, r2.getDay()));
-        t.addDayOffs(new Absence(jA4, r4.getDay()), new Absence(jA4, r5.getDay()));
-        t.addDayOffs(new Absence(jA5, r1.getDay()), new Absence(jA5, r5.getDay()));
-        t.addDayOffs(new Absence(jN1, r1.getDay()), new Absence(jN1, r2.getDay()));
+        t.addAbsences(new Absence(jE1, r1.getDay()), new Absence(jE1, r3.getDay()));
+        t.addAbsences(new Absence(jA1, r1.getDay()), new Absence(jA1, r3.getDay()));
+        t.addAbsences(new Absence(jA2, r2.getDay()), new Absence(jA2, r3.getDay()));
+        t.addAbsences(new Absence(jA3, r1.getDay()), new Absence(jA3, r2.getDay()));
+        t.addAbsences(new Absence(jA4, r4.getDay()), new Absence(jA4, r5.getDay()));
+        t.addAbsences(new Absence(jA5, r1.getDay()), new Absence(jA5, r5.getDay()));
+        t.addAbsences(new Absence(jN1, r1.getDay()), new Absence(jN1, r2.getDay()));
 
         // visualizing the numbers
         assertThat(t.getJurors().size()).isEqualTo(38);
         assertThat(t.getSeats().size() / t.getRounds().size()).isEqualTo(32);
 
-        assertThat(t.getDayOffsPerRound(r1)).isEqualTo(5);
-        assertThat(t.getDayOffsPerRound(r2)).isEqualTo(3);
-        assertThat(t.getDayOffsPerRound(r3)).isEqualTo(3);
-        assertThat(t.getDayOffsPerRound(r4)).isEqualTo(1);
-        assertThat(t.getDayOffsPerRound(r5)).isEqualTo(2);
+        assertThat(t.getAbsencesPerRound(r1)).isEqualTo(5);
+        assertThat(t.getAbsencesPerRound(r2)).isEqualTo(3);
+        assertThat(t.getAbsencesPerRound(r3)).isEqualTo(3);
+        assertThat(t.getAbsencesPerRound(r4)).isEqualTo(1);
+        assertThat(t.getAbsencesPerRound(r5)).isEqualTo(2);
 
         return t;
     }

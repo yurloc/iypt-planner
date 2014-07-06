@@ -13,14 +13,14 @@ public class JurorLoad {
     private double cost;
     private boolean excessive;
 
-    public JurorLoad(Juror juror, Number seats, int rounds, Number dayOffs, double optimal) {
-        this(juror, seats.intValue(), rounds, dayOffs.intValue(), optimal);
+    public JurorLoad(Juror juror, Number seats, int rounds, Number absences, double optimal) {
+        this(juror, seats.intValue(), rounds, absences.intValue(), optimal);
     }
 
-    public JurorLoad(Juror juror, int seats, int rounds, int dayOffs, double optimal) {
+    public JurorLoad(Juror juror, int seats, int rounds, int absences, double optimal) {
         this.juror = juror;
         double allowed = 0;
-        if (rounds == dayOffs) {
+        if (rounds == absences) {
             // avoid division by zero
             if (seats == 0) {
                 load = 0;
@@ -29,8 +29,8 @@ public class JurorLoad {
                 load = INFINITE_LOAD_VALUE;
             }
         } else {
-            load = ((double) seats) / (rounds - dayOffs);
-            allowed = 1.0 / (rounds - dayOffs);
+            load = ((double) seats) / (rounds - absences);
+            allowed = 1.0 / (rounds - absences);
         }
         delta = load - optimal;
         if (seats == 0) {

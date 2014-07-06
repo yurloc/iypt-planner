@@ -85,8 +85,8 @@ public class TournamentTest {
                 + EXTRA_FACTS);
 
         assertThat(t.isFeasibleSolutionPossible()).isFalse();
-        assertThat(t.getDayOffsPerRound(r1)).isZero();
-        assertThat(t.getDayOffsPerRound(r2)).isZero();
+        assertThat(t.getAbsencesPerRound(r1)).isZero();
+        assertThat(t.getAbsencesPerRound(r2)).isZero();
 
         newCapacity = 2;
         t.setJuryCapacity(newCapacity);
@@ -106,19 +106,19 @@ public class TournamentTest {
         t.addConflicts(new Conflict(jA2, tA.getCountry()));
         assertThat(t.getConflicts()).hasSize(8); // duplicate conflicts are not removed
 
-        // add some day offs
-        t.addDayOffs(new Absence(jA1, 1));
-        t.addDayOffs(new Absence(jA3, 1));
-        t.addDayOffs(new Absence(jA2, 2));
-        t.addDayOffs(new Absence(jA4, 2));
-        assertThat(t.getDayOffsPerRound(r1)).isEqualTo(2);
-        assertThat(t.getDayOffsPerRound(r2)).isEqualTo(2);
+        // add some absences
+        t.addAbsences(new Absence(jA1, 1));
+        t.addAbsences(new Absence(jA3, 1));
+        t.addAbsences(new Absence(jA2, 2));
+        t.addAbsences(new Absence(jA4, 2));
+        assertThat(t.getAbsencesPerRound(r1)).isEqualTo(2);
+        assertThat(t.getAbsencesPerRound(r2)).isEqualTo(2);
         assertThat(t.isFeasibleSolutionPossible()).isTrue();
 
-        // one more day off
-        t.addDayOffs(new Absence(jA1, 2));
+        // one more absence
+        t.addAbsences(new Absence(jA1, 2));
         assertThat(t.isFeasibleSolutionPossible()).isFalse();
-        assertThat(t.getDayOffsPerRound(r2)).isEqualTo(3);
+        assertThat(t.getAbsencesPerRound(r2)).isEqualTo(3);
 
         assertThat(t.getProblemFacts()).hasSize(
                 t.getRounds().size()
@@ -126,10 +126,10 @@ public class TournamentTest {
                 + t.getTeams().size()
                 + t.getJuries().size()
                 + t.getJurors().size()
-                + t.getDayOffs().size()
+                + t.getAbsences().size()
                 + t.getConflicts().size() + EXTRA_FACTS);
 
-        t.removeDayOffs(t.getDayOffs());
+        t.removeAbsences(t.getAbsences());
         assertThat(t.isFeasibleSolutionPossible()).isTrue();
 
         // add one more round
@@ -196,7 +196,7 @@ public class TournamentTest {
         assertThat(t.getStatistics().getRounds()).isEqualTo(2);
         assertThat(t.getStatistics().getOptimalLoad()).isEqualTo(2 * 6.0 / 18, offset(Double.MIN_VALUE));
 
-        t.addDayOffs(new Absence(jA1, 1), new Absence(jA2, 1));
+        t.addAbsences(new Absence(jA1, 1), new Absence(jA2, 1));
         assertThat(t.getStatistics().getOptimalLoad()).isEqualTo(2 * 6.0 / (18 - 2), offset(Double.MIN_VALUE));
 
         // check that cloneed solution calculates statistics correctly
@@ -247,7 +247,7 @@ public class TournamentTest {
         assertThat(r1.getOptimalIndependentCount()).isEqualTo(1.5, offset(Double.MIN_VALUE));
         assertThat(r2.getOptimalIndependentCount()).isEqualTo(1.5, offset(Double.MIN_VALUE));
 
-        t.addDayOffs(new Absence(jI1, r1.getDay()), new Absence(jT2, r2.getDay()));
+        t.addAbsences(new Absence(jI1, r1.getDay()), new Absence(jT2, r2.getDay()));
         assertThat(r1.getOptimalIndependentCount()).isEqualTo(1, offset(Double.MIN_VALUE));
         assertThat(r2.getOptimalIndependentCount()).isEqualTo(2, offset(Double.MIN_VALUE));
     }
@@ -267,8 +267,8 @@ public class TournamentTest {
         t.addJurors(jA1, jA2, jA3, jA4);
         assertThat(t.isFeasibleSolutionPossible()).isTrue();
 
-        t.addDayOffs(new Absence(jA1, r.getDay()));
-        assertThat(t.getDayOffsPerRound(r)).isEqualTo(1);
+        t.addAbsences(new Absence(jA1, r.getDay()));
+        assertThat(t.getAbsencesPerRound(r)).isEqualTo(1);
         assertThat(t.isFeasibleSolutionPossible()).isFalse();
     }
 
@@ -292,7 +292,7 @@ public class TournamentTest {
         testClone(t);
 
         t.addJurors(jA1, jB1, jC1);
-        t.addDayOffs(new Absence(jA1, 1), new Absence(jB1, 2));
+        t.addAbsences(new Absence(jA1, 1), new Absence(jB1, 2));
         t.addLock(new Lock(jA1, t.getJuries().get(0), 0));
 
         t.addConflicts(
@@ -330,9 +330,9 @@ public class TournamentTest {
     public void testFirstAvailableRound() {
         Tournament t = new Tournament();
         t.addJurors(jA1, jA2, jA3);
-        t.addDayOffs(new Absence(jA1, 2), new Absence(jA2, 4));
-        t.addDayOffs(new Absence(jA2, 1), new Absence(jA2, 3), new Absence(jA2, 5));
-        t.addDayOffs(new Absence(jA3, 1), new Absence(jA3, 2), new Absence(jA3, 3), new Absence(jA3, 4));
+        t.addAbsences(new Absence(jA1, 2), new Absence(jA2, 4));
+        t.addAbsences(new Absence(jA2, 1), new Absence(jA2, 3), new Absence(jA2, 5));
+        t.addAbsences(new Absence(jA3, 1), new Absence(jA3, 2), new Absence(jA3, 3), new Absence(jA3, 4));
         assertThat(jA1.getFirstAvailable()).isEqualTo(1);
         assertThat(jA2.getFirstAvailable()).isEqualTo(2);
         assertThat(jA3.getFirstAvailable()).isEqualTo(5);
@@ -347,7 +347,7 @@ public class TournamentTest {
         assertThat(clone.getTeams()).isEqualTo(t.getTeams());
         assertThat(clone.getJuries()).isEqualTo(t.getJuries());
         assertThat(clone.getJurors()).isEqualTo(t.getJurors());
-        assertThat(clone.getDayOffs()).isEqualTo(t.getDayOffs());
+        assertThat(clone.getAbsences()).isEqualTo(t.getAbsences());
         assertThat(clone.getConflicts()).isEqualTo(t.getConflicts());
         assertThat(clone.getLocks()).isEqualTo(t.getLocks());
         assertThat(clone.getStatistics()).isEqualTo(t.getStatistics());

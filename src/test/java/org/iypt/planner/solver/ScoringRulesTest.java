@@ -180,8 +180,8 @@ public class ScoringRulesTest {
         assignJurors(t, jM1, jM2, jM1, jM7, jM1, jM7);
         checkSolution(t, true, ScoringRule.inexperiencedJurorVoting, 0);
 
-        // add day off and keep the assignment
-        t.addDayOffs(new Absence(jM7, 1));
+        // add an absence and keep the assignment unchanged
+        t.addAbsences(new Absence(jM7, 1));
         checkSolution(t, true, ScoringRule.inexperiencedJurorVoting, 1);
     }
 
@@ -207,7 +207,7 @@ public class ScoringRulesTest {
     }
 
     @Test
-    public void testDayOffRule() {
+    public void testAbsenceRule() {
         Round r1 = RoundFactory.createRound(1, tA, tB, tC);
         Tournament t = new Tournament();
         t.setJuryCapacity(1);
@@ -215,7 +215,7 @@ public class ScoringRulesTest {
         t.addJurors(jD1);
 
         assignJurors(t, jD1);
-        t.addDayOffs(new Absence(jD1, r1.getDay()));
+        t.addAbsences(new Absence(jD1, r1.getDay()));
         checkSolution(t, false, ScoringRule.absentJuror, 1);
     }
 
@@ -316,7 +316,7 @@ public class ScoringRulesTest {
         // jM2 is overloaded, jM3 and jM4 are unused
         assignJurors(t, jI1, jM2, jJ1, jM2, jK1, jM2, jL1, jM2, jM1, jM2);
         checkSolution(t, true, ScoringRule.loadDeltaExceeded, 3);
-        // TODO add dayOffs
+        // TODO add absences
     }
 
     @Test
@@ -356,11 +356,11 @@ public class ScoringRulesTest {
         assignJurors(t, jT1, jT2, jT3, jT4);
         checkSolution(t, true, ScoringRule.independentRatioDeltaExceeded, 1);
 
-        // two rounds and dayOffs
+        // two rounds and absences
         Round r2 = RoundFactory.createRound(2, tC, tB, tA);
         t.addRounds(r2);
-        t.addDayOffs(new Absence(jT1, r1.getDay()));
-        t.addDayOffs(new Absence(jI1, r2.getDay()), new Absence(jI2, r2.getDay()), new Absence(jI3, r2.getDay()));
+        t.addAbsences(new Absence(jT1, r1.getDay()));
+        t.addAbsences(new Absence(jI1, r2.getDay()), new Absence(jI2, r2.getDay()), new Absence(jI3, r2.getDay()));
         assertThat(r1.getOptimalIndependentCount()).isEqualTo(2.7, offset(.05));
         assertThat(r2.getOptimalIndependentCount()).isEqualTo(1.7, offset(.05));
         assignJurors(t, jI1, jI2, jI3, jT4, jT1, jT2, jT3, jI4);

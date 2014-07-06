@@ -34,12 +34,12 @@ public class TournamentUtils {
             conflictMap.get(j).add(conflict.getCountry());
         }
 
-        for (Absence dayOff : t.getDayOffs()) {
-            Juror j = dayOff.getJuror();
+        for (Absence absence : t.getAbsences()) {
+            Juror j = absence.getJuror();
             if (!absenceMap.containsKey(j)) {
                 absenceMap.put(j, new ArrayList<Integer>(5));
             }
-            absenceMap.get(j).add(dayOff.getDay());
+            absenceMap.get(j).add(absence.getDay());
         }
     }
 

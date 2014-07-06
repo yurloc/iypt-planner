@@ -646,7 +646,7 @@ public class PlannerWindow extends Window implements Bindable {
         totalJurorsLabel.setText(Integer.toString(t.getJurors().size()));
         juryCapacitySpinner.setSelectedItem(t.getJuryCapacity());
         totalSeatsLabel.setText(Integer.toString(t.getSeats().size()));
-        totalMandaysLabel.setText(Integer.toString(t.getJurors().size() * t.getRounds().size() - t.getDayOffs().size()));
+        totalMandaysLabel.setText(Integer.toString(t.getJurors().size() * t.getRounds().size() - t.getAbsences().size()));
         optimalLoadLabel.setText(String.format("%.4f", t.getStatistics().getOptimalLoad()));
         tournamentSchedule.updateSchedule();
     }

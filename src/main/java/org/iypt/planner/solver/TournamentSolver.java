@@ -224,10 +224,10 @@ public class TournamentSolver {
                     jurorAssignmentMap.get(seat.getJuror()).set(round.getNumber() - 1, new JurorAssignment(seat.getJury().getGroup()));
                 }
             }
-            for (Absence dayOff : tournament.getDayOffs()) {
-                if (dayOff.getDay() == round.getDay()) {
-                    awayList.add(dayOff.getJuror());
-                    jurorAssignmentMap.get(dayOff.getJuror()).set(round.getNumber() - 1, new JurorAssignment(round, false));
+            for (Absence absence : tournament.getAbsences()) {
+                if (absence.getDay() == round.getDay()) {
+                    awayList.add(absence.getJuror());
+                    jurorAssignmentMap.get(absence.getJuror()).set(round.getNumber() - 1, new JurorAssignment(round, false));
                 }
             }
             idleList.removeAll(awayList); // idle = all -busy -away
@@ -285,21 +285,21 @@ public class TournamentSolver {
                         }
                     }
                 } else if (assignment.getOriginalStatus() == JurorAssignment.Status.AWAY) {
-                    // cancel day off
+                    // cancel absence
                     ArrayList<Absence> cancelled = new ArrayList<>();
-                    for (Absence dayOff : tournament.getDayOffs()) {
-                        // FIXME this would cancel multiple day offs if there were multiple rounds in one day
-                        if (dayOff.getJuror() == juror && dayOff.getDay() == assignment.getRound().getDay()) {
-                            cancelled.add(dayOff);
+                    for (Absence absence : tournament.getAbsences()) {
+                        // FIXME this would cancel multiple absences if there were multiple rounds in one day
+                        if (absence.getJuror() == juror && absence.getDay() == assignment.getRound().getDay()) {
+                            cancelled.add(absence);
                         }
                     }
-                    tournament.getDayOffs().removeAll(cancelled);
+                    tournament.getAbsences().removeAll(cancelled);
                 }
 
                 // no matter what the original status is
                 if (assignment.getCurrentStatus() == JurorAssignment.Status.AWAY) {
-                    // add day off
-                    tournament.addDayOffs(new Absence(juror, assignment.getRound().getDay()));
+                    // add absence
+                    tournament.addAbsences(new Absence(juror, assignment.getRound().getDay()));
                 }
             }
         }
