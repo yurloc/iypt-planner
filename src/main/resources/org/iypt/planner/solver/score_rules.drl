@@ -96,10 +96,10 @@ end
 rule "absentJuror"
 @ConstraintType(hard)
 when
-    $r : Round( $day : day)
+    $r : Round( $roundNumber : number)
     // TODO Seat( round == $r )
     $s : Seat( jury.group.round == $r, $juror : juror )
-    $absence : Absence( juror == $juror, day == $day )
+    $absence : Absence( juror == $juror, roundNumber == $roundNumber )
 then
     insertLogical( new IntConstraintOccurrence(
         drools.getRule().getName(),

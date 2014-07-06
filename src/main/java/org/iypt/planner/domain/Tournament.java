@@ -178,7 +178,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
             int total = 0;
             for (Juror juror : jurors) {
                 boolean present = true;
-                List<Absence> absenceList = absencesPerRoundMap.get(round.getDay());
+                List<Absence> absenceList = absencesPerRoundMap.get(round.getNumber());
                 if (absenceList != null) {
                     for (Absence absence : absenceList) {
                         if (absence.getJuror().equals(juror)) {
@@ -207,7 +207,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
             SortedSet<Integer> away = new TreeSet<>();
             away.add(0);
             for (Absence absence : absencesPerJurorMap.get(juror)) {
-                away.add(absence.getDay());
+                away.add(absence.getRoundNumber());
             }
             SortedSet<Integer> available = new TreeSet<>();
             for (int i = 1; i <= away.last() + 1; i++) {
@@ -310,10 +310,10 @@ public class Tournament implements Solution<HardAndSoftScore> {
     public void addAbsences(List<Absence> absences) {
         for (Absence absence : absences) {
             // cache round's absences
-            List<Absence> roundAbsencesList = absencesPerRoundMap.get(absence.getDay());
+            List<Absence> roundAbsencesList = absencesPerRoundMap.get(absence.getRoundNumber());
             if (roundAbsencesList == null) {
                 roundAbsencesList = new ArrayList<>();
-                absencesPerRoundMap.put(absence.getDay(), roundAbsencesList);
+                absencesPerRoundMap.put(absence.getRoundNumber(), roundAbsencesList);
             }
             roundAbsencesList.add(absence);
 
@@ -332,7 +332,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
             if (!this.absences.contains(absence)) {
                 throw new IllegalArgumentException("Cannot remove: " + absence);
             }
-            absencesPerRoundMap.get(absence.getDay()).remove(absence);
+            absencesPerRoundMap.get(absence.getRoundNumber()).remove(absence);
             absencesPerJurorMap.get(absence.getJuror()).remove(absence);
         }
         stats.setOptimalLoad(calculateOptimalLoad());
@@ -341,7 +341,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
     }
 
     public int getAbsencesPerRound(Round r) {
-        List<Absence> list = absencesPerRoundMap.get(r.getDay());
+        List<Absence> list = absencesPerRoundMap.get(r.getNumber());
         return list == null ? 0 : list.size();
     }
 
@@ -539,7 +539,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
                 sb.replace(sb.length() - 1, sb.length(), "\n");
             }
             for (Absence absence : this.getAbsences()) {
-                if (absence.getDay() == r.getDay()) {
+                if (absence.getRoundNumber() == r.getNumber()) {
                     away.add(absence.getJuror());
                 }
             }

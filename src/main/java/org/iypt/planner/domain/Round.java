@@ -9,9 +9,8 @@ import java.util.List;
  */
 public class Round {
 
-    private int number;
-    private int day;
-    private List<Group> groups;
+    private final int number;
+    private final List<Group> groups;
     private double iCount = 0;
 
     void setOptimalIndependentCount(double optimalCount) {
@@ -22,19 +21,18 @@ public class Round {
         return iCount;
     }
 
-    public Round(int number, int day) {
+    public Round(int number) {
         this.number = number;
-        this.day = day;
         this.groups = new ArrayList<>(10);
     }
-    
+
     public Group createGroup(String name) {
         Group group = new Group(name);
         group.setRound(this);
         groups.add(group);
         return group;
     }
-    
+
     public void addGroups(Group... groups) {
         for (Group g : groups) {
             this.groups.add(g);
@@ -48,39 +46,20 @@ public class Round {
     }
 
     /**
-     * Get the value of number
+     * Get round number.
      *
-     * @return the value of number
+     * @return number of the round, should be 1 - 5
      */
     public int getNumber() {
         return number;
     }
 
     /**
-     * Get the value of day
+     * Get groups in this round.
      *
-     * @return the value of day
-     */
-    public int getDay() {
-        return day;
-    }
-
-    /**
-     * Set the value of day
-     *
-     * @param day new value of day
-     */
-    public void setDay(int day) {
-        this.day = day;
-    }
-
-    /**
-     * Get the value of groups
-     *
-     * @return the value of groups
+     * @return list of groups in this round
      */
     public List<Group> getGroups() {
         return groups;
     }
-
 }

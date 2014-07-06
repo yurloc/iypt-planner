@@ -188,7 +188,7 @@ public class CSVTournamentFactory {
 
             // get the round to be populated
             if (!rounds.containsKey(roundNumber)) {
-                rounds.put(roundNumber, new Round(roundNumber, roundNumber));
+                rounds.put(roundNumber, new Round(roundNumber));
             }
             Round round = rounds.get(roundNumber);
 
@@ -346,7 +346,7 @@ public class CSVTournamentFactory {
             // get the round instance
             Round round = null;
             for (Round r : rounds.values()) {
-                if (r.getDay() == roundNumber) {
+                if (r.getNumber() == roundNumber) {
                     round = r;
                     break;
                 }

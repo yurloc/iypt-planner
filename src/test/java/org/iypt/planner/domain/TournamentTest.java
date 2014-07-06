@@ -1,6 +1,5 @@
 package org.iypt.planner.domain;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import org.iypt.planner.domain.util.RoundFactory;
@@ -23,7 +22,7 @@ public class TournamentTest {
     @Test
     public void testRound() {
         // createGroup
-        Round r1 = new Round(1, 1);
+        Round r1 = new Round(1);
         Group g1A = r1.createGroup("A");
         assertThat(g1A.getRound()).isSameAs(r1);
 
@@ -47,11 +46,11 @@ public class TournamentTest {
 
     @Test
     public void testTournament() {
-        Round r1 = new Round(1, 1);
+        Round r1 = new Round(1);
         Group g1A = r1.createGroup("A").addTeams(tA, tB, tC);
         Group g1B = r1.createGroup("B").addTeams(tD, tE, tF);
 
-        Round r2 = new Round(2, 2);
+        Round r2 = new Round(2);
         Group g2A = r2.createGroup("A").addTeams(tA, tE, tC);
         Group g2B = r2.createGroup("B").addTeams(tD, tB, tF);
 
@@ -133,7 +132,7 @@ public class TournamentTest {
         assertThat(t.isFeasibleSolutionPossible()).isTrue();
 
         // add one more round
-        Round r3 = new Round(3, 3);
+        Round r3 = new Round(3);
         Group g3A = r3.createGroup("A").addTeams(tA, tB, tF);
         Group g3B = r3.createGroup("B").addTeams(tD, tE, tC);
         t.addRounds(r3);
@@ -171,7 +170,7 @@ public class TournamentTest {
         Tournament t = new Tournament();
         assertThat(t.getStatistics().getOptimalLoad()).isEqualTo(0.0, offset(Double.MIN_VALUE));
 
-        Round r1 = new Round(1, 1);
+        Round r1 = new Round(1);
         r1.createGroup("A").addTeams(tA, tB, tC);
         r1.createGroup("B").addTeams(tD, tE, tF);
         assertThat(t.getStatistics().getOptimalLoad()).isEqualTo(0.0, offset(Double.MIN_VALUE));
@@ -189,7 +188,7 @@ public class TournamentTest {
         t.setJuryCapacity(3);
         assertThat(t.getStatistics().getOptimalLoad()).isEqualTo(6.0 / 9, offset(Double.MIN_VALUE));
 
-        Round r2 = new Round(2, 2);
+        Round r2 = new Round(2);
         r2.createGroup("A").addTeams(tA, tB, tC);
         r2.createGroup("B").addTeams(tD, tE, tF);
         t.addRounds(r2);
@@ -207,7 +206,7 @@ public class TournamentTest {
 
     @Test
     public void testIndependentRatio() {
-        Round round = new Round(1, 1);
+        Round round = new Round(1);
         Jury jury = new Jury();
         jury.setGroup(round.createGroup("A"));
 
@@ -225,9 +224,9 @@ public class TournamentTest {
 
     @Test
     public void testOptimalIndependentCount() {
-        Round r1 = new Round(1, 1);
+        Round r1 = new Round(1);
         r1.createGroup("A").addTeams(tA, tB, tC);
-        Round r2 = new Round(2, 2);
+        Round r2 = new Round(2);
         r2.createGroup("A").addTeams(tA, tB, tC);
 
         Tournament t = new Tournament();
@@ -247,14 +246,14 @@ public class TournamentTest {
         assertThat(r1.getOptimalIndependentCount()).isEqualTo(1.5, offset(Double.MIN_VALUE));
         assertThat(r2.getOptimalIndependentCount()).isEqualTo(1.5, offset(Double.MIN_VALUE));
 
-        t.addAbsences(new Absence(jI1, r1.getDay()), new Absence(jT2, r2.getDay()));
+        t.addAbsences(new Absence(jI1, r1.getNumber()), new Absence(jT2, r2.getNumber()));
         assertThat(r1.getOptimalIndependentCount()).isEqualTo(1, offset(Double.MIN_VALUE));
         assertThat(r2.getOptimalIndependentCount()).isEqualTo(2, offset(Double.MIN_VALUE));
     }
 
     @Test
     public void testFeasibilitySimple() {
-        Round r = new Round(1, 1);
+        Round r = new Round(1);
         r.createGroup("A").addTeams(tB, tC, tD);
         r.createGroup("B").addTeams(tE, tF, tG);
         Tournament t = new Tournament();
@@ -267,14 +266,14 @@ public class TournamentTest {
         t.addJurors(jA1, jA2, jA3, jA4);
         assertThat(t.isFeasibleSolutionPossible()).isTrue();
 
-        t.addAbsences(new Absence(jA1, r.getDay()));
+        t.addAbsences(new Absence(jA1, r.getNumber()));
         assertThat(t.getAbsencesPerRound(r)).isEqualTo(1);
         assertThat(t.isFeasibleSolutionPossible()).isFalse();
     }
 
     @Test
     public void testCloneSolution() {
-        Round r1 = new Round(1, 1);
+        Round r1 = new Round(1);
         r1.createGroup("A").addTeams(tA, tB, tC);
         r1.createGroup("B").addTeams(tD, tE, tF);
 
@@ -282,7 +281,7 @@ public class TournamentTest {
         t.addRounds(r1);
         testClone(t);
 
-        Round r2 = new Round(2, 2);
+        Round r2 = new Round(2);
         r2.createGroup("A").addTeams(tA, tB, tC);
         r2.createGroup("B").addTeams(tD, tE, tF);
         t.addRounds(r2);

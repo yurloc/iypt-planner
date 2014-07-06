@@ -215,7 +215,7 @@ public class ScoringRulesTest {
         t.addJurors(jD1);
 
         assignJurors(t, jD1);
-        t.addAbsences(new Absence(jD1, r1.getDay()));
+        t.addAbsences(new Absence(jD1, r1.getNumber()));
         checkSolution(t, false, ScoringRule.absentJuror, 1);
     }
 
@@ -359,8 +359,8 @@ public class ScoringRulesTest {
         // two rounds and absences
         Round r2 = RoundFactory.createRound(2, tC, tB, tA);
         t.addRounds(r2);
-        t.addAbsences(new Absence(jT1, r1.getDay()));
-        t.addAbsences(new Absence(jI1, r2.getDay()), new Absence(jI2, r2.getDay()), new Absence(jI3, r2.getDay()));
+        t.addAbsences(new Absence(jT1, r1.getNumber()));
+        t.addAbsences(new Absence(jI1, r2.getNumber()), new Absence(jI2, r2.getNumber()), new Absence(jI3, r2.getNumber()));
         assertThat(r1.getOptimalIndependentCount()).isEqualTo(2.7, offset(.05));
         assertThat(r2.getOptimalIndependentCount()).isEqualTo(1.7, offset(.05));
         assignJurors(t, jI1, jI2, jI3, jT4, jT1, jT2, jT3, jI4);

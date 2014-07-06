@@ -209,7 +209,7 @@ public class TournamentSolver {
             ArrayList<JurorAssignment> assignments = new ArrayList<>(tournament.getRounds().size());
             jurorAssignmentMap.put(juror, assignments);
             for (Round round : tournament.getRounds()) {
-                // idle all days by default
+                // idle all rounds by default
                 assignments.add(round.getNumber() - 1, new JurorAssignment(round, true));
             }
         }
@@ -225,7 +225,7 @@ public class TournamentSolver {
                 }
             }
             for (Absence absence : tournament.getAbsences()) {
-                if (absence.getDay() == round.getDay()) {
+                if (absence.getRoundNumber() == round.getNumber()) {
                     awayList.add(absence.getJuror());
                     jurorAssignmentMap.get(absence.getJuror()).set(round.getNumber() - 1, new JurorAssignment(round, false));
                 }
@@ -280,7 +280,7 @@ public class TournamentSolver {
                 if (assignment.getOriginalStatus() == JurorAssignment.Status.ASSIGNED) {
                     // empty the seat
                     for (Seat seat : tournament.getSeats()) {
-                        if (seat.getJuror() == juror && seat.getJury().getGroup().getRound().getDay() == assignment.getRound().getDay()) {
+                        if (seat.getJuror() == juror && seat.getJury().getGroup().getRound().getNumber() == assignment.getRound().getNumber()) {
                             seat.setJuror(null);
                         }
                     }
@@ -288,8 +288,7 @@ public class TournamentSolver {
                     // cancel absence
                     ArrayList<Absence> cancelled = new ArrayList<>();
                     for (Absence absence : tournament.getAbsences()) {
-                        // FIXME this would cancel multiple absences if there were multiple rounds in one day
-                        if (absence.getJuror() == juror && absence.getDay() == assignment.getRound().getDay()) {
+                        if (absence.getJuror() == juror && absence.getRoundNumber() == assignment.getRound().getNumber()) {
                             cancelled.add(absence);
                         }
                     }
@@ -299,7 +298,7 @@ public class TournamentSolver {
                 // no matter what the original status is
                 if (assignment.getCurrentStatus() == JurorAssignment.Status.AWAY) {
                     // add absence
-                    tournament.addAbsences(new Absence(juror, assignment.getRound().getDay()));
+                    tournament.addAbsences(new Absence(juror, assignment.getRound().getNumber()));
                 }
             }
         }

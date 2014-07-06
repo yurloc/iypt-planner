@@ -5,32 +5,25 @@ package org.iypt.planner.domain;
  * @author jlocker
  */
 public class Absence {
-    private Juror juror;
-    private int day;
 
-    public Absence(Juror juror, int day) {
+    private final Juror juror;
+    private final int roundNumber;
+
+    public Absence(Juror juror, int roundNumber) {
         this.juror = juror;
-        this.day = day;
+        this.roundNumber = roundNumber;
     }
 
     public Juror getJuror() {
         return juror;
     }
 
-    public void setJuror(Juror juror) {
-        this.juror = juror;
-    }
-
-    public int getDay() {
-        return day;
-    }
-
-    public void setDay(int day) {
-        this.day = day;
+    public int getRoundNumber() {
+        return roundNumber;
     }
 
     @Override
     public String toString() {
-        return juror + "!" + day;
+        return juror + "!" + roundNumber;
     }
 }

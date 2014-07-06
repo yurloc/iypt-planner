@@ -129,9 +129,9 @@ public class SampleFacts {
     public static final Group gCEG = new Group(tC, tE, tG);
 
     // rounds
-    public static final Round round1 = new Round(1, 1);
-    public static final Round round2 = new Round(2, 2);
-    public static final Round round3 = new Round(3, 3);
-    public static final Round round4 = new Round(4, 4);
-    public static final Round round5 = new Round(5, 5);
+    public static final Round round1 = new Round(1);
+    public static final Round round2 = new Round(2);
+    public static final Round round3 = new Round(3);
+    public static final Round round4 = new Round(4);
+    public static final Round round5 = new Round(5);
 }
