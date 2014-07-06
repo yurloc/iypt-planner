@@ -7,11 +7,11 @@ package org.iypt.planner.domain;
 public class JurorLoad {
 
     public static final double INFINITE_LOAD_VALUE = 2.0;
-    private Juror juror;
-    private double load;
-    private double delta;
-    private double cost;
-    private boolean excessive;
+    private final Juror juror;
+    private final double load;
+    private final double delta;
+    private final double cost;
+    private final boolean excessive;
 
     public JurorLoad(Juror juror, Number seats, int rounds, Number absences, double optimal) {
         this(juror, seats.intValue(), rounds, absences.intValue(), optimal);

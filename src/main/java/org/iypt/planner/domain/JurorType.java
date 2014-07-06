@@ -2,9 +2,11 @@ package org.iypt.planner.domain;
 
 /**
  * There are two types of jurors: a) independent juror, b) team leader.
+ *
  * @author jlocker
  */
 public enum JurorType {
+
     INDEPENDENT,
     TEAM_LEADER;
 

@@ -213,7 +213,7 @@ public class CSVTournamentFactory {
                 // add the team only if it's new
                 // TODO replace the Map with Set when equals is overriden
                 if (!teams.containsKey(cc)) {
-                    teams.put(cc, new Team(teams.size(), cc));
+                    teams.put(cc, new Team(cc));
                 }
                 group.addTeam(teams.get(cc));
             }

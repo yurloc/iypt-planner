@@ -6,10 +6,10 @@ package org.iypt.planner.domain;
  */
 public class IndependentRatio {
 
-    private Jury jury;
-    private double optimal;
-    private int count;
-    private int delta;
+    private final Jury jury;
+    private final double optimal;
+    private final int count;
+    private final int delta;
 
     public IndependentRatio(Jury jury, Number independentCount) {
         this.jury = jury;

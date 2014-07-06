@@ -58,77 +58,67 @@ public final class Group {
     //-------------------------------------------------------------------------------------------------------------------------
     // Getters & Setters
     //-------------------------------------------------------------------------------------------------------------------------
-
     /**
-     * Get the value of jury
+     * Get the jury that is assigned to this group.
      *
-     * @return the value of jury
+     * @return the jury assigned to this group
      */
     public Jury getJury() {
         return jury;
     }
 
     /**
-     * Set the value of jury
+     * Get the round this group is part of.
      *
-     * @param jury new value of jury
-     */
-    public void setJury(Jury jury) {
-        this.jury = jury;
-    }
-
-    /**
-     * Get the value of round
-     *
-     * @return the value of round
+     * @return the round of this group
      */
     public Round getRound() {
         return round;
     }
 
     /**
-     * Set the value of round
+     * Set the round this group belongs to.
      *
-     * @param round new value of round
+     * @param round the round this group belongs to.
      */
     public void setRound(Round round) {
         this.round = round;
     }
 
     /**
-     * Get the value of size
+     * Get the number of teams in this group. Most of the groups consist of 3 teams. There can be zero, one or two groups with
+     * 4 teams, depending on the total number of teams taking part in the tournament.
      *
-     * @return the value of size
+     * @return number of team in this group
      */
     public int getSize() {
         return getTeams().size();
     }
 
     /**
-     * Get the value of teams
+     * Get teams in this group.
      *
-     * @return the value of teams
+     * @return teams in this group.
      */
     public List<Team> getTeams() {
         return teams;
     }
 
     /**
-     * Get the value of name
+     * Get the group name.
      *
-     * @return the value of name
+     * @return group name, typically a capital letter
      */
     public String getName() {
         return name;
     }
 
     /**
-     * Set the value of name
+     * Set the group name.
      *
-     * @param name new value of name
+     * @param name new group name, typically a capital letter
      */
     public void setName(String name) {
         this.name = name;
     }
-
 }

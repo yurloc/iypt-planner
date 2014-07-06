@@ -15,7 +15,7 @@ public class Seat {
 
     // fixed
     private final Jury jury;
-    private int position;
+    private final int position;
     // planning variable
     private Juror juror;
 
@@ -26,55 +26,62 @@ public class Seat {
     }
 
     /**
-     * Get the value of juror
+     * Get the jury this seat belongs to.
      *
-     * @return the value of juror
-     */
-    @PlanningVariable
-    @ValueRange(type = ValueRangeType.FROM_SOLUTION_PROPERTY, solutionProperty = "jurors")
-    public Juror getJuror() {
-        return juror;
-    }
-
-    @Override
-    public String toString() {
-        return String.format("[Seat %s:%d]-[%s]", jury.coords(), position + 1, juror);
-    }
-
-    public Seat clone() {
-        return new Seat(jury, position, juror);
-    }
-
-    public boolean isOccupied() {
-        return juror != null && juror != Juror.NULL;
-    }
-
-    //=========================================================================================================================
-    // Getters & Setters
-    //=========================================================================================================================
-    public boolean isChair() {
-        return position == 0;
-    }
-
-    public int getPosition() {
-        return position;
-    }
-
-    /**
-     * Get the value of jury
-     *
-     * @return the value of jury
+     * @return the jury this seat belongs to
      */
     public Jury getJury() {
         return jury;
     }
 
     /**
-     * Set the value of juror
+     * Get the exact position of this seat in the jury.
      *
-     * @param juror new value of juror
+     * @return number of the seat
+     */
+    public int getPosition() {
+        return position;
+    }
+
+    @PlanningVariable
+    @ValueRange(type = ValueRangeType.FROM_SOLUTION_PROPERTY, solutionProperty = "jurors")
+    public Juror getJuror() {
+        return juror;
+    }
+
+    /**
+     * Assign a juror to this seat.
+     *
+     * @param juror juror that will occupy this seat
      */
     public void setJuror(Juror juror) {
         this.juror = juror;
+    }
+
+    public Seat clone() {
+        return new Seat(jury, position, juror);
+    }
+
+    /**
+     * Determine if a juror is assigned to this seat.
+     *
+     * @return True if a juror is assigned to this seat.
+     */
+    public boolean isOccupied() {
+        return juror != null && juror != Juror.NULL;
+    }
+
+    /**
+     * Determine if this is the jury chair's seat.
+     *
+     * @return True if this seat must be occupied by a jury chair
+     */
+    public boolean isChair() {
+        return position == 0;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("[Seat %s:%d]-[%s]", jury.coords(), position + 1, juror);
     }
 }

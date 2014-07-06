@@ -17,22 +17,19 @@ public final class Jury {
         return String.format("Jury %s", coords());
     }
 
-    // ------------------------------------------------------------------------
-    // Getters & Setters
-    // ------------------------------------------------------------------------
     /**
-     * Get the value of group
+     * Get the group this jury is assigned to.
      *
-     * @return the value of group
+     * @return the group this jury is assigned to
      */
     public Group getGroup() {
         return group;
     }
 
     /**
-     * Set the value of group
+     * Set the group this jury is assigned to.
      *
-     * @param group new value of group
+     * @param group the group this jury is assigned to
      */
     public void setGroup(Group group) {
         this.group = group;
