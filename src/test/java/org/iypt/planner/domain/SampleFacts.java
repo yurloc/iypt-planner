@@ -1,10 +1,6 @@
-package org.iypt.planner.domain.util;
+package org.iypt.planner.domain;
 
 import com.neovisionaries.i18n.CountryCode;
-import org.iypt.planner.domain.Group;
-import org.iypt.planner.domain.Juror;
-import org.iypt.planner.domain.Round;
-import org.iypt.planner.domain.Team;
 
 import static org.iypt.planner.domain.JurorType.INDEPENDENT;
 import static org.iypt.planner.domain.JurorType.TEAM_LEADER;

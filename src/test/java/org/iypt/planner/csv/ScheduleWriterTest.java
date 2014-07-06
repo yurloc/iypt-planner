@@ -11,16 +11,16 @@ import java.util.List;
 import org.iypt.planner.domain.Group;
 import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.Round;
+import org.iypt.planner.domain.RoundFactory;
 import org.iypt.planner.domain.Seat;
 import org.iypt.planner.domain.Tournament;
-import org.iypt.planner.domain.util.RoundFactory;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.iypt.planner.domain.util.SampleFacts.*;
+import static org.iypt.planner.domain.SampleFacts.*;
 
 /**
  *

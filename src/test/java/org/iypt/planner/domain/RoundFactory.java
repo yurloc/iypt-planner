@@ -1,9 +1,6 @@
-package org.iypt.planner.domain.util;
+package org.iypt.planner.domain;
 
 import java.util.Arrays;
-import org.iypt.planner.domain.Group;
-import org.iypt.planner.domain.Round;
-import org.iypt.planner.domain.Team;
 
 /**
  *

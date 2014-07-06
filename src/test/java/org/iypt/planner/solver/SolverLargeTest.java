@@ -3,12 +3,12 @@ package org.iypt.planner.solver;
 import org.drools.planner.config.termination.TerminationConfig;
 import org.iypt.planner.domain.Absence;
 import org.iypt.planner.domain.Round;
+import org.iypt.planner.domain.RoundFactory;
 import org.iypt.planner.domain.Tournament;
-import org.iypt.planner.domain.util.RoundFactory;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.iypt.planner.domain.util.SampleFacts.*;
+import static org.iypt.planner.domain.SampleFacts.*;
 
 /**
  *
