@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.iypt.planner.domain.Absence;
 import org.iypt.planner.domain.Conflict;
-import org.iypt.planner.domain.DayOff;
 import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.JurorType;
 import org.iypt.planner.domain.Tournament;
@@ -34,7 +34,7 @@ public class TournamentUtils {
             conflictMap.get(j).add(conflict.getCountry());
         }
 
-        for (DayOff dayOff : t.getDayOffs()) {
+        for (Absence dayOff : t.getDayOffs()) {
             Juror j = dayOff.getJuror();
             if (!absenceMap.containsKey(j)) {
                 absenceMap.put(j, new ArrayList<Integer>(5));

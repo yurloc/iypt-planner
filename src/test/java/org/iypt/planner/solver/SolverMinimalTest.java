@@ -1,7 +1,7 @@
 package org.iypt.planner.solver;
 
 import org.drools.planner.config.termination.TerminationConfig;
-import org.iypt.planner.domain.DayOff;
+import org.iypt.planner.domain.Absence;
 import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Tournament;
 import org.iypt.planner.domain.util.RoundFactory;
@@ -42,8 +42,8 @@ public class SolverMinimalTest extends AbstractSolverTest {
         t.addJurors(jD1, jD2, jE1, jE2, jF1, jF2, jG1, jH1, jI1);
         t.addJurors(jM2, jM3, jM4, jM5, jM6);
 
-        t.addDayOffs(new DayOff(jE1, r1.getDay()), new DayOff(jE1, r3.getDay()));
-        t.addDayOffs(new DayOff(jH1, r2.getDay()), new DayOff(jI1, r2.getDay()));
+        t.addDayOffs(new Absence(jE1, r1.getDay()), new Absence(jE1, r3.getDay()));
+        t.addDayOffs(new Absence(jH1, r2.getDay()), new Absence(jI1, r2.getDay()));
 
         // just visualizing the numbers
         assertThat(t.getSeats().size() / t.getRounds().size()).isEqualTo(18);

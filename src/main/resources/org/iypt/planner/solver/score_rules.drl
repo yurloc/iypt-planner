@@ -8,8 +8,8 @@ import org.drools.planner.core.score.constraint.IntConstraintOccurrence;
 import org.drools.planner.core.score.constraint.ConstraintType;
 
 import com.neovisionaries.i18n.CountryCode;
+import org.iypt.planner.domain.Absence;
 import org.iypt.planner.domain.Conflict;
-import org.iypt.planner.domain.DayOff;
 import org.iypt.planner.domain.Group;
 import org.iypt.planner.domain.IndependentRatio;
 import org.iypt.planner.domain.Juror;
@@ -93,18 +93,18 @@ then
     ));
 end
 
-rule "dayOff"
+rule "absentJuror"
 @ConstraintType(hard)
 when
     $r : Round( $day : day)
     // TODO Seat( round == $r )
     $s : Seat( jury.group.round == $r, $juror : juror )
-    $dayOff : DayOff( juror == $juror, day == $day )
+    $absence : Absence( juror == $juror, day == $day )
 then
     insertLogical( new IntConstraintOccurrence(
         drools.getRule().getName(),
         ConstraintType.NEGATIVE_HARD, 1,
-        $s, $dayOff
+        $s, $absence
     ));
 end
 
@@ -165,10 +165,10 @@ when
     $juror : Juror()
     accumulate( Seat( juror == $juror );
                 $seats : count() )
-    accumulate( DayOff( juror == $juror );
-                $dayOffs : count() )
+    accumulate( Absence( juror == $juror );
+                $absences: count() )
 then
-    JurorLoad load = new JurorLoad($juror, $seats, $stats.getRounds(), $dayOffs, $stats.getOptimalLoad());
+    JurorLoad load = new JurorLoad($juror, $seats, $stats.getRounds(), $absences, $stats.getOptimalLoad());
     insertLogical( load );
 end
 

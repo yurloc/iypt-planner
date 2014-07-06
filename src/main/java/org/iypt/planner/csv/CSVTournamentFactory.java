@@ -14,8 +14,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.iypt.planner.domain.Absence;
 import org.iypt.planner.domain.Conflict;
-import org.iypt.planner.domain.DayOff;
 import org.iypt.planner.domain.Group;
 import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.JurorType;
@@ -48,7 +48,7 @@ public class CSVTournamentFactory {
     private Map<CountryCode, Team> teams;
     private Map<String, Juror> jurors;
     private Map<String, Double> biases;
-    private List<DayOff> dayOffs;
+    private List<Absence> dayOffs;
     private List<Conflict> conflicts;
     private Map<Jury, List<Juror>> juries;
     private int juryCapacity = 0;
@@ -284,7 +284,7 @@ public class CSVTournamentFactory {
                     } else {
 
                         try {
-                            dayOffs.add(new DayOff(juror, Integer.valueOf(line.get(i))));
+                            dayOffs.add(new Absence(juror, Integer.valueOf(line.get(i))));
                             dayOffMode = true;
                         } catch (NumberFormatException ex) {
                             if (dayOffMode) {

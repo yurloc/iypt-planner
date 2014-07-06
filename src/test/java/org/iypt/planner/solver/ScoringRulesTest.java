@@ -21,8 +21,8 @@ import org.drools.planner.core.score.buildin.hardandsoft.HardAndSoftScoreHolder;
 import org.drools.planner.core.score.holder.ScoreHolder;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.iypt.planner.csv.CSVTournamentFactory;
+import org.iypt.planner.domain.Absence;
 import org.iypt.planner.domain.Conflict;
-import org.iypt.planner.domain.DayOff;
 import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.Lock;
 import org.iypt.planner.domain.Round;
@@ -181,7 +181,7 @@ public class ScoringRulesTest {
         checkSolution(t, true, ScoringRule.inexperiencedJurorVoting, 0);
 
         // add day off and keep the assignment
-        t.addDayOffs(new DayOff(jM7, 1));
+        t.addDayOffs(new Absence(jM7, 1));
         checkSolution(t, true, ScoringRule.inexperiencedJurorVoting, 1);
     }
 
@@ -215,8 +215,8 @@ public class ScoringRulesTest {
         t.addJurors(jD1);
 
         assignJurors(t, jD1);
-        t.addDayOffs(new DayOff(jD1, r1.getDay()));
-        checkSolution(t, false, ScoringRule.dayOff, 1);
+        t.addDayOffs(new Absence(jD1, r1.getDay()));
+        checkSolution(t, false, ScoringRule.absentJuror, 1);
     }
 
     @Test
@@ -359,8 +359,8 @@ public class ScoringRulesTest {
         // two rounds and dayOffs
         Round r2 = RoundFactory.createRound(2, tC, tB, tA);
         t.addRounds(r2);
-        t.addDayOffs(new DayOff(jT1, r1.getDay()));
-        t.addDayOffs(new DayOff(jI1, r2.getDay()), new DayOff(jI2, r2.getDay()), new DayOff(jI3, r2.getDay()));
+        t.addDayOffs(new Absence(jT1, r1.getDay()));
+        t.addDayOffs(new Absence(jI1, r2.getDay()), new Absence(jI2, r2.getDay()), new Absence(jI3, r2.getDay()));
         assertThat(r1.getOptimalIndependentCount()).isEqualTo(2.7, offset(.05));
         assertThat(r2.getOptimalIndependentCount()).isEqualTo(1.7, offset(.05));
         assignJurors(t, jI1, jI2, jI3, jT4, jT1, jT2, jT3, jI4);
@@ -691,7 +691,7 @@ public class ScoringRulesTest {
         invalidChair(HARD),
         teamAndJurorSameCountry(HARD),
         teamAndChairMeetOften(HARD),
-        dayOff(HARD),
+        absentJuror(HARD),
         brokenLock(HARD),
         // soft constraints
         // * across rounds

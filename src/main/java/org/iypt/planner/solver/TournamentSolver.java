@@ -30,8 +30,8 @@ import org.drools.planner.core.score.constraint.IntConstraintOccurrence;
 import org.drools.planner.core.score.constraint.UnweightedConstraintOccurrence;
 import org.drools.planner.core.score.director.ScoreDirector;
 import org.drools.planner.core.score.director.drools.DroolsScoreDirector;
+import org.iypt.planner.domain.Absence;
 import org.iypt.planner.domain.Conflict;
-import org.iypt.planner.domain.DayOff;
 import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.JurorLoad;
 import org.iypt.planner.domain.Lock;
@@ -224,7 +224,7 @@ public class TournamentSolver {
                     jurorAssignmentMap.get(seat.getJuror()).set(round.getNumber() - 1, new JurorAssignment(seat.getJury().getGroup()));
                 }
             }
-            for (DayOff dayOff : tournament.getDayOffs()) {
+            for (Absence dayOff : tournament.getDayOffs()) {
                 if (dayOff.getDay() == round.getDay()) {
                     awayList.add(dayOff.getJuror());
                     jurorAssignmentMap.get(dayOff.getJuror()).set(round.getNumber() - 1, new JurorAssignment(round, false));
@@ -286,8 +286,8 @@ public class TournamentSolver {
                     }
                 } else if (assignment.getOriginalStatus() == JurorAssignment.Status.AWAY) {
                     // cancel day off
-                    ArrayList<DayOff> cancelled = new ArrayList<>();
-                    for (DayOff dayOff : tournament.getDayOffs()) {
+                    ArrayList<Absence> cancelled = new ArrayList<>();
+                    for (Absence dayOff : tournament.getDayOffs()) {
                         // FIXME this would cancel multiple day offs if there were multiple rounds in one day
                         if (dayOff.getJuror() == juror && dayOff.getDay() == assignment.getRound().getDay()) {
                             cancelled.add(dayOff);
@@ -299,7 +299,7 @@ public class TournamentSolver {
                 // no matter what the original status is
                 if (assignment.getCurrentStatus() == JurorAssignment.Status.AWAY) {
                     // add day off
-                    tournament.addDayOffs(new DayOff(juror, assignment.getRound().getDay()));
+                    tournament.addDayOffs(new Absence(juror, assignment.getRound().getDay()));
                 }
             }
         }

@@ -4,11 +4,11 @@ package org.iypt.planner.domain;
  *
  * @author jlocker
  */
-public class DayOff {
+public class Absence {
     private Juror juror;
     private int day;
 
-    public DayOff(Juror juror, int day) {
+    public Absence(Juror juror, int day) {
         this.juror = juror;
         this.day = day;
     }
@@ -33,5 +33,4 @@ public class DayOff {
     public String toString() {
         return juror + "!" + day;
     }
-
 }
