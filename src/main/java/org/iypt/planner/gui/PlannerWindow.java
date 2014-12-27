@@ -1,5 +1,6 @@
 package org.iypt.planner.gui;
 
+import com.jcabi.manifests.Manifests;
 import java.awt.Color;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -112,6 +113,8 @@ public class PlannerWindow extends Window implements Bindable {
     @BXML private TableView awayTableView;
     // juror details
     @BXML private Border jurorBorder;
+    // build info
+    @BXML private Label buildInfoLabel;
     private JurorDetails jurorDetails;
     // other
     private TournamentSchedule tournamentSchedule;
@@ -503,6 +506,14 @@ public class PlannerWindow extends Window implements Bindable {
         });
         scoreChangeBox.setVisible(false);
         scoreChangeDiffLabel.getStyles().put("color", Color.GRAY);
+        String version = "development";
+        String revision = "unknown";
+        if (Manifests.exists(Constants.MANIFEST_BUILD_VERSION)) {
+            version = Manifests.read(Constants.MANIFEST_BUILD_VERSION);
+            revision = Manifests.read(Constants.MANIFEST_BUILD_REVISION);
+        }
+        buildInfoLabel.setText(String.format("Version: %s (%s)", version, revision.substring(0, 5)));
+        buildInfoLabel.setTooltipText("Revision: " + revision);
     }
 
     private void tournamentLoaded(Tournament tournament) {

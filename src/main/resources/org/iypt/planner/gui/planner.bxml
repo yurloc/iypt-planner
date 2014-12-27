@@ -76,6 +76,11 @@
     <!-- Main window section -->
     <TablePane.Row height="1*">
       <TabPane selectedIndex="0" styles="{tabOrientation:'horizontal'}">
+        <corner>
+          <BoxPane styles="{horizontalAlignment:'right', padding:{right:6}}">
+            <Label bxml:id="buildInfoLabel"/>
+          </BoxPane>
+        </corner>
 
         <!-- Planning tab -->
         <Border TabPane.tabData="Planning" styles="{padding:10}">
