@@ -6,6 +6,7 @@ import java.awt.Font;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.pivot.beans.BXML;
 import org.apache.pivot.beans.BXMLSerializer;
 import org.apache.pivot.collections.ArrayList;
 import org.apache.pivot.collections.List;
@@ -54,45 +55,46 @@ class JurorDetailsSkin extends ContainerSkin {
     private final Map<JurorAssignment, ListButton> roundStatusMap = new HashMap<>();
     private final Map<JurorAssignment, Label> roundLabelMap = new HashMap<>();
     private Component content;
-    private Label fullNameLabel;
-    private BoxPane conflictsBoxPane;
-    private Checkbox independentCheckbox;
-    private Checkbox chairCheckbox;
-    private Checkbox experiencedCheckbox;
-    private Label biasLabel;
-    private Meter loadMeter;
     private Color loadOkColor;
     private Color loadNokColor = Color.RED.darker();
-    private TablePane jurorScheduleTablePane;
-    private PushButton revertButton;
-    private PushButton saveButton;
+    @BXML private Label fullNameLabel;
+    @BXML private BoxPane conflictsBoxPane;
+    @BXML private Checkbox independentCheckbox;
+    @BXML private Checkbox chairCheckbox;
+    @BXML private Checkbox experiencedCheckbox;
+    @BXML private Label biasLabel;
+    @BXML private Meter loadMeter;
+    @BXML private TablePane jurorScheduleTablePane;
+    @BXML private PushButton revertButton;
+    @BXML private PushButton saveButton;
 
     @Override
     public void install(Component component) {
         super.install(component);
+
+        // get component and register skin as a listener
         final JurorDetails details = (JurorDetails) component;
 
+        // read BXML
         BXMLSerializer bxmlSerializer = new BXMLSerializer();
         try {
             content = (Component) bxmlSerializer.readObject(GroupRosterSkin.class, "juror_details.bxml");
         } catch (IOException | SerializationException exception) {
             throw new RuntimeException(exception);
         }
+
+        // add it to container
         details.add(content);
-        fullNameLabel = (Label) bxmlSerializer.getNamespace().get("fullNameLabel");
-        conflictsBoxPane = (BoxPane) bxmlSerializer.getNamespace().get("conflictsBoxPane");
-        independentCheckbox = (Checkbox) bxmlSerializer.getNamespace().get("independentCheckbox");
-        chairCheckbox = (Checkbox) bxmlSerializer.getNamespace().get("chairCheckbox");
-        experiencedCheckbox = (Checkbox) bxmlSerializer.getNamespace().get("experiencedCheckbox");
-        biasLabel = (Label) bxmlSerializer.getNamespace().get("biasLabel");
-        loadMeter = (Meter) bxmlSerializer.getNamespace().get("loadMeter");
+
+        // initialize fields with elements from BXML
+        bxmlSerializer.bind(this, JurorDetailsSkin.class);
+
+        // set up controls
         loadOkColor = (Color) loadMeter.getStyles().get("color");
-        jurorScheduleTablePane = (TablePane) bxmlSerializer.getNamespace().get("jurorScheduleTablePane");
-        revertButton = (PushButton) bxmlSerializer.getNamespace().get("revertButton");
-        saveButton = (PushButton) bxmlSerializer.getNamespace().get("saveButton");
         revertButton.setEnabled(false);
         saveButton.setEnabled(false);
 
+        // register listeners
         revertButton.getButtonPressListeners().add(new ButtonPressListener() {
             @Override
             public void buttonPressed(Button button) {

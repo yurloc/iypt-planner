@@ -56,17 +56,26 @@ public class GroupRosterSkin extends ContainerSkin implements GroupRosterListene
     @Override
     public void install(Component component) {
         super.install(component);
+
+        // get component and register skin as a listener
         final GroupRoster group = (GroupRoster) component;
         group.getGroupRosterListeners().add(this);
 
+        // read BXML
         BXMLSerializer bxmlSerializer = new BXMLSerializer();
         try {
             content = (Component) bxmlSerializer.readObject(GroupRosterSkin.class, "group_skin.bxml");
         } catch (IOException | SerializationException exception) {
             throw new RuntimeException(exception);
         }
+
+        // add it to container
         group.add(content);
+
+        // initialize fields with elements from BXML
         bxmlSerializer.bind(this, GroupRosterSkin.class);
+
+        // register listeners
         juryTableView.getTableViewSelectionListeners().add(new TableViewSelectionListener.Adapter() {
             @Override
             public void selectedRowChanged(TableView tableView, Object previousSelectedRow) {

@@ -33,19 +33,30 @@ public class TournamentScheduleSkin extends ContainerSkin implements TournamentS
     @Override
     public void install(Component component) {
         super.install(component);
+
+        // get component and register skin as a listener
         final TournamentSchedule schedule = (TournamentSchedule) component;
         schedule.getTournamentScheduleListeners().add(this);
+
+        // create content and add it to component
         content = new TabPane();
+        schedule.add(content);
+
+        // set up controls (static)
+        content.getStyles().put("tabOrientation", Orientation.HORIZONTAL);
+        PushButton lockButton = new PushButton(getImage(LOCK_LIGHT));
+        lockButton.getStyles().put("toolbar", true);
+        BoxPane corner = new BoxPane(Orientation.HORIZONTAL);
+        corner.add(lockButton);
+        content.setCorner(corner);
+        
+        // register listeners
         content.getTabPaneSelectionListeners().add(new TabPaneSelectionListener.Adapter() {
             @Override
             public void selectedIndexChanged(TabPane tabPane, int previousSelectedIndex) {
                 schedule.roundSelected(tabPane.getSelectedIndex());
             }
         });
-        content.getStyles().put("tabOrientation", Orientation.HORIZONTAL);
-        schedule.add(content);
-        PushButton lockButton = new PushButton(getImage(LOCK_LIGHT));
-        lockButton.getStyles().put("toolbar", true);
         lockButton.getButtonPressListeners().add(new ButtonPressListener() {
             @Override
             public void buttonPressed(Button button) {
@@ -63,11 +74,8 @@ public class TournamentScheduleSkin extends ContainerSkin implements TournamentS
                 ((PushButton) component).setButtonData(getImage(LOCK_LIGHT));
             }
         });
-        BoxPane corner = new BoxPane(Orientation.HORIZONTAL);
-        corner.add(lockButton);
-        content.setCorner(corner);
 
-        // initialize round views
+        // initialize round views (dynamic controls)
         List<Round> rounds = schedule.getTournament().getRounds();
         views = new RoundView[rounds.size()];
         for (int i = 0; i < views.length; i++) {
@@ -76,6 +84,8 @@ public class TournamentScheduleSkin extends ContainerSkin implements TournamentS
             content.getTabs().add(roundView);
             TabPane.setTabData(roundView, new ButtonData(getImage(LOCK_LIGHT), "Round #" + rounds.get(i).getNumber()));
         }
+
+        // TODO register round listeners
     }
 
     @Override

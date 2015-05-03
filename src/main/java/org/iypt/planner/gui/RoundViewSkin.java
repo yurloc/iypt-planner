@@ -20,8 +20,12 @@ public class RoundViewSkin extends ContainerSkin implements RoundViewListener {
     @Override
     public void install(Component component) {
         super.install(component);
+
+        // get component and register skin as a listener
         RoundView round = (RoundView) component;
         round.getRoundViewListeners().add(this);
+
+        // create content and add it to component
         content = new BoxPane(Orientation.HORIZONTAL);
         round.add(content);
 
@@ -33,6 +37,8 @@ public class RoundViewSkin extends ContainerSkin implements RoundViewListener {
             views[i] = view;
             content.add(view);
         }
+
+        // TODO register group listeners
     }
 
     @Override
