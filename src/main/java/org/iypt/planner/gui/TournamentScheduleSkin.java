@@ -49,7 +49,7 @@ public class TournamentScheduleSkin extends ContainerSkin implements TournamentS
         BoxPane corner = new BoxPane(Orientation.HORIZONTAL);
         corner.add(lockButton);
         content.setCorner(corner);
-        
+
         // register listeners
         content.getTabPaneSelectionListeners().add(new TabPaneSelectionListener.Adapter() {
             @Override
@@ -83,9 +83,28 @@ public class TournamentScheduleSkin extends ContainerSkin implements TournamentS
             views[i] = roundView;
             content.getTabs().add(roundView);
             TabPane.setTabData(roundView, new ButtonData(getImage(LOCK_LIGHT), "Round #" + rounds.get(i).getNumber()));
-        }
+            roundView.getRoundViewListeners().add(new RoundViewListener() {
 
-        // TODO register round listeners
+                @Override
+                public void roundChanged(RoundView round) {
+                    // do nothing
+                }
+
+                @Override
+                public void seatSelected(SeatInfo seat) {
+                    schedule.seatSelected(seat);
+                }
+
+                @Override
+                public void seatLockChanged(SeatInfo seat) {
+                    if (seat.isLocked()) {
+                        schedule.lockSeat(seat);
+                    } else {
+                        schedule.unlockSeat(seat);
+                    }
+                }
+            });
+        }
     }
 
     @Override
@@ -115,7 +134,7 @@ public class TournamentScheduleSkin extends ContainerSkin implements TournamentS
         // TournamentSchedule tournament = (TournamentSchedule) getComponent();
         List<Round> rounds = schedule.getTournament().getRounds();
         for (int i = 0; i < views.length; i++) {
-            views[i].update(schedule, rounds.get(i));
+            views[i].update(rounds.get(i));
         }
     }
 

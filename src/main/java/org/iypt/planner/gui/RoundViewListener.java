@@ -6,5 +6,9 @@ package org.iypt.planner.gui;
  */
 public interface RoundViewListener {
 
-    void scheduleChanged(RoundView round);
+    void roundChanged(RoundView round);
+
+    void seatSelected(SeatInfo seat);
+
+    void seatLockChanged(SeatInfo seat);
 }
