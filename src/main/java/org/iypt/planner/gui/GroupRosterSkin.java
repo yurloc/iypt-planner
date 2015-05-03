@@ -79,14 +79,14 @@ public class GroupRosterSkin extends ContainerSkin implements GroupRosterListene
         juryTableView.getTableViewSelectionListeners().add(new TableViewSelectionListener.Adapter() {
             @Override
             public void selectedRowChanged(TableView tableView, Object previousSelectedRow) {
-                group.jurorSelected(tableView.getSelectedRow());
+                group.setSelectedSeat((SeatInfo) tableView.getSelectedRow());
             }
         });
         juryTableView.getComponentStateListeners().add(new ComponentStateListener.Adapter() {
             @Override
             public void focusedChanged(Component component, Component obverseComponent) {
                 if (component.isFocused()) {
-                    group.jurorSelected(((TableView) component).getSelectedRow());
+                    group.setSelectedSeat((SeatInfo) ((TableView) component).getSelectedRow());
                 }
             }
         });
@@ -102,7 +102,6 @@ public class GroupRosterSkin extends ContainerSkin implements GroupRosterListene
         //Menu.Item lo = new Menu.Item("Lock-out");
         //lo.setAction(lockOutAction);
         //section.add(lo);
-
         juryTableView.setMenuHandler(new MenuHandler.Adapter() {
             @Override
             public boolean configureContextMenu(Component component, Menu menu, int x, int y) {
@@ -151,11 +150,21 @@ public class GroupRosterSkin extends ContainerSkin implements GroupRosterListene
             teamsBoxPane.add(teamFlag);
         }
 
-        if (juryTableView.getTableData().getLength() != group.getJurorList().getLength()) {
+        if (juryTableView.getTableData().getLength() != group.getSeats().getLength()) {
             preferredSize = null;
         }
 
-        juryTableView.setTableData(group.getJurorList());
-        juryTableView.setEnabled(!group.isRoundLocked());
+        juryTableView.setTableData(group.getSeats());
+        juryTableView.setEnabled(!group.isLocked());
+    }
+
+    @Override
+    public void seatSelected(GroupRoster group, SeatInfo previousSeat) {
+        // do nothing
+    }
+
+    @Override
+    public void seatLockChanged(GroupRoster group, SeatInfo seat) {
+        // do nothing
     }
 }

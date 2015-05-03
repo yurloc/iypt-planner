@@ -1,12 +1,15 @@
 package org.iypt.planner.gui;
 
+import com.neovisionaries.i18n.CountryCode;
 import java.util.List;
+import org.apache.pivot.collections.ArrayList;
 import org.apache.pivot.wtk.BoxPane;
 import org.apache.pivot.wtk.Component;
 import org.apache.pivot.wtk.Dimensions;
 import org.apache.pivot.wtk.Orientation;
 import org.apache.pivot.wtk.skin.ContainerSkin;
 import org.iypt.planner.domain.Group;
+import org.iypt.planner.domain.Team;
 
 /**
  *
@@ -33,12 +36,28 @@ public class RoundViewSkin extends ContainerSkin implements RoundViewListener {
         List<Group> groups = round.getRound().getGroups();
         views = new GroupRoster[groups.size()];
         for (int i = 0; i < views.length; i++) {
-            GroupRoster view = new GroupRoster(round.getSchedule(), groups.get(i));
+            Room room = createRoom(groups.get(i));
+            GroupRoster view = new GroupRoster(room);
             views[i] = view;
             content.add(view);
         }
 
         // TODO register group listeners
+    }
+
+    private Room createRoom(Group group) {
+        RoundView round = (RoundView) getComponent();
+        boolean isLocked = round.getSchedule().getTournament().isLocked(round.getRound());
+
+        ArrayList<CountryCode> teams = new ArrayList<>();
+        for (Team team : group.getTeams()) {
+            teams.add(team.getCountry());
+        }
+        ArrayList<SeatInfo> seats = new ArrayList<>();
+        for (SeatInfo seat : round.getSchedule().getSeats(group)) {
+            seats.add(seat);
+        }
+        return new Room(group.getName(), teams, seats, isLocked);
     }
 
     @Override
@@ -66,7 +85,7 @@ public class RoundViewSkin extends ContainerSkin implements RoundViewListener {
     public void scheduleChanged(RoundView round) {
         List<Group> groups = round.getRound().getGroups();
         for (int i = 0; i < views.length; i++) {
-            views[i].update(groups.get(i));
+            views[i].update(createRoom(groups.get(i)));
         }
     }
 }

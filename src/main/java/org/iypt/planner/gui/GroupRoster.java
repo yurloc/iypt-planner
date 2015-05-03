@@ -1,19 +1,15 @@
 package org.iypt.planner.gui;
 
 import com.neovisionaries.i18n.CountryCode;
-import org.apache.pivot.collections.ArrayList;
 import org.apache.pivot.collections.List;
 import org.apache.pivot.util.ListenerList;
 import org.apache.pivot.wtk.Container;
-import org.iypt.planner.domain.Group;
-import org.iypt.planner.domain.Team;
 
 /**
  *
  * @author jlocker
  */
 public class GroupRoster extends Container {
-
 
     private static final class GroupRosterListenerList extends ListenerList<GroupRosterListener> implements GroupRosterListener {
 
@@ -23,28 +19,39 @@ public class GroupRoster extends Container {
                 listener.groupRosterChanged(group);
             }
         }
-    }
-    private GroupRosterListenerList groupRosterListenerList = new GroupRosterListenerList();
-    private TournamentSchedule schedule;
-    private Group group;
-    private List<SeatInfo> seats = new ArrayList<>();
-    private boolean roundLocked;
 
-    boolean isRoundLocked() {
-        return roundLocked;
-    }
-
-    // TODO move this into the skin?
-    void jurorSelected(Object row) {
-        if (row != null) {
-            SeatInfo seat = (SeatInfo) row;
-            schedule.seatSelected(seat);
+        @Override
+        public void seatSelected(GroupRoster group, SeatInfo previousSeat) {
+            for (GroupRosterListener listener : this) {
+                listener.seatSelected(group, previousSeat);
+            }
         }
+
+        @Override
+        public void seatLockChanged(GroupRoster group, SeatInfo seat) {
+            for (GroupRosterListener listener : this) {
+                listener.seatLockChanged(group, seat);
+            }
+        }
+    }
+    private final GroupRosterListenerList groupRosterListenerList = new GroupRosterListenerList();
+    private Room room;
+    private SeatInfo selectedSeat;
+
+    boolean isLocked() {
+        return room.isLocked();
+    }
+
+    public void setSelectedSeat(SeatInfo seat) {
+        SeatInfo oldSeat = this.selectedSeat;
+        this.selectedSeat = seat;
+        groupRosterListenerList.seatSelected(this, oldSeat);
     }
 
     void lockIn(int rowIndex) {
-        SeatInfo seat = getJurorList().get(rowIndex);
-        schedule.lockSeat(seat);
+        SeatInfo seat = getSeats().get(rowIndex);
+        seat.lock();
+        groupRosterListenerList.seatLockChanged(this, seat);
     }
 
     void lockOut(int rowIndex) {
@@ -52,50 +59,30 @@ public class GroupRoster extends Container {
     }
 
     void unlock(int rowIndex) {
-        SeatInfo seat = getJurorList().get(rowIndex);
-        schedule.unlockSeat(seat);
+        SeatInfo seat = getSeats().get(rowIndex);
+        seat.unlock();
+        groupRosterListenerList.seatLockChanged(this, seat);
     }
 
-    public GroupRoster() {
-        super();
-        setSkin(new GroupRosterSkin());
-    }
-
-    GroupRoster(TournamentSchedule schedule, Group group) {
-        this.schedule = schedule;
-        this.group = group;
-        updateJurors();
-
+    GroupRoster(Room room) {
+        this.room = room;
         setSkin(new GroupRosterSkin());
     }
 
     public String getGroupName() {
-        return group.getName();
+        return room.getGroupName();
     }
 
     public List<CountryCode> getTeams() {
-        List<CountryCode> teams = new ArrayList<>();
-        for (Team team : group.getTeams()) {
-            teams.add(team.getCountry());
-        }
-        return teams;
+        return room.getTeams();
     }
 
-    private void updateJurors() {
-        seats = new ArrayList<>();
-        for (SeatInfo seat : schedule.getSeats(group)) {
-            seats.add(seat);
-        }
-        roundLocked = schedule.getTournament().isLocked(group.getRound());
+    public List<SeatInfo> getSeats() {
+        return room.getSeats();
     }
 
-    public List<SeatInfo> getJurorList() {
-        return seats;
-    }
-
-    void update(Group group) {
-        this.group = group;
-        updateJurors();
+    void update(Room room) {
+        this.room = room;
         groupRosterListenerList.groupRosterChanged(this);
     }
 

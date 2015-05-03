@@ -129,4 +129,8 @@ public class SeatInfo {
         icon = Images.getImage(Images.PERSON_LOCKED);
     }
 
+    public void unlock() {
+        locked = false;
+        icon = Images.getImage(Images.PERSON_DEFAULT);
+    }
 }
