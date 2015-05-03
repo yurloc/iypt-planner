@@ -78,7 +78,7 @@ class JurorDetailsSkin extends ContainerSkin {
         // read BXML
         BXMLSerializer bxmlSerializer = new BXMLSerializer();
         try {
-            content = (Component) bxmlSerializer.readObject(GroupRosterSkin.class, "juror_details.bxml");
+            content = (Component) bxmlSerializer.readObject(JurorDetailsSkin.class, "juror_details.bxml");
         } catch (IOException | SerializationException exception) {
             throw new RuntimeException(exception);
         }

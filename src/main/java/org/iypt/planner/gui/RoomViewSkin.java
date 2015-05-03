@@ -23,7 +23,7 @@ import org.iypt.planner.domain.util.CountryCodeIO;
  *
  * @author jlocker
  */
-public class GroupRosterSkin extends ContainerSkin implements GroupRosterListener {
+public class RoomViewSkin extends ContainerSkin implements RoomViewListener {
 
     private Component content;
     @BXML private Label groupNameLabel;
@@ -34,22 +34,22 @@ public class GroupRosterSkin extends ContainerSkin implements GroupRosterListene
     private final Action lockInAction = new Action() {
         @Override
         public void perform(Component source) {
-            GroupRoster group = (GroupRoster) getComponent();
-            group.lockIn(rowIndex);
+            RoomView room = (RoomView) getComponent();
+            room.lockIn(rowIndex);
         }
     };
     private final Action lockOutAction = new Action() {
         @Override
         public void perform(Component source) {
-            GroupRoster group = (GroupRoster) getComponent();
-            group.lockOut(rowIndex);
+            RoomView room = (RoomView) getComponent();
+            room.lockOut(rowIndex);
         }
     };
     private final Action unlockAction = new Action() {
         @Override
         public void perform(Component source) {
-            GroupRoster group = (GroupRoster) getComponent();
-            group.unlock(rowIndex);
+            RoomView room = (RoomView) getComponent();
+            room.unlock(rowIndex);
         }
     };
 
@@ -58,35 +58,35 @@ public class GroupRosterSkin extends ContainerSkin implements GroupRosterListene
         super.install(component);
 
         // get component and register skin as a listener
-        final GroupRoster group = (GroupRoster) component;
-        group.getGroupRosterListeners().add(this);
+        final RoomView room = (RoomView) component;
+        room.getRoomViewListenerList().add(this);
 
         // read BXML
         BXMLSerializer bxmlSerializer = new BXMLSerializer();
         try {
-            content = (Component) bxmlSerializer.readObject(GroupRosterSkin.class, "group_skin.bxml");
+            content = (Component) bxmlSerializer.readObject(RoomViewSkin.class, "room_skin.bxml");
         } catch (IOException | SerializationException exception) {
             throw new RuntimeException(exception);
         }
 
         // add it to container
-        group.add(content);
+        room.add(content);
 
         // initialize fields with elements from BXML
-        bxmlSerializer.bind(this, GroupRosterSkin.class);
+        bxmlSerializer.bind(this, RoomViewSkin.class);
 
         // register listeners
         juryTableView.getTableViewSelectionListeners().add(new TableViewSelectionListener.Adapter() {
             @Override
             public void selectedRowChanged(TableView tableView, Object previousSelectedRow) {
-                group.setSelectedSeat((SeatInfo) tableView.getSelectedRow());
+                room.setSelectedSeat((SeatInfo) tableView.getSelectedRow());
             }
         });
         juryTableView.getComponentStateListeners().add(new ComponentStateListener.Adapter() {
             @Override
             public void focusedChanged(Component component, Component obverseComponent) {
                 if (component.isFocused()) {
-                    group.setSelectedSeat((SeatInfo) ((TableView) component).getSelectedRow());
+                    room.setSelectedSeat((SeatInfo) ((TableView) component).getSelectedRow());
                 }
             }
         });
@@ -112,7 +112,7 @@ public class GroupRosterSkin extends ContainerSkin implements GroupRosterListene
         });
         lockOutAction.setEnabled(false);
 
-        groupRosterChanged(group);
+        roomChanged(room);
     }
 
     @Override
@@ -140,31 +140,31 @@ public class GroupRosterSkin extends ContainerSkin implements GroupRosterListene
     }
 
     @Override
-    public void groupRosterChanged(GroupRoster group) {
-        groupNameLabel.setText(group.getGroupName());
+    public void roomChanged(RoomView room) {
+        groupNameLabel.setText(room.getGroupName());
         teamsBoxPane.removeAll();
-        for (CountryCode country : group.getTeams()) {
+        for (CountryCode country : room.getTeams()) {
             ImageView teamFlag = new ImageView(Images.getFlag(country));
             teamFlag.setTooltipText(CountryCodeIO.getShortName(country));
             teamFlag.setTooltipDelay(200);
             teamsBoxPane.add(teamFlag);
         }
 
-        if (juryTableView.getTableData().getLength() != group.getSeats().getLength()) {
+        if (juryTableView.getTableData().getLength() != room.getSeats().getLength()) {
             preferredSize = null;
         }
 
-        juryTableView.setTableData(group.getSeats());
-        juryTableView.setEnabled(!group.isLocked());
+        juryTableView.setTableData(room.getSeats());
+        juryTableView.setEnabled(!room.isLocked());
     }
 
     @Override
-    public void seatSelected(GroupRoster group, SeatInfo previousSeat) {
+    public void seatSelected(RoomView room, SeatInfo previousSeat) {
         // do nothing
     }
 
     @Override
-    public void seatLockChanged(GroupRoster group, SeatInfo seat) {
+    public void seatLockChanged(RoomView room, SeatInfo seat) {
         // do nothing
     }
 }

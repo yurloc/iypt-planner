@@ -9,32 +9,32 @@ import org.apache.pivot.wtk.Container;
  *
  * @author jlocker
  */
-public class GroupRoster extends Container {
+public class RoomView extends Container {
 
-    private static final class GroupRosterListenerList extends ListenerList<GroupRosterListener> implements GroupRosterListener {
+    private static final class RoomViewListenerList extends ListenerList<RoomViewListener> implements RoomViewListener {
 
         @Override
-        public void groupRosterChanged(GroupRoster group) {
-            for (GroupRosterListener listener : this) {
-                listener.groupRosterChanged(group);
+        public void roomChanged(RoomView room) {
+            for (RoomViewListener listener : this) {
+                listener.roomChanged(room);
             }
         }
 
         @Override
-        public void seatSelected(GroupRoster group, SeatInfo previousSeat) {
-            for (GroupRosterListener listener : this) {
-                listener.seatSelected(group, previousSeat);
+        public void seatSelected(RoomView room, SeatInfo previousSeat) {
+            for (RoomViewListener listener : this) {
+                listener.seatSelected(room, previousSeat);
             }
         }
 
         @Override
-        public void seatLockChanged(GroupRoster group, SeatInfo seat) {
-            for (GroupRosterListener listener : this) {
-                listener.seatLockChanged(group, seat);
+        public void seatLockChanged(RoomView room, SeatInfo seat) {
+            for (RoomViewListener listener : this) {
+                listener.seatLockChanged(room, seat);
             }
         }
     }
-    private final GroupRosterListenerList groupRosterListenerList = new GroupRosterListenerList();
+    private final RoomViewListenerList roomViewListenerList = new RoomViewListenerList();
     private Room room;
     private SeatInfo selectedSeat;
 
@@ -49,13 +49,13 @@ public class GroupRoster extends Container {
     public void setSelectedSeat(SeatInfo seat) {
         SeatInfo oldSeat = this.selectedSeat;
         this.selectedSeat = seat;
-        groupRosterListenerList.seatSelected(this, oldSeat);
+        roomViewListenerList.seatSelected(this, oldSeat);
     }
 
     void lockIn(int rowIndex) {
         SeatInfo seat = getSeats().get(rowIndex);
         seat.lock();
-        groupRosterListenerList.seatLockChanged(this, seat);
+        roomViewListenerList.seatLockChanged(this, seat);
     }
 
     void lockOut(int rowIndex) {
@@ -65,12 +65,12 @@ public class GroupRoster extends Container {
     void unlock(int rowIndex) {
         SeatInfo seat = getSeats().get(rowIndex);
         seat.unlock();
-        groupRosterListenerList.seatLockChanged(this, seat);
+        roomViewListenerList.seatLockChanged(this, seat);
     }
 
-    GroupRoster(Room room) {
+    RoomView(Room room) {
         this.room = room;
-        setSkin(new GroupRosterSkin());
+        setSkin(new RoomViewSkin());
     }
 
     public String getGroupName() {
@@ -87,10 +87,10 @@ public class GroupRoster extends Container {
 
     void update(Room room) {
         this.room = room;
-        groupRosterListenerList.groupRosterChanged(this);
+        roomViewListenerList.roomChanged(this);
     }
 
-    public ListenerList<GroupRosterListener> getGroupRosterListeners() {
-        return groupRosterListenerList;
+    public ListenerList<RoomViewListener> getRoomViewListenerList() {
+        return roomViewListenerList;
     }
 }

@@ -18,7 +18,7 @@ import org.iypt.planner.domain.Team;
 public class RoundViewSkin extends ContainerSkin implements RoundViewListener {
 
     private BoxPane content;
-    private GroupRoster[] views;
+    private RoomView[] views;
 
     @Override
     public void install(Component component) {
@@ -34,26 +34,26 @@ public class RoundViewSkin extends ContainerSkin implements RoundViewListener {
 
         // initialize group views
         List<Group> groups = round.getRound().getGroups();
-        views = new GroupRoster[groups.size()];
+        views = new RoomView[groups.size()];
         for (int i = 0; i < views.length; i++) {
             Room room = createRoom(groups.get(i));
-            GroupRoster view = new GroupRoster(room);
+            RoomView view = new RoomView(room);
             views[i] = view;
             content.add(view);
-            view.getGroupRosterListeners().add(new GroupRosterListener() {
+            view.getRoomViewListenerList().add(new RoomViewListener() {
 
                 @Override
-                public void groupRosterChanged(GroupRoster group) {
+                public void roomChanged(RoomView room) {
                     // do nothing
                 }
 
                 @Override
-                public void seatSelected(GroupRoster group, SeatInfo previousSeat) {
-                    round.getSchedule().seatSelected(group.getSelectedSeat());
+                public void seatSelected(RoomView room, SeatInfo previousSeat) {
+                    round.getSchedule().seatSelected(room.getSelectedSeat());
                 }
 
                 @Override
-                public void seatLockChanged(GroupRoster group, SeatInfo seat) {
+                public void seatLockChanged(RoomView room, SeatInfo seat) {
                     if (seat.isLocked()) {
                         round.getSchedule().lockSeat(seat);
                     } else {
