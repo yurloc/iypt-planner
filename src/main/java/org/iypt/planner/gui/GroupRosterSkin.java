@@ -2,6 +2,7 @@ package org.iypt.planner.gui;
 
 import com.neovisionaries.i18n.CountryCode;
 import java.io.IOException;
+import org.apache.pivot.beans.BXML;
 import org.apache.pivot.beans.BXMLSerializer;
 import org.apache.pivot.serialization.SerializationException;
 import org.apache.pivot.wtk.Action;
@@ -25,9 +26,9 @@ import org.iypt.planner.domain.util.CountryCodeIO;
 public class GroupRosterSkin extends ContainerSkin implements GroupRosterListener {
 
     private Component content;
-    private Label groupNameLabel;
-    private BoxPane teamsBoxPane;
-    private TableView juryTableView;
+    @BXML private Label groupNameLabel;
+    @BXML private BoxPane teamsBoxPane;
+    @BXML private TableView juryTableView;
     private Dimensions preferredSize = null;
     private int rowIndex;
     private final Action lockInAction = new Action() {
@@ -65,9 +66,7 @@ public class GroupRosterSkin extends ContainerSkin implements GroupRosterListene
             throw new RuntimeException(exception);
         }
         group.add(content);
-        groupNameLabel = (Label) bxmlSerializer.getNamespace().get("groupNameLabel");
-        teamsBoxPane = (BoxPane) bxmlSerializer.getNamespace().get("teamsBoxPane");
-        juryTableView = (TableView) bxmlSerializer.getNamespace().get("juryTableView");
+        bxmlSerializer.bind(this, GroupRosterSkin.class);
         juryTableView.getTableViewSelectionListeners().add(new TableViewSelectionListener.Adapter() {
             @Override
             public void selectedRowChanged(TableView tableView, Object previousSelectedRow) {
