@@ -42,6 +42,10 @@ public class GroupRoster extends Container {
         return room.isLocked();
     }
 
+    public SeatInfo getSelectedSeat() {
+        return selectedSeat;
+    }
+
     public void setSelectedSeat(SeatInfo seat) {
         SeatInfo oldSeat = this.selectedSeat;
         this.selectedSeat = seat;

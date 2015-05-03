@@ -25,7 +25,7 @@ public class RoundViewSkin extends ContainerSkin implements RoundViewListener {
         super.install(component);
 
         // get component and register skin as a listener
-        RoundView round = (RoundView) component;
+        final RoundView round = (RoundView) component;
         round.getRoundViewListeners().add(this);
 
         // create content and add it to component
@@ -40,9 +40,28 @@ public class RoundViewSkin extends ContainerSkin implements RoundViewListener {
             GroupRoster view = new GroupRoster(room);
             views[i] = view;
             content.add(view);
-        }
+            view.getGroupRosterListeners().add(new GroupRosterListener() {
 
-        // TODO register group listeners
+                @Override
+                public void groupRosterChanged(GroupRoster group) {
+                    // do nothing
+                }
+
+                @Override
+                public void seatSelected(GroupRoster group, SeatInfo previousSeat) {
+                    round.getSchedule().seatSelected(group.getSelectedSeat());
+                }
+
+                @Override
+                public void seatLockChanged(GroupRoster group, SeatInfo seat) {
+                    if (seat.isLocked()) {
+                        round.getSchedule().lockSeat(seat);
+                    } else {
+                        round.getSchedule().unlockSeat(seat);
+                    }
+                }
+            });
+        }
     }
 
     private Room createRoom(Group group) {
