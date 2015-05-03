@@ -534,8 +534,10 @@ public class PlannerWindow extends Window implements Bindable {
 
             @Override
             public void seatSelected(SeatInfo seatInfo) {
-                showJurorDetails(seatInfo.getJuror());
-                prepareSwap(seatInfo.getJuror());
+                if (seatInfo != null) {
+                    showJurorDetails(seatInfo.getJuror());
+                    prepareSwap(seatInfo.getJuror());
+                }
             }
 
             @Override
