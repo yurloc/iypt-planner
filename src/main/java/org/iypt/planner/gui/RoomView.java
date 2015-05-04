@@ -14,9 +14,9 @@ public class RoomView extends Container {
     private static final class RoomViewListenerList extends ListenerList<RoomViewListener> implements RoomViewListener {
 
         @Override
-        public void roomChanged(RoomView room) {
+        public void roomChanged() {
             for (RoomViewListener listener : this) {
-                listener.roomChanged(room);
+                listener.roomChanged();
             }
         }
 
@@ -87,7 +87,7 @@ public class RoomView extends Container {
 
     void update(Room room) {
         this.room = room;
-        roomViewListenerList.roomChanged(this);
+        roomViewListenerList.roomChanged();
     }
 
     public ListenerList<RoomViewListener> getRoomViewListenerList() {

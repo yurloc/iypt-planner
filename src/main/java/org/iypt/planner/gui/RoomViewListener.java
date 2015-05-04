@@ -6,7 +6,7 @@ package org.iypt.planner.gui;
  */
 public interface RoomViewListener {
 
-    void roomChanged(RoomView room);
+    void roomChanged();
 
     void seatSelected(RoomView room, SeatInfo previousSeat);
 

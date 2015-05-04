@@ -112,7 +112,7 @@ public class RoomViewSkin extends ContainerSkin implements RoomViewListener {
         });
         lockOutAction.setEnabled(false);
 
-        roomChanged(room);
+        roomChanged();
     }
 
     @Override
@@ -140,7 +140,8 @@ public class RoomViewSkin extends ContainerSkin implements RoomViewListener {
     }
 
     @Override
-    public void roomChanged(RoomView room) {
+    public void roomChanged() {
+        RoomView room = (RoomView) getComponent();
         groupNameLabel.setText(room.getGroupName());
         teamsBoxPane.removeAll();
         for (CountryCode country : room.getTeams()) {

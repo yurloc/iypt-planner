@@ -39,7 +39,7 @@ public class RoundViewSkin extends ContainerSkin implements RoundViewListener {
             view.getRoomViewListenerList().add(new RoomViewListener() {
 
                 @Override
-                public void roomChanged(RoomView room) {
+                public void roomChanged() {
                     // do nothing
                 }
 
@@ -78,7 +78,8 @@ public class RoundViewSkin extends ContainerSkin implements RoundViewListener {
     }
 
     @Override
-    public void roundChanged(RoundView round) {
+    public void roundChanged() {
+        RoundView round = (RoundView) getComponent();
         List<Room> rooms = round.getRooms();
         for (int i = 0; i < roomViews.length; i++) {
             roomViews[i].update(rooms.get(i));

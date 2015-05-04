@@ -84,7 +84,7 @@ public class TournamentScheduleSkin extends ContainerSkin implements TournamentS
             roundView.getRoundViewListeners().add(new RoundViewListener() {
 
                 @Override
-                public void roundChanged(RoundView round) {
+                public void roundChanged() {
                     // do nothing
                 }
 
@@ -127,9 +127,8 @@ public class TournamentScheduleSkin extends ContainerSkin implements TournamentS
     }
 
     @Override
-    public void scheduleChanged(TournamentSchedule schedule) {
-        // TODO check this
-        // TournamentSchedule tournament = (TournamentSchedule) getComponent();
+    public void scheduleChanged() {
+        TournamentSchedule schedule = (TournamentSchedule) getComponent();
         List<RoundModel> rounds = schedule.getRounds();
         for (int i = 0; i < views.length; i++) {
             views[i].update(rounds.get(i));

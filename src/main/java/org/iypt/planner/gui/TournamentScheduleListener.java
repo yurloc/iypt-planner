@@ -6,7 +6,7 @@ package org.iypt.planner.gui;
  */
 public interface TournamentScheduleListener {
 
-    void scheduleChanged(TournamentSchedule tournament);
+    void scheduleChanged();
 
     void roundSelected(RoundModel round);
 
@@ -23,7 +23,7 @@ public interface TournamentScheduleListener {
     class Adapter implements TournamentScheduleListener {
 
         @Override
-        public void scheduleChanged(TournamentSchedule tournament) {
+        public void scheduleChanged() {
             // do nothing
         }
 

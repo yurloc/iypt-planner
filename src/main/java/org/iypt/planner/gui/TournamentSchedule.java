@@ -13,9 +13,9 @@ public class TournamentSchedule extends Container {
     private static final class TournamentScheduleListenerList extends ListenerList<TournamentScheduleListener> implements TournamentScheduleListener {
 
         @Override
-        public void scheduleChanged(TournamentSchedule tournament) {
+        public void scheduleChanged() {
             for (TournamentScheduleListener listener : this) {
-                listener.scheduleChanged(tournament);
+                listener.scheduleChanged();
             }
         }
 
@@ -75,7 +75,7 @@ public class TournamentSchedule extends Container {
 
     public void updateSchedule(ScheduleModel schedule) {
         this.schedule = schedule;
-        tournamentScheduleListeners.scheduleChanged(this);
+        tournamentScheduleListeners.scheduleChanged();
         tournamentScheduleListeners.roundLocksChanged();
     }
 
@@ -95,12 +95,12 @@ public class TournamentSchedule extends Container {
 
     void lockSeat(SeatInfo seatInfo) {
         tournamentScheduleListeners.seatLocked(seatInfo);
-        tournamentScheduleListeners.scheduleChanged(this);
+        tournamentScheduleListeners.scheduleChanged();
     }
 
     void unlockSeat(SeatInfo seatInfo) {
         tournamentScheduleListeners.seatUnlocked(seatInfo);
-        tournamentScheduleListeners.scheduleChanged(this);
+        tournamentScheduleListeners.scheduleChanged();
     }
 
     public ListenerList<TournamentScheduleListener> getTournamentScheduleListeners() {

@@ -13,9 +13,9 @@ public class RoundView extends Container {
     private static final class RoundViewListenerList extends ListenerList<RoundViewListener> implements RoundViewListener {
 
         @Override
-        public void roundChanged(RoundView round) {
+        public void roundChanged() {
             for (RoundViewListener listener : this) {
-                listener.roundChanged(round);
+                listener.roundChanged();
             }
         }
 
@@ -43,7 +43,7 @@ public class RoundView extends Container {
 
     public void update(RoundModel round) {
         this.round = round;
-        roundViewListeners.roundChanged(this);
+        roundViewListeners.roundChanged();
     }
 
     public RoundModel getRound() {

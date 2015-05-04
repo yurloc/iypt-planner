@@ -6,7 +6,7 @@ package org.iypt.planner.gui;
  */
 public interface RoundViewListener {
 
-    void roundChanged(RoundView round);
+    void roundChanged();
 
     void seatSelected(SeatInfo seat);
 
