@@ -1,8 +1,5 @@
 package org.iypt.planner.gui;
 
-import org.iypt.planner.domain.Round;
-import org.iypt.planner.domain.Tournament;
-
 /**
  *
  * @author jlocker
@@ -11,11 +8,11 @@ public interface TournamentScheduleListener {
 
     void scheduleChanged(TournamentSchedule tournament);
 
-    void roundSelected(Round round);
+    void roundSelected(RoundModel round);
 
-    void roundLockRequested(Round round);
+    void roundLockRequested(RoundModel round);
 
-    void roundLocksChanged(Tournament tournament);
+    void roundLocksChanged();
 
     void seatSelected(SeatInfo seatInfo);
 
@@ -31,17 +28,17 @@ public interface TournamentScheduleListener {
         }
 
         @Override
-        public void roundSelected(Round round) {
+        public void roundSelected(RoundModel round) {
             // do nothing
         }
 
         @Override
-        public void roundLockRequested(Round round) {
+        public void roundLockRequested(RoundModel round) {
             // do nothing
         }
 
         @Override
-        public void roundLocksChanged(Tournament tournament) {
+        public void roundLocksChanged() {
             // do nothing
         }
 

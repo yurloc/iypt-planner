@@ -1,14 +1,8 @@
 package org.iypt.planner.gui;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.apache.pivot.collections.List;
 import org.apache.pivot.util.ListenerList;
 import org.apache.pivot.wtk.Container;
-import org.iypt.planner.domain.Group;
-import org.iypt.planner.domain.Round;
-import org.iypt.planner.domain.Seat;
-import org.iypt.planner.domain.Tournament;
-import org.iypt.planner.solver.TournamentSolver;
 
 /**
  *
@@ -26,7 +20,7 @@ public class TournamentSchedule extends Container {
         }
 
         @Override
-        public void roundSelected(Round round) {
+        public void roundSelected(RoundModel round) {
             for (TournamentScheduleListener listener : this) {
                 listener.roundSelected(round);
             }
@@ -54,55 +48,44 @@ public class TournamentSchedule extends Container {
         }
 
         @Override
-        public void roundLockRequested(Round round) {
+        public void roundLockRequested(RoundModel round) {
             for (TournamentScheduleListener listener : this) {
                 listener.roundLockRequested(round);
             }
         }
 
         @Override
-        public void roundLocksChanged(Tournament tournament) {
+        public void roundLocksChanged() {
             for (TournamentScheduleListener listener : this) {
-                listener.roundLocksChanged(tournament);
+                listener.roundLocksChanged();
             }
         }
     }
     private final TournamentScheduleListenerList tournamentScheduleListeners = new TournamentScheduleListenerList();
-    private final TournamentSolver solver;
+    private ScheduleModel schedule;
 
-    public TournamentSchedule(TournamentSolver solver) {
-        this.solver = solver;
+    public TournamentSchedule(ScheduleModel schedule) {
+        this.schedule = schedule;
         setSkin(new TournamentScheduleSkin());
     }
 
-    List<SeatInfo> getSeats(Group group) {
-        ArrayList<SeatInfo> seats = new ArrayList<>();
-        for (Seat seat : solver.getTournament().getSeats(group.getJury())) {
-            SeatInfo seatInfo = SeatInfo.newInstance(seat);
-            if (solver.getTournament().isLocked(seat)) {
-                seatInfo.lock();
-            }
-            seats.add(seatInfo);
-        }
-        return seats;
+    public List<RoundModel> getRounds() {
+        return schedule.getRounds();
     }
 
-    Tournament getTournament() {
-        return solver.getTournament();
-    }
-
-    public void updateSchedule() {
+    public void updateSchedule(ScheduleModel schedule) {
+        this.schedule = schedule;
         tournamentScheduleListeners.scheduleChanged(this);
-        tournamentScheduleListeners.roundLocksChanged(getTournament());
+        tournamentScheduleListeners.roundLocksChanged();
     }
 
     void roundSelected(int roundNumber) {
         if (roundNumber >= 0) {
-            tournamentScheduleListeners.roundSelected(solver.getRound(roundNumber));
+            tournamentScheduleListeners.roundSelected(schedule.getRounds().get(roundNumber));
         }
     }
 
-    void requestRoundLock(Round round) {
+    void requestRoundLock(RoundModel round) {
         tournamentScheduleListeners.roundLockRequested(round);
     }
 

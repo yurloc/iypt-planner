@@ -525,11 +525,11 @@ public class PlannerWindow extends Window implements Bindable {
         exportPdfAction.setEnabled(true);
         juryCapacitySpinner.setEnabled(true);
         solver.setTournament(tournament);
-        tournamentSchedule = new TournamentSchedule(solver);
+        tournamentSchedule = new TournamentSchedule(new ScheduleModel(solver));
         tournamentSchedule.getTournamentScheduleListeners().add(new TournamentScheduleListener.Adapter() {
             @Override
-            public void roundSelected(Round round) {
-                updateRoundDetails(round);
+            public void roundSelected(RoundModel round) {
+                updateRoundDetails(round.getRound());
             }
 
             @Override
@@ -551,7 +551,7 @@ public class PlannerWindow extends Window implements Bindable {
             }
 
             @Override
-            public void roundLockRequested(Round round) {
+            public void roundLockRequested(RoundModel round) {
                 solver.requestRoundLockChange(selectedRound);
                 solutionChanged();
             }
@@ -651,7 +651,7 @@ public class PlannerWindow extends Window implements Bindable {
             });
         }
         updateRoundDetails(selectedRound);
-        tournamentSchedule.updateSchedule();
+        tournamentSchedule.updateSchedule(new ScheduleModel(solver));
     }
 
     private void tournamentChanged() {
@@ -661,7 +661,7 @@ public class PlannerWindow extends Window implements Bindable {
         totalSeatsLabel.setText(Integer.toString(t.getSeats().size()));
         totalMandaysLabel.setText(Integer.toString(t.getJurors().size() * t.getRounds().size() - t.getAbsences().size()));
         optimalLoadLabel.setText(String.format("%.4f", t.getStatistics().getOptimalLoad()));
-        tournamentSchedule.updateSchedule();
+        tournamentSchedule.updateSchedule(new ScheduleModel(solver));
     }
 
     private TournamentSolver newSolver() {

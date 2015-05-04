@@ -1,13 +1,8 @@
 package org.iypt.planner.gui;
 
-import com.neovisionaries.i18n.CountryCode;
-import org.apache.pivot.collections.ArrayList;
 import org.apache.pivot.collections.List;
 import org.apache.pivot.util.ListenerList;
 import org.apache.pivot.wtk.Container;
-import org.iypt.planner.domain.Group;
-import org.iypt.planner.domain.Round;
-import org.iypt.planner.domain.Team;
 
 /**
  *
@@ -39,42 +34,28 @@ public class RoundView extends Container {
         }
     }
     private final RoundViewListenerList roundViewListeners = new RoundViewListenerList();
-    private final TournamentSchedule schedule;
-    private Round round;
+    private RoundModel round;
 
-    public RoundView(TournamentSchedule schedule, Round round) {
-        this.schedule = schedule;
+    public RoundView(RoundModel round) {
         this.round = round;
         setSkin(new RoundViewSkin());
     }
 
-    public void update(Round round) {
+    public void update(RoundModel round) {
         this.round = round;
         roundViewListeners.roundChanged(this);
     }
 
-    public Round getRound() {
+    public RoundModel getRound() {
         return round;
     }
 
     public List<Room> getRooms() {
-        List<Room> rooms = new ArrayList<>();
-        for (Group group : round.getGroups()) {
-            ArrayList<CountryCode> teams = new ArrayList<>();
-            for (Team team : group.getTeams()) {
-                teams.add(team.getCountry());
-            }
-            ArrayList<SeatInfo> seats = new ArrayList<>();
-            for (SeatInfo seat : schedule.getSeats(group)) {
-                seats.add(seat);
-            }
-            rooms.add(new Room(group.getName(), teams, seats, isLocked()));
-        }
-        return rooms;
+        return round.getRooms();
     }
 
     public boolean isLocked() {
-        return schedule.getTournament().isLocked(round);
+        return round.isLocked();
     }
 
     void seatLockChanged(SeatInfo seat) {

@@ -1,6 +1,6 @@
 package org.iypt.planner.gui;
 
-import java.util.List;
+import org.apache.pivot.collections.List;
 import org.apache.pivot.wtk.BoxPane;
 import org.apache.pivot.wtk.Button;
 import org.apache.pivot.wtk.ButtonPressListener;
@@ -13,8 +13,6 @@ import org.apache.pivot.wtk.TabPane;
 import org.apache.pivot.wtk.TabPaneSelectionListener;
 import org.apache.pivot.wtk.content.ButtonData;
 import org.apache.pivot.wtk.skin.ContainerSkin;
-import org.iypt.planner.domain.Round;
-import org.iypt.planner.domain.Tournament;
 
 import static org.iypt.planner.gui.Images.LOCK;
 import static org.iypt.planner.gui.Images.LOCK_LIGHT;
@@ -28,7 +26,7 @@ public class TournamentScheduleSkin extends ContainerSkin implements TournamentS
 
     private TabPane content;
     private RoundView[] views;
-    private Round activeRound;
+    private RoundModel activeRound;
 
     @Override
     public void install(Component component) {
@@ -76,13 +74,13 @@ public class TournamentScheduleSkin extends ContainerSkin implements TournamentS
         });
 
         // initialize round views (dynamic controls)
-        List<Round> rounds = schedule.getTournament().getRounds();
-        views = new RoundView[rounds.size()];
+        List<RoundModel> rounds = schedule.getRounds();
+        views = new RoundView[rounds.getLength()];
         for (int i = 0; i < views.length; i++) {
-            RoundView roundView = new RoundView(schedule, rounds.get(i));
+            RoundView roundView = new RoundView(rounds.get(i));
             views[i] = roundView;
             content.getTabs().add(roundView);
-            TabPane.setTabData(roundView, new ButtonData(getImage(LOCK_LIGHT), "Round #" + rounds.get(i).getNumber()));
+            TabPane.setTabData(roundView, new ButtonData(getImage(LOCK_LIGHT), rounds.get(i).toString()));
             roundView.getRoundViewListeners().add(new RoundViewListener() {
 
                 @Override
@@ -132,15 +130,14 @@ public class TournamentScheduleSkin extends ContainerSkin implements TournamentS
     public void scheduleChanged(TournamentSchedule schedule) {
         // TODO check this
         // TournamentSchedule tournament = (TournamentSchedule) getComponent();
-        List<Round> rounds = schedule.getTournament().getRounds();
+        List<RoundModel> rounds = schedule.getRounds();
         for (int i = 0; i < views.length; i++) {
             views[i].update(rounds.get(i));
         }
     }
 
-    // TODO refactor the listener interfaces
     @Override
-    public void roundSelected(Round round) {
+    public void roundSelected(RoundModel round) {
         activeRound = round;
     }
 
@@ -160,15 +157,16 @@ public class TournamentScheduleSkin extends ContainerSkin implements TournamentS
     }
 
     @Override
-    public void roundLockRequested(Round round) {
+    public void roundLockRequested(RoundModel round) {
         // not interested
     }
 
     @Override
-    public void roundLocksChanged(Tournament tournament) {
-        for (Round round : tournament.getRounds()) {
+    public void roundLocksChanged() {
+        TournamentSchedule schedule = (TournamentSchedule) getComponent();
+        for (RoundModel round : schedule.getRounds()) {
             ButtonData tabData = (ButtonData) TabPane.getTabData(views[round.getNumber() - 1]);
-            tabData.setIcon(tournament.isLocked(round) ? LOCK : LOCK_LIGHT);
+            tabData.setIcon(round.isLocked() ? LOCK : LOCK_LIGHT);
         }
     }
 }
