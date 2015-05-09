@@ -38,7 +38,7 @@ import org.iypt.planner.domain.util.CountryCodeIO;
  *
  * @author jlocker
  */
-class JurorDetailsSkin extends ContainerSkin {
+class JurorDetailsSkin extends ContainerSkin implements JurorDetailsListener {
 
     private static final Font fontOrig = (Font) new Label().getStyles().get("font");
     private static final Font fontBold = fontOrig.deriveFont(fontOrig.getStyle() | Font.BOLD);
@@ -74,6 +74,7 @@ class JurorDetailsSkin extends ContainerSkin {
 
         // get component and register skin as a listener
         final JurorDetails details = (JurorDetails) component;
+        details.getDetailsListeners().add(this);
 
         // read BXML
         BXMLSerializer bxmlSerializer = new BXMLSerializer();
@@ -108,6 +109,8 @@ class JurorDetailsSkin extends ContainerSkin {
                 details.saveChanges();
             }
         });
+
+        jurorChanged();
     }
 
     @Override
@@ -131,7 +134,7 @@ class JurorDetailsSkin extends ContainerSkin {
         content.setSize(getWidth(), getHeight());
     }
 
-    void showJuror(final JurorInfo jurorInfo) {
+    private void showJuror(final JurorInfo jurorInfo) {
         Juror juror = jurorInfo.getJuror();
 
         // full name
@@ -151,7 +154,7 @@ class JurorDetailsSkin extends ContainerSkin {
         chairCheckbox.setState(juror.isChairCandidate() ? Button.State.SELECTED : Button.State.UNSELECTED);
 
         // chair experience status
-        experiencedCheckbox.setState(juror.isExperienced()? Button.State.SELECTED : Button.State.UNSELECTED);
+        experiencedCheckbox.setState(juror.isExperienced() ? Button.State.SELECTED : Button.State.UNSELECTED);
 
         // bias
         biasLabel.setText(String.format("%+.2f", juror.getBias()));
@@ -214,15 +217,15 @@ class JurorDetailsSkin extends ContainerSkin {
             roundStatusListButton.getListButtonSelectionListeners().add(new ListButtonSelectionListener.Adapter() {
                 @Override
                 public void selectedIndexChanged(ListButton listButton, int previousSelectedIndex) {
-                    ((JurorDetails) getComponent()).changeStatus(assignment, listButton.getSelectedIndex());
+                    ((JurorDetails) getComponent()).changeAssignment(assignment, listButton.getSelectedIndex());
                 }
             });
         }
         // finally render the schedule
-        renderSchedule(jurorInfo);
+        updateAssignments(jurorInfo);
     }
 
-    void renderSchedule(JurorInfo jurorInfo) {
+    private void updateAssignments(JurorInfo jurorInfo) {
         boolean scheduleHasChanges = false;
         for (JurorAssignment assignment : jurorInfo.getSchedule()) {
             // update overall dirty flag
@@ -237,5 +240,24 @@ class JurorDetailsSkin extends ContainerSkin {
         // finally enable/disable save & revert buttons
         revertButton.setEnabled(scheduleHasChanges);
         saveButton.setEnabled(scheduleHasChanges);
+    }
+
+    @Override
+    public void jurorChanged() {
+        JurorDetails details = (JurorDetails) getComponent();
+        if (details.getJurorInfo() != null) {
+            showJuror(details.getJurorInfo());
+        }
+    }
+
+    @Override
+    public void jurorAssignmentChanged() {
+        JurorDetails details = (JurorDetails) getComponent();
+        updateAssignments(details.getJurorInfo());
+    }
+
+    @Override
+    public void jurorChangesSaved(JurorDetails details) {
+        updateAssignments(details.getJurorInfo());
     }
 }

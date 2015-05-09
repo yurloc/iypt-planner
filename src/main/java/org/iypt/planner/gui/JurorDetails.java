@@ -1,8 +1,7 @@
 package org.iypt.planner.gui;
 
+import org.apache.pivot.util.ListenerList;
 import org.apache.pivot.wtk.Container;
-import org.iypt.planner.domain.Juror;
-import org.iypt.planner.solver.TournamentSolver;
 
 /**
  *
@@ -10,47 +9,64 @@ import org.iypt.planner.solver.TournamentSolver;
  */
 class JurorDetails extends Container {
 
-    private final JurorDetailsSkin skin;
-    private TournamentSolver solver;
+    private static class JurorDetailsListenerList extends ListenerList<JurorDetailsListener> implements JurorDetailsListener {
+
+        @Override
+        public void jurorChanged() {
+            for (JurorDetailsListener listener : this) {
+                listener.jurorChanged();
+            }
+        }
+
+        @Override
+        public void jurorAssignmentChanged() {
+            for (JurorDetailsListener listener : this) {
+                listener.jurorAssignmentChanged();
+            }
+        }
+
+        @Override
+        public void jurorChangesSaved(JurorDetails details) {
+            for (JurorDetailsListener listener : this) {
+                listener.jurorChangesSaved(details);
+            }
+        }
+    }
+
+    private final JurorDetailsListenerList detailsListeners = new JurorDetailsListenerList();
     private JurorInfo jurorInfo;
-    private PlannerWindow listener;
 
-    JurorDetails() {
-        skin = new JurorDetailsSkin();
-        super.setSkin(skin);
+    public JurorDetails() {
+        setSkin(new JurorDetailsSkin());
     }
 
-    void setListener(PlannerWindow listener) {
-        this.listener = listener;
+    public ListenerList<JurorDetailsListener> getDetailsListeners() {
+        return detailsListeners;
     }
 
-    void setSolver(TournamentSolver solver) {
-        this.solver = solver;
+    public JurorInfo getJurorInfo() {
+        return jurorInfo;
     }
 
-    void showJuror(Juror juror) {
-        this.jurorInfo = solver.getJurorInfo(juror);
-        skin.showJuror(jurorInfo);
+    public void showJuror(JurorInfo jurorInfo) {
+        this.jurorInfo = jurorInfo;
+        detailsListeners.jurorChanged();
     }
 
-    void changeStatus(JurorAssignment assignment, int statusId) {
+    void changeAssignment(JurorAssignment assignment, int statusId) {
         JurorAssignment.Status newStatus = JurorAssignment.Status.values()[statusId];
         assignment.change(newStatus);
-        skin.renderSchedule(jurorInfo);
+        detailsListeners.jurorAssignmentChanged();
     }
 
     void saveChanges() {
-        // TODO review and improve this
-        solver.applyChanges(jurorInfo);
-        jurorInfo = solver.getJurorInfo(jurorInfo.getJuror());
-        skin.showJuror(jurorInfo);
-        listener.solutionChanged();
+        detailsListeners.jurorChangesSaved(this);
     }
 
     void revertSchedule() {
         for (JurorAssignment assignment : jurorInfo.getSchedule()) {
             assignment.reset();
         }
-        skin.renderSchedule(jurorInfo);
+        detailsListeners.jurorChanged();
     }
 }

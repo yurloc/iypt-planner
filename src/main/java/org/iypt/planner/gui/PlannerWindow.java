@@ -366,7 +366,6 @@ public class PlannerWindow extends Window implements Bindable {
                     }
                 }
                 constraintConfig.setSolver(solver);
-                jurorDetails.setSolver(solver);
                 newTournamentAction.setEnabled(true);
                 newTournamentAction.perform(PlannerWindow.this);
                 log.info("Solver initialized");
@@ -492,7 +491,16 @@ public class PlannerWindow extends Window implements Bindable {
 
         showChangesCheckbox.setState(Button.State.SELECTED);
         jurorDetails = new JurorDetails();
-        jurorDetails.setListener(PlannerWindow.this);
+        jurorDetails.getDetailsListeners().add(new JurorDetailsListener.Adapter() {
+
+            @Override
+            public void jurorChangesSaved(JurorDetails details) {
+                JurorInfo jurorInfo = details.getJurorInfo();
+                solver.applyChanges(jurorInfo);
+                jurorDetails.showJuror(solver.getJurorInfo(jurorInfo.getJuror()));
+                solutionChanged();
+            }
+        });
         jurorBorder.setContent(jurorDetails);
         juryCapacitySpinner.getSpinnerSelectionListeners().add(new SpinnerSelectionListener.Adapter() {
             @Override
@@ -733,7 +741,7 @@ public class PlannerWindow extends Window implements Bindable {
 
     private void showJurorDetails(Juror juror) {
         if (juror != null) {
-            jurorDetails.showJuror(juror);
+            jurorDetails.showJuror(solver.getJurorInfo(juror));
         }
     }
 
