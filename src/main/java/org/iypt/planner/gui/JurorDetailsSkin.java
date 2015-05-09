@@ -4,8 +4,6 @@ import com.neovisionaries.i18n.CountryCode;
 import java.awt.Color;
 import java.awt.Font;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import org.apache.pivot.beans.BXML;
 import org.apache.pivot.beans.BXMLSerializer;
 import org.apache.pivot.collections.ArrayList;
@@ -52,8 +50,6 @@ class JurorDetailsSkin extends ContainerSkin implements JurorDetailsListener {
             return item == busyDisabledItem;
         }
     };
-    private final Map<JurorAssignment, ListButton> roundStatusMap = new HashMap<>();
-    private final Map<JurorAssignment, Label> roundLabelMap = new HashMap<>();
     private Component content;
     private Color loadOkColor;
     private Color loadNokColor = Color.RED.darker();
@@ -179,19 +175,15 @@ class JurorDetailsSkin extends ContainerSkin implements JurorDetailsListener {
         }
 
         // schedule
-        roundLabelMap.clear();
-        roundStatusMap.clear();
         jurorScheduleTablePane.getRows().remove(0, jurorScheduleTablePane.getRows().getLength());
         for (final JurorAssignment assignment : jurorInfo.getSchedule()) {
             TablePane.Row roundRow = new TablePane.Row();
             jurorScheduleTablePane.getRows().add(roundRow);
 
             final Label roundLabel = new Label(assignment.getRound().toString());
-            roundLabelMap.put(assignment, roundLabel);
             roundRow.add(roundLabel);
 
             ListButton roundStatusListButton = new ListButton();
-            roundStatusMap.put(assignment, roundStatusListButton);
             roundStatusListButton.setDisabledItemFilter(statusChoiceFilter);
             ListViewItemRenderer renderer = new ListViewItemRenderer();
             renderer.setShowIcon(true);
@@ -230,10 +222,12 @@ class JurorDetailsSkin extends ContainerSkin implements JurorDetailsListener {
         for (JurorAssignment assignment : jurorInfo.getSchedule()) {
             // update overall dirty flag
             scheduleHasChanges = scheduleHasChanges |= assignment.isDirty();
+            int rowIndex = assignment.getRound().getNumber() - 1;
             // if this assignment is dirty, higlight the round label
-            roundLabelMap.get(assignment).getStyles().put("font", assignment.isDirty() ? fontBold : fontOrig);
+            Component label = jurorScheduleTablePane.getRows().get(rowIndex).get(0);
+            label.getStyles().put("font", assignment.isDirty() ? fontBold : fontOrig);
             // set selected status
-            ListButton statusChoiceButton = roundStatusMap.get(assignment);
+            ListButton statusChoiceButton = (ListButton) jurorScheduleTablePane.getRows().get(rowIndex).get(1);
             statusChoiceButton.setSelectedIndex(assignment.getCurrentStatus().ordinal());
         }
 
