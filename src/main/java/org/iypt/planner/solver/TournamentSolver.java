@@ -287,12 +287,12 @@ public class TournamentSolver {
                 } else if (assignment.getOriginalStatus() == JurorAssignment.Status.AWAY) {
                     // cancel absence
                     ArrayList<Absence> cancelled = new ArrayList<>();
-                    for (Absence absence : tournament.getAbsences()) {
-                        if (absence.getJuror() == juror && absence.getRoundNumber() == assignment.getRound().getNumber()) {
+                    for (Absence absence : tournament.getAbsences(juror)) {
+                        if (absence.getRoundNumber() == assignment.getRound().getNumber()) {
                             cancelled.add(absence);
                         }
                     }
-                    tournament.getAbsences().removeAll(cancelled);
+                    tournament.removeAbsences(cancelled);
                 }
 
                 // no matter what the original status is

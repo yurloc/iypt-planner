@@ -232,6 +232,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
         this.teams.clear();
         this.juries.clear();
         this.seats.clear();
+        this.absencesPerRoundMap.clear();
         addRounds(rounds);
     }
 
@@ -254,6 +255,8 @@ public class Tournament implements Solution<HardAndSoftScore> {
                     seats.add(seat);
                 }
             }
+
+            absencesPerRoundMap.put(r.getNumber(), new ArrayList<Absence>());
         }
         stats.setOptimalLoad(calculateOptimalLoad());
         calculateIndependentRatio();
@@ -295,8 +298,14 @@ public class Tournament implements Solution<HardAndSoftScore> {
         return Collections.unmodifiableList(absences);
     }
 
+    public List<Absence> getAbsences(Juror juror) {
+        return Collections.unmodifiableList(absencesPerJurorMap.get(juror));
+    }
+
     public void setAbsences(List<Absence> absences) {
-        absencesPerRoundMap.clear();
+        for (Map.Entry<Integer, List<Absence>> entry : absencesPerRoundMap.entrySet()) {
+            entry.getValue().clear();
+        }
         for (Map.Entry<Juror, List<Absence>> entry : absencesPerJurorMap.entrySet()) {
             entry.getValue().clear();
         }
@@ -310,12 +319,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
     public void addAbsences(List<Absence> absences) {
         for (Absence absence : absences) {
             // cache round's absences
-            List<Absence> roundAbsencesList = absencesPerRoundMap.get(absence.getRoundNumber());
-            if (roundAbsencesList == null) {
-                roundAbsencesList = new ArrayList<>();
-                absencesPerRoundMap.put(absence.getRoundNumber(), roundAbsencesList);
-            }
-            roundAbsencesList.add(absence);
+            absencesPerRoundMap.get(absence.getRoundNumber()).add(absence);
 
             // cache juror's absences
             absencesPerJurorMap.get(absence.getJuror()).add(absence);
@@ -334,6 +338,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
             }
             absencesPerRoundMap.get(absence.getRoundNumber()).remove(absence);
             absencesPerJurorMap.get(absence.getJuror()).remove(absence);
+            this.absences.remove(absence);
         }
         stats.setOptimalLoad(calculateOptimalLoad());
         calculateIndependentRatio();
