@@ -1,9 +1,11 @@
 package org.iypt.planner.gui;
 
+import com.itextpdf.text.DocumentException;
 import com.jcabi.manifests.Manifests;
 import java.awt.Color;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -19,6 +21,7 @@ import org.apache.pivot.beans.Bindable;
 import org.apache.pivot.collections.ArrayList;
 import org.apache.pivot.collections.List;
 import org.apache.pivot.collections.Map;
+import org.apache.pivot.serialization.SerializationException;
 import org.apache.pivot.util.Filter;
 import org.apache.pivot.util.Resources;
 import org.apache.pivot.util.concurrent.Task;
@@ -147,7 +150,7 @@ public class PlannerWindow extends Window implements Bindable {
             });
         }
     }
-    private LoadFileAction loadTeamsAction = new LoadFileAction("teams") {
+    private final LoadFileAction loadTeamsAction = new LoadFileAction("teams") {
         @Override
         void processFile(File f) throws Exception {
             factory.readTeamData(f, StandardCharsets.UTF_8);
@@ -158,7 +161,7 @@ public class PlannerWindow extends Window implements Bindable {
             loadTeamsAction.setEnabled(false);
         }
     };
-    private LoadFileAction loadJurorsAction = new LoadFileAction("jurors") {
+    private final LoadFileAction loadJurorsAction = new LoadFileAction("jurors") {
         @Override
         void processFile(File f) throws Exception {
             factory.readJuryData(f, StandardCharsets.UTF_8);
@@ -169,7 +172,7 @@ public class PlannerWindow extends Window implements Bindable {
             loadJurorsAction.setEnabled(false);
         }
     };
-    private LoadFileAction loadBiasesAction = new LoadFileAction("biases") {
+    private final LoadFileAction loadBiasesAction = new LoadFileAction("biases") {
         @Override
         void processFile(File f) throws Exception {
             factory.readBiasData(f, StandardCharsets.UTF_8);
@@ -180,14 +183,14 @@ public class PlannerWindow extends Window implements Bindable {
             loadBiasesAction.setEnabled(false);
         }
     };
-    private LoadFileAction loadScheduleAction = new LoadFileAction("schedule") {
+    private final LoadFileAction loadScheduleAction = new LoadFileAction("schedule") {
         @Override
         void processFile(File f) throws Exception {
             factory.readSchedule(f, StandardCharsets.UTF_8);
             tournamentLoaded(factory.newTournament());
         }
     };
-    private Action clearScheduleAction = new Action() {
+    private final Action clearScheduleAction = new Action() {
         @Override
         public void perform(Component source) {
             // FIXME find a way to detect changes in the schedule (better than solutionChanged())
@@ -196,7 +199,7 @@ public class PlannerWindow extends Window implements Bindable {
             solutionChanged(sm);
         }
     };
-    private Action saveScheduleAction = new Action() {
+    private final Action saveScheduleAction = new Action() {
         @Override
         public void perform(Component source) {
             // create new FileBrowser to make sure a fresh file list is displayed
@@ -223,7 +226,7 @@ public class PlannerWindow extends Window implements Bindable {
             });
         }
     };
-    private Action exportPdfAction = new Action() {
+    private final Action exportPdfAction = new Action() {
         @Override
         public void perform(Component source) {
             // create new FileBrowser to make sure a fresh file list is displayed
@@ -249,7 +252,7 @@ public class PlannerWindow extends Window implements Bindable {
                             pdf.printRooms();
                             pdf.printRounds();
                             log.info("Written PDFs with timestamp '{}'.", time);
-                        } catch (Exception ex) {
+                        } catch (DocumentException | IOException ex) {
                             log.error("Error while exporting PDFs", ex);
                             Alert.alert(MessageType.ERROR, ex.getMessage(), PlannerWindow.this);
                         }
@@ -258,7 +261,7 @@ public class PlannerWindow extends Window implements Bindable {
             });
         }
     };
-    private Action newTournamentAction = new Action() {
+    private final Action newTournamentAction = new Action() {
         @Override
         public void perform(Component source) {
             factory = new CSVTournamentFactory();
@@ -274,7 +277,7 @@ public class PlannerWindow extends Window implements Bindable {
             tournamentScheduleBoxPane.removeAll();
         }
     };
-    private Action computeBiasesAction = new Action() {
+    private final Action computeBiasesAction = new Action() {
         @Override
         public void perform(Component source) {
             BXMLSerializer bxmlSerializer = new BXMLSerializer();
@@ -287,12 +290,12 @@ public class PlannerWindow extends Window implements Bindable {
                         factory.setBiases(wizard.getBiases());
                     }
                 });
-            } catch (Exception ex) {
+            } catch (IOException | SerializationException ex) {
                 wlog.error("Cannot open bias computation wizard", ex);
             }
         }
     };
-    private Action loadExampleAction = new Action() {
+    private final Action loadExampleAction = new Action() {
         @Override
         public void perform(Component source) {
             try {
