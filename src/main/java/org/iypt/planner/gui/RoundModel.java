@@ -14,6 +14,8 @@ public class RoundModel {
     private final Round round;
     private final boolean locked;
     private final List<Room> rooms;
+    private List<SeatInfo> idle;
+    private List<SeatInfo> away;
 
     public RoundModel(TournamentSolver solver, Round round) {
         this.round = round;
@@ -50,6 +52,22 @@ public class RoundModel {
 
     public int getNumber() {
         return round.getNumber();
+    }
+
+    public void setIdle(List<SeatInfo> idle) {
+        this.idle = idle;
+    }
+
+    public void setAway(List<SeatInfo> away) {
+        this.away = away;
+    }
+
+    public List<SeatInfo> getIdle() {
+        return idle;
+    }
+
+    public List<SeatInfo> getAway() {
+        return away;
     }
 
     @Override

@@ -40,7 +40,7 @@ import org.iypt.planner.domain.Seat;
 import org.iypt.planner.domain.Tournament;
 import org.iypt.planner.gui.JurorAssignment;
 import org.iypt.planner.gui.JurorInfo;
-import org.iypt.planner.gui.RoundModel;
+import org.iypt.planner.gui.ScheduleModel;
 import org.iypt.planner.gui.SeatInfo;
 import org.iypt.planner.solver.util.ConstraintComparator;
 
@@ -64,12 +64,6 @@ public class TournamentSolver {
     private SolverEventListener listener;
     private ScoreDirector scoreDirector;
     private boolean solving;
-    // tournament details
-    private Map<Round, List<Juror>> idleMap = new HashMap<>();
-    private Map<Round, List<Juror>> awayMap = new HashMap<>();
-    private Map<Juror, List<CountryCode>> conflictMap = new HashMap<>();
-    private Map<Juror, JurorLoad> loadMap = new HashMap<>();
-    private Map<Juror, List<JurorAssignment>> jurorAssignmentMap = new HashMap<>();
 
     public TournamentSolver(String solverConfigResource, SolverEventListener listener) {
         this.listener = listener;
@@ -119,11 +113,11 @@ public class TournamentSolver {
         scoreDirector = solverFactory.buildSolver().getScoreDirectorFactory().buildScoreDirector();
     }
 
-    public void setTournament(Tournament tournament) {
+    public ScheduleModel setTournament(Tournament tournament) {
         this.tournament = tournament;
         // TODO only set weightConfig when setting a fresh tournament
         this.tournament.setWeightConfig(weightConfig);
-        updateDetails();
+        return updateDetails();
     }
 
     public List<String> getScoreDrlList() {
@@ -154,7 +148,7 @@ public class TournamentSolver {
         return environmentMode;
     }
 
-    public void solve() {
+    public ScheduleModel solve() {
         solving = true;
         scoreDirector = solverFactory.buildSolver().getScoreDirectorFactory().buildScoreDirector();
         solverFactory.getSolverConfig().setEnvironmentMode(environmentMode);
@@ -163,7 +157,7 @@ public class TournamentSolver {
         solver.setPlanningProblem(tournament);
         solver.solve();
         solving = false;
-        setTournament((Tournament) solver.getBestSolution());
+        return setTournament((Tournament) solver.getBestSolution());
     }
 
     public void terminateEarly() {
@@ -174,72 +168,10 @@ public class TournamentSolver {
         return tournament;
     }
 
-    public List<Juror> getAway(Round round) {
-        return awayMap.get(round);
-    }
-
-    public List<Juror> getIdle(Round round) {
-        return idleMap.get(round);
-    }
-
-    public List<SeatInfo> getAwayRows(Round round) {
-        // FIXME temporary solution
-        List<SeatInfo> list = new ArrayList<>();
-        for (Juror j : getAway(round)) {
-            list.add(SeatInfo.newInstance(j));
-        }
-        return list;
-    }
-
-    public List<SeatInfo> getIdleRows(Round round) {
-        // FIXME temporary solution
-        List<SeatInfo> list = new ArrayList<>();
-        for (Juror j : getIdle(round)) {
-            list.add(SeatInfo.newInstance(j));
-        }
-        return list;
-    }
-
-    public JurorInfo getJurorInfo(Juror juror) {
-        return new JurorInfo(juror, conflictMap.get(juror), jurorAssignmentMap.get(juror), loadMap.get(juror));
-    }
-
     // TODO refactor me, duplicating some code from Tournament.toDisplayString()
-    private void updateDetails() {
-        for (Juror juror : tournament.getJurors()) {
-            ArrayList<JurorAssignment> assignments = new ArrayList<>(tournament.getRounds().size());
-            jurorAssignmentMap.put(juror, assignments);
-            for (Round round : tournament.getRounds()) {
-                // idle all rounds by default
-                assignments.add(round.getNumber() - 1, new JurorAssignment(new RoundModel(this, round), true));
-            }
-        }
-        // collect the lists of idle and away jurors per round
-        for (Round round : tournament.getRounds()) {
-            List<Juror> idleList = new ArrayList<>();
-            List<Juror> awayList = new ArrayList<>();
-            idleList.addAll(tournament.getJurors());
-            for (Seat seat : tournament.getSeats()) {
-                if (seat.isOccupied() && seat.getJury().getGroup().getRound().equals(round)) {
-                    idleList.remove(seat.getJuror());
-                    jurorAssignmentMap.get(seat.getJuror())
-                            .set(round.getNumber() - 1, new JurorAssignment(new RoundModel(this, round), seat.getJury().getGroup()));
-                }
-            }
-            for (Absence absence : tournament.getAbsences()) {
-                if (absence.getRoundNumber() == round.getNumber()) {
-                    awayList.add(absence.getJuror());
-                    jurorAssignmentMap.get(absence.getJuror())
-                            .set(round.getNumber() - 1, new JurorAssignment(new RoundModel(this, round), false));
-                }
-            }
-            idleList.removeAll(awayList); // idle = all -busy -away
-            awayMap.put(round, awayList);
-            idleMap.put(round, idleList);
-        }
-
+    private ScheduleModel updateDetails() {
         // collect conflicts per juror
-        conflictMap.clear();
+        Map<Juror, List<CountryCode>> conflictMap = new HashMap<>();
         for (Conflict conflict : tournament.getConflicts()) {
             List<CountryCode> ccList = conflictMap.get(conflict.getJuror());
             if (ccList == null) {
@@ -256,6 +188,7 @@ public class TournamentSolver {
         Iterator<?> it;
 
         // collect juror loads (based on jury assignments)
+        Map<Juror, JurorLoad> loadMap = new HashMap<>();
         it = workingMemory.iterateObjects(new ClassObjectFilter(JurorLoad.class));
         while (it.hasNext()) {
             JurorLoad load = (JurorLoad) it.next();
@@ -268,13 +201,15 @@ public class TournamentSolver {
         while (it.hasNext()) {
             constraintOccurences.add((ConstraintOccurrence) it.next());
         }
+
+        return new ScheduleModel(this, conflictMap, loadMap);
     }
 
     public boolean isSolving() {
         return solving;
     }
 
-    public void applyChanges(JurorInfo jurorInfo) {
+    public ScheduleModel applyChanges(JurorInfo jurorInfo) {
         Juror juror = jurorInfo.getJuror();
         for (JurorAssignment assignment : jurorInfo.getSchedule()) {
             if (assignment.isDirty()) {
@@ -305,7 +240,7 @@ public class TournamentSolver {
                 }
             }
         }
-        updateDetails();
+        return updateDetails();
     }
 
     public void lockSeat(SeatInfo seatInfo) {
@@ -316,7 +251,7 @@ public class TournamentSolver {
         tournament.unlock(seatInfo.getSeat());
     }
 
-    public void requestRoundLockChange(Round round) {
+    public ScheduleModel requestRoundLockChange(Round round) {
         if (!tournament.isLocked(round)) {
             // lock rounds up to this
             for (Round r : tournament.getRounds()) {
@@ -332,6 +267,8 @@ public class TournamentSolver {
             }
             tournament.setOriginal(null);
         }
+        // FIXME the update is probably not necessary
+        return updateDetails();
     }
 
     public void unlockRound(Round round) {
@@ -360,13 +297,13 @@ public class TournamentSolver {
         return tournament.getJuryCapacity();
     }
 
-    public void changeJuryCapacity(Integer capacity) {
+    public ScheduleModel changeJuryCapacity(Integer capacity) {
         tournament.setJuryCapacity(capacity);
-        updateDetails();
+        return updateDetails();
     }
 
-    public void clearSchedule() {
+    public ScheduleModel clearSchedule() {
         tournament.clear();
-        updateDetails();
+        return updateDetails();
     }
 }

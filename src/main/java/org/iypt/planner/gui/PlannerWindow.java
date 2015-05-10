@@ -19,7 +19,6 @@ import org.apache.pivot.beans.Bindable;
 import org.apache.pivot.collections.ArrayList;
 import org.apache.pivot.collections.List;
 import org.apache.pivot.collections.Map;
-import org.apache.pivot.collections.adapter.ListAdapter;
 import org.apache.pivot.util.Filter;
 import org.apache.pivot.util.Resources;
 import org.apache.pivot.util.concurrent.Task;
@@ -35,7 +34,6 @@ import org.apache.pivot.wtk.Button.State;
 import org.apache.pivot.wtk.ButtonPressListener;
 import org.apache.pivot.wtk.Checkbox;
 import org.apache.pivot.wtk.Component;
-import org.apache.pivot.wtk.ComponentStateListener;
 import org.apache.pivot.wtk.DesktopApplicationContext;
 import org.apache.pivot.wtk.FileBrowserSheet;
 import org.apache.pivot.wtk.Label;
@@ -59,7 +57,6 @@ import org.iypt.planner.Constants;
 import org.iypt.planner.csv.CSVTournamentFactory;
 import org.iypt.planner.csv.ScheduleWriter;
 import org.iypt.planner.domain.Juror;
-import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Seat;
 import org.iypt.planner.domain.Tournament;
 import org.iypt.planner.pdf.PdfCreator;
@@ -96,15 +93,9 @@ public class PlannerWindow extends Window implements Bindable {
     @BXML private BoxPane tournamentScheduleBoxPane;
     @BXML private BoxPane constraintsBoxPane;
     @BXML private ListView causesListView;
-    // tournament details
+    // details
     @BXML private TournamentDetails tournamentDetails;
-    // round details
-    @BXML private Label optimalIndependentLabel;
-    @BXML private Label idleLabel;
-    @BXML private Label awayLabel;
-    @BXML private TableView idleTableView;
-    @BXML private TableView awayTableView;
-    // juror details
+    @BXML private RoundDetails roundDetails;
     @BXML private JurorDetails jurorDetails;
     // build info
     @BXML private Label buildInfoLabel;
@@ -112,7 +103,8 @@ public class PlannerWindow extends Window implements Bindable {
     private TournamentSchedule tournamentSchedule;
     private SolverTask solverTask;
     private TournamentSolver solver;
-    private Round selectedRound;
+    // TODO remove this, should be possible to get from tournamentSchedule
+    private RoundModel selectedRound;
     private Juror juror1;
     private Juror juror2;
     private CSVTournamentFactory factory;
@@ -200,8 +192,8 @@ public class PlannerWindow extends Window implements Bindable {
         public void perform(Component source) {
             // FIXME find a way to detect changes in the schedule (better than solutionChanged())
 //            saveScheduleAction.setEnabled(false);
-            solver.clearSchedule();
-            solutionChanged();
+            ScheduleModel sm = solver.clearSchedule();
+            solutionChanged(sm);
         }
     };
     private Action saveScheduleAction = new Action() {
@@ -384,37 +376,16 @@ public class PlannerWindow extends Window implements Bindable {
             }
         });
 
-        TableViewSelectionListener.Adapter selectedJurorListener = new TableViewSelectionListener.Adapter() {
+        roundDetails.getListeners().add(new RoundDetailsListener.Adapter() {
             @Override
-            public void selectedRowChanged(TableView tableView, Object previousSelectedRow) {
-                SeatInfo seat = (SeatInfo) tableView.getSelectedRow();
-                if (seat != null) {
-                    showJurorDetails(seat.getJuror());
-                }
-            }
-        };
-        ComponentStateListener.Adapter focusedJurorListener = new ComponentStateListener.Adapter() {
-            @Override
-            public void focusedChanged(Component component, Component obverseComponent) {
-                if (component.isFocused()) {
-                    SeatInfo seat = (SeatInfo) ((TableView) component).getSelectedRow();
-                    if (seat != null) {
-                        showJurorDetails(seat.getJuror());
+            public void seatSelected(SeatInfo seatInfo) {
+                if (seatInfo != null) {
+                    showJurorDetails(seatInfo.getJuror());
+                    // TODO improve this mess
+                    JurorInfo jurorInfo = tournamentSchedule.getSchedule().getJurorInfo(seatInfo.getJuror());
+                    if (jurorInfo.getSchedule().get(selectedRound.getNumber() - 1).getCurrentStatus() == JurorAssignment.Status.IDLE) {
+                        prepareSwap(seatInfo.getJuror());
                     }
-                }
-            }
-        };
-        idleTableView.getTableViewSelectionListeners().add(selectedJurorListener);
-        idleTableView.getComponentStateListeners().add(focusedJurorListener);
-        awayTableView.getTableViewSelectionListeners().add(selectedJurorListener);
-        awayTableView.getComponentStateListeners().add(focusedJurorListener);
-
-        idleTableView.getTableViewSelectionListeners().add(new TableViewSelectionListener.Adapter() {
-            @Override
-            public void selectedRowChanged(TableView tableView, Object previousSelectedRow) {
-                SeatInfo seat = (SeatInfo) tableView.getSelectedRow();
-                if (seat != null) {
-                    prepareSwap(seat.getJuror());
                 }
             }
         });
@@ -427,17 +398,17 @@ public class PlannerWindow extends Window implements Bindable {
                 clearSwap();
                 scoreChangeBox.setVisible(false);
                 solverTask = new SolverTask(solver);
-                TaskListener<Void> taskListener = new TaskListener<Void>() {
+                TaskListener<ScheduleModel> taskListener = new TaskListener<ScheduleModel>() {
                     @Override
-                    public void taskExecuted(Task<Void> task) {
+                    public void taskExecuted(Task<ScheduleModel> task) {
                         log.debug(solver.getTournament().toDisplayString());
                         solveButton.setEnabled(true);
                         terminateButton.setEnabled(false);
-                        solutionChanged();
+                        solutionChanged(task.getResult());
                     }
 
                     @Override
-                    public void executeFailed(Task<Void> task) {
+                    public void executeFailed(Task<ScheduleModel> task) {
                         log.error("Error during solution", task.getFault());
                         solveButton.setEnabled(true);
                         terminateButton.setEnabled(false);
@@ -460,7 +431,7 @@ public class PlannerWindow extends Window implements Bindable {
             public void buttonPressed(Button button) {
                 Tournament t = solver.getTournament();
                 for (Seat seat : t.getSeats()) {
-                    if (seat.getJury().getGroup().getRound() == selectedRound) {
+                    if (seat.getJury().getGroup().getRound() == selectedRound.getRound()) {
                         if (seat.getJuror() == juror1) {
                             seat.setJuror(juror2);
                         } else if (seat.getJuror() == juror2) {
@@ -468,8 +439,7 @@ public class PlannerWindow extends Window implements Bindable {
                         }
                     }
                 }
-                solver.setTournament(t);
-                solutionChanged();
+                solutionChanged(solver.setTournament(t));
             }
         });
 
@@ -487,9 +457,9 @@ public class PlannerWindow extends Window implements Bindable {
             @Override
             public void jurorChangesSaved(JurorDetails details) {
                 JurorInfo jurorInfo = details.getJurorInfo();
-                solver.applyChanges(jurorInfo);
-                jurorDetails.showJuror(solver.getJurorInfo(jurorInfo.getJuror()));
-                solutionChanged();
+                ScheduleModel sm = solver.applyChanges(jurorInfo);
+                jurorDetails.showJuror(sm.getJurorInfo(jurorInfo.getJuror()));
+                solutionChanged(sm);
             }
 
             @Override
@@ -500,10 +470,7 @@ public class PlannerWindow extends Window implements Bindable {
         tournamentDetails.getListeners().add(new TournamentDetailsListener.Adapter() {
             @Override
             public void capacityChanged(int capacity) {
-                // TODO schedule the capacity change and apply it only when new solving starts
-                solver.changeJuryCapacity(capacity);
-                tournamentChanged();
-                solutionChanged();
+                changeCapacity(capacity);
             }
         });
         scoreChangeBox.setVisible(false);
@@ -526,12 +493,13 @@ public class PlannerWindow extends Window implements Bindable {
         saveScheduleAction.setEnabled(true);
         exportPdfAction.setEnabled(true);
         tournamentDetails.setEnabled(true);
-        solver.setTournament(tournament);
-        tournamentSchedule = new TournamentSchedule(new ScheduleModel(solver));
+        ScheduleModel scheduleModel = solver.setTournament(tournament);
+        tournamentSchedule = new TournamentSchedule(scheduleModel);
         tournamentSchedule.getTournamentScheduleListeners().add(new TournamentScheduleListener.Adapter() {
             @Override
             public void roundSelected(RoundModel round) {
-                updateRoundDetails(round.getRound());
+                selectedRound = round;
+                updateRoundDetails(round);
             }
 
             @Override
@@ -554,21 +522,28 @@ public class PlannerWindow extends Window implements Bindable {
 
             @Override
             public void roundLockRequested(RoundModel round) {
-                solver.requestRoundLockChange(selectedRound);
-                solutionChanged();
+                ScheduleModel sm = solver.requestRoundLockChange(round.getRound());
+                solutionChanged(sm);
             }
         });
         tournamentScheduleBoxPane.removeAll();
         tournamentScheduleBoxPane.add(tournamentSchedule);
         solveButton.setEnabled(true);
         scoreChangeBox.setVisible(false);
-        tournamentChanged();
-        solutionChanged();
-        updateRoundDetails(solver.getTournament().getRounds().get(0));
+        tournamentChanged(scheduleModel);
+        solutionChanged(scheduleModel);
+        updateRoundDetails(scheduleModel.getRounds().get(0));
         log.info("Tournament loaded\n{}", tournament.toDisplayString());
     }
 
-    synchronized void solutionChanged() {
+    private void changeCapacity(int capacity) {
+        // TODO schedule the capacity change and apply it only when new solving starts
+        ScheduleModel sm = solver.changeJuryCapacity(capacity);
+        tournamentChanged(sm);
+        solutionChanged(sm);
+    }
+
+    synchronized void solutionChanged(ScheduleModel sm) {
         scoreLabel.setText(solver.getScore().toString());
         if (scoreChangedTimer != null) {
             scoreChangedTimer.cancel();
@@ -653,13 +628,13 @@ public class PlannerWindow extends Window implements Bindable {
             });
         }
         updateRoundDetails(selectedRound);
-        tournamentSchedule.updateSchedule(new ScheduleModel(solver));
+        tournamentSchedule.updateSchedule(sm);
     }
 
-    private void tournamentChanged() {
+    private void tournamentChanged(ScheduleModel sm) {
         Tournament t = solver.getTournament();
         tournamentDetails.setData(t);
-        tournamentSchedule.updateSchedule(new ScheduleModel(solver));
+        tournamentSchedule.updateSchedule(sm);
     }
 
     private TournamentSolver newSolver() {
@@ -677,11 +652,12 @@ public class PlannerWindow extends Window implements Bindable {
                 return;
             }
             Tournament better = (Tournament) event.getNewBestSolution();
+            final ScheduleModel sm = solver.setTournament(better);
             solver.setTournament(better);
             ApplicationContext.queueCallback(new Runnable() {
                 @Override
                 public void run() {
-                    solutionChanged();
+                    solutionChanged(sm);
                 }
             });
         }
@@ -690,7 +666,7 @@ public class PlannerWindow extends Window implements Bindable {
     //=========================================================================================================================
     // tasks
     //=========================================================================================================================
-    private static class SolverTask extends Task<Void> {
+    private static class SolverTask extends Task<ScheduleModel> {
 
         private final TournamentSolver solver;
 
@@ -703,35 +679,22 @@ public class PlannerWindow extends Window implements Bindable {
         }
 
         @Override
-        public Void execute() throws TaskExecutionException {
-            solver.solve();
-            return null;
+        public ScheduleModel execute() throws TaskExecutionException {
+            return solver.solve();
         }
     }
 
-    private void updateRoundDetails(Round round) {
-        selectedRound = round;
-        if (round == null) {
-            optimalIndependentLabel.setText("");
-            idleLabel.setText("Idle (0)");
-            awayLabel.setText("Away (0)");
-            idleTableView.getTableData().clear();
-            awayTableView.getTableData().clear();
-        } else {
-            optimalIndependentLabel.setText(String.format("%.4f", round.getOptimalIndependentCount()));
-            idleLabel.setText(String.format("Idle (%d)", solver.getIdle(round).size()));
-            awayLabel.setText(String.format("Away (%d)", solver.getAway(round).size()));
-            idleTableView.setTableData(new ListAdapter<>(solver.getIdleRows(round)));
-            awayTableView.setTableData(new ListAdapter<>(solver.getAwayRows(round)));
-            if (solver.isSolving()) {
-                clearSwap();
-            }
+    private void updateRoundDetails(RoundModel round) {
+        if (round != null && solver.isSolving()) {
+            clearSwap();
         }
+        log.info("updating round details: " + round);
+        roundDetails.setData(round);
     }
 
     private void showJurorDetails(Juror juror) {
         if (juror != null) {
-            jurorDetails.showJuror(solver.getJurorInfo(juror));
+            jurorDetails.showJuror(tournamentSchedule.getSchedule().getJurorInfo(juror));
         }
     }
 

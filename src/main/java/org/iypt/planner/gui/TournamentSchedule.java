@@ -69,6 +69,10 @@ public class TournamentSchedule extends Container {
         setSkin(new TournamentScheduleSkin());
     }
 
+    public ScheduleModel getSchedule() {
+        return schedule;
+    }
+
     public List<RoundModel> getRounds() {
         return schedule.getRounds();
     }
