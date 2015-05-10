@@ -47,8 +47,6 @@ import org.apache.pivot.wtk.PushButton;
 import org.apache.pivot.wtk.Rollup;
 import org.apache.pivot.wtk.Sheet;
 import org.apache.pivot.wtk.SheetCloseListener;
-import org.apache.pivot.wtk.Spinner;
-import org.apache.pivot.wtk.SpinnerSelectionListener;
 import org.apache.pivot.wtk.TableView;
 import org.apache.pivot.wtk.TableViewSelectionListener;
 import org.apache.pivot.wtk.TaskAdapter;
@@ -99,11 +97,7 @@ public class PlannerWindow extends Window implements Bindable {
     @BXML private BoxPane constraintsBoxPane;
     @BXML private ListView causesListView;
     // tournament details
-    @BXML private Label totalJurorsLabel;
-    @BXML private Spinner juryCapacitySpinner;
-    @BXML private Label totalSeatsLabel;
-    @BXML private Label totalMandaysLabel;
-    @BXML private Label optimalLoadLabel;
+    @BXML private TournamentDetails tournamentDetails;
     // round details
     @BXML private Label optimalIndependentLabel;
     @BXML private Label idleLabel;
@@ -351,7 +345,7 @@ public class PlannerWindow extends Window implements Bindable {
         computeBiasesAction.setEnabled(false);
         loadExampleAction.setEnabled(false);
         solveButton.setEnabled(false);
-        juryCapacitySpinner.setEnabled(false);
+        tournamentDetails.setEnabled(false);
         TaskListener<TournamentSolver> newSolverTaskListener = new TaskListener<TournamentSolver>() {
             @Override
             public void taskExecuted(Task<TournamentSolver> task) {
@@ -498,10 +492,9 @@ public class PlannerWindow extends Window implements Bindable {
                 solutionChanged();
             }
         });
-        juryCapacitySpinner.getSpinnerSelectionListeners().add(new SpinnerSelectionListener.Adapter() {
+        tournamentDetails.getListeners().add(new TournamentDetailsListener.Adapter() {
             @Override
-            public void selectedItemChanged(Spinner spinner, Object previousSelectedItem) {
-                Integer capacity = (Integer) spinner.getSelectedItem();
+            public void capacityChanged(int capacity) {
                 // TODO schedule the capacity change and apply it only when new solving starts
                 solver.changeJuryCapacity(capacity);
                 tournamentChanged();
@@ -527,7 +520,7 @@ public class PlannerWindow extends Window implements Bindable {
         clearScheduleAction.setEnabled(true);
         saveScheduleAction.setEnabled(true);
         exportPdfAction.setEnabled(true);
-        juryCapacitySpinner.setEnabled(true);
+        tournamentDetails.setEnabled(true);
         solver.setTournament(tournament);
         tournamentSchedule = new TournamentSchedule(new ScheduleModel(solver));
         tournamentSchedule.getTournamentScheduleListeners().add(new TournamentScheduleListener.Adapter() {
@@ -660,11 +653,7 @@ public class PlannerWindow extends Window implements Bindable {
 
     private void tournamentChanged() {
         Tournament t = solver.getTournament();
-        totalJurorsLabel.setText(Integer.toString(t.getJurors().size()));
-        juryCapacitySpinner.setSelectedItem(t.getJuryCapacity());
-        totalSeatsLabel.setText(Integer.toString(t.getSeats().size()));
-        totalMandaysLabel.setText(Integer.toString(t.getJurors().size() * t.getRounds().size() - t.getAbsences().size()));
-        optimalLoadLabel.setText(String.format("%.4f", t.getStatistics().getOptimalLoad()));
+        tournamentDetails.setData(t);
         tournamentSchedule.updateSchedule(new ScheduleModel(solver));
     }
 

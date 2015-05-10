@@ -8,38 +8,7 @@
 
   <TablePane.Row height="-1">
     <Border title="Tournament" styles="{padding:{left:6, right:6}}">
-
-      <TablePane>
-        <columns>
-          <TablePane.Column width="1*"/>
-          <TablePane.Column width="-1"/>
-        </columns>
-        <TablePane.Row>
-          <Label text="Total jurors:"/>
-          <Label bxml:id="totalJurorsLabel"/>
-        </TablePane.Row>
-        <TablePane.Row>
-          <Label text="Jury capacity:"/>
-          <Spinner bxml:id="juryCapacitySpinner" selectedIndex="0">
-            <spinnerData>
-              <content:NumericSpinnerData lowerBound="1" upperBound="41" increment="1"/>
-            </spinnerData>
-          </Spinner>
-        </TablePane.Row>
-        <TablePane.Row>
-          <Label text="Total jury seats:"/>
-          <Label bxml:id="totalSeatsLabel"/>
-        </TablePane.Row>
-        <TablePane.Row>
-          <Label text="Total juror mandays:"/>
-          <Label bxml:id="totalMandaysLabel"/>
-        </TablePane.Row>
-        <TablePane.Row>
-          <Label text="Optimal juror load:"/>
-          <Label bxml:id="optimalLoadLabel"/>
-        </TablePane.Row>
-      </TablePane>
-
+      <iypt:TournamentDetails bxml:id="tournamentDetails"/>
     </Border>
   </TablePane.Row>
 
