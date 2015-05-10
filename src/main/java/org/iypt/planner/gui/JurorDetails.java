@@ -7,7 +7,7 @@ import org.apache.pivot.wtk.Container;
  *
  * @author jlocker
  */
-class JurorDetails extends Container {
+public class JurorDetails extends Container {
 
     private static class JurorDetailsListenerList extends ListenerList<JurorDetailsListener> implements JurorDetailsListener {
 

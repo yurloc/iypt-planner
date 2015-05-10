@@ -44,7 +44,9 @@
   </TablePane.Row>
 
   <TablePane.Row height="-1">
-    <Border bxml:id="jurorBorder" title="Juror" styles="{padding:{left:6, right:6}}"/>
+    <Border title="Juror" styles="{padding:{left:6, right:6}}">
+      <iypt:JurorDetails bxml:id="jurorDetails"/>
+    </Border>
   </TablePane.Row>
 
 

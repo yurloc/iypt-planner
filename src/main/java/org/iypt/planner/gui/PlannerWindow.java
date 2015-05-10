@@ -29,7 +29,6 @@ import org.apache.pivot.wtk.Action;
 import org.apache.pivot.wtk.Alert;
 import org.apache.pivot.wtk.ApplicationContext;
 import org.apache.pivot.wtk.ApplicationContext.ScheduledCallback;
-import org.apache.pivot.wtk.Border;
 import org.apache.pivot.wtk.BoxPane;
 import org.apache.pivot.wtk.Button;
 import org.apache.pivot.wtk.Button.State;
@@ -112,10 +111,9 @@ public class PlannerWindow extends Window implements Bindable {
     @BXML private TableView idleTableView;
     @BXML private TableView awayTableView;
     // juror details
-    @BXML private Border jurorBorder;
+    @BXML private JurorDetails jurorDetails;
     // build info
     @BXML private Label buildInfoLabel;
-    private JurorDetails jurorDetails;
     // other
     private TournamentSchedule tournamentSchedule;
     private SolverTask solverTask;
@@ -490,7 +488,6 @@ public class PlannerWindow extends Window implements Bindable {
         });
 
         showChangesCheckbox.setState(Button.State.SELECTED);
-        jurorDetails = new JurorDetails();
         jurorDetails.getDetailsListeners().add(new JurorDetailsListener.Adapter() {
 
             @Override
@@ -501,7 +498,6 @@ public class PlannerWindow extends Window implements Bindable {
                 solutionChanged();
             }
         });
-        jurorBorder.setContent(jurorDetails);
         juryCapacitySpinner.getSpinnerSelectionListeners().add(new SpinnerSelectionListener.Adapter() {
             @Override
             public void selectedItemChanged(Spinner spinner, Object previousSelectedItem) {
