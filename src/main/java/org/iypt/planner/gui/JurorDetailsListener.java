@@ -8,6 +8,8 @@ interface JurorDetailsListener {
 
     void jurorChangesSaved(JurorDetails details);
 
+    void jurorAssignmentSelected(JurorAssignment assignment);
+
     public class Adapter implements JurorDetailsListener {
 
         @Override
@@ -22,6 +24,11 @@ interface JurorDetailsListener {
 
         @Override
         public void jurorChangesSaved(JurorDetails details) {
+            // do nothing
+        }
+
+        @Override
+        public void jurorAssignmentSelected(JurorAssignment assignment) {
             // do nothing
         }
     }

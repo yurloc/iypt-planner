@@ -18,6 +18,7 @@ import org.apache.pivot.wtk.Component;
 import org.apache.pivot.wtk.Dimensions;
 import org.apache.pivot.wtk.ImageView;
 import org.apache.pivot.wtk.Label;
+import org.apache.pivot.wtk.LinkButton;
 import org.apache.pivot.wtk.ListButton;
 import org.apache.pivot.wtk.ListButtonSelectionListener;
 import org.apache.pivot.wtk.Meter;
@@ -180,8 +181,14 @@ class JurorDetailsSkin extends ContainerSkin implements JurorDetailsListener {
             TablePane.Row roundRow = new TablePane.Row();
             jurorScheduleTablePane.getRows().add(roundRow);
 
-            final Label roundLabel = new Label(assignment.getRound().toString());
-            roundRow.add(roundLabel);
+            final LinkButton roundButton = new LinkButton(assignment.getRound().toString());
+            roundRow.add(roundButton);
+            roundButton.getButtonPressListeners().add(new ButtonPressListener() {
+                @Override
+                public void buttonPressed(Button button) {
+                    ((JurorDetails) getComponent()).selectAssignment(assignment);
+                }
+            });
 
             ListButton roundStatusListButton = new ListButton();
             roundStatusListButton.setDisabledItemFilter(statusChoiceFilter);
@@ -253,5 +260,10 @@ class JurorDetailsSkin extends ContainerSkin implements JurorDetailsListener {
     @Override
     public void jurorChangesSaved(JurorDetails details) {
         updateAssignments(details.getJurorInfo());
+    }
+
+    @Override
+    public void jurorAssignmentSelected(JurorAssignment assignment) {
+        // do nothing
     }
 }

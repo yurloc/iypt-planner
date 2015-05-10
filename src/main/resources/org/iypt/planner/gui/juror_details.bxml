@@ -41,7 +41,6 @@
     </TablePane.Row>
   </TablePane>
   <Separator heading="Schedule"/>
-  <!-- TODO make this interactive TableView (clicking a row activates the corresponding Round) -->
   <TablePane bxml:id="jurorScheduleTablePane" styles="{horizontalSpacing:8}">
     <columns>
       <TablePane.Column width="-1"/>

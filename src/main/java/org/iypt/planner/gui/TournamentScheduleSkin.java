@@ -138,6 +138,7 @@ public class TournamentScheduleSkin extends ContainerSkin implements TournamentS
     @Override
     public void roundSelected(RoundModel round) {
         activeRound = round;
+        content.setSelectedIndex(round.getNumber() - 1);
     }
 
     @Override

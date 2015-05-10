@@ -491,6 +491,11 @@ public class PlannerWindow extends Window implements Bindable {
                 jurorDetails.showJuror(solver.getJurorInfo(jurorInfo.getJuror()));
                 solutionChanged();
             }
+
+            @Override
+            public void jurorAssignmentSelected(JurorAssignment assignment) {
+                tournamentSchedule.selectRound(assignment.getRound());
+            }
         });
         tournamentDetails.getListeners().add(new TournamentDetailsListener.Adapter() {
             @Override

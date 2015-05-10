@@ -79,6 +79,10 @@ public class TournamentSchedule extends Container {
         tournamentScheduleListeners.roundLocksChanged();
     }
 
+    public void selectRound(RoundModel round) {
+        tournamentScheduleListeners.roundSelected(round);
+    }
+
     void roundSelected(int roundNumber) {
         if (roundNumber >= 0) {
             tournamentScheduleListeners.roundSelected(schedule.getRounds().get(roundNumber));

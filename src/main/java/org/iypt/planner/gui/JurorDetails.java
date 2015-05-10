@@ -31,6 +31,13 @@ public class JurorDetails extends Container {
                 listener.jurorChangesSaved(details);
             }
         }
+
+        @Override
+        public void jurorAssignmentSelected(JurorAssignment assignment) {
+            for (JurorDetailsListener listener : this) {
+                listener.jurorAssignmentSelected(assignment);
+            }
+        }
     }
 
     private final JurorDetailsListenerList detailsListeners = new JurorDetailsListenerList();
@@ -68,5 +75,9 @@ public class JurorDetails extends Container {
             assignment.reset();
         }
         detailsListeners.jurorChanged();
+    }
+
+    void selectAssignment(JurorAssignment assignment) {
+        detailsListeners.jurorAssignmentSelected(assignment);
     }
 }

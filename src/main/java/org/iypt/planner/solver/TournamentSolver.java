@@ -40,6 +40,7 @@ import org.iypt.planner.domain.Seat;
 import org.iypt.planner.domain.Tournament;
 import org.iypt.planner.gui.JurorAssignment;
 import org.iypt.planner.gui.JurorInfo;
+import org.iypt.planner.gui.RoundModel;
 import org.iypt.planner.gui.SeatInfo;
 import org.iypt.planner.solver.util.ConstraintComparator;
 
@@ -210,7 +211,7 @@ public class TournamentSolver {
             jurorAssignmentMap.put(juror, assignments);
             for (Round round : tournament.getRounds()) {
                 // idle all rounds by default
-                assignments.add(round.getNumber() - 1, new JurorAssignment(round, true));
+                assignments.add(round.getNumber() - 1, new JurorAssignment(new RoundModel(this, round), true));
             }
         }
         // collect the lists of idle and away jurors per round
@@ -221,13 +222,15 @@ public class TournamentSolver {
             for (Seat seat : tournament.getSeats()) {
                 if (seat.isOccupied() && seat.getJury().getGroup().getRound().equals(round)) {
                     idleList.remove(seat.getJuror());
-                    jurorAssignmentMap.get(seat.getJuror()).set(round.getNumber() - 1, new JurorAssignment(seat.getJury().getGroup()));
+                    jurorAssignmentMap.get(seat.getJuror())
+                            .set(round.getNumber() - 1, new JurorAssignment(new RoundModel(this, round), seat.getJury().getGroup()));
                 }
             }
             for (Absence absence : tournament.getAbsences()) {
                 if (absence.getRoundNumber() == round.getNumber()) {
                     awayList.add(absence.getJuror());
-                    jurorAssignmentMap.get(absence.getJuror()).set(round.getNumber() - 1, new JurorAssignment(round, false));
+                    jurorAssignmentMap.get(absence.getJuror())
+                            .set(round.getNumber() - 1, new JurorAssignment(new RoundModel(this, round), false));
                 }
             }
             idleList.removeAll(awayList); // idle = all -busy -away
@@ -298,7 +301,7 @@ public class TournamentSolver {
                 // no matter what the original status is
                 if (assignment.getCurrentStatus() == JurorAssignment.Status.AWAY) {
                     // add absence
-                    tournament.addAbsences(new Absence(juror, assignment.getRound()));
+                    tournament.addAbsences(new Absence(juror, assignment.getRound().getRound()));
                 }
             }
         }

@@ -1,7 +1,6 @@
 package org.iypt.planner.gui;
 
 import org.iypt.planner.domain.Group;
-import org.iypt.planner.domain.Round;
 
 /**
  *
@@ -13,27 +12,27 @@ public class JurorAssignment {
 
         ASSIGNED, IDLE, AWAY
     }
-    private final Round round;
+    private final RoundModel round;
     private final Group group;
     private Status originalStatus;
     private Status currentStatus;
 
-    public JurorAssignment(Round round, Group group, Status status) {
+    public JurorAssignment(RoundModel round, Group group, Status status) {
         this.round = round;
         this.group = group;
         this.originalStatus = status;
         this.currentStatus = status;
     }
 
-    public JurorAssignment(Round round, boolean idle) {
+    public JurorAssignment(RoundModel round, boolean idle) {
         this(round, null, idle ? Status.IDLE : Status.AWAY);
     }
 
-    public JurorAssignment(Group group) {
-        this(group.getRound(), group, Status.ASSIGNED);
+    public JurorAssignment(RoundModel round, Group group) {
+        this(round, group, Status.ASSIGNED);
     }
 
-    public Round getRound() {
+    public RoundModel getRound() {
         return round;
     }
 
