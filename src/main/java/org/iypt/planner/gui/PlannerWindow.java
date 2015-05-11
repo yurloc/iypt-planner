@@ -106,8 +106,6 @@ public class PlannerWindow extends Window implements Bindable {
     private TournamentSchedule tournamentSchedule;
     private SolverTask solverTask;
     private TournamentSolver solver;
-    // TODO remove this, should be possible to get from tournamentSchedule
-    private RoundModel selectedRound;
     private Juror juror1;
     private Juror juror2;
     private CSVTournamentFactory factory;
@@ -386,7 +384,8 @@ public class PlannerWindow extends Window implements Bindable {
                     showJurorDetails(seatInfo.getJuror());
                     // TODO improve this mess
                     JurorInfo jurorInfo = tournamentSchedule.getSchedule().getJurorInfo(seatInfo.getJuror());
-                    if (jurorInfo.getSchedule().get(selectedRound.getNumber() - 1).getCurrentStatus() == JurorAssignment.Status.IDLE) {
+                    // FIXME NPE upon selecting juror in round details
+                    if (jurorInfo.getSchedule().get(tournamentSchedule.getSelectedRound().getNumber() - 1).getCurrentStatus() == JurorAssignment.Status.IDLE) {
                         prepareSwap(seatInfo.getJuror());
                     }
                 }
@@ -434,7 +433,7 @@ public class PlannerWindow extends Window implements Bindable {
             public void buttonPressed(Button button) {
                 Tournament t = solver.getTournament();
                 for (Seat seat : t.getSeats()) {
-                    if (seat.getJury().getGroup().getRound() == selectedRound.getRound()) {
+                    if (seat.getJury().getGroup().getRound() == tournamentSchedule.getSelectedRound().getRound()) {
                         if (seat.getJuror() == juror1) {
                             seat.setJuror(juror2);
                         } else if (seat.getJuror() == juror2) {
@@ -501,7 +500,6 @@ public class PlannerWindow extends Window implements Bindable {
         tournamentSchedule.getTournamentScheduleListeners().add(new TournamentScheduleListener.Adapter() {
             @Override
             public void roundSelected(RoundModel round) {
-                selectedRound = round;
                 updateRoundDetails(round);
             }
 
@@ -630,7 +628,7 @@ public class PlannerWindow extends Window implements Bindable {
                 }
             });
         }
-        updateRoundDetails(selectedRound);
+        updateRoundDetails(tournamentSchedule.getSelectedRound());
         tournamentSchedule.updateSchedule(sm);
     }
 
@@ -691,7 +689,6 @@ public class PlannerWindow extends Window implements Bindable {
         if (round != null && solver.isSolving()) {
             clearSwap();
         }
-        log.info("updating round details: " + round);
         roundDetails.setData(round);
     }
 

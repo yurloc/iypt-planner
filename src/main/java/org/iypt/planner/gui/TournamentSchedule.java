@@ -63,6 +63,7 @@ public class TournamentSchedule extends Container {
     }
     private final TournamentScheduleListenerList tournamentScheduleListeners = new TournamentScheduleListenerList();
     private ScheduleModel schedule;
+    private RoundModel selectedRound;
 
     public TournamentSchedule(ScheduleModel schedule) {
         this.schedule = schedule;
@@ -77,6 +78,10 @@ public class TournamentSchedule extends Container {
         return schedule.getRounds();
     }
 
+    public RoundModel getSelectedRound() {
+        return selectedRound;
+    }
+
     public void updateSchedule(ScheduleModel schedule) {
         this.schedule = schedule;
         tournamentScheduleListeners.scheduleChanged();
@@ -89,8 +94,10 @@ public class TournamentSchedule extends Container {
 
     void roundSelected(int roundNumber) {
         if (roundNumber >= 0) {
-            tournamentScheduleListeners.roundSelected(schedule.getRounds().get(roundNumber));
+            selectedRound = schedule.getRounds().get(roundNumber);
         }
+        selectedRound = null;
+        tournamentScheduleListeners.roundSelected(selectedRound);
     }
 
     void requestRoundLock(RoundModel round) {

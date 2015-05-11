@@ -48,31 +48,6 @@ public class TournamentScheduleSkin extends ContainerSkin implements TournamentS
         corner.add(lockButton);
         content.setCorner(corner);
 
-        // register listeners
-        content.getTabPaneSelectionListeners().add(new TabPaneSelectionListener.Adapter() {
-            @Override
-            public void selectedIndexChanged(TabPane tabPane, int previousSelectedIndex) {
-                schedule.roundSelected(tabPane.getSelectedIndex());
-            }
-        });
-        lockButton.getButtonPressListeners().add(new ButtonPressListener() {
-            @Override
-            public void buttonPressed(Button button) {
-                schedule.requestRoundLock(activeRound);
-            }
-        });
-        lockButton.getComponentMouseListeners().add(new ComponentMouseListener.Adapter() {
-            @Override
-            public void mouseOver(Component component) {
-                ((PushButton) component).setButtonData(getImage(LOCK));
-            }
-
-            @Override
-            public void mouseOut(Component component) {
-                ((PushButton) component).setButtonData(getImage(LOCK_LIGHT));
-            }
-        });
-
         // initialize round views (dynamic controls)
         List<RoundModel> rounds = schedule.getRounds();
         views = new RoundView[rounds.getLength()];
@@ -103,6 +78,31 @@ public class TournamentScheduleSkin extends ContainerSkin implements TournamentS
                 }
             });
         }
+
+        // finally, register listeners
+        content.getTabPaneSelectionListeners().add(new TabPaneSelectionListener.Adapter() {
+            @Override
+            public void selectedIndexChanged(TabPane tabPane, int previousSelectedIndex) {
+                schedule.roundSelected(tabPane.getSelectedIndex());
+            }
+        });
+        lockButton.getButtonPressListeners().add(new ButtonPressListener() {
+            @Override
+            public void buttonPressed(Button button) {
+                schedule.requestRoundLock(activeRound);
+            }
+        });
+        lockButton.getComponentMouseListeners().add(new ComponentMouseListener.Adapter() {
+            @Override
+            public void mouseOver(Component component) {
+                ((PushButton) component).setButtonData(getImage(LOCK));
+            }
+
+            @Override
+            public void mouseOut(Component component) {
+                ((PushButton) component).setButtonData(getImage(LOCK_LIGHT));
+            }
+        });
     }
 
     @Override
