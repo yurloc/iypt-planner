@@ -12,6 +12,7 @@ public class JurorAssignment {
 
         ASSIGNED, IDLE, AWAY
     }
+    // TODO add seat?
     private final RoundModel round;
     private final Group group;
     private Status originalStatus;

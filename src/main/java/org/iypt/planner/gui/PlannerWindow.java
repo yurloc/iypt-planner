@@ -395,6 +395,7 @@ public class PlannerWindow extends Window implements Bindable {
         solveButton.getButtonPressListeners().add(new ButtonPressListener() {
             @Override
             public void buttonPressed(Button button) {
+                // TODO better code structure, perhaps move the logic out of event listeners
                 button.setEnabled(false);
                 terminateButton.setEnabled(true);
                 clearSwap();
@@ -433,6 +434,7 @@ public class PlannerWindow extends Window implements Bindable {
             public void buttonPressed(Button button) {
                 Tournament t = solver.getTournament();
                 for (Seat seat : t.getSeats()) {
+                    // FIXME NPE always
                     if (seat.getJury().getGroup().getRound() == tournamentSchedule.getSelectedRound().getRound()) {
                         if (seat.getJuror() == juror1) {
                             seat.setJuror(juror2);
@@ -459,6 +461,7 @@ public class PlannerWindow extends Window implements Bindable {
             @Override
             public void jurorChangesSaved(JurorDetails details) {
                 JurorInfo jurorInfo = details.getJurorInfo();
+                // FIXME changing juror assignment not reflected in round details (e.g. idle -> away)
                 ScheduleModel sm = solver.applyChanges(jurorInfo);
                 jurorDetails.showJuror(sm.getJurorInfo(jurorInfo.getJuror()));
                 solutionChanged(sm);
@@ -544,12 +547,16 @@ public class PlannerWindow extends Window implements Bindable {
         solutionChanged(sm);
     }
 
+    // TODO doesn't need to be synchronized, it's always run on the UI thread
     synchronized void solutionChanged(ScheduleModel sm) {
+        // show score
         scoreLabel.setText(solver.getScore().toString());
+        // reset timer
         if (scoreChangedTimer != null) {
             scoreChangedTimer.cancel();
         }
         if (solver.isSolving()) {
+            // show last score change timestamp
             final Date lastScoreChange = new Date();
             scoreChangeBox.setVisible(true);
             scoreChangeLabel.setText(SCORE_CHANGE_FORMAT.format(lastScoreChange));
@@ -567,6 +574,7 @@ public class PlannerWindow extends Window implements Bindable {
             scoreChangeDiffLabel.setText("");
         }
 
+        // refresh constraints
         constraintsBoxPane.removeAll();
         HashMap<String, List<Constraint>> map = new HashMap<>();
         for (ConstraintOccurrence constraintId : solver.getConstraints()) {
@@ -652,11 +660,15 @@ public class PlannerWindow extends Window implements Bindable {
             if (showChangesCheckbox.getState() == State.UNSELECTED) {
                 return;
             }
+            // TODO cancel previous update if it hasn't yet started
+            // 1. increment # of changes here
             Tournament better = (Tournament) event.getNewBestSolution();
             final ScheduleModel sm = solver.setTournament(better);
             solver.setTournament(better);
             ApplicationContext.queueCallback(new Runnable() {
                 @Override
+                // 2. put current # of changes as arg. if arg is < current #chages, the method may return, because
+                // a new change has already been scheduled
                 public void run() {
                     solutionChanged(sm);
                 }
