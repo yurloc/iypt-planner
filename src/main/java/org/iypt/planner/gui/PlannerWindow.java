@@ -384,7 +384,6 @@ public class PlannerWindow extends Window implements Bindable {
                     showJurorDetails(seatInfo.getJuror());
                     // TODO improve this mess
                     JurorInfo jurorInfo = tournamentSchedule.getSchedule().getJurorInfo(seatInfo.getJuror());
-                    // FIXME NPE upon selecting juror in round details
                     if (jurorInfo.getSchedule().get(tournamentSchedule.getSelectedRound().getNumber() - 1).getCurrentStatus() == JurorAssignment.Status.IDLE) {
                         prepareSwap(seatInfo.getJuror());
                     }
@@ -460,7 +459,6 @@ public class PlannerWindow extends Window implements Bindable {
             @Override
             public void jurorChangesSaved(JurorDetails details) {
                 JurorInfo jurorInfo = details.getJurorInfo();
-                // FIXME changing juror assignment not reflected in round details (e.g. idle -> away)
                 ScheduleModel sm = solver.applyChanges(jurorInfo);
                 jurorDetails.showJuror(sm.getJurorInfo(jurorInfo.getJuror()));
                 solutionChanged(sm);
