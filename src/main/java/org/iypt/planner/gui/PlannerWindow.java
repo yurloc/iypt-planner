@@ -434,7 +434,6 @@ public class PlannerWindow extends Window implements Bindable {
             public void buttonPressed(Button button) {
                 Tournament t = solver.getTournament();
                 for (Seat seat : t.getSeats()) {
-                    // FIXME NPE always
                     if (seat.getJury().getGroup().getRound() == tournamentSchedule.getSelectedRound().getRound()) {
                         if (seat.getJuror() == juror1) {
                             seat.setJuror(juror2);
