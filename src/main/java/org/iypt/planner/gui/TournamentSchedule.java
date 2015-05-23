@@ -84,10 +84,12 @@ public class TournamentSchedule extends Container {
 
     public void updateSchedule(ScheduleModel schedule) {
         this.schedule = schedule;
-        if (selectedRound == null) {
-            selectedRound = schedule.getRounds().get(0);
-            tournamentScheduleListeners.roundSelected(selectedRound);
+        int roundIndex = 0;
+        if (selectedRound != null) {
+            roundIndex = selectedRound.getNumber() - 1;
         }
+        selectedRound = schedule.getRounds().get(roundIndex);
+        tournamentScheduleListeners.roundSelected(selectedRound);
         tournamentScheduleListeners.scheduleChanged();
         tournamentScheduleListeners.roundLocksChanged();
     }

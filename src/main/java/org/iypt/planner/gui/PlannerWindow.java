@@ -635,7 +635,6 @@ public class PlannerWindow extends Window implements Bindable {
                 }
             });
         }
-        updateRoundDetails(tournamentSchedule.getSelectedRound());
         tournamentSchedule.updateSchedule(sm);
     }
 
