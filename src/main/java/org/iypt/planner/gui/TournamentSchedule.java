@@ -98,9 +98,9 @@ public class TournamentSchedule extends Container {
         tournamentScheduleListeners.roundSelected(round);
     }
 
-    void roundSelected(int roundNumber) {
-        if (roundNumber >= 0) {
-            selectedRound = schedule.getRounds().get(roundNumber);
+    void roundSelected(int roundIndex) {
+        if (roundIndex >= 0) {
+            selectedRound = schedule.getRounds().get(roundIndex);
         } else {
             selectedRound = null;
         }
