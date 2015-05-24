@@ -23,6 +23,7 @@ import org.apache.pivot.collections.List;
 import org.apache.pivot.collections.Map;
 import org.apache.pivot.serialization.SerializationException;
 import org.apache.pivot.util.Filter;
+import org.apache.pivot.util.ListenerList;
 import org.apache.pivot.util.Resources;
 import org.apache.pivot.util.concurrent.Task;
 import org.apache.pivot.util.concurrent.TaskExecutionException;
@@ -150,36 +151,12 @@ public class PlannerWindow extends Window implements Bindable {
         loadExampleAction.setEnabled(false);
         solveButton.setEnabled(false);
         tournamentDetails.setEnabled(false);
-        TaskListener<TournamentSolver> newSolverTaskListener = new TaskListener<TournamentSolver>() {
-            @Override
-            public void taskExecuted(Task<TournamentSolver> task) {
-                solver = task.getResult();
-                drlLabel.setText(solver.getScoreDrlList().get(0));
-                for (Object obj : envListButton.getListData()) {
-                    ListItem item = (ListItem) obj;
-                    if (solver.getEnvironmentMode().toString().equals(item.getText())) {
-                        envListButton.setSelectedItem(item);
-                    }
-                }
-                constraintConfig.setSolver(solver);
-                newTournamentAction.setEnabled(true);
-                newTournamentAction.perform(PlannerWindow.this);
-                log.info("Solver initialized");
-            }
-
-            @Override
-            public void executeFailed(Task<TournamentSolver> task) {
-                log.error("Error during solution", task.getFault());
-                Alert.alert(MessageType.ERROR, task.getFault().getMessage(), PlannerWindow.this);
-            }
-        };
-
         new Task<TournamentSolver>() {
             @Override
             public TournamentSolver execute() throws TaskExecutionException {
-                return newSolver();
+                return createSolver();
             }
-        }.execute(new TaskAdapter<>(newSolverTaskListener));
+        }.execute(new TaskAdapter<>(new CreateSolverTaskListener()));
 
         envListButton.getListButtonSelectionListeners().add(new ListButtonSelectionListener.Adapter() {
             @Override
@@ -298,7 +275,15 @@ public class PlannerWindow extends Window implements Bindable {
         buildInfoLabel.setTooltipText("Revision: " + revision);
     }
 
-    private void tournamentLoaded(Tournament tournament) {
+    public TournamentSchedule getSchedule() {
+        return tournamentSchedule;
+    }
+
+    public TournamentSolver getSolver() {
+        return solver;
+    }
+
+    public void setTournament(Tournament tournament) {
         loadTeamsAction.setEnabled(false);
         loadJurorsAction.setEnabled(false);
         loadScheduleAction.setEnabled(true);
@@ -453,7 +438,7 @@ public class PlannerWindow extends Window implements Bindable {
         tournamentSchedule.updateSchedule(sm);
     }
 
-    private TournamentSolver newSolver() {
+    public TournamentSolver createSolver() {
         return new TournamentSolver(Constants.SOLVER_CONFIG_PATH, new SolverListener());
     }
 
@@ -506,6 +491,51 @@ public class PlannerWindow extends Window implements Bindable {
     // Listeners
     //--------------------------------------------------------------------------------------------------------------------------
     //
+    private static final class PlannerWindowListenerList
+            extends ListenerList<PlanerWindowListener>
+            implements PlanerWindowListener {
+
+        @Override
+        public void solverCreated(boolean success) {
+            for (PlanerWindowListener listener : this) {
+                listener.solverCreated(success);
+            }
+        }
+    }
+
+    private final PlannerWindowListenerList listeners = new PlannerWindowListenerList();
+
+    public ListenerList<PlanerWindowListener> getPlannerWindowListeners() {
+        return listeners;
+    }
+
+    private class CreateSolverTaskListener implements TaskListener<TournamentSolver> {
+
+        @Override
+        public void taskExecuted(Task<TournamentSolver> task) {
+            solver = task.getResult();
+            drlLabel.setText(solver.getScoreDrlList().get(0));
+            for (Object obj : envListButton.getListData()) {
+                ListItem item = (ListItem) obj;
+                if (solver.getEnvironmentMode().toString().equals(item.getText())) {
+                    envListButton.setSelectedItem(item);
+                }
+            }
+            constraintConfig.setSolver(solver);
+            newTournamentAction.setEnabled(true);
+            newTournamentAction.perform(PlannerWindow.this);
+            log.info("Solver initialized");
+            listeners.solverCreated(true);
+        }
+
+        @Override
+        public void executeFailed(Task<TournamentSolver> task) {
+            log.error("Error during solution", task.getFault());
+            Alert.alert(MessageType.ERROR, task.getFault().getMessage(), PlannerWindow.this);
+            listeners.solverCreated(false);
+        }
+    }
+
     private class SolverListener implements SolverEventListener {
 
         @Override
@@ -592,7 +622,7 @@ public class PlannerWindow extends Window implements Bindable {
         void processFile(File f) throws Exception {
             factory.readTeamData(f, StandardCharsets.UTF_8);
             if (factory.canCreateTournament()) {
-                tournamentLoaded(factory.newTournament());
+                setTournament(factory.newTournament());
             }
             loadScheduleAction.setEnabled(factory.canReadSchedule());
             loadTeamsAction.setEnabled(false);
@@ -603,7 +633,7 @@ public class PlannerWindow extends Window implements Bindable {
         void processFile(File f) throws Exception {
             factory.readJuryData(f, StandardCharsets.UTF_8);
             if (factory.canCreateTournament()) {
-                tournamentLoaded(factory.newTournament());
+                setTournament(factory.newTournament());
             }
             loadScheduleAction.setEnabled(factory.canReadSchedule());
             loadJurorsAction.setEnabled(false);
@@ -614,7 +644,7 @@ public class PlannerWindow extends Window implements Bindable {
         void processFile(File f) throws Exception {
             factory.readBiasData(f, StandardCharsets.UTF_8);
             if (factory.canCreateTournament()) {
-                tournamentLoaded(factory.newTournament());
+                setTournament(factory.newTournament());
             }
             loadScheduleAction.setEnabled(factory.canReadSchedule());
             loadBiasesAction.setEnabled(false);
@@ -624,7 +654,7 @@ public class PlannerWindow extends Window implements Bindable {
         @Override
         void processFile(File f) throws Exception {
             factory.readSchedule(f, StandardCharsets.UTF_8);
-            tournamentLoaded(factory.newTournament());
+            setTournament(factory.newTournament());
         }
     };
     private final Action clearScheduleAction = new Action() {
@@ -762,7 +792,7 @@ public class PlannerWindow extends Window implements Bindable {
     void loadExample() {
         try {
             factory.readDataFromClasspath("/org/iypt/planner/csv/", "team_data.csv", "jury_data.csv", "bias_IYPT2012.csv", "schedule2012.csv");
-            tournamentLoaded(factory.newTournament());
+            setTournament(factory.newTournament());
         } catch (Exception ex) {
             log.error("Failed to load example", ex);
             Alert.alert(MessageType.ERROR, "Failed to load example: " + ex.getMessage(), PlannerWindow.this);
