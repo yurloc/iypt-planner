@@ -117,195 +117,6 @@ public class PlannerWindow extends Window implements Bindable {
     };
     private ScheduledCallback scoreChangedTimer;
 
-    private abstract class LoadFileAction extends Action {
-
-        abstract void processFile(File f) throws Exception;
-        private final String fileType;
-
-        public LoadFileAction(String fileType) {
-            this.fileType = fileType;
-        }
-
-        @Override
-        public void perform(Component source) {
-            // TODO set root folder to last selected file parent
-            final FileBrowserSheet fileBrowserSheet = new FileBrowserSheet();
-            fileBrowserSheet.setDisabledFileFilter(CSV_FILE_FILTER);
-            fileBrowserSheet.open(PlannerWindow.this, new SheetCloseListener() {
-                @Override
-                public void sheetClosed(Sheet sheet) {
-                    if (sheet.getResult()) {
-                        File f = fileBrowserSheet.getSelectedFile();
-                        try {
-                            processFile(f);
-                        } catch (Exception ex) {
-                            log.error("Error reading data file", ex);
-                            String message = String.format("%s. Perhaps this is not a %s data file?", ex.getMessage(), fileType);
-                            Alert.alert(MessageType.ERROR, message, PlannerWindow.this);
-                        }
-                    }
-                }
-            });
-        }
-    }
-    private final LoadFileAction loadTeamsAction = new LoadFileAction("teams") {
-        @Override
-        void processFile(File f) throws Exception {
-            factory.readTeamData(f, StandardCharsets.UTF_8);
-            if (factory.canCreateTournament()) {
-                tournamentLoaded(factory.newTournament());
-            }
-            loadScheduleAction.setEnabled(factory.canReadSchedule());
-            loadTeamsAction.setEnabled(false);
-        }
-    };
-    private final LoadFileAction loadJurorsAction = new LoadFileAction("jurors") {
-        @Override
-        void processFile(File f) throws Exception {
-            factory.readJuryData(f, StandardCharsets.UTF_8);
-            if (factory.canCreateTournament()) {
-                tournamentLoaded(factory.newTournament());
-            }
-            loadScheduleAction.setEnabled(factory.canReadSchedule());
-            loadJurorsAction.setEnabled(false);
-        }
-    };
-    private final LoadFileAction loadBiasesAction = new LoadFileAction("biases") {
-        @Override
-        void processFile(File f) throws Exception {
-            factory.readBiasData(f, StandardCharsets.UTF_8);
-            if (factory.canCreateTournament()) {
-                tournamentLoaded(factory.newTournament());
-            }
-            loadScheduleAction.setEnabled(factory.canReadSchedule());
-            loadBiasesAction.setEnabled(false);
-        }
-    };
-    private final LoadFileAction loadScheduleAction = new LoadFileAction("schedule") {
-        @Override
-        void processFile(File f) throws Exception {
-            factory.readSchedule(f, StandardCharsets.UTF_8);
-            tournamentLoaded(factory.newTournament());
-        }
-    };
-    private final Action clearScheduleAction = new Action() {
-        @Override
-        public void perform(Component source) {
-            // FIXME find a way to detect changes in the schedule (better than solutionChanged())
-//            saveScheduleAction.setEnabled(false);
-            ScheduleModel sm = solver.clearSchedule();
-            solutionChanged(sm);
-        }
-    };
-    private final Action saveScheduleAction = new Action() {
-        @Override
-        public void perform(Component source) {
-            // create new FileBrowser to make sure a fresh file list is displayed
-            // TODO set root folder
-            final FileBrowserSheet fileBrowserSheet = new FileBrowserSheet(FileBrowserSheet.Mode.SAVE_AS);
-            fileBrowserSheet.setDisabledFileFilter(CSV_FILE_FILTER);
-            fileBrowserSheet.setSelectedFile(new File(fileBrowserSheet.getRootDirectory(), "schedule.csv"));
-            fileBrowserSheet.open(PlannerWindow.this, new SheetCloseListener() {
-                @Override
-                public void sheetClosed(Sheet sheet) {
-                    if (sheet.getResult()) {
-                        File f = fileBrowserSheet.getSelectedFile();
-                        // TODO check if the file exists and ask to overwrite
-                        try {
-                            OutputStreamWriter os = new OutputStreamWriter(new FileOutputStream(f), StandardCharsets.UTF_8);
-                            new ScheduleWriter(solver.getTournament()).write(os);
-                            log.info("Schedule written to '{}'", f.getAbsolutePath());
-                        } catch (Exception ex) {
-                            log.error("Error writing schedule file", ex);
-                            Alert.alert(MessageType.ERROR, ex.getMessage(), PlannerWindow.this);
-                        }
-                    }
-                }
-            });
-        }
-    };
-    private final Action exportPdfAction = new Action() {
-        @Override
-        public void perform(Component source) {
-            // create new FileBrowser to make sure a fresh file list is displayed
-            // TODO set root folder
-            final FileBrowserSheet fileBrowserSheet = new FileBrowserSheet(FileBrowserSheet.Mode.SAVE_TO);
-            fileBrowserSheet.setDisabledFileFilter(new Filter<File>() {
-                @Override
-                public boolean include(File item) {
-                    return !item.isDirectory();
-                }
-            });
-            fileBrowserSheet.open(PlannerWindow.this, new SheetCloseListener() {
-                @Override
-                public void sheetClosed(Sheet sheet) {
-                    if (sheet.getResult()) {
-                        File dir = fileBrowserSheet.getSelectedFile();
-                        try {
-                            Date d = new Date();
-                            String time = String.format("%ty%tm%te_%tH%tM%tS_", d, d, d, d, d, d);
-                            PdfCreator pdf = new PdfCreator(solver.getTournament());
-                            pdf.setOutputDir(dir);
-                            pdf.setFilePrefix(time);
-                            pdf.printRooms();
-                            pdf.printRounds();
-                            log.info("Written PDFs with timestamp '{}'.", time);
-                        } catch (DocumentException | IOException ex) {
-                            log.error("Error while exporting PDFs", ex);
-                            Alert.alert(MessageType.ERROR, ex.getMessage(), PlannerWindow.this);
-                        }
-                    }
-                }
-            });
-        }
-    };
-    private final Action newTournamentAction = new Action() {
-        @Override
-        public void perform(Component source) {
-            factory = new CSVTournamentFactory();
-            loadTeamsAction.setEnabled(true);
-            loadJurorsAction.setEnabled(true);
-            loadBiasesAction.setEnabled(true);
-            loadScheduleAction.setEnabled(false);
-            clearScheduleAction.setEnabled(false);
-            saveScheduleAction.setEnabled(false);
-            exportPdfAction.setEnabled(false);
-            computeBiasesAction.setEnabled(true);
-            loadExampleAction.setEnabled(true);
-            tournamentScheduleBoxPane.removeAll();
-        }
-    };
-    private final Action computeBiasesAction = new Action() {
-        @Override
-        public void perform(Component source) {
-            BXMLSerializer bxmlSerializer = new BXMLSerializer();
-            try {
-                final BiasComputationWizard wizard = (BiasComputationWizard) bxmlSerializer.readObject(PlannerWindow.class, "bias_wizard.bxml");
-                wizard.setLoadEnabled(loadTeamsAction.isEnabled());
-                wizard.open(getDisplay(), getWindow(), new SheetCloseListener() {
-                    @Override
-                    public void sheetClosed(Sheet sheet) {
-                        factory.setBiases(wizard.getBiases());
-                    }
-                });
-            } catch (IOException | SerializationException ex) {
-                wlog.error("Cannot open bias computation wizard", ex);
-            }
-        }
-    };
-    private final Action loadExampleAction = new Action() {
-        @Override
-        public void perform(Component source) {
-            try {
-                factory.readDataFromClasspath("/org/iypt/planner/csv/", "team_data.csv", "jury_data.csv", "bias_IYPT2012.csv", "schedule2012.csv");
-                tournamentLoaded(factory.newTournament());
-            } catch (Exception ex) {
-                log.error("Failed to load example", ex);
-                Alert.alert(MessageType.ERROR, "Failed to load example: " + ex.getMessage(), PlannerWindow.this);
-            }
-        }
-    };
-
     public PlannerWindow() {
         Action.getNamedActions().put("quit", new Action() {
             @Override
@@ -646,53 +457,6 @@ public class PlannerWindow extends Window implements Bindable {
         return new TournamentSolver(Constants.SOLVER_CONFIG_PATH, new SolverListener());
     }
 
-    //=========================================================================================================================
-    // listeners
-    //=========================================================================================================================
-    private class SolverListener implements SolverEventListener {
-
-        @Override
-        public void bestSolutionChanged(BestSolutionChangedEvent event) {
-            if (showChangesCheckbox.getState() == State.UNSELECTED) {
-                return;
-            }
-            // TODO cancel previous update if it hasn't yet started
-            // 1. increment # of changes here
-            Tournament better = (Tournament) event.getNewBestSolution();
-            final ScheduleModel sm = solver.setTournament(better);
-            solver.setTournament(better);
-            ApplicationContext.queueCallback(new Runnable() {
-                @Override
-                // 2. put current # of changes as arg. if arg is < current #chages, the method may return, because
-                // a new change has already been scheduled
-                public void run() {
-                    solutionChanged(sm);
-                }
-            });
-        }
-    }
-
-    //=========================================================================================================================
-    // tasks
-    //=========================================================================================================================
-    private static class SolverTask extends Task<ScheduleModel> {
-
-        private final TournamentSolver solver;
-
-        public SolverTask(TournamentSolver solver) {
-            this.solver = solver;
-        }
-
-        public void terminate() {
-            solver.terminateEarly();
-        }
-
-        @Override
-        public ScheduleModel execute() throws TaskExecutionException {
-            return solver.solve();
-        }
-    }
-
     private void updateRoundDetails(RoundModel round) {
         if (round != null && solver.isSolving()) {
             clearSwap();
@@ -736,5 +500,272 @@ public class PlannerWindow extends Window implements Bindable {
         swap1TableView.getTableData().clear();
         swap2TableView.getTableData().clear();
         swapButton.setEnabled(false);
+    }
+
+    //--------------------------------------------------------------------------------------------------------------------------
+    // Listeners
+    //--------------------------------------------------------------------------------------------------------------------------
+    //
+    private class SolverListener implements SolverEventListener {
+
+        @Override
+        public void bestSolutionChanged(BestSolutionChangedEvent event) {
+            if (showChangesCheckbox.getState() == State.UNSELECTED) {
+                return;
+            }
+            // TODO cancel previous update if it hasn't yet started
+            // 1. increment # of changes here
+            Tournament better = (Tournament) event.getNewBestSolution();
+            final ScheduleModel sm = solver.setTournament(better);
+            solver.setTournament(better);
+            ApplicationContext.queueCallback(new Runnable() {
+                @Override
+                // 2. put current # of changes as arg. if arg is < current #chages, the method may return, because
+                // a new change has already been scheduled
+                public void run() {
+                    solutionChanged(sm);
+                }
+            });
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------------------
+    // Tasks
+    //--------------------------------------------------------------------------------------------------------------------------
+    //
+    private static class SolverTask extends Task<ScheduleModel> {
+
+        private final TournamentSolver solver;
+
+        public SolverTask(TournamentSolver solver) {
+            this.solver = solver;
+        }
+
+        public void terminate() {
+            solver.terminateEarly();
+        }
+
+        @Override
+        public ScheduleModel execute() throws TaskExecutionException {
+            return solver.solve();
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------------------
+    // Actions
+    //--------------------------------------------------------------------------------------------------------------------------
+    //
+    private abstract class LoadFileAction extends Action {
+
+        private final String fileType;
+
+        public LoadFileAction(String fileType) {
+            this.fileType = fileType;
+        }
+
+        abstract void processFile(File f) throws Exception;
+
+        @Override
+        public void perform(Component source) {
+            // TODO set root folder to last selected file parent
+            final FileBrowserSheet fileBrowserSheet = new FileBrowserSheet();
+            fileBrowserSheet.setDisabledFileFilter(CSV_FILE_FILTER);
+            fileBrowserSheet.open(PlannerWindow.this, new SheetCloseListener() {
+                @Override
+                public void sheetClosed(Sheet sheet) {
+                    if (sheet.getResult()) {
+                        File f = fileBrowserSheet.getSelectedFile();
+                        try {
+                            processFile(f);
+                        } catch (Exception ex) {
+                            log.error("Error reading data file", ex);
+                            String message = String.format("%s. Perhaps this is not a %s data file?", ex.getMessage(), fileType);
+                            Alert.alert(MessageType.ERROR, message, PlannerWindow.this);
+                        }
+                    }
+                }
+            });
+        }
+    }
+    private final LoadFileAction loadTeamsAction = new LoadFileAction("teams") {
+        @Override
+        void processFile(File f) throws Exception {
+            factory.readTeamData(f, StandardCharsets.UTF_8);
+            if (factory.canCreateTournament()) {
+                tournamentLoaded(factory.newTournament());
+            }
+            loadScheduleAction.setEnabled(factory.canReadSchedule());
+            loadTeamsAction.setEnabled(false);
+        }
+    };
+    private final LoadFileAction loadJurorsAction = new LoadFileAction("jurors") {
+        @Override
+        void processFile(File f) throws Exception {
+            factory.readJuryData(f, StandardCharsets.UTF_8);
+            if (factory.canCreateTournament()) {
+                tournamentLoaded(factory.newTournament());
+            }
+            loadScheduleAction.setEnabled(factory.canReadSchedule());
+            loadJurorsAction.setEnabled(false);
+        }
+    };
+    private final LoadFileAction loadBiasesAction = new LoadFileAction("biases") {
+        @Override
+        void processFile(File f) throws Exception {
+            factory.readBiasData(f, StandardCharsets.UTF_8);
+            if (factory.canCreateTournament()) {
+                tournamentLoaded(factory.newTournament());
+            }
+            loadScheduleAction.setEnabled(factory.canReadSchedule());
+            loadBiasesAction.setEnabled(false);
+        }
+    };
+    private final LoadFileAction loadScheduleAction = new LoadFileAction("schedule") {
+        @Override
+        void processFile(File f) throws Exception {
+            factory.readSchedule(f, StandardCharsets.UTF_8);
+            tournamentLoaded(factory.newTournament());
+        }
+    };
+    private final Action clearScheduleAction = new Action() {
+        @Override
+        public void perform(Component source) {
+            clearSchedule();
+        }
+    };
+    private final Action saveScheduleAction = new Action() {
+        @Override
+        public void perform(Component source) {
+            saveSchedule();
+        }
+    };
+    private final Action exportPdfAction = new Action() {
+        @Override
+        public void perform(Component source) {
+            exportPdf();
+        }
+    };
+    private final Action newTournamentAction = new Action() {
+        @Override
+        public void perform(Component source) {
+            newTournament();
+        }
+    };
+    private final Action computeBiasesAction = new Action() {
+        @Override
+        public void perform(Component source) {
+            computeBiases();
+        }
+    };
+    private final Action loadExampleAction = new Action() {
+        @Override
+        public void perform(Component source) {
+            loadExample();
+        }
+    };
+
+    void clearSchedule() {
+        // FIXME find a way to detect changes in the schedule (better than solutionChanged())
+//        saveScheduleAction.setEnabled(false);
+        ScheduleModel sm = solver.clearSchedule();
+        solutionChanged(sm);
+    }
+
+    void saveSchedule() {
+        // create new FileBrowser to make sure a fresh file list is displayed
+        // TODO set root folder
+        final FileBrowserSheet fileBrowserSheet = new FileBrowserSheet(FileBrowserSheet.Mode.SAVE_AS);
+        fileBrowserSheet.setDisabledFileFilter(CSV_FILE_FILTER);
+        fileBrowserSheet.setSelectedFile(new File(fileBrowserSheet.getRootDirectory(), "schedule.csv"));
+        fileBrowserSheet.open(PlannerWindow.this, new SheetCloseListener() {
+            @Override
+            public void sheetClosed(Sheet sheet) {
+                if (sheet.getResult()) {
+                    File f = fileBrowserSheet.getSelectedFile();
+                    // TODO check if the file exists and ask to overwrite
+                    try {
+                        OutputStreamWriter os = new OutputStreamWriter(new FileOutputStream(f), StandardCharsets.UTF_8);
+                        new ScheduleWriter(solver.getTournament()).write(os);
+                        log.info("Schedule written to '{}'", f.getAbsolutePath());
+                    } catch (Exception ex) {
+                        log.error("Error writing schedule file", ex);
+                        Alert.alert(MessageType.ERROR, ex.getMessage(), PlannerWindow.this);
+                    }
+                }
+            }
+        });
+    }
+
+    void exportPdf() {
+        // create new FileBrowser to make sure a fresh file list is displayed
+        // TODO set root folder
+        final FileBrowserSheet fileBrowserSheet = new FileBrowserSheet(FileBrowserSheet.Mode.SAVE_TO);
+        fileBrowserSheet.setDisabledFileFilter(new Filter<File>() {
+            @Override
+            public boolean include(File item) {
+                return !item.isDirectory();
+            }
+        });
+        fileBrowserSheet.open(PlannerWindow.this, new SheetCloseListener() {
+            @Override
+            public void sheetClosed(Sheet sheet) {
+                if (sheet.getResult()) {
+                    File dir = fileBrowserSheet.getSelectedFile();
+                    try {
+                        Date d = new Date();
+                        String time = String.format("%ty%tm%te_%tH%tM%tS_", d, d, d, d, d, d);
+                        PdfCreator pdf = new PdfCreator(solver.getTournament());
+                        pdf.setOutputDir(dir);
+                        pdf.setFilePrefix(time);
+                        pdf.printRooms();
+                        pdf.printRounds();
+                        log.info("Written PDFs with timestamp '{}'.", time);
+                    } catch (DocumentException | IOException ex) {
+                        log.error("Error while exporting PDFs", ex);
+                        Alert.alert(MessageType.ERROR, ex.getMessage(), PlannerWindow.this);
+                    }
+                }
+            }
+        });
+    }
+
+    void newTournament() {
+        factory = new CSVTournamentFactory();
+        loadTeamsAction.setEnabled(true);
+        loadJurorsAction.setEnabled(true);
+        loadBiasesAction.setEnabled(true);
+        loadScheduleAction.setEnabled(false);
+        clearScheduleAction.setEnabled(false);
+        saveScheduleAction.setEnabled(false);
+        exportPdfAction.setEnabled(false);
+        computeBiasesAction.setEnabled(true);
+        loadExampleAction.setEnabled(true);
+        tournamentScheduleBoxPane.removeAll();
+    }
+
+    void computeBiases() {
+        BXMLSerializer bxmlSerializer = new BXMLSerializer();
+        try {
+            final BiasComputationWizard wizard = (BiasComputationWizard) bxmlSerializer.readObject(PlannerWindow.class, "bias_wizard.bxml");
+            wizard.setLoadEnabled(loadTeamsAction.isEnabled());
+            wizard.open(getDisplay(), getWindow(), new SheetCloseListener() {
+                @Override
+                public void sheetClosed(Sheet sheet) {
+                    factory.setBiases(wizard.getBiases());
+                }
+            });
+        } catch (IOException | SerializationException ex) {
+            wlog.error("Cannot open bias computation wizard", ex);
+        }
+    }
+
+    void loadExample() {
+        try {
+            factory.readDataFromClasspath("/org/iypt/planner/csv/", "team_data.csv", "jury_data.csv", "bias_IYPT2012.csv", "schedule2012.csv");
+            tournamentLoaded(factory.newTournament());
+        } catch (Exception ex) {
+            log.error("Failed to load example", ex);
+            Alert.alert(MessageType.ERROR, "Failed to load example: " + ex.getMessage(), PlannerWindow.this);
+        }
     }
 }
