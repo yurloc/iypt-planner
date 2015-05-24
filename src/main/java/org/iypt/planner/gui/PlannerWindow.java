@@ -77,7 +77,7 @@ public class PlannerWindow extends Window implements Bindable {
     private static final long SCORE_CHANGE_DELAY = 5000;
     private static final long SCORE_CHANGE_PERIOD = 5000;
     private final DateFormat SCORE_CHANGE_FORMAT = DateFormat.getTimeInstance();
-    private WindowLogger wlog = new WindowLogger(log, this);
+    private final WindowLogger wlog = new WindowLogger(log, this);
     // constraints config tab controls
     @BXML private Label drlLabel;
     @BXML private ConstraintsConfig constraintConfig;
