@@ -3,6 +3,7 @@ package org.iypt.planner.gui;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -81,7 +82,7 @@ public class BiasComputationWizard extends Sheet implements Bindable {
                                 }
                                 fileTextInput.setText(f.getAbsolutePath());
                                 tournamentListView.setListData(new ListAdapter<>(list));
-                            } catch (Exception ex) {
+                            } catch (RuntimeException | IOException ex) {
                                 wlog.error("Failed to read tournament data", ex);
                             }
                         }

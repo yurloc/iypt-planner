@@ -7,7 +7,7 @@ import org.apache.pivot.wtk.Container;
 
 public class RoundDetails extends Container {
 
-    private class RoundDetailsListenerList extends ListenerList<RoundDetailsListener> implements RoundDetailsListener {
+    private static class RoundDetailsListenerList extends ListenerList<RoundDetailsListener> implements RoundDetailsListener {
 
         @Override
         public void roundChanged() {

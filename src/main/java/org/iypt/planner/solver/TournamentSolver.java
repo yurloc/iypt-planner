@@ -71,7 +71,7 @@ public class TournamentSolver {
         // FIXME temporary solution for persistent weights configuration
         try {
             Properties weightProperties = new Properties();
-            weightProperties.load(getClass().getResourceAsStream("/weights.properties"));
+            weightProperties.load(TournamentSolver.class.getResourceAsStream("/weights.properties"));
             for (String key : weightProperties.stringPropertyNames()) {
                 weightConfig.setWeight(key, Integer.parseInt(weightProperties.getProperty(key)));
             }

@@ -717,7 +717,7 @@ public class PlannerWindow extends Window implements Bindable {
                         OutputStreamWriter os = new OutputStreamWriter(new FileOutputStream(f), StandardCharsets.UTF_8);
                         new ScheduleWriter(solver.getTournament()).write(os);
                         log.info("Schedule written to '{}'", f.getAbsolutePath());
-                    } catch (Exception ex) {
+                    } catch (RuntimeException | IOException ex) {
                         log.error("Error writing schedule file", ex);
                         Alert.alert(MessageType.ERROR, ex.getMessage(), PlannerWindow.this);
                     }

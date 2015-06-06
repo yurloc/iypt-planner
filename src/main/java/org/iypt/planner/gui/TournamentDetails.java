@@ -6,7 +6,7 @@ import org.iypt.planner.domain.Tournament;
 
 public class TournamentDetails extends Container {
 
-    private class TournamentDetailsListenerList extends ListenerList<TournamentDetailsListener> implements TournamentDetailsListener {
+    private static class TournamentDetailsListenerList extends ListenerList<TournamentDetailsListener> implements TournamentDetailsListener {
 
         @Override
         public void capacityChanged(int capacity) {

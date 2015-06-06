@@ -284,7 +284,7 @@ public class CSVTournamentFactory {
                     } else {
 
                         try {
-                            absences.add(new Absence(juror, Integer.valueOf(line.get(i))));
+                            absences.add(new Absence(juror, Integer.parseInt(line.get(i))));
                             readingAbsences = true;
                         } catch (NumberFormatException ex) {
                             if (readingAbsences) {
@@ -338,7 +338,7 @@ public class CSVTournamentFactory {
             // get round number
             int roundNumber = 0;
             try {
-                roundNumber = Integer.valueOf(line.get(0));
+                roundNumber = Integer.parseInt(line.get(0));
             } catch (NumberFormatException ex) {
                 throwIOE("Invalid round number", line.get(0), src.name, ln, 0);
             }

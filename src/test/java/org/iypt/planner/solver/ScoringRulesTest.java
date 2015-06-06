@@ -594,7 +594,7 @@ public class ScoringRulesTest {
         }
     }
 
-    private class RuleFiring {
+    private static class RuleFiring {
 
         private ScoringRule rule;
         private int count;

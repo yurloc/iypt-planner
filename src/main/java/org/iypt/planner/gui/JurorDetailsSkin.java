@@ -228,7 +228,7 @@ class JurorDetailsSkin extends ContainerSkin implements JurorDetailsListener {
         boolean scheduleHasChanges = false;
         for (JurorAssignment assignment : jurorInfo.getSchedule()) {
             // update overall dirty flag
-            scheduleHasChanges = scheduleHasChanges |= assignment.isDirty();
+            scheduleHasChanges |= assignment.isDirty();
             int rowIndex = assignment.getRound().getNumber() - 1;
             // if this assignment is dirty, higlight the round label
             Component label = jurorScheduleTablePane.getRows().get(rowIndex).get(0);
