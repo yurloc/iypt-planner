@@ -1,6 +1,6 @@
 package org.iypt.planner.gui;
 
-interface JurorDetailsListener {
+public interface JurorDetailsListener {
 
     void jurorChanged();
 

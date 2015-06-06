@@ -259,7 +259,8 @@ class JurorDetailsSkin extends ContainerSkin implements JurorDetailsListener {
 
     @Override
     public void jurorChangesSaved(JurorDetails details) {
-        updateAssignments(details.getJurorInfo());
+        // do nothing
+        // The component that performs the save will then provide the updated details.
     }
 
     @Override
