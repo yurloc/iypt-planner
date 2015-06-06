@@ -40,7 +40,7 @@ public class PlannerWindowTest implements PlanerWindowListener {
     @Test
     public void testInitialization() {
         assertThat(createSolverTaskResult).isTrue();
-        window.setTournament(t);
+        window.setTournament(t); // FIXME NPE sometimes
         assertThat(window.getSolver().getScore()).isNotNull();
         assertThat(window.getSchedule().getSelectedRound());
     }
