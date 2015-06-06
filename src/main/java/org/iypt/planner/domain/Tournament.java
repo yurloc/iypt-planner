@@ -16,6 +16,8 @@ import org.drools.planner.core.score.buildin.hardandsoft.HardAndSoftScore;
 import org.drools.planner.core.solution.Solution;
 import org.iypt.planner.solver.DefaultWeightConfig;
 import org.iypt.planner.solver.WeightConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -24,6 +26,7 @@ import org.iypt.planner.solver.WeightConfig;
 public class Tournament implements Solution<HardAndSoftScore> {
 
     public static final int DEFAULT_CAPACITY = 5;
+    private static final Logger log = LoggerFactory.getLogger(Tournament.class);
     private HardAndSoftScore score;
     // planning entity
     private List<Seat> seats;
@@ -319,6 +322,10 @@ public class Tournament implements Solution<HardAndSoftScore> {
     public void addAbsences(List<Absence> absences) {
         for (Absence absence : absences) {
             // cache round's absences
+            if (!absencesPerRoundMap.containsKey(absence.getRoundNumber())) {
+                log.warn("Adding absence {}, but round #{} doesn't exist.", absence, absence.getRoundNumber());
+                absencesPerRoundMap.put(absence.getRoundNumber(), new ArrayList<Absence>());
+            }
             absencesPerRoundMap.get(absence.getRoundNumber()).add(absence);
 
             // cache juror's absences

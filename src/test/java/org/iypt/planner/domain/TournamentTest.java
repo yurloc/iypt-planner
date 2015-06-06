@@ -1,5 +1,6 @@
 package org.iypt.planner.domain;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import org.junit.Test;
@@ -127,7 +128,7 @@ public class TournamentTest {
                 + t.getAbsences().size()
                 + t.getConflicts().size() + EXTRA_FACTS);
 
-        t.removeAbsences(t.getAbsences());
+        t.removeAbsences(new ArrayList<>(t.getAbsences()));
         assertThat(t.isFeasibleSolutionPossible()).isTrue();
 
         // add one more round
@@ -327,6 +328,7 @@ public class TournamentTest {
     @Test
     public void testFirstAvailableRound() {
         Tournament t = new Tournament();
+        t.addRounds(new Round(1), new Round(2), new Round(3), new Round(4), new Round(5));
         t.addJurors(jA1, jA2, jA3);
         t.addAbsences(new Absence(jA1, 2), new Absence(jA2, 4));
         t.addAbsences(new Absence(jA2, 1), new Absence(jA2, 3), new Absence(jA2, 5));
