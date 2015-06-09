@@ -62,4 +62,27 @@ public class Round {
     public List<Group> getGroups() {
         return groups;
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 37 * hash + this.number;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Round other = (Round) obj;
+        if (this.number != other.number) {
+            return false;
+        }
+        return true;
+    }
+
 }

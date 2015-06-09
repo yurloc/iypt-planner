@@ -218,7 +218,7 @@ public class TournamentSolver {
                 if (assignment.getOriginalStatus() == JurorAssignment.Status.ASSIGNED) {
                     // empty the seat
                     for (Seat seat : tournament.getSeats()) {
-                        if (seat.getJuror() == juror && seat.getJury().getGroup().getRound().getNumber() == assignment.getRound().getNumber()) {
+                        if (seat.getJuror() == juror && seat.getJury().getGroup().getRound().equals(assignment.getRound().getRound())) {
                             seat.setJuror(null);
                         }
                     }
@@ -226,7 +226,7 @@ public class TournamentSolver {
                     // cancel absence
                     ArrayList<Absence> cancelled = new ArrayList<>();
                     for (Absence absence : tournament.getAbsences(juror)) {
-                        if (absence.getRound().getNumber() == assignment.getRound().getNumber()) {
+                        if (absence.getRound().equals(assignment.getRound().getRound())) {
                             cancelled.add(absence);
                         }
                     }
