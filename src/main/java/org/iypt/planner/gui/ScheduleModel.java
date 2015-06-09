@@ -49,7 +49,7 @@ public class ScheduleModel {
                 }
             }
             for (Absence absence : tournament.getAbsences()) {
-                if (absence.getRoundNumber() == round.getNumber()) {
+                if (absence.getRound().getNumber() == round.getNumber()) {
                     awayList.add(absence.getJuror());
                     jurorAssignmentMap.get(absence.getJuror())
                             .set(round.getNumber() - 1, new JurorAssignment(roundModel, false));

@@ -169,7 +169,8 @@ public class ScoringRulesTest {
     public void testInexperiencedVoting() {
         Tournament t = new Tournament();
         t.setJuryCapacity(2);
-        t.addRounds(RoundFactory.createRound(1, tA, tB, tC));
+        Round r1 = RoundFactory.createRound(1, tA, tB, tC);
+        t.addRounds(r1);
         t.addRounds(RoundFactory.createRound(2, tD, tE, tF));
         t.addRounds(RoundFactory.createRound(3, tG, tH, tI));
         t.addJurors(jM1, jM2, jM7);
@@ -181,7 +182,7 @@ public class ScoringRulesTest {
         checkSolution(t, true, ScoringRule.inexperiencedJurorVoting, 0);
 
         // add an absence and keep the assignment unchanged
-        t.addAbsences(new Absence(jM7, 1));
+        t.addAbsences(new Absence(jM7, r1));
         checkSolution(t, true, ScoringRule.inexperiencedJurorVoting, 1);
     }
 

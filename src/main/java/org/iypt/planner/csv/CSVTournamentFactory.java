@@ -284,7 +284,8 @@ public class CSVTournamentFactory {
                     } else {
 
                         try {
-                            absences.add(new Absence(juror, Integer.parseInt(line.get(i))));
+                            int roundNumber = Integer.parseInt(line.get(i));
+                            absences.add(new Absence(juror, rounds.get(roundNumber)));
                             readingAbsences = true;
                         } catch (NumberFormatException ex) {
                             if (readingAbsences) {

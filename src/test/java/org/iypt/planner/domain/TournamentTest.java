@@ -106,16 +106,16 @@ public class TournamentTest {
         assertThat(t.getConflicts()).hasSize(8); // duplicate conflicts are not removed
 
         // add some absences
-        t.addAbsences(new Absence(jA1, 1));
-        t.addAbsences(new Absence(jA3, 1));
-        t.addAbsences(new Absence(jA2, 2));
-        t.addAbsences(new Absence(jA4, 2));
+        t.addAbsences(new Absence(jA1, r1));
+        t.addAbsences(new Absence(jA3, r1));
+        t.addAbsences(new Absence(jA2, r2));
+        t.addAbsences(new Absence(jA4, r2));
         assertThat(t.getAbsencesPerRound(r1)).isEqualTo(2);
         assertThat(t.getAbsencesPerRound(r2)).isEqualTo(2);
         assertThat(t.isFeasibleSolutionPossible()).isTrue();
 
         // one more absence
-        t.addAbsences(new Absence(jA1, 2));
+        t.addAbsences(new Absence(jA1, r2));
         assertThat(t.isFeasibleSolutionPossible()).isFalse();
         assertThat(t.getAbsencesPerRound(r2)).isEqualTo(3);
 
@@ -195,7 +195,7 @@ public class TournamentTest {
         assertThat(t.getStatistics().getRounds()).isEqualTo(2);
         assertThat(t.getStatistics().getOptimalLoad()).isEqualTo(2 * 6.0 / 18, offset(Double.MIN_VALUE));
 
-        t.addAbsences(new Absence(jA1, 1), new Absence(jA2, 1));
+        t.addAbsences(new Absence(jA1, r1), new Absence(jA2, r1));
         assertThat(t.getStatistics().getOptimalLoad()).isEqualTo(2 * 6.0 / (18 - 2), offset(Double.MIN_VALUE));
 
         // check that cloneed solution calculates statistics correctly
@@ -291,7 +291,7 @@ public class TournamentTest {
         testClone(t);
 
         t.addJurors(jA1, jB1, jC1);
-        t.addAbsences(new Absence(jA1, 1), new Absence(jB1, 2));
+        t.addAbsences(new Absence(jA1, r1), new Absence(jB1, r2));
         t.addLock(new Lock(jA1, t.getJuries().get(0), 0));
 
         t.addConflicts(
@@ -328,11 +328,16 @@ public class TournamentTest {
     @Test
     public void testFirstAvailableRound() {
         Tournament t = new Tournament();
-        t.addRounds(new Round(1), new Round(2), new Round(3), new Round(4), new Round(5));
+        Round r1 = new Round(1);
+        Round r2 = new Round(2);
+        Round r3 = new Round(3);
+        Round r4 = new Round(4);
+        Round r5 = new Round(5);
+        t.addRounds(r1, r2, r3, r4, r5);
         t.addJurors(jA1, jA2, jA3);
-        t.addAbsences(new Absence(jA1, 2), new Absence(jA2, 4));
-        t.addAbsences(new Absence(jA2, 1), new Absence(jA2, 3), new Absence(jA2, 5));
-        t.addAbsences(new Absence(jA3, 1), new Absence(jA3, 2), new Absence(jA3, 3), new Absence(jA3, 4));
+        t.addAbsences(new Absence(jA1, r2), new Absence(jA2, r4));
+        t.addAbsences(new Absence(jA2, r1), new Absence(jA2, r3), new Absence(jA2, r5));
+        t.addAbsences(new Absence(jA3, r1), new Absence(jA3, r2), new Absence(jA3, r3), new Absence(jA3, r4));
         assertThat(jA1.getFirstAvailable()).isEqualTo(1);
         assertThat(jA2.getFirstAvailable()).isEqualTo(2);
         assertThat(jA3.getFirstAvailable()).isEqualTo(5);

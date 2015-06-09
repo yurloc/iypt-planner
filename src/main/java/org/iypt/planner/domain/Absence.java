@@ -7,28 +7,23 @@ package org.iypt.planner.domain;
 public class Absence {
 
     private final Juror juror;
-    private final int roundNumber;
-
-    public Absence(Juror juror, int roundNumber) {
-        this.juror = juror;
-        this.roundNumber = roundNumber;
-    }
+    private final Round round;
 
     public Absence(Juror juror, Round round) {
         this.juror = juror;
-        this.roundNumber = round.getNumber();
+        this.round = round;
     }
 
     public Juror getJuror() {
         return juror;
     }
 
-    public int getRoundNumber() {
-        return roundNumber;
+    public Round getRound() {
+        return round;
     }
 
     @Override
     public String toString() {
-        return juror + "!" + roundNumber;
+        return juror + "!" + round.getNumber();
     }
 }

@@ -39,7 +39,7 @@ public class TournamentUtils {
             if (!absenceMap.containsKey(j)) {
                 absenceMap.put(j, new ArrayList<Integer>(5));
             }
-            absenceMap.get(j).add(absence.getRoundNumber());
+            absenceMap.get(j).add(absence.getRound().getNumber());
         }
     }
 

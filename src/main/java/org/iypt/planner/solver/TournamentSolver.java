@@ -226,7 +226,7 @@ public class TournamentSolver {
                     // cancel absence
                     ArrayList<Absence> cancelled = new ArrayList<>();
                     for (Absence absence : tournament.getAbsences(juror)) {
-                        if (absence.getRoundNumber() == assignment.getRound().getNumber()) {
+                        if (absence.getRound().getNumber() == assignment.getRound().getNumber()) {
                             cancelled.add(absence);
                         }
                     }

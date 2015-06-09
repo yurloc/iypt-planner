@@ -210,7 +210,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
             SortedSet<Integer> away = new TreeSet<>();
             away.add(0);
             for (Absence absence : absencesPerJurorMap.get(juror)) {
-                away.add(absence.getRoundNumber());
+                away.add(absence.getRound().getNumber());
             }
             SortedSet<Integer> available = new TreeSet<>();
             for (int i = 1; i <= away.last() + 1; i++) {
@@ -322,11 +322,11 @@ public class Tournament implements Solution<HardAndSoftScore> {
     public void addAbsences(List<Absence> absences) {
         for (Absence absence : absences) {
             // cache round's absences
-            if (!absencesPerRoundMap.containsKey(absence.getRoundNumber())) {
-                log.warn("Adding absence {}, but round #{} doesn't exist.", absence, absence.getRoundNumber());
-                absencesPerRoundMap.put(absence.getRoundNumber(), new ArrayList<Absence>());
+            if (!absencesPerRoundMap.containsKey(absence.getRound().getNumber())) {
+                log.warn("Adding absence {}, but round #{} doesn't exist.", absence, absence.getRound().getNumber());
+                absencesPerRoundMap.put(absence.getRound().getNumber(), new ArrayList<Absence>());
             }
-            absencesPerRoundMap.get(absence.getRoundNumber()).add(absence);
+            absencesPerRoundMap.get(absence.getRound().getNumber()).add(absence);
 
             // cache juror's absences
             absencesPerJurorMap.get(absence.getJuror()).add(absence);
@@ -343,7 +343,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
             if (!this.absences.contains(absence)) {
                 throw new IllegalArgumentException("Cannot remove: " + absence);
             }
-            absencesPerRoundMap.get(absence.getRoundNumber()).remove(absence);
+            absencesPerRoundMap.get(absence.getRound().getNumber()).remove(absence);
             absencesPerJurorMap.get(absence.getJuror()).remove(absence);
             this.absences.remove(absence);
         }
@@ -551,7 +551,8 @@ public class Tournament implements Solution<HardAndSoftScore> {
                 sb.replace(sb.length() - 1, sb.length(), "\n");
             }
             for (Absence absence : this.getAbsences()) {
-                if (absence.getRoundNumber() == r.getNumber()) {
+                // TODO replace with equals()
+                if (absence.getRound().getNumber() == r.getNumber()) {
                     away.add(absence.getJuror());
                 }
             }
