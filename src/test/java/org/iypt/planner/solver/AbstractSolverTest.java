@@ -22,6 +22,7 @@ import org.iypt.planner.domain.Tournament;
 import org.iypt.planner.solver.util.ConstraintComparator;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author jlocker
  */
+@Category(SolverTest.class)
 public abstract class AbstractSolverTest {
 
     private static final Logger log = LoggerFactory.getLogger(AbstractSolverTest.class);
