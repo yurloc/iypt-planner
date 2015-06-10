@@ -3,6 +3,7 @@ package org.iypt.planner.gui;
 import java.io.IOException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 import org.apache.pivot.beans.BXMLSerializer;
 import org.apache.pivot.serialization.SerializationException;
 import org.iypt.planner.csv.CSVTournamentFactory;
@@ -17,7 +18,6 @@ public class PlannerWindowTest implements PlanerWindowListener {
     private final BlockingQueue<Boolean> bq = new ArrayBlockingQueue<>(1);
     private PlannerWindow window;
     private Tournament t;
-    private Boolean createSolverTaskResult = null;
 
     @Before
     public void setUp() throws IOException, SerializationException, InterruptedException {
@@ -28,8 +28,9 @@ public class PlannerWindowTest implements PlanerWindowListener {
         BXMLSerializer bxmlSerializer = new BXMLSerializer();
         window = (PlannerWindow) bxmlSerializer.readObject(PlannerApplication.class, "planner.bxml");
         window.getPlannerWindowListeners().add(this);
-        window.initialize(null, null, null);
-        createSolverTaskResult = bq.take();
+        window.initializeSolver();
+        Boolean result = bq.poll(30, TimeUnit.SECONDS);
+        assertThat(result).isTrue();
     }
 
     @Override
@@ -39,8 +40,7 @@ public class PlannerWindowTest implements PlanerWindowListener {
 
     @Test
     public void testInitialization() {
-        assertThat(createSolverTaskResult).isTrue();
-        window.setTournament(t); // FIXME NPE sometimes
+        window.setTournament(t);
         assertThat(window.getSolver().getScore()).isNotNull();
         assertThat(window.getSchedule().getSelectedRound());
     }

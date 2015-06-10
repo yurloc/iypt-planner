@@ -151,12 +151,6 @@ public class PlannerWindow extends Window implements Bindable {
         loadExampleAction.setEnabled(false);
         solveButton.setEnabled(false);
         tournamentDetails.setEnabled(false);
-        new Task<TournamentSolver>() {
-            @Override
-            public TournamentSolver execute() throws TaskExecutionException {
-                return createSolver();
-            }
-        }.execute(new TaskAdapter<>(new CreateSolverTaskListener()));
 
         envListButton.getListButtonSelectionListeners().add(new ListButtonSelectionListener.Adapter() {
             @Override
@@ -436,6 +430,19 @@ public class PlannerWindow extends Window implements Bindable {
         Tournament t = solver.getTournament();
         tournamentDetails.setData(t);
         tournamentSchedule.updateSchedule(sm);
+    }
+
+    /**
+     * Creates new {@link TournamentSolver} in an asynchronous task. When the task finishes, UI will enable some new actions
+     * and listeners will be notified about the completion.
+     */
+    public void initializeSolver() {
+        new Task<TournamentSolver>() {
+            @Override
+            public TournamentSolver execute() throws TaskExecutionException {
+                return createSolver();
+            }
+        }.execute(new TaskAdapter<>(new CreateSolverTaskListener()));
     }
 
     public TournamentSolver createSolver() {

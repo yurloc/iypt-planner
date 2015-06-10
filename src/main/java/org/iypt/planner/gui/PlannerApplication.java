@@ -5,14 +5,10 @@ import org.apache.pivot.collections.Map;
 import org.apache.pivot.wtk.Application;
 import org.apache.pivot.wtk.DesktopApplicationContext;
 import org.apache.pivot.wtk.Display;
-import org.apache.pivot.wtk.Window;
 
-/**
- *
- */
 public class PlannerApplication extends Application.Adapter {
 
-    private Window window = null;
+    private PlannerWindow window = null;
 
     public static void main(String[] args) {
         DesktopApplicationContext.main(PlannerApplication.class, args);
@@ -22,8 +18,9 @@ public class PlannerApplication extends Application.Adapter {
     public void startup(Display display, Map<String, String> properties)
             throws Exception {
         BXMLSerializer bxmlSerializer = new BXMLSerializer();
-        window = (Window) bxmlSerializer.readObject(PlannerApplication.class, "planner.bxml");
+        window = (PlannerWindow) bxmlSerializer.readObject(PlannerApplication.class, "planner.bxml");
         window.open(display);
+        window.initializeSolver();
     }
 
     @Override
@@ -34,5 +31,4 @@ public class PlannerApplication extends Application.Adapter {
 
         return false;
     }
-
 }
