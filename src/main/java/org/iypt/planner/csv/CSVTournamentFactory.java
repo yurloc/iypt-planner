@@ -164,6 +164,7 @@ public class CSVTournamentFactory {
         BiasReader br = new BiasReader();
         biases = br.read(reader);
         state.biasesReady();
+        LOG.info("Bias data loaded");
     }
 
     private void readTeams(Source src) throws IOException {
@@ -220,6 +221,7 @@ public class CSVTournamentFactory {
             ln++;
         }
         state.teamsReady();
+        LOG.info("Team data loaded");
     }
 
     private void readJuries(Source src) throws IOException {
@@ -305,6 +307,7 @@ public class CSVTournamentFactory {
             ln++;
         }
         state.jurorsReady();
+        LOG.info("Jury data loaded");
     }
 
     private void readSchedule(Source src) throws IOException {
@@ -380,6 +383,7 @@ public class CSVTournamentFactory {
             }
             ln++;
         }
+        LOG.info("Schedule data loaded");
     }
 
     //-------------------------------------------------------------------------------------------------------------------------
