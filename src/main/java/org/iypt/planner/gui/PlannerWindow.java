@@ -181,10 +181,11 @@ public class PlannerWindow extends Window implements Bindable {
                 TaskListener<ScheduleModel> taskListener = new TaskListener<ScheduleModel>() {
                     @Override
                     public void taskExecuted(Task<ScheduleModel> task) {
-                        log.debug(solver.getTournament().toDisplayString());
+                        ScheduleModel sm = task.getResult();
+                        log.debug(sm.getTournament().toDisplayString());
                         solveButton.setEnabled(true);
                         terminateButton.setEnabled(false);
-                        solutionChanged(task.getResult());
+                        solutionChanged(sm);
                     }
 
                     @Override
@@ -331,7 +332,7 @@ public class PlannerWindow extends Window implements Bindable {
 
     void solutionChanged(ScheduleModel sm) {
         // show score
-        scoreLabel.setText(sm.getScore());
+        scoreLabel.setText(sm.getTournament().getScore().toString());
         // reset timer
         if (scoreChangedTimer != null) {
             scoreChangedTimer.cancel();
@@ -414,8 +415,7 @@ public class PlannerWindow extends Window implements Bindable {
     }
 
     private void tournamentChanged(ScheduleModel sm) {
-        Tournament t = solver.getTournament();
-        tournamentDetails.setData(t);
+        tournamentDetails.setData(sm.getTournament());
         tournamentSchedule.updateSchedule(sm);
     }
 

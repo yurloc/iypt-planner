@@ -16,7 +16,7 @@ import org.iypt.planner.domain.Tournament;
 public class ScheduleModel {
 
     // static
-    private final String score;
+    private final Tournament tournament;
     private final Map<String, java.util.List<Constraint>> coMap;
     private final Map<Juror, java.util.List<CountryCode>> conflictMap;
     private final Map<Juror, JurorLoad> loadMap;
@@ -28,7 +28,7 @@ public class ScheduleModel {
             Map<String, java.util.List<Constraint>> coMap,
             Map<Juror, java.util.List<CountryCode>> conflictMap,
             Map<Juror, JurorLoad> loadMap) {
-        this.score = tournament.getScore().toString();
+        this.tournament = tournament;
         this.coMap = coMap;
         this.conflictMap = conflictMap;
         this.loadMap = loadMap;
@@ -78,16 +78,16 @@ public class ScheduleModel {
         }
     }
 
+    public Tournament getTournament() {
+        return tournament;
+    }
+
     public List<RoundModel> getRounds() {
         return rounds;
     }
 
     public JurorInfo getJurorInfo(Juror juror) {
         return new JurorInfo(juror, conflictMap.get(juror), jurorAssignmentMap.get(juror), loadMap.get(juror));
-    }
-
-    public String getScore() {
-        return score;
     }
 
     public Map<String, java.util.List<Constraint>> getConstraintOccurences() {

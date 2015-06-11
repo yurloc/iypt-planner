@@ -41,7 +41,7 @@ public class PlannerWindowTest implements PlanerWindowListener {
     @Test
     public void testInitialization() {
         window.setTournament(t);
-        assertThat(window.getSchedule().getSchedule().getScore()).isNotEmpty();
+        assertThat(window.getSchedule().getSchedule().getTournament().getScore()).isNotNull();
         assertThat(window.getSchedule().getSelectedRound());
     }
 }
