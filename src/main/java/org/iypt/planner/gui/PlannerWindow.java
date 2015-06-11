@@ -29,7 +29,6 @@ import org.apache.pivot.util.concurrent.Task;
 import org.apache.pivot.util.concurrent.TaskExecutionException;
 import org.apache.pivot.util.concurrent.TaskListener;
 import org.apache.pivot.wtk.Action;
-import org.apache.pivot.wtk.Alert;
 import org.apache.pivot.wtk.ApplicationContext;
 import org.apache.pivot.wtk.ApplicationContext.ScheduledCallback;
 import org.apache.pivot.wtk.BoxPane;
@@ -44,7 +43,6 @@ import org.apache.pivot.wtk.Label;
 import org.apache.pivot.wtk.ListButton;
 import org.apache.pivot.wtk.ListButtonSelectionListener;
 import org.apache.pivot.wtk.ListView;
-import org.apache.pivot.wtk.MessageType;
 import org.apache.pivot.wtk.PushButton;
 import org.apache.pivot.wtk.Rollup;
 import org.apache.pivot.wtk.Sheet;
@@ -193,13 +191,12 @@ public class PlannerWindow extends Window implements Bindable {
 
                     @Override
                     public void executeFailed(Task<ScheduleModel> task) {
-                        log.error("Error during solution", task.getFault());
+                        wlog.error("Error during solution", task.getFault());
                         solveButton.setEnabled(true);
                         terminateButton.setEnabled(false);
                         scoreLabel.setText(task.getFault().toString());
                         scoreChangedTimer.cancel();
                         scoreChangeLabel.setText("");
-                        Alert.alert(MessageType.ERROR, task.getFault().getMessage(), PlannerWindow.this);
                     }
                 };
                 // TaskAdapter forwards task events to the UI thread
@@ -614,9 +611,8 @@ public class PlannerWindow extends Window implements Bindable {
                         try {
                             processFile(f);
                         } catch (Exception ex) {
-                            log.error("Error reading data file", ex);
-                            String message = String.format("%s. Perhaps this is not a %s data file?", ex.getMessage(), fileType);
-                            Alert.alert(MessageType.ERROR, message, PlannerWindow.this);
+                            String message = String.format("Is this a valid %s data file? Reading failed due to", fileType);
+                            wlog.error(message, ex);
                         }
                     }
                 }
@@ -724,8 +720,7 @@ public class PlannerWindow extends Window implements Bindable {
                         new ScheduleWriter(solver.getTournament()).write(os);
                         log.info("Schedule written to '{}'", f.getAbsolutePath());
                     } catch (RuntimeException | IOException ex) {
-                        log.error("Error writing schedule file", ex);
-                        Alert.alert(MessageType.ERROR, ex.getMessage(), PlannerWindow.this);
+                        wlog.error("Error writing schedule file", ex);
                     }
                 }
             }
@@ -757,8 +752,7 @@ public class PlannerWindow extends Window implements Bindable {
                         pdf.printRounds();
                         log.info("Written PDFs with timestamp '{}'.", time);
                     } catch (DocumentException | IOException ex) {
-                        log.error("Error while exporting PDFs", ex);
-                        Alert.alert(MessageType.ERROR, ex.getMessage(), PlannerWindow.this);
+                        wlog.error("Error while exporting PDFs", ex);
                     }
                 }
             }
@@ -800,8 +794,7 @@ public class PlannerWindow extends Window implements Bindable {
             factory.readDataFromClasspath("/org/iypt/planner/csv/", "team_data.csv", "jury_data.csv", "bias_IYPT2012.csv", "schedule2012.csv");
             setTournament(factory.newTournament());
         } catch (Exception ex) {
-            log.error("Failed to load example", ex);
-            Alert.alert(MessageType.ERROR, "Failed to load example: " + ex.getMessage(), PlannerWindow.this);
+            wlog.error("Failed to load example", ex);
         }
     }
 }
