@@ -537,8 +537,7 @@ public class PlannerWindow extends Window implements Bindable {
 
         @Override
         public void executeFailed(Task<TournamentSolver> task) {
-            log.error("Error during solution", task.getFault());
-            Alert.alert(MessageType.ERROR, task.getFault().getMessage(), PlannerWindow.this);
+            wlog.error("Failed to create solver", task.getFault());
             listeners.solverCreated(false);
         }
     }

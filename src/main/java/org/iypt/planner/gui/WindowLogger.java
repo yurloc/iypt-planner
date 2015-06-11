@@ -23,7 +23,7 @@ public class WindowLogger {
 
     public void error(String string, Throwable thrwbl) {
         delegate.error(string, thrwbl);
-        Alert.alert(MessageType.ERROR, format("%s: %s", string, thrwbl), window);
+        Alert.alert(MessageType.ERROR, format("%s: %s", string, thrwbl.getMessage()), window);
     }
 
     void info(String string) {
