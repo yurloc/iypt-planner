@@ -23,7 +23,6 @@ import org.drools.planner.config.SolverFactory;
 import org.drools.planner.config.XmlSolverFactory;
 import org.drools.planner.core.Solver;
 import org.drools.planner.core.event.SolverEventListener;
-import org.drools.planner.core.score.Score;
 import org.drools.planner.core.score.constraint.ConstraintOccurrence;
 import org.drools.planner.core.score.constraint.ConstraintType;
 import org.drools.planner.core.score.constraint.IntConstraintOccurrence;
@@ -38,6 +37,7 @@ import org.iypt.planner.domain.Lock;
 import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Seat;
 import org.iypt.planner.domain.Tournament;
+import org.iypt.planner.gui.Constraint;
 import org.iypt.planner.gui.JurorAssignment;
 import org.iypt.planner.gui.JurorInfo;
 import org.iypt.planner.gui.ScheduleModel;
@@ -57,7 +57,6 @@ public class TournamentSolver {
     private Tournament tournament;
     private WeightConfig weightConfig;
     private List<ConstraintOccurrence> constraintRules;
-    private List<ConstraintOccurrence> constraintOccurences;
     private SolverFactory solverFactory;
     private EnvironmentMode environmentMode;
     private Solver solver;
@@ -132,14 +131,6 @@ public class TournamentSolver {
         return Collections.unmodifiableList(constraintRules);
     }
 
-    public Score<?> getScore() {
-        return tournament.getScore();
-    }
-
-    public List<ConstraintOccurrence> getConstraintOccurences() {
-        return Collections.unmodifiableList(constraintOccurences);
-    }
-
     public void setEnvironmentMode(String mode) {
         environmentMode = EnvironmentMode.valueOf(mode);
     }
@@ -195,14 +186,20 @@ public class TournamentSolver {
             loadMap.put(load.getJuror(), load);
         }
 
-        // collect constraint occurences
-        it = workingMemory.iterateObjects(new ClassObjectFilter(ConstraintOccurrence.class));
-        constraintOccurences = new ArrayList<>();
-        while (it.hasNext()) {
-            constraintOccurences.add((ConstraintOccurrence) it.next());
+        // prepare ConstraintOccurence map (constraint rule -> occurences)
+        HashMap<String, List<Constraint>> coMap = new HashMap<>();
+        for (ConstraintOccurrence constraintId : constraintRules) {
+            coMap.put(constraintId.getRuleId(), new ArrayList<Constraint>());
         }
 
-        return new ScheduleModel(this, conflictMap, loadMap);
+        // collect constraint occurences
+        it = workingMemory.iterateObjects(new ClassObjectFilter(ConstraintOccurrence.class));
+        while (it.hasNext()) {
+            ConstraintOccurrence co = (ConstraintOccurrence) it.next();
+            coMap.get(co.getRuleId()).add(new Constraint(co));
+        }
+
+        return new ScheduleModel(tournament, coMap, conflictMap, loadMap);
     }
 
     public boolean isSolving() {

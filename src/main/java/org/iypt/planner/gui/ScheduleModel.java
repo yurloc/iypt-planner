@@ -1,6 +1,7 @@
 package org.iypt.planner.gui;
 
 import com.neovisionaries.i18n.CountryCode;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.pivot.collections.ArrayList;
@@ -11,23 +12,30 @@ import org.iypt.planner.domain.JurorLoad;
 import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Seat;
 import org.iypt.planner.domain.Tournament;
-import org.iypt.planner.solver.TournamentSolver;
 
 public class ScheduleModel {
 
-    private final Map<Juror, java.util.List<JurorAssignment>> jurorAssignmentMap = new HashMap<>();
+    // static
+    private final String score;
+    private final Map<String, java.util.List<Constraint>> coMap;
     private final Map<Juror, java.util.List<CountryCode>> conflictMap;
     private final Map<Juror, JurorLoad> loadMap;
+    // needs to be computed
+    private final Map<Juror, java.util.List<JurorAssignment>> jurorAssignmentMap = new HashMap<>();
     private final List<RoundModel> rounds;
 
-    public ScheduleModel(TournamentSolver solver, Map<Juror, java.util.List<CountryCode>> conflictMap, Map<Juror, JurorLoad> loadMap) {
+    public ScheduleModel(Tournament tournament,
+            Map<String, java.util.List<Constraint>> coMap,
+            Map<Juror, java.util.List<CountryCode>> conflictMap,
+            Map<Juror, JurorLoad> loadMap) {
+        this.score = tournament.getScore().toString();
+        this.coMap = coMap;
         this.conflictMap = conflictMap;
         this.loadMap = loadMap;
-        Tournament tournament = solver.getTournament();
 
         rounds = new ArrayList<>();
-        for (Round round : solver.getTournament().getRounds()) {
-            RoundModel roundModel = new RoundModel(solver, round);
+        for (Round round : tournament.getRounds()) {
+            RoundModel roundModel = new RoundModel(tournament, round);
             rounds.add(roundModel);
 
             for (Juror juror : tournament.getJurors()) {
@@ -76,5 +84,13 @@ public class ScheduleModel {
 
     public JurorInfo getJurorInfo(Juror juror) {
         return new JurorInfo(juror, conflictMap.get(juror), jurorAssignmentMap.get(juror), loadMap.get(juror));
+    }
+
+    public String getScore() {
+        return score;
+    }
+
+    public Map<String, java.util.List<Constraint>> getConstraintOccurences() {
+        return Collections.unmodifiableMap(coMap);
     }
 }

@@ -12,15 +12,14 @@ import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map.Entry;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.pivot.beans.BXML;
 import org.apache.pivot.beans.BXMLSerializer;
 import org.apache.pivot.beans.Bindable;
 import org.apache.pivot.collections.ArrayList;
-import org.apache.pivot.collections.List;
 import org.apache.pivot.collections.Map;
+import org.apache.pivot.collections.adapter.ListAdapter;
 import org.apache.pivot.serialization.SerializationException;
 import org.apache.pivot.util.Filter;
 import org.apache.pivot.util.ListenerList;
@@ -54,7 +53,6 @@ import org.apache.pivot.wtk.Window;
 import org.apache.pivot.wtk.content.ListItem;
 import org.drools.planner.core.event.BestSolutionChangedEvent;
 import org.drools.planner.core.event.SolverEventListener;
-import org.drools.planner.core.score.constraint.ConstraintOccurrence;
 import org.iypt.planner.Constants;
 import org.iypt.planner.csv.CSVTournamentFactory;
 import org.iypt.planner.csv.ScheduleWriter;
@@ -331,10 +329,9 @@ public class PlannerWindow extends Window implements Bindable {
         solutionChanged(sm);
     }
 
-    // TODO doesn't need to be synchronized, it's always run on the UI thread
-    synchronized void solutionChanged(ScheduleModel sm) {
+    void solutionChanged(ScheduleModel sm) {
         // show score
-        scoreLabel.setText(solver.getScore().toString());
+        scoreLabel.setText(sm.getScore());
         // reset timer
         if (scoreChangedTimer != null) {
             scoreChangedTimer.cancel();
@@ -360,20 +357,12 @@ public class PlannerWindow extends Window implements Bindable {
 
         // refresh constraints
         constraintsBoxPane.removeAll();
-        HashMap<String, List<Constraint>> map = new HashMap<>();
-        for (ConstraintOccurrence constraintId : solver.getConstraints()) {
-            map.put(constraintId.getRuleId(), new ArrayList<Constraint>());
-        }
 
-        for (ConstraintOccurrence co : solver.getConstraintOccurences()) {
-            map.get(co.getRuleId()).add(new Constraint(co));
-        }
-
-        for (Entry<String, List<Constraint>> entry : map.entrySet()) {
+        for (Entry<String, java.util.List<Constraint>> entry : sm.getConstraintOccurences().entrySet()) {
             String coId = entry.getKey();
-            List<Constraint> coList = entry.getValue();
+            java.util.List<Constraint> coList = entry.getValue();
             String type = "";
-            if (coList.getLength() > 0) {
+            if (coList.size()> 0) {
                 type = coList.get(0).getType().toLowerCase();
             }
             int total = 0;
@@ -382,7 +371,7 @@ public class PlannerWindow extends Window implements Bindable {
             }
             Rollup rollup = new Rollup(false);
             constraintsBoxPane.add(rollup);
-            Label heading = new Label(String.format("%s (%d/%d%s)", coId, coList.getLength(), total, type));
+            Label heading = new Label(String.format("%s (%d/%d%s)", coId, coList.size(), total, type));
             rollup.setHeading(heading);
             if (coList.isEmpty()) {
                 rollup.setEnabled(false);
@@ -399,14 +388,15 @@ public class PlannerWindow extends Window implements Bindable {
             tableView.getColumns().add(new TableView.Column("name", null, -1, false));
             tableView.getColumns().add(new TableView.Column("weight", null, -1, false));
 
-            coList.setComparator(new Comparator<Constraint>() {
+            ListAdapter<Constraint> pivotCoList = new ListAdapter<>(coList);
+            pivotCoList.setComparator(new Comparator<Constraint>() {
                 @Override
                 public int compare(Constraint o1, Constraint o2) {
                     // sort by weight descending
                     return o2.getIntWeight() - o1.getIntWeight();
                 }
             });
-            tableView.setTableData(coList);
+            tableView.setTableData(pivotCoList);
             tableView.getTableViewSelectionListeners().add(new TableViewSelectionListener.Adapter() {
                 @Override
                 public void selectedRowChanged(TableView tableView, Object previousSelectedRow) {

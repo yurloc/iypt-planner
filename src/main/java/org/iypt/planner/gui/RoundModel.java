@@ -7,7 +7,7 @@ import org.iypt.planner.domain.Group;
 import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Seat;
 import org.iypt.planner.domain.Team;
-import org.iypt.planner.solver.TournamentSolver;
+import org.iypt.planner.domain.Tournament;
 
 public class RoundModel {
 
@@ -17,9 +17,9 @@ public class RoundModel {
     private List<SeatInfo> idle;
     private List<SeatInfo> away;
 
-    public RoundModel(TournamentSolver solver, Round round) {
+    public RoundModel(Tournament tournament, Round round) {
         this.round = round;
-        locked = solver.getTournament().isLocked(round);
+        locked = tournament.isLocked(round);
         rooms = new ArrayList<>();
         for (Group group : round.getGroups()) {
             ArrayList<CountryCode> teams = new ArrayList<>();
@@ -27,9 +27,9 @@ public class RoundModel {
                 teams.add(team.getCountry());
             }
             ArrayList<SeatInfo> seats = new ArrayList<>();
-            for (Seat seat : solver.getTournament().getSeats(group.getJury())) {
+            for (Seat seat : tournament.getSeats(group.getJury())) {
                 SeatInfo seatInfo = SeatInfo.newInstance(seat);
-                if (solver.getTournament().isLocked(seat)) {
+                if (tournament.isLocked(seat)) {
                     seatInfo.lock();
                 }
                 seats.add(seatInfo);
