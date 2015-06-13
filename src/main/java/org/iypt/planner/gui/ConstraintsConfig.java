@@ -1,14 +1,12 @@
 package org.iypt.planner.gui;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import org.apache.pivot.util.ListenerList;
 import org.apache.pivot.wtk.Container;
 import org.drools.planner.core.score.constraint.ConstraintOccurrence;
 import org.drools.planner.core.score.constraint.ConstraintType;
-import org.drools.planner.core.score.constraint.IntConstraintOccurrence;
 import org.iypt.planner.solver.TournamentSolver;
 import org.iypt.planner.solver.WeightConfig;
 
@@ -22,36 +20,30 @@ import org.iypt.planner.solver.WeightConfig;
  */
 public class ConstraintsConfig extends Container {
 
-    public WeightConfig getWeightConfig() {
-        return weightConfig;
-    }
-
     protected final class Constraint {
 
-        private ConstraintOccurrence co;
+        private final String name;
+        private final boolean hard;
 
-        public Constraint(String name, ConstraintType type) {
-            co = new IntConstraintOccurrence(name, type);
-        }
-
-        private Constraint(ConstraintOccurrence co) {
-            this.co = co;
+        public Constraint(String name, boolean hard) {
+            this.name = name;
+            this.hard = hard;
         }
 
         public String getName() {
-            return co.getRuleId();
+            return name;
         }
 
-        public int getWeight() {
-            return weightConfig.getWeight(getName());
-        }
-
-        public ConstraintType getType() {
-            return co.getConstraintType();
+        public boolean isHard() {
+            return hard;
         }
 
         public void setWeight(int weight) {
             weightConfig.setWeight(getName(), weight);
+        }
+
+        public int getWeight() {
+            return weightConfig.getWeight(getName());
         }
     }
 
@@ -65,43 +57,25 @@ public class ConstraintsConfig extends Container {
             }
         }
     }
-    private TournamentSolver solver;
+    private final ConstraintsConfigListenerList constraintsConfigListeners = new ConstraintsConfigListenerList();
     private WeightConfig weightConfig;
     private List<Constraint> constraints = new ArrayList<>();
-    private ConstraintsConfigListenerList constraintsConfigListeners = new ConstraintsConfigListenerList();
 
     public ConstraintsConfig() {
         setSkin(new ConstraintsConfigSkin());
     }
 
-    public ConstraintsConfig(WeightConfig weightConfig) {
-        this.weightConfig = weightConfig;
-        setSkin(new ConstraintsConfigSkin());
-    }
-
     public void setSolver(TournamentSolver solver) {
-        this.solver = solver;
-        this.weightConfig = solver.getWeightConfig();
-        addConstraints(solver.getConstraints());
-    }
-
-    public void setWconfig(WeightConfig weightConfig) {
-        this.weightConfig = weightConfig;
-    }
-
-    public void addConstraints(ConstraintOccurrence... constraints) {
-        addConstraints(Arrays.asList(constraints));
-    }
-
-    public void addConstraints(Collection<ConstraintOccurrence> constraints) {
-        for (ConstraintOccurrence co : constraints) {
-            this.constraints.add(new Constraint(co));
+        weightConfig = solver.getWeightConfig();
+        constraints = new ArrayList<>();
+        for (ConstraintOccurrence co : solver.getConstraints()) {
+            constraints.add(new Constraint(co.getRuleId(), co.getConstraintType() == ConstraintType.NEGATIVE_HARD));
         }
         constraintsConfigListeners.constraintsChanged(this);
     }
 
     protected List<Constraint> getConstraints() {
-        return constraints;
+        return Collections.unmodifiableList(constraints);
     }
 
     public ListenerList<ConstraintsConfigListener> getConstraintsConfigListeners() {

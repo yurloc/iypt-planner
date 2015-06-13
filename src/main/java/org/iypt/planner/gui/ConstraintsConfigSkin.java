@@ -14,7 +14,6 @@ import org.apache.pivot.wtk.TextInput;
 import org.apache.pivot.wtk.TextInputContentListener;
 import org.apache.pivot.wtk.skin.ContainerSkin;
 import org.apache.pivot.wtk.validation.Validator;
-import org.drools.planner.core.score.constraint.ConstraintType;
 import org.iypt.planner.gui.ConstraintsConfig.Constraint;
 
 /**
@@ -79,7 +78,7 @@ public class ConstraintsConfigSkin extends ContainerSkin implements ConstraintsC
             Label label = new Label(constraint.getName());
             row.add(label);
 
-            if (constraint.getType() == ConstraintType.NEGATIVE_HARD) {
+            if (constraint.isHard()) {
                 label.getStyles().put("color", Color.RED.darker());
                 Label wLabel = new Label("--");
                 wLabel.getStyles().put("horizontalAlignment", "center");
