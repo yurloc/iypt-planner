@@ -84,7 +84,6 @@ public class TournamentDetailsSkin extends ContainerSkin implements TournamentDe
     public void tournamentChanged() {
         TournamentDetails details = (TournamentDetails) getComponent();
         totalJurorsLabel.setText(details.getTotalJurors());
-        juryCapacitySpinner.setSelectedItem(details.getJuryCapacity());
         totalSeatsLabel.setText(details.getTotalSeats());
         totalMandaysLabel.setText(details.getTotalMandays());
         optimalLoadLabel.setText(details.getOptimalLoad());

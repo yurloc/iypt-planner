@@ -51,7 +51,6 @@ public class CSVTournamentFactory {
     private List<Absence> absences;
     private List<Conflict> conflicts;
     private Map<Jury, List<Juror>> juries;
-    private int juryCapacity = 0;
     private Tournament tournament;
 
     private static class Source {
@@ -317,26 +316,11 @@ public class CSVTournamentFactory {
         juries = new HashMap<>();
 
         int ln = 1;
-        boolean capacitySet = false;
 
         List<String> line;
         while ((line = src.reader.read()) != null) {
             if (ignore(line)) {
                 continue;
-            }
-
-            // set jury capacity
-            if (!capacitySet) {
-                int capacity = line.size() - 2;
-                if (line.get(line.size() - 1) == null) {
-                    // don't break the capacity with trailing ';'
-                    LOG.trace("Ignoring trailing '{}' in {}[{}:{}]",
-                            new Object[]{(char) PREFERENCE.getDelimiterChar(), src.name, ln, line.size() - 1});
-                    capacity--;
-                }
-                LOG.debug("Inferred jury capacity: {}.", capacity);
-                juryCapacity = capacity;
-                capacitySet = true;
             }
 
             // get round number
@@ -358,6 +342,20 @@ public class CSVTournamentFactory {
             if (round == null) {
                 throwIOE("Cannot find round with number", line.get(0), src.name, ln, 0);
             }
+            assert round != null;
+
+            // set jury size
+            if (round.getJurySize() <= 0) {
+                int jurySize = line.size() - 2;
+                if (line.get(line.size() - 1) == null) {
+                    // don't break the jury size with trailing ';'
+                    LOG.trace("Ignoring trailing '{}' in {}[{}:{}]",
+                            new Object[]{(char) PREFERENCE.getDelimiterChar(), src.name, ln, line.size() - 1});
+                    jurySize--;
+                }
+                LOG.debug("{} jury size: {}.", round, jurySize);
+                round.setJurySize(jurySize);
+            }
 
             // get group
             String groupName = getGroupName(line.get(1));
@@ -373,7 +371,7 @@ public class CSVTournamentFactory {
 
             List<Juror> jurorList = new ArrayList<>();
             juries.put(jury, jurorList);
-            for (int i = 0; i < juryCapacity; i++) {
+            for (int i = 0; i < round.getJurySize(); i++) {
                 String name = line.get(i + 2);
                 Juror juror = jurors.get(name);
                 if (juror == null) {
@@ -516,10 +514,6 @@ public class CSVTournamentFactory {
             }
         }
 
-        if (juryCapacity > 0) {
-            tournament.setJuryCapacity(juryCapacity);
-        }
-
         if (juries != null) {
             // compare the number of juries coming from team data to number of juries in jury schedule
             int size = tournament.getJuries().size();
@@ -531,7 +525,7 @@ public class CSVTournamentFactory {
                 List<Juror> scheduledJury = juries.get(jury);
                 // don't fail if only partial jury schedule is provided
                 if (scheduledJury != null) {
-                    for (int i = 0; i < juryCapacity; i++) {
+                    for (int i = 0; i < jury.getGroup().getRound().getJurySize(); i++) {
                         Seat seat = tournament.getSeats(jury).get(i);
                         seat.setJuror(scheduledJury.get(i));
                     }

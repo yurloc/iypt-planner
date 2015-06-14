@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
  */
 public class Tournament implements Solution<HardAndSoftScore> {
 
-    public static final int DEFAULT_CAPACITY = 5;
     private static final Logger log = LoggerFactory.getLogger(Tournament.class);
     private HardAndSoftScore score;
     // planning entity
@@ -44,7 +43,6 @@ public class Tournament implements Solution<HardAndSoftScore> {
     private List<Lock> locks;
     private Tournament original = null;
 
-    private int juryCapacity = DEFAULT_CAPACITY;
     private Statistics stats;
     private Map<Round, List<Absence>> absencesPerRoundMap;
     private Map<Juror, List<Absence>> absencesPerJurorMap;
@@ -119,7 +117,6 @@ public class Tournament implements Solution<HardAndSoftScore> {
         clone.stats = stats;
         clone.config = config;
         clone.original = original;
-        clone.juryCapacity = juryCapacity;
 
         // deep-clone the planning entity
         for (Seat seat : seats) {
@@ -148,12 +145,19 @@ public class Tournament implements Solution<HardAndSoftScore> {
 
     public List<Seat> getSeats(Jury jury) {
         // XXX relying on the fixed order of juries and seats (note: cloned tournament must preserve the order!)
-        int start = juries.indexOf(jury) * juryCapacity;
-        return seats.subList(start, start + juryCapacity);
+        int start = 0;
+        for (Round round : rounds) {
+            if (round.getNumber() < jury.getGroup().getRound().getNumber()) {
+                start += round.getJurySize() * round.getGroups().size();
+            }
+        }
+        // TODO seats organization needs improvement!
+        start += jury.getGroup().getRound().getGroups().indexOf(jury.getGroup()) * jury.getGroup().getRound().getJurySize();
+        return seats.subList(start, start + jury.getGroup().getRound().getJurySize());
     }
 
     private List<Seat> getSeats(Round round) {
-        int rSize = round.getGroups().size() * juryCapacity;
+        int rSize = round.getGroups().size() * round.getJurySize();
         return seats.subList((round.getNumber() - 1) * rSize, round.getNumber() * rSize);
     }
 
@@ -173,6 +177,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
     //
     private double calculateOptimalLoad() {
         if (jurors.size() > 0 && rounds.size() > 0 && absences.size() != jurors.size() * rounds.size()) {
+            // TODO minus number of inexperienced jurors!
             return ((double) seats.size()) / (jurors.size() * rounds.size() - absences.size());
         }
         return 0.0;
@@ -203,7 +208,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
                 total++;
             }
             if (total > 0) {
-                round.setOptimalIndependentCount(i / total * juryCapacity);
+                round.setOptimalIndependentCount(i / total * round.getJurySize());
             }
         }
     }
@@ -236,6 +241,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
                     inexperienced++;
                 }
             }
+            assert absencesPerRoundMap.get(round) != null;
             int availableJurors = jurors.size() - absencesPerRoundMap.get(round).size() - inexperienced;
             round.setMaxJurySize(availableJurors / round.getGroups().size());
         }
@@ -273,7 +279,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
                 Jury jury = g.getJury();
                 juries.add(jury);
 
-                for (int i = 0; i < juryCapacity; i++) {
+                for (int i = 0; i < r.getJurySize(); i++) {
                     Seat seat = new Seat(jury, i, null);
                     seats.add(seat);
                 }
@@ -426,56 +432,56 @@ public class Tournament implements Solution<HardAndSoftScore> {
         return locked.removeAll(getSeats(round));
     }
 
-    //-------------------------------------------------------------------------
-    // Capacity
-    //-------------------------------------------------------------------------
-    //
-    public int getJuryCapacity() {
-        return juryCapacity;
-    }
-
     /**
-     * Changes jury capacity for this tournament. It can be set anytime and does the following:
+     * Change jury size of the given round. It does the following:
      * <ul>
-     * <li>If the tournament has no rounds (and juries) yet, the capacity will be effective when they are added.</li>
      * <li>If juries have already been created, number of seats (planning entities returned by {@link #getSeats()}) will be
      * adjusted.</li>
-     * <li>If the capacity increases, empty seats will be added and existing ones will not be touched.</li>
-     * <li>If the capacity decreases, the redundant seats will be removed while, again, the rest will be preserved.</li>
+     * <li>If the size increases, empty seats will be added and existing ones will not be touched.</li>
+     * <li>If the size decreases, the redundant seats will be removed while, again, the rest will be preserved.</li>
      * </ul>
      *
-     * @param newCapacity number of jurors in each jury
+     * @param round round whose jury size should be changed
+     * @param newSize number of jurors in each jury
      * @return <code>true</code> if the number of seats has changed
      */
-    public boolean setJuryCapacity(int newCapacity) {
-        if (newCapacity < 1) {
-            throw new IllegalArgumentException("Capacity must be positive, got: " + newCapacity);
+    public boolean changeJurySize(Round round, int newSize) {
+        if (round == null) {
+            throw new IllegalArgumentException("Argument 'round' must not be null");
+        }
+        if (!rounds.contains(round)) {
+            throw new IllegalArgumentException(round + " has not yet been added");
+        }
+        if (newSize < 1) {
+            throw new IllegalArgumentException("Size must be positive, got: " + newSize);
         }
 
         // no change
-        if (juryCapacity == newCapacity) {
+        if (round.getJurySize() == newSize) {
             return false;
         }
 
         // nothing to update
         if (juries.isEmpty()) {
-            juryCapacity = newCapacity;
+            round.setJurySize(newSize);
             return false;
         }
 
-        ArrayList<Seat> newSeats = new ArrayList<>(newCapacity * juries.size());
+        ArrayList<Seat> newSeats = new ArrayList<>(seats.size());
         for (Jury jury : juries) {
-            // copy old seats up to min{old capacity, new capacity}
-            int fromIndex = juries.indexOf(jury) * juryCapacity;
-            int toIndex = fromIndex + Math.min(juryCapacity, newCapacity);
-            newSeats.addAll(seats.subList(fromIndex, toIndex));
-            // add empty seats (if the capacity was increased)
-            for (int i = juryCapacity; i < newCapacity; i++) {
-                newSeats.add(new Seat(jury, i, null));
+            if (jury.getGroup().getRound().equals(round)) {
+                // copy old seats up to min{old size, new size}
+                newSeats.addAll(getSeats(jury).subList(0, Math.min(round.getJurySize(), newSize)));
+                // add empty seats (if the size was increased)
+                for (int i = round.getJurySize(); i < newSize; i++) {
+                    newSeats.add(new Seat(jury, i, null));
+                }
+            } else {
+                newSeats.addAll(getSeats(jury));
             }
         }
         seats = newSeats;
-        juryCapacity = newCapacity;
+        round.setJurySize(newSize);
         stats.setOptimalLoad(calculateOptimalLoad());
         calculateIndependentRatio();
         return true;
@@ -490,7 +496,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
      */
     public boolean isFeasibleSolutionPossible() {
         for (Round r : rounds) {
-            int jurorsNeeded = r.getGroups().size() * juryCapacity;
+            int jurorsNeeded = r.getGroups().size() * r.getJurySize();
             int jurorsAvailable = jurors.size() - getAbsencesPerRound(r);
             if (jurorsNeeded > jurorsAvailable) {
                 return false;

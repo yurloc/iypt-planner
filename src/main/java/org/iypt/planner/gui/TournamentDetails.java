@@ -63,13 +63,6 @@ public class TournamentDetails extends Container {
         return Integer.toString(tournament.getJurors().size());
     }
 
-    public int getJuryCapacity() {
-        if (tournament == null) {
-            return 1;
-        }
-        return tournament.getJuryCapacity();
-    }
-
     public String getTotalSeats() {
         if (tournament == null) {
             return "";

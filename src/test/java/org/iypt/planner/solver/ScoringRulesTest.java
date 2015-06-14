@@ -140,14 +140,17 @@ public class ScoringRulesTest {
     @Test
     public void testMultiSeat() {
         Tournament t = new Tournament();
-        t.setJuryCapacity(2);
-        t.addRounds(RoundFactory.createRound(1, tA, tB, tC, tD, tE, tF));
+        Round r1 = RoundFactory.createRound(1, tA, tB, tC, tD, tE, tF);
+        r1.setJurySize(2);
+        t.addRounds(r1);
         t.addJurors(jG1, jH1, jI1);
 
         assignJurors(t, jG1, jG1, jH1, jI1);
         checkSolution(t, false, ScoringRule.multipleSeatsInRound, 1);
 
-        t.addRounds(RoundFactory.createRound(2, tA, tB, tC, tD, tE, tF));
+        Round r2 = RoundFactory.createRound(2, tA, tB, tC, tD, tE, tF);
+        r2.setJurySize(2);
+        t.addRounds(r2);
         assignJurors(t, jG1, jG1, jH1, jI1, jH1, jG1, jI1, jG1);
         checkSolution(t, false, ScoringRule.multipleSeatsInRound, 2);
     }
@@ -155,8 +158,9 @@ public class ScoringRulesTest {
     @Test
     public void testEmptySeat() {
         Tournament t = new Tournament();
-        t.setJuryCapacity(3);
-        t.addRounds(RoundFactory.createRound(1, tA, tB, tC));
+        Round r1 = RoundFactory.createRound(1, tA, tB, tC);
+        r1.setJurySize(3);
+        t.addRounds(r1);
         t.addJurors(jD1);
 
         // detecting 'null' jurors was intentionally dropped from scoring rules since uninitialized entities are not inserted
@@ -168,11 +172,13 @@ public class ScoringRulesTest {
     @Test
     public void testInexperiencedVoting() {
         Tournament t = new Tournament();
-        t.setJuryCapacity(2);
         Round r1 = RoundFactory.createRound(1, tA, tB, tC);
-        t.addRounds(r1);
-        t.addRounds(RoundFactory.createRound(2, tD, tE, tF));
-        t.addRounds(RoundFactory.createRound(3, tG, tH, tI));
+        Round r2 = RoundFactory.createRound(2, tD, tE, tF);
+        Round r3 = RoundFactory.createRound(3, tG, tH, tI);
+        r1.setJurySize(2);
+        r2.setJurySize(2);
+        r3.setJurySize(2);
+        t.addRounds(r1, r2, r3);
         t.addJurors(jM1, jM2, jM7);
 
         assignJurors(t, jM1, jM7, jM1, jM7, jM1, jM7);
@@ -189,8 +195,9 @@ public class ScoringRulesTest {
     @Test
     public void testTeamAndJurorSameCountry() {
         Tournament t = new Tournament();
-        t.setJuryCapacity(1);
-        t.addRounds(RoundFactory.createRound(1, tA, tB, tC));
+        Round r1 = RoundFactory.createRound(1, tA, tB, tC);
+        r1.setJurySize(1);
+        t.addRounds(r1);
         t.addJurors(jA1, jD1);
 
         // simple country conflict
@@ -198,7 +205,7 @@ public class ScoringRulesTest {
         checkSolution(t, false, ScoringRule.teamAndJurorSameCountry, 1);
 
         // add another juror with multiple conflicts
-        t.setJuryCapacity(2);
+        t.changeJurySize(r1, 2);
         assignJurors(t, jA1, jD1);
         t.addConflicts(
                 new Conflict(jD1, tB.getCountry()),
@@ -210,8 +217,8 @@ public class ScoringRulesTest {
     @Test
     public void testAbsenceRule() {
         Round r1 = RoundFactory.createRound(1, tA, tB, tC);
+        r1.setJurySize(1);
         Tournament t = new Tournament();
-        t.setJuryCapacity(1);
         t.addRounds(r1);
         t.addJurors(jD1);
 
@@ -223,8 +230,8 @@ public class ScoringRulesTest {
     @Test
     public void testBrokenLock() {
         Round r1 = RoundFactory.createRound(1, tA, tB, tC);
+        r1.setJurySize(2);
         Tournament t = new Tournament();
-        t.setJuryCapacity(2);
         t.addRounds(r1);
         t.addJurors(jD1, jE1, jF1);
 
@@ -237,8 +244,9 @@ public class ScoringRulesTest {
     @Test
     public void testInvalidChair() {
         Tournament t = new Tournament();
-        t.setJuryCapacity(2);
-        t.addRounds(RoundFactory.createRound(1, tA, tB, tC, tD, tE, tF));
+        Round r1 = RoundFactory.createRound(1, tA, tB, tC, tD, tE, tF);
+        r1.setJurySize(2);
+        t.addRounds(r1);
         t.addJurors(jA1, jA2, jD1, jD2);
 
         // invalid chair
@@ -257,11 +265,15 @@ public class ScoringRulesTest {
     @Test
     public void testTeamAndChairMeetOften() {
         Tournament t = new Tournament();
-        t.setJuryCapacity(2);
-        t.addRounds(RoundFactory.createRound(1, tA, tB, tC));
-        t.addRounds(RoundFactory.createRound(2, tA, tD, tE));
-        t.addRounds(RoundFactory.createRound(3, tA, tB, tC));
-        t.addRounds(RoundFactory.createRound(4, tA, tD, tE));
+        Round r1 = RoundFactory.createRound(1, tA, tB, tC);
+        Round r2 = RoundFactory.createRound(2, tA, tD, tE);
+        Round r3 = RoundFactory.createRound(3, tA, tB, tC);
+        Round r4 = RoundFactory.createRound(4, tA, tD, tE);
+        r1.setJurySize(2);
+        r2.setJurySize(2);
+        r3.setJurySize(2);
+        r4.setJurySize(2);
+        t.addRounds(r1, r2, r3, r4);
         t.addJurors(jM1, jM2, jM3, jN1);
 
         assignJurors(t, jM1, jM2, jM1, jM2, jM1, jM2, jM1, jM3);
@@ -276,11 +288,15 @@ public class ScoringRulesTest {
     @Test
     public void testTeamAndChairMeetTwice() {
         Tournament t = new Tournament();
-        t.setJuryCapacity(2);
-        t.addRounds(RoundFactory.createRound(1, tA, tB, tD));
-        t.addRounds(RoundFactory.createRound(2, tA, tC, tE));
-        t.addRounds(RoundFactory.createRound(3, tA, tB, tE));
-        t.addRounds(RoundFactory.createRound(4, tA, tC, tD));
+        Round r1 = RoundFactory.createRound(1, tA, tB, tD);
+        Round r2 = RoundFactory.createRound(2, tA, tC, tE);
+        Round r3 = RoundFactory.createRound(3, tA, tB, tE);
+        Round r4 = RoundFactory.createRound(4, tA, tC, tD);
+        r1.setJurySize(2);
+        r2.setJurySize(2);
+        r3.setJurySize(2);
+        r4.setJurySize(2);
+        t.addRounds(r1, r2, r3, r4);
         t.addJurors(jM1, jM2, jM3, jN1);
 
         assignJurors(t, jM1, jM2, jM1, jM2, jN1, jM3, jN1, jM3);
@@ -290,9 +306,11 @@ public class ScoringRulesTest {
     @Test
     public void testTeamAndJurorAlreadyMet() {
         Tournament t = new Tournament();
-        t.setJuryCapacity(2);
-        t.addRounds(RoundFactory.createRound(1, tA, tB, tC, tD, tE, tF));
-        t.addRounds(RoundFactory.createRound(2, tA, tE, tF, tB, tC, tD));
+        Round r1 = RoundFactory.createRound(1, tA, tB, tC, tD, tE, tF);
+        Round r2 = RoundFactory.createRound(2, tA, tE, tF, tB, tC, tD);
+        r1.setJurySize(2);
+        r2.setJurySize(2);
+        t.addRounds(r1, r2);
         t.addJurors(jJ1, jK1, jL1, jM1, jM2, jM3);
 
         assignJurors(t, jJ1, jM2, jK1, jM3, jL1, jM3, jM1, jM2);
@@ -302,12 +320,17 @@ public class ScoringRulesTest {
     @Test
     public void testJurorBalance() {
         Tournament t = new Tournament();
-        t.setJuryCapacity(2);
-        t.addRounds(RoundFactory.createRound(1, tA, tB, tC));
-        t.addRounds(RoundFactory.createRound(2, tA, tD, tE));
-        t.addRounds(RoundFactory.createRound(3, tA, tB, tC));
-        t.addRounds(RoundFactory.createRound(4, tA, tD, tE));
-        t.addRounds(RoundFactory.createRound(5, tA, tB, tC));
+        Round r1 = RoundFactory.createRound(1, tA, tB, tC);
+        Round r2 = RoundFactory.createRound(2, tA, tD, tE);
+        Round r3 = RoundFactory.createRound(3, tA, tB, tC);
+        Round r4 = RoundFactory.createRound(4, tA, tD, tE);
+        Round r5 = RoundFactory.createRound(5, tA, tB, tC);
+        r1.setJurySize(2);
+        r2.setJurySize(2);
+        r3.setJurySize(2);
+        r4.setJurySize(2);
+        r5.setJurySize(2);
+        t.addRounds(r1, r2, r3, r4, r5);
         t.addJurors(jI1, jJ1, jK1, jL1, jM1); // chairs
         t.addJurors(jM2, jM3, jM4);
         assertThat(t.getStatistics().getOptimalLoad()).isEqualTo(2.0 / 8, offset(Double.MIN_VALUE));
@@ -323,8 +346,9 @@ public class ScoringRulesTest {
     @Test
     public void testJurorAndJurorConflict() {
         Tournament t = new Tournament();
-        t.setJuryCapacity(3);
-        t.addRounds(RoundFactory.createRound(1, tA, tB, tC, tD, tE, tF));
+        Round r1 = RoundFactory.createRound(1, tA, tB, tC, tD, tE, tF);
+        r1.setJurySize(3);
+        t.addRounds(r1);
         t.addJurors(jK1, jL1, jM1, jM2, jM3, jN1, jN2, jN3, jN4);
 
         assignJurors(t, jM1, jN1, jM2, jK1, jL1, jM3);
@@ -342,8 +366,8 @@ public class ScoringRulesTest {
     @Test
     public void testIndependentBalance() {
         Tournament t = new Tournament();
-        t.setJuryCapacity(4);
         Round r1 = RoundFactory.createRound(1, tA, tB, tC);
+        r1.setJurySize(4);
         t.addRounds(r1);
         // 0.6 independent jurors
         t.addJurors(jI1, jI2, jI3, jI4, jI5, jI6, jT1, jT2, jT3, jT4);
@@ -359,6 +383,7 @@ public class ScoringRulesTest {
 
         // two rounds and absences
         Round r2 = RoundFactory.createRound(2, tC, tB, tA);
+        r2.setJurySize(4);
         t.addRounds(r2);
         t.addAbsences(new Absence(jT1, r1));
         t.addAbsences(new Absence(jI1, r2), new Absence(jI2, r2), new Absence(jI3, r2));
@@ -373,9 +398,10 @@ public class ScoringRulesTest {
     @Test
     public void testJurorMeetsBigGroupOften() {
         Tournament t = new Tournament();
-        t.setJuryCapacity(2);
         Round r1 = RoundFactory.createRound(1, tA, tB, tC, tD, tE, tF, tG);
         Round r2 = RoundFactory.createRound(2, tE, tF, tG, tH, tA, tB, tC);
+        r1.setJurySize(2);
+        r2.setJurySize(2);
         t.addRounds(r1, r2);
         t.addJurors(jI1, jI2, jM1, jM2);
         assignJurors(t, jI1, jI2, jM1, jM2, jM1, jI2, jI1, jM2);
@@ -385,9 +411,10 @@ public class ScoringRulesTest {
     @Test
     public void testPenalizeChairChange() {
         Tournament tOld = new Tournament();
-        tOld.setJuryCapacity(1);
         Round r1 = RoundFactory.createRound(1, tA, tB, tC);
         Round r2 = RoundFactory.createRound(2, tD, tE, tF);
+        r1.setJurySize(1);
+        r2.setJurySize(1);
         tOld.addRounds(r1, r2);
         tOld.addJurors(jK1, jL1, jM1, jN1);
         assignJurors(tOld, jK1, jL1);
@@ -410,8 +437,8 @@ public class ScoringRulesTest {
     @Test
     public void testPenalizeJurorChange() {
         Tournament tOld = new Tournament();
-        tOld.setJuryCapacity(3);
         Round r1 = RoundFactory.createRound(1, gABC, gDEF);
+        r1.setJurySize(3);
         tOld.addRounds(r1);
         tOld.addJurors(jL1, jM1, jM2, jM3, jN1, jN2, jN3);
         assignJurors(tOld, jM1, jM2, jM3, jN1, jN2, jL1);
@@ -446,9 +473,10 @@ public class ScoringRulesTest {
     @Test
     public void testPenalizeJurorWithdraw() {
         Tournament tOld = new Tournament();
-        tOld.setJuryCapacity(2);
         Round r1 = RoundFactory.createRound(1, gABC, gDEF);
         Round r2 = RoundFactory.createRound(2, gADG, gBEH);
+        r1.setJurySize(2);
+        r2.setJurySize(2);
         tOld.addRounds(r1, r2);
         tOld.addJurors(jM1, jM2, jM3, jN1, jN2, jN3);
         assignJurors(tOld, jM1, jM2, jN1, jN2, jM1, jM2, jN1, jN2);

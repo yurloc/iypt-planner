@@ -32,8 +32,9 @@ public class ScheduleWriterTest {
     public static void setUp() throws IOException {
         Round r1 = RoundFactory.createRound(1, gABC, gDEF);
         Round r2 = RoundFactory.createRound(2, gABC, gDEF);
+        r1.setJurySize(3);
+        r2.setJurySize(3);
         tournament = new Tournament();
-        tournament.setJuryCapacity(3);
         tournament.addRounds(r1, r2);
         List<Juror> jurors = Arrays.asList(jA1, jA2, jB2, jB2, jC1, jC2, jD1, jD2);
         tournament.addJurors(jurors);
@@ -106,8 +107,9 @@ public class ScheduleWriterTest {
     @Test
     public void testNullJuror() throws IOException {
         Tournament t = new Tournament();
-        t.setJuryCapacity(2);
-        t.addRounds(RoundFactory.createRound(1, gABC));
+        Round round = RoundFactory.createRound(1, gABC);
+        round.setJurySize(2);
+        t.addRounds(round);
         // writer should not fail to write null jurors
         StringWriter sw = new StringWriter();
         ScheduleWriter writer = new ScheduleWriter(t);

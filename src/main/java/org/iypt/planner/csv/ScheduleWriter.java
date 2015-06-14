@@ -31,7 +31,7 @@ public class ScheduleWriter {
             // for each group
             for (Round round : tournament.getRounds()) {
                 for (Group group : round.getGroups()) {
-                    List<Object> data = new ArrayList<>(tournament.getJuryCapacity() + 2);
+                    List<Object> data = new ArrayList<>(round.getJurySize() + 2);
                     // append round number and group name
                     data.add(round.getNumber());
                     data.add("Group " + group.getName());

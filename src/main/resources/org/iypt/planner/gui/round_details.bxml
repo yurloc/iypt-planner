@@ -24,6 +24,11 @@
         <Label bxml:id="maxJurySizeLabel"/>
       </TablePane.Row>
 
+      <TablePane.Row>
+        <Label text="Jury size:"/>
+        <Spinner bxml:id="jurySizeSpinner"/>
+      </TablePane.Row>
+
     </TablePane>
   </TablePane.Row>
 

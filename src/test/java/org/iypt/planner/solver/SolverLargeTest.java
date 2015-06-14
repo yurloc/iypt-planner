@@ -34,8 +34,12 @@ public class SolverLargeTest extends AbstractSolverTest {
         Round r3 = RoundFactory.createRound(3, t20, t15, t01, t23, t18, t04, t02, t21, t07, t05, t24, t10, t08, t03, t13, t11, t06, t16, t14, t09, t19, t17, t12, t22);
         Round r4 = RoundFactory.createRound(4, t09, t01, t17, t12, t04, t20, t15, t07, t23, t18, t10, t02, t21, t13, t05, t24, t16, t08, t03, t19, t11, t06, t22, t14);
         Round r5 = RoundFactory.createRound(5, t14, t24, t01, t17, t03, t04, t20, t06, t07, t23, t09, t10, t02, t12, t13, t05, t15, t16, t08, t18, t19, t11, t21, t22);
+        r1.setJurySize(4);
+        r2.setJurySize(4);
+        r3.setJurySize(4);
+        r4.setJurySize(4);
+        r5.setJurySize(4);
         Tournament t = new Tournament();
-        t.setJuryCapacity(4);
         t.addRounds(r1, r2, r3, r4, r5);
 
         t.addJurors(jA1, jA2, jA3, jA4, jA5, jA6);

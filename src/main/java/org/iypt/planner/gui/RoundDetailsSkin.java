@@ -10,9 +10,11 @@ import org.apache.pivot.wtk.Component;
 import org.apache.pivot.wtk.ComponentStateListener;
 import org.apache.pivot.wtk.Dimensions;
 import org.apache.pivot.wtk.Label;
+import org.apache.pivot.wtk.Spinner;
 import org.apache.pivot.wtk.TablePane;
 import org.apache.pivot.wtk.TableView;
 import org.apache.pivot.wtk.TableViewSelectionListener;
+import org.apache.pivot.wtk.content.NumericSpinnerData;
 import org.apache.pivot.wtk.skin.ContainerSkin;
 
 public class RoundDetailsSkin extends ContainerSkin implements RoundDetailsListener {
@@ -20,6 +22,7 @@ public class RoundDetailsSkin extends ContainerSkin implements RoundDetailsListe
     private TablePane content;
     @BXML private Label optimalIndependentLabel;
     @BXML private Label maxJurySizeLabel;
+    @BXML private Spinner jurySizeSpinner;
     @BXML private Label idleLabel;
     @BXML private Label awayLabel;
     @BXML private TableView idleTableView;
@@ -105,7 +108,10 @@ public class RoundDetailsSkin extends ContainerSkin implements RoundDetailsListe
     public void roundChanged() {
         RoundDetails details = (RoundDetails) getComponent();
         optimalIndependentLabel.setText(details.getOptimalIndependentCount());
-        maxJurySizeLabel.setText(details.getMaxJurySize());
+        maxJurySizeLabel.setText(String.valueOf(details.getMaxJurySize()));
+        jurySizeSpinner.setEnabled(details.hasData());
+        jurySizeSpinner.setSpinnerData(new NumericSpinnerData(1, details.getMaxJurySize(), 1));
+        jurySizeSpinner.setSelectedIndex(details.getJurySize() - 1);
         List<SeatInfo> idle = new ListAdapter<>(details.getIdle());
         List<SeatInfo> away = new ListAdapter<>(details.getAway());
         idleLabel.setText(String.format("Idle (%d)", idle.getLength()));

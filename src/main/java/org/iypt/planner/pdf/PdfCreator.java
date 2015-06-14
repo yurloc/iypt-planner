@@ -153,7 +153,7 @@ public class PdfCreator {
         }
 
         // Jurors
-        int rows = t.getJuryCapacity();
+        int rows = r.getJurySize();
         for (int i = 0; i < rows; i++) {
             List<String> juryRow = new ArrayList<>();
             for (Group g : r.getGroups()) {

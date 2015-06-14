@@ -44,6 +44,10 @@ public class RoundDetails extends Container {
         listeners.roundChanged();
     }
 
+    public boolean hasData() {
+        return round != null;
+    }
+
     public String getOptimalIndependentCount() {
         if (round == null) {
             return "";
@@ -51,11 +55,18 @@ public class RoundDetails extends Container {
         return String.format("%.4f", round.getRound().getOptimalIndependentCount());
     }
 
-    public String getMaxJurySize() {
+    public int getMaxJurySize() {
         if (round == null) {
-            return "";
+            return 2;
         }
-        return String.valueOf(round.getRound().getMaxJurySize());
+        return round.getRound().getMaxJurySize();
+    }
+
+    public int getJurySize() {
+        if (round == null) {
+            return 1;
+        }
+        return round.getRound().getJurySize();
     }
 
     public List<SeatInfo> getIdle() {

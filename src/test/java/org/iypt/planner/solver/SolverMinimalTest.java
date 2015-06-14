@@ -32,8 +32,10 @@ public class SolverMinimalTest extends AbstractSolverTest {
         Round r1 = RoundFactory.createRound(1, gABC, gDEF, gGHI);
         Round r2 = RoundFactory.createRound(2, gADG, gBEH, gCFI);
         Round r3 = RoundFactory.createRound(3, gAFH, gBDI, gCEG);
+        r1.setJurySize(6);
+        r2.setJurySize(6);
+        r3.setJurySize(6);
         Tournament t = new Tournament();
-        t.setJuryCapacity(6);
         t.addRounds(r1, r2, r3);
 
         t.addJurors(jA1, jA2, jA3, jA4, jA5, jA6);

@@ -276,12 +276,8 @@ public class TournamentSolver {
         return tournament.getRounds().get(roundNumber);
     }
 
-    public int getJuryCapacity() {
-        return tournament.getJuryCapacity();
-    }
-
     public ScheduleModel changeJuryCapacity(Integer capacity) {
-        tournament.setJuryCapacity(capacity);
+        tournament.changeJurySize(null, capacity);
         return updateDetails();
     }
 

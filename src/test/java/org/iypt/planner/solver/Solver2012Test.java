@@ -22,7 +22,6 @@ public class Solver2012Test extends AbstractSolverTest {
         CSVTournamentFactory factory = new CSVTournamentFactory();
         factory.readDataFromClasspath("/org/iypt/planner/csv/", "team_data.csv", "jury_data.csv");
         tournament = factory.newTournament();
-        tournament.setJuryCapacity(6);
     }
 
     @Test
