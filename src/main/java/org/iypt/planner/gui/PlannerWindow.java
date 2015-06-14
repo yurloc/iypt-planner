@@ -320,7 +320,8 @@ public class PlannerWindow extends Window implements Bindable {
         tournamentChanged(scheduleModel);
         solutionChanged(scheduleModel);
         updateRoundDetails(scheduleModel.getRounds().get(0));
-        log.info("Tournament loaded\n{}", tournament.toDisplayString());
+        log.info("Tournament loaded");
+        log.debug("{}", tournament.toDisplayString());
     }
 
     private void changeCapacity(int capacity) {
