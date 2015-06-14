@@ -1,7 +1,7 @@
 package org.iypt.planner.gui;
 
 import com.neovisionaries.i18n.CountryCode;
-import org.apache.pivot.collections.List;
+import java.util.List;
 
 public class Room {
 

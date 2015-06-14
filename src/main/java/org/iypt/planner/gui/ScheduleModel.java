@@ -1,11 +1,11 @@
 package org.iypt.planner.gui;
 
 import com.neovisionaries.i18n.CountryCode;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import org.apache.pivot.collections.ArrayList;
-import org.apache.pivot.collections.List;
 import org.iypt.planner.domain.Absence;
 import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.JurorLoad;

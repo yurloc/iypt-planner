@@ -1,6 +1,6 @@
 package org.iypt.planner.gui;
 
-import org.apache.pivot.collections.List;
+import java.util.List;
 import org.apache.pivot.wtk.BoxPane;
 import org.apache.pivot.wtk.Button;
 import org.apache.pivot.wtk.ButtonPressListener;
@@ -50,7 +50,7 @@ public class TournamentScheduleSkin extends ContainerSkin implements TournamentS
 
         // initialize round views (dynamic controls)
         List<RoundModel> rounds = schedule.getRounds();
-        views = new RoundView[rounds.getLength()];
+        views = new RoundView[rounds.size()];
         for (int i = 0; i < views.length; i++) {
             RoundView roundView = new RoundView(rounds.get(i));
             views[i] = roundView;

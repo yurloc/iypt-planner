@@ -1,8 +1,8 @@
 package org.iypt.planner.gui;
 
 import com.neovisionaries.i18n.CountryCode;
-import org.apache.pivot.collections.ArrayList;
-import org.apache.pivot.collections.List;
+import java.util.ArrayList;
+import java.util.List;
 import org.iypt.planner.domain.Group;
 import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Seat;

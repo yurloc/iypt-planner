@@ -1,6 +1,6 @@
 package org.iypt.planner.gui;
 
-import org.apache.pivot.collections.List;
+import java.util.List;
 import org.apache.pivot.wtk.BoxPane;
 import org.apache.pivot.wtk.Component;
 import org.apache.pivot.wtk.Dimensions;
@@ -30,7 +30,7 @@ public class RoundViewSkin extends ContainerSkin implements RoundViewListener {
 
         // initialize group views
         List<Room> rooms = round.getRooms();
-        roomViews = new RoomView[rooms.getLength()];
+        roomViews = new RoomView[rooms.size()];
         for (int i = 0; i < roomViews.length; i++) {
             Room room = rooms.get(i);
             RoomView view = new RoomView(room);

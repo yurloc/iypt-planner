@@ -1,7 +1,7 @@
 package org.iypt.planner.gui;
 
-import org.apache.pivot.collections.ArrayList;
-import org.apache.pivot.collections.List;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.pivot.util.ListenerList;
 import org.apache.pivot.wtk.Container;
 

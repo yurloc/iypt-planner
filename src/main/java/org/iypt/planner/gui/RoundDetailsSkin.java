@@ -4,6 +4,7 @@ import java.io.IOException;
 import org.apache.pivot.beans.BXML;
 import org.apache.pivot.beans.BXMLSerializer;
 import org.apache.pivot.collections.List;
+import org.apache.pivot.collections.adapter.ListAdapter;
 import org.apache.pivot.serialization.SerializationException;
 import org.apache.pivot.wtk.Component;
 import org.apache.pivot.wtk.ComponentStateListener;
@@ -103,8 +104,8 @@ public class RoundDetailsSkin extends ContainerSkin implements RoundDetailsListe
     public void roundChanged() {
         RoundDetails details = (RoundDetails) getComponent();
         optimalIndependentLabel.setText(details.getOptimalIndependentCount());
-        List<SeatInfo> idle = details.getIdle();
-        List<SeatInfo> away = details.getAway();
+        List<SeatInfo> idle = new ListAdapter<>(details.getIdle());
+        List<SeatInfo> away = new ListAdapter<>(details.getAway());
         idleLabel.setText(String.format("Idle (%d)", idle.getLength()));
         awayLabel.setText(String.format("Away (%d)", away.getLength()));
         idleTableView.setTableData(idle);

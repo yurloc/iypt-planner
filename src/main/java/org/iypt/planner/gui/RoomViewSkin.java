@@ -4,6 +4,7 @@ import com.neovisionaries.i18n.CountryCode;
 import java.io.IOException;
 import org.apache.pivot.beans.BXML;
 import org.apache.pivot.beans.BXMLSerializer;
+import org.apache.pivot.collections.adapter.ListAdapter;
 import org.apache.pivot.serialization.SerializationException;
 import org.apache.pivot.wtk.Action;
 import org.apache.pivot.wtk.BoxPane;
@@ -151,11 +152,11 @@ public class RoomViewSkin extends ContainerSkin implements RoomViewListener {
             teamsBoxPane.add(teamFlag);
         }
 
-        if (juryTableView.getTableData().getLength() != room.getSeats().getLength()) {
+        if (juryTableView.getTableData().getLength() != room.getSeats().size()) {
             preferredSize = null;
         }
 
-        juryTableView.setTableData(room.getSeats());
+        juryTableView.setTableData(new ListAdapter<>(room.getSeats()));
         juryTableView.setEnabled(!room.isLocked());
     }
 
