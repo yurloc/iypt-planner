@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.iypt.planner.domain.Absence;
-import org.iypt.planner.domain.Conflict;
 import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.JurorType;
 import org.iypt.planner.domain.Tournament;
@@ -20,19 +19,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TournamentUtils {
 
     private Tournament t;
-    private Map<Juror, List<CountryCode>> conflictMap = new HashMap<>();
     private Map<Juror, List<Integer>> absenceMap = new HashMap<>();
 
     public TournamentUtils(Tournament t) {
         this.t = t;
-
-        for (Conflict conflict : t.getConflicts()) {
-            Juror j = conflict.getJuror();
-            if (!conflictMap.containsKey(j)) {
-                conflictMap.put(j, new ArrayList<CountryCode>(2));
-            }
-            conflictMap.get(j).add(conflict.getCountry());
-        }
 
         for (Absence absence : t.getAbsences()) {
             Juror j = absence.getJuror();
@@ -41,10 +31,6 @@ public class TournamentUtils {
             }
             absenceMap.get(j).add(absence.getRound().getNumber());
         }
-    }
-
-    public List<CountryCode> getConflicts(Juror j) {
-        return conflictMap.get(j);
     }
 
     public Juror getJuror(int round, int group, int seat) {
@@ -63,7 +49,7 @@ public class TournamentUtils {
         }
         verifyJuror(juror, fullName, type, chair);
         assertThat(juror.getCountry()).isEqualTo(countries[0]);
-        assertThat(getConflicts(juror)).containsExactly(countries);
+        assertThat(t.getConflicts(juror)).extracting("country").containsExactly((Object[]) countries);
 
     }
 

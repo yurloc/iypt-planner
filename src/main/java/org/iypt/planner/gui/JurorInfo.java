@@ -1,7 +1,7 @@
 package org.iypt.planner.gui;
 
-import com.neovisionaries.i18n.CountryCode;
 import java.util.List;
+import org.iypt.planner.domain.Conflict;
 import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.JurorLoad;
 
@@ -13,11 +13,11 @@ import org.iypt.planner.domain.JurorLoad;
 public class JurorInfo {
 
     private final Juror juror;
-    private final List<CountryCode> conflicts;
+    private final List<Conflict> conflicts;
     private final List<JurorAssignment> schedule;
     private final JurorLoad load;
 
-    public JurorInfo(Juror juror, List<CountryCode> conflicts, List<JurorAssignment> schedule, JurorLoad load) {
+    public JurorInfo(Juror juror, List<Conflict> conflicts, List<JurorAssignment> schedule, JurorLoad load) {
         this.juror = juror;
         this.conflicts = conflicts;
         this.schedule = schedule;
@@ -28,7 +28,7 @@ public class JurorInfo {
         return juror;
     }
 
-    public List<CountryCode> getConflicts() {
+    public List<Conflict> getConflicts() {
         return conflicts;
     }
 

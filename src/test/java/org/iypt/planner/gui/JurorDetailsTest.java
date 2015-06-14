@@ -1,8 +1,8 @@
 package org.iypt.planner.gui;
 
-import com.neovisionaries.i18n.CountryCode;
 import java.util.Arrays;
 import java.util.Collections;
+import org.iypt.planner.domain.Conflict;
 import org.iypt.planner.domain.JurorLoad;
 import org.iypt.planner.domain.SampleFacts;
 import org.junit.Before;
@@ -35,7 +35,7 @@ public class JurorDetailsTest {
         assignment = new JurorAssignment(round, SampleFacts.gABC);
         info = new JurorInfo(
                 SampleFacts.jA1,
-                Collections.<CountryCode>emptyList(),
+                Collections.<Conflict>emptyList(),
                 Arrays.asList(assignment),
                 new JurorLoad(SampleFacts.jA1, 1, 5, 0, 1)
         );

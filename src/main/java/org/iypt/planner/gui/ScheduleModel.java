@@ -1,6 +1,5 @@
 package org.iypt.planner.gui;
 
-import com.neovisionaries.i18n.CountryCode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -15,22 +14,17 @@ import org.iypt.planner.domain.Tournament;
 
 public class ScheduleModel {
 
-    // static
     private final Tournament tournament;
-    private final Map<String, java.util.List<Constraint>> coMap;
-    private final Map<Juror, java.util.List<CountryCode>> conflictMap;
-    private final Map<Juror, JurorLoad> loadMap;
-    // needs to be computed
-    private final Map<Juror, java.util.List<JurorAssignment>> jurorAssignmentMap = new HashMap<>();
     private final List<RoundModel> rounds;
+    private final Map<String, java.util.List<Constraint>> coMap;
+    private final Map<Juror, JurorLoad> loadMap;
+    private final Map<Juror, java.util.List<JurorAssignment>> jurorAssignmentMap = new HashMap<>();
 
     public ScheduleModel(Tournament tournament,
             Map<String, java.util.List<Constraint>> coMap,
-            Map<Juror, java.util.List<CountryCode>> conflictMap,
             Map<Juror, JurorLoad> loadMap) {
         this.tournament = tournament;
         this.coMap = coMap;
-        this.conflictMap = conflictMap;
         this.loadMap = loadMap;
 
         rounds = new ArrayList<>();
@@ -87,7 +81,7 @@ public class ScheduleModel {
     }
 
     public JurorInfo getJurorInfo(Juror juror) {
-        return new JurorInfo(juror, conflictMap.get(juror), jurorAssignmentMap.get(juror), loadMap.get(juror));
+        return new JurorInfo(juror, tournament.getConflicts(juror), jurorAssignmentMap.get(juror), loadMap.get(juror));
     }
 
     public Map<String, java.util.List<Constraint>> getConstraintOccurences() {

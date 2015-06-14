@@ -27,6 +27,7 @@ import org.apache.pivot.wtk.TablePane;
 import org.apache.pivot.wtk.content.ListItem;
 import org.apache.pivot.wtk.content.ListViewItemRenderer;
 import org.apache.pivot.wtk.skin.ContainerSkin;
+import org.iypt.planner.domain.Conflict;
 import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.JurorLoad;
 import org.iypt.planner.domain.JurorType;
@@ -137,7 +138,8 @@ class JurorDetailsSkin extends ContainerSkin implements JurorDetailsListener {
         // full name
         fullNameLabel.setText(juror.fullName());
         conflictsBoxPane.removeAll();
-        for (CountryCode cc : jurorInfo.getConflicts()) {
+        for (Conflict conflict : jurorInfo.getConflicts()) {
+            CountryCode cc = conflict.getCountry();
             ImageView flag = new ImageView(Images.getFlag(cc));
             flag.setTooltipText(CountryCodeIO.getShortName(cc));
             flag.setTooltipDelay(200);

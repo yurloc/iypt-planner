@@ -1,6 +1,5 @@
 package org.iypt.planner.solver;
 
-import com.neovisionaries.i18n.CountryCode;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,7 +29,6 @@ import org.drools.planner.core.score.constraint.UnweightedConstraintOccurrence;
 import org.drools.planner.core.score.director.ScoreDirector;
 import org.drools.planner.core.score.director.drools.DroolsScoreDirector;
 import org.iypt.planner.domain.Absence;
-import org.iypt.planner.domain.Conflict;
 import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.JurorLoad;
 import org.iypt.planner.domain.Lock;
@@ -161,18 +159,6 @@ public class TournamentSolver {
 
     // TODO refactor me, duplicating some code from Tournament.toDisplayString()
     private ScheduleModel updateDetails() {
-        // collect conflicts per juror
-        Map<Juror, List<CountryCode>> conflictMap = new HashMap<>();
-        for (Conflict conflict : tournament.getConflicts()) {
-            List<CountryCode> ccList = conflictMap.get(conflict.getJuror());
-            if (ccList == null) {
-                // most jurors have exactly 1 conflict country
-                ccList = new ArrayList<>(1);
-                conflictMap.put(conflict.getJuror(), ccList);
-            }
-            ccList.add(conflict.getCountry());
-        }
-
         scoreDirector.setWorkingSolution(tournament);
         scoreDirector.calculateScore();
         WorkingMemory workingMemory = ((DroolsScoreDirector) scoreDirector).getWorkingMemory();
@@ -199,7 +185,7 @@ public class TournamentSolver {
             coMap.get(co.getRuleId()).add(new Constraint(co));
         }
 
-        return new ScheduleModel(tournament, coMap, conflictMap, loadMap);
+        return new ScheduleModel(tournament, coMap, loadMap);
     }
 
     public boolean isSolving() {

@@ -40,6 +40,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
     private List<Juror> jurors;
     private List<Absence> absences;
     private List<Conflict> conflicts;
+    private Map<Juror, List<Conflict>> conflictMap;
     private List<Lock> locks;
     private Tournament original = null;
 
@@ -64,6 +65,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
         absencesPerRoundMap = new HashMap<>();
         absencesPerJurorMap = new HashMap<>();
         conflicts = new ArrayList<>();
+        conflictMap = new HashMap<>();
         stats = new Statistics();
     }
 
@@ -111,6 +113,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
         clone.absences = absences;
         clone.absencesPerRoundMap = absencesPerRoundMap;
         clone.absencesPerJurorMap = absencesPerJurorMap;
+        clone.conflictMap = conflictMap;
         clone.conflicts = conflicts;
         clone.locks = locks;
         clone.stats = stats;
@@ -277,6 +280,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
     public void setJurors(Collection<Juror> jurors) {
         this.jurors.clear();
         this.absencesPerJurorMap.clear();
+        this.conflictMap.clear();
         addJurors(jurors);
     }
 
@@ -287,7 +291,11 @@ public class Tournament implements Solution<HardAndSoftScore> {
     public void addJurors(Collection<Juror> jurors) {
         for (Juror juror : jurors) {
             this.jurors.add(juror);
-            this.conflicts.add(new Conflict(juror, juror.getCountry()));
+            Conflict conflict = new Conflict(juror, juror.getCountry());
+            conflicts.add(conflict);
+            List<Conflict> jurorConflicts = new ArrayList<>(1);
+            jurorConflicts.add(conflict);
+            this.conflictMap.put(juror, jurorConflicts);
             this.absencesPerJurorMap.put(juror, new ArrayList<Absence>());
         }
         stats.setOptimalLoad(calculateOptimalLoad());
@@ -493,12 +501,19 @@ public class Tournament implements Solution<HardAndSoftScore> {
         return Collections.unmodifiableList(conflicts);
     }
 
+    public List<Conflict> getConflicts(Juror juror) {
+        return conflictMap.get(juror);
+    }
+
     public void addConflicts(Conflict... conflicts) {
         addConflicts(Arrays.asList(conflicts));
     }
 
     public void addConflicts(List<Conflict> conflicts) {
         this.conflicts.addAll(conflicts);
+        for (Conflict conflict : conflicts) {
+            conflictMap.get(conflict.getJuror()).add(conflict);
+        }
     }
 
     public Statistics getStatistics() {
