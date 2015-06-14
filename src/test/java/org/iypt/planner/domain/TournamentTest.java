@@ -1,5 +1,6 @@
 package org.iypt.planner.domain;
 
+import com.neovisionaries.i18n.CountryCode;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -333,6 +334,11 @@ public class TournamentTest {
         Round r3 = new Round(3);
         Round r4 = new Round(4);
         Round r5 = new Round(5);
+        r1.addGroups(gABC);
+        r2.addGroups(gABC);
+        r3.addGroups(gABC);
+        r4.addGroups(gABC);
+        r5.addGroups(gABC);
         t.addRounds(r1, r2, r3, r4, r5);
         t.addJurors(jA1, jA2, jA3);
         t.addAbsences(new Absence(jA1, r2), new Absence(jA2, r4));
@@ -341,6 +347,21 @@ public class TournamentTest {
         assertThat(jA1.getFirstAvailable()).isEqualTo(1);
         assertThat(jA2.getFirstAvailable()).isEqualTo(2);
         assertThat(jA3.getFirstAvailable()).isEqualTo(5);
+    }
+
+    @Test
+    public void testMaxJurySize() {
+        Tournament t = new Tournament();
+        Round r1 = new Round(1);
+        Round r2 = new Round(2);
+        r1.addGroups(gABC, gABC);
+        r2.addGroups(gABC, gABC);
+        t.addRounds(r1, r2);
+        Juror inexperienced = new Juror("No", "Exp", CountryCode.CZ, JurorType.INDEPENDENT, false, false);
+        t.addJurors(jA1, jA2, jA3, inexperienced);
+        t.addAbsences(new Absence(jA1, r1));
+        assertThat(r1.getMaxJurySize()).isEqualTo(1);
+        assertThat(r2.getMaxJurySize()).isEqualTo(2);
     }
 
     private void testClone(Tournament t) {

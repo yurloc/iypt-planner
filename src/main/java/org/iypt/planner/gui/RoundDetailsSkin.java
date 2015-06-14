@@ -19,6 +19,7 @@ public class RoundDetailsSkin extends ContainerSkin implements RoundDetailsListe
 
     private TablePane content;
     @BXML private Label optimalIndependentLabel;
+    @BXML private Label maxJurySizeLabel;
     @BXML private Label idleLabel;
     @BXML private Label awayLabel;
     @BXML private TableView idleTableView;
@@ -104,6 +105,7 @@ public class RoundDetailsSkin extends ContainerSkin implements RoundDetailsListe
     public void roundChanged() {
         RoundDetails details = (RoundDetails) getComponent();
         optimalIndependentLabel.setText(details.getOptimalIndependentCount());
+        maxJurySizeLabel.setText(details.getMaxJurySize());
         List<SeatInfo> idle = new ListAdapter<>(details.getIdle());
         List<SeatInfo> away = new ListAdapter<>(details.getAway());
         idleLabel.setText(String.format("Idle (%d)", idle.getLength()));

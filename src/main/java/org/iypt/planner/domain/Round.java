@@ -12,6 +12,8 @@ public class Round {
     private final int number;
     private final List<Group> groups;
     private double iCount = 0;
+    private int jurySize;
+    private int maxJurySize;
 
     void setOptimalIndependentCount(double optimalCount) {
         iCount = optimalCount;
@@ -61,6 +63,22 @@ public class Round {
      */
     public List<Group> getGroups() {
         return groups;
+    }
+
+    public int getJurySize() {
+        return jurySize;
+    }
+
+    public void setJurySize(int jurySize) {
+        this.jurySize = jurySize;
+    }
+
+    public int getMaxJurySize() {
+        return maxJurySize;
+    }
+
+    public void setMaxJurySize(int maxJurySize) {
+        this.maxJurySize = maxJurySize;
     }
 
     @Override

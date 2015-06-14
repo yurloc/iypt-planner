@@ -51,6 +51,13 @@ public class RoundDetails extends Container {
         return String.format("%.4f", round.getRound().getOptimalIndependentCount());
     }
 
+    public String getMaxJurySize() {
+        if (round == null) {
+            return "";
+        }
+        return String.valueOf(round.getRound().getMaxJurySize());
+    }
+
     public List<SeatInfo> getIdle() {
         if (round == null) {
             return new ArrayList<>();

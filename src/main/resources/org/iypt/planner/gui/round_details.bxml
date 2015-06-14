@@ -13,6 +13,13 @@
     </BoxPane>
   </TablePane.Row>
 
+  <TablePane.Row height="-1">
+    <BoxPane orientation="horizontal">
+      <Label text="Max. jury size:"/>
+      <Label bxml:id="maxJurySizeLabel"/>
+    </BoxPane>
+  </TablePane.Row>
+
   <TablePane.Row height="1*">
     <ScrollPane
       horizontalScrollBarPolicy="fill"
