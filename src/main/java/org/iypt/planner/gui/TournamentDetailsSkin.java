@@ -7,8 +7,6 @@ import org.apache.pivot.serialization.SerializationException;
 import org.apache.pivot.wtk.Component;
 import org.apache.pivot.wtk.Dimensions;
 import org.apache.pivot.wtk.Label;
-import org.apache.pivot.wtk.Spinner;
-import org.apache.pivot.wtk.SpinnerSelectionListener;
 import org.apache.pivot.wtk.TablePane;
 import org.apache.pivot.wtk.skin.ContainerSkin;
 
@@ -16,7 +14,6 @@ public class TournamentDetailsSkin extends ContainerSkin implements TournamentDe
 
     private TablePane content;
     @BXML private Label totalJurorsLabel;
-    @BXML private Spinner juryCapacitySpinner;
     @BXML private Label totalSeatsLabel;
     @BXML private Label totalMandaysLabel;
     @BXML private Label optimalLoadLabel;
@@ -43,14 +40,6 @@ public class TournamentDetailsSkin extends ContainerSkin implements TournamentDe
         // initialize fields with elements from BXML
         bxmlSerializer.bind(this, TournamentDetailsSkin.class);
 
-        // register listeners
-        juryCapacitySpinner.getSpinnerSelectionListeners().add(new SpinnerSelectionListener.Adapter() {
-            @Override
-            public void selectedItemChanged(Spinner spinner, Object previousSelectedItem) {
-                details.setCapacity((Integer) spinner.getSelectedItem());
-            }
-        });
-
         tournamentChanged();
     }
 
@@ -76,21 +65,11 @@ public class TournamentDetailsSkin extends ContainerSkin implements TournamentDe
     }
 
     @Override
-    public void capacityChanged(int capacity) {
-        // do nothing
-    }
-
-    @Override
     public void tournamentChanged() {
         TournamentDetails details = (TournamentDetails) getComponent();
         totalJurorsLabel.setText(details.getTotalJurors());
         totalSeatsLabel.setText(details.getTotalSeats());
         totalMandaysLabel.setText(details.getTotalMandays());
         optimalLoadLabel.setText(details.getOptimalLoad());
-    }
-
-    @Override
-    public void enabledStateChanged() {
-        juryCapacitySpinner.setEnabled(getComponent().isEnabled());
     }
 }

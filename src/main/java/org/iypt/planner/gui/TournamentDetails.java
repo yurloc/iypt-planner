@@ -9,23 +9,9 @@ public class TournamentDetails extends Container {
     private static class TournamentDetailsListenerList extends ListenerList<TournamentDetailsListener> implements TournamentDetailsListener {
 
         @Override
-        public void capacityChanged(int capacity) {
-            for (TournamentDetailsListener listener : this) {
-                listener.capacityChanged(capacity);
-            }
-        }
-
-        @Override
         public void tournamentChanged() {
             for (TournamentDetailsListener listener : this) {
                 listener.tournamentChanged();
-            }
-        }
-
-        @Override
-        public void enabledStateChanged() {
-            for (TournamentDetailsListener listener : this) {
-                listener.enabledStateChanged();
             }
         }
     }
@@ -39,16 +25,6 @@ public class TournamentDetails extends Container {
 
     public ListenerList<TournamentDetailsListener> getListeners() {
         return listeners;
-    }
-
-    void setCapacity(int capacity) {
-        listeners.capacityChanged(capacity);
-    }
-
-    @Override
-    public void setEnabled(boolean enabled) {
-        super.setEnabled(enabled);
-        listeners.enabledStateChanged();
     }
 
     public void setData(Tournament tournament) {

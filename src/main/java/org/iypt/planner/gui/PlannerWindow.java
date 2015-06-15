@@ -247,10 +247,10 @@ public class PlannerWindow extends Window implements Bindable {
                 tournamentSchedule.selectRound(assignment.getRound());
             }
         });
-        tournamentDetails.getListeners().add(new TournamentDetailsListener.Adapter() {
+        roundDetails.getListeners().add(new RoundDetailsListener.Adapter() {
             @Override
-            public void capacityChanged(int capacity) {
-                changeCapacity(capacity);
+            public void jurySizeChanged(int newSize) {
+                changeJurySize(roundDetails.getData(), newSize);
             }
         });
         scoreChangeBox.setVisible(false);
@@ -324,11 +324,13 @@ public class PlannerWindow extends Window implements Bindable {
         log.debug("{}", tournament.toDisplayString());
     }
 
-    private void changeCapacity(int capacity) {
-        // TODO schedule the capacity change and apply it only when new solving starts
-        ScheduleModel sm = solver.changeJuryCapacity(capacity);
-        tournamentChanged(sm);
-        solutionChanged(sm);
+    private void changeJurySize(RoundModel round, int newSize) {
+        // TODO schedule the size change and apply it only when new solving starts
+        if (round.getRound().getJurySize() != newSize) {
+            ScheduleModel sm = solver.changeJurySize(round.getRound(), newSize);
+            tournamentChanged(sm);
+            solutionChanged(sm);
+        }
     }
 
     void solutionChanged(ScheduleModel sm) {
@@ -364,7 +366,7 @@ public class PlannerWindow extends Window implements Bindable {
             String coId = entry.getKey();
             java.util.List<Constraint> coList = entry.getValue();
             String type = "";
-            if (coList.size()> 0) {
+            if (coList.size() > 0) {
                 type = coList.get(0).getType().toLowerCase();
             }
             int total = 0;

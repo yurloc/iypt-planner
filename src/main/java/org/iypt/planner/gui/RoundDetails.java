@@ -17,6 +17,13 @@ public class RoundDetails extends Container {
         }
 
         @Override
+        public void jurySizeChanged(int newSize) {
+            for (RoundDetailsListener listener : this) {
+                listener.jurySizeChanged(newSize);
+            }
+        }
+
+        @Override
         public void seatSelected(SeatInfo seatInfo) {
             for (RoundDetailsListener listener : this) {
                 listener.seatSelected(seatInfo);
@@ -42,6 +49,14 @@ public class RoundDetails extends Container {
     public void setData(RoundModel round) {
         this.round = round;
         listeners.roundChanged();
+    }
+
+    public RoundModel getData() {
+        return round;
+    }
+
+    public void setJurySize(int size) {
+        listeners.jurySizeChanged(size);
     }
 
     public boolean hasData() {

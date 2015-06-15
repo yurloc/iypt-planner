@@ -11,6 +11,7 @@ import org.apache.pivot.wtk.ComponentStateListener;
 import org.apache.pivot.wtk.Dimensions;
 import org.apache.pivot.wtk.Label;
 import org.apache.pivot.wtk.Spinner;
+import org.apache.pivot.wtk.SpinnerSelectionListener;
 import org.apache.pivot.wtk.TablePane;
 import org.apache.pivot.wtk.TableView;
 import org.apache.pivot.wtk.TableViewSelectionListener;
@@ -51,6 +52,15 @@ public class RoundDetailsSkin extends ContainerSkin implements RoundDetailsListe
         bxmlSerializer.bind(this, RoundDetailsSkin.class);
 
         // register listeners
+        jurySizeSpinner.getSpinnerSelectionListeners().add(new SpinnerSelectionListener.Adapter() {
+            @Override
+            public void selectedItemChanged(Spinner spinner, Object previousSelectedItem) {
+                Object item = spinner.getSelectedItem();
+                if (item != null) {
+                    details.setJurySize((Integer) item);
+                }
+            }
+        });
         idleTableView.getTableViewSelectionListeners().add(new TableViewSelectionListener.Adapter() {
             @Override
             public void selectedRowChanged(TableView tableView, Object previousSelectedRow) {
@@ -122,6 +132,11 @@ public class RoundDetailsSkin extends ContainerSkin implements RoundDetailsListe
 
     @Override
     public void seatSelected(SeatInfo seatInfo) {
+        // do nothing
+    }
+
+    @Override
+    public void jurySizeChanged(int newSize) {
         // do nothing
     }
 }
