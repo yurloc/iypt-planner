@@ -228,7 +228,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
         }
     }
 
-    private void calculateMaxJurySize() {
+    private void calculateMaxJurySize(boolean setJurySizeToMax) {
         for (Round round : rounds) {
             if (round.getGroups().isEmpty()) {
                 throw new IllegalStateException(round + " has no groups");
@@ -242,6 +242,9 @@ public class Tournament implements Solution<HardAndSoftScore> {
             assert absencesPerRoundMap.get(round) != null;
             int availableJurors = jurors.size() - absencesPerRoundMap.get(round).size() - inexperienced;
             round.setMaxJurySize(availableJurors / round.getGroups().size());
+            if (setJurySizeToMax && round.getJurySize() == 0) {
+                changeJurySize(round, round.getMaxJurySize());
+            }
         }
     }
 
@@ -320,6 +323,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
         }
         stats.setOptimalLoad(calculateOptimalLoad());
         calculateIndependentRatio();
+        calculateMaxJurySize(false);
     }
 
     //-------------------------------------------------------------------------
@@ -365,7 +369,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
         stats.setOptimalLoad(calculateOptimalLoad());
         calculateIndependentRatio();
         calculateFirstAvailableRounds();
-        calculateMaxJurySize();
+        calculateMaxJurySize(true);
     }
 
     public void removeAbsences(List<Absence> absences) {
@@ -380,7 +384,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
         stats.setOptimalLoad(calculateOptimalLoad());
         calculateIndependentRatio();
         calculateFirstAvailableRounds();
-        calculateMaxJurySize();
+        calculateMaxJurySize(true);
     }
 
     public int getAbsencesPerRound(Round round) {
