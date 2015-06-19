@@ -11,7 +11,7 @@ import org.iypt.planner.solver.LockedSeatSelectionFilter;
  * @author jlocker
  */
 @PlanningEntity(movableEntitySelectionFilter = LockedSeatSelectionFilter.class)
-public class Seat {
+public class Seat implements Comparable<Seat> {
 
     // fixed
     private final Jury jury;
@@ -83,5 +83,13 @@ public class Seat {
     @Override
     public String toString() {
         return String.format("[Seat %s:%d]-[%s]", jury.coords(), position + 1, juror);
+    }
+
+    @Override
+    public int compareTo(Seat other) {
+        if (jury.equals(other.jury)) {
+            return position - other.position;
+        }
+        return jury.getGroup().compareTo(other.jury.getGroup());
     }
 }

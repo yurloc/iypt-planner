@@ -28,7 +28,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
     private static final Logger log = LoggerFactory.getLogger(Tournament.class);
     private HardAndSoftScore score;
     // planning entity
-    private List<Seat> seats;
+    private SortedSet<Seat> seats;
     private Set<Seat> locked;
     // facts
     private List<Round> rounds;
@@ -55,7 +55,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
         groups = new ArrayList<>();
         juries = new ArrayList<>();
         jurors = new ArrayList<>();
-        seats = new ArrayList<>();
+        seats = new TreeSet<>();
         locked = new HashSet<>();
         lockedRounds = new HashSet<>();
         absences = new ArrayList<>();
@@ -144,25 +144,23 @@ public class Tournament implements Solution<HardAndSoftScore> {
     }
 
     public List<Seat> getSeats(Jury jury) {
-        // XXX relying on the fixed order of juries and seats (note: cloned tournament must preserve the order!)
-        int start = 0;
-        for (Round round : rounds) {
-            if (round.getNumber() < jury.getGroup().getRound().getNumber()) {
-                start += round.getJurySize() * round.getGroups().size();
+        List<Seat> seatsInJury = new ArrayList<>();
+        for (Seat seat : seats) {
+            if (seat.getJury().equals(jury)) {
+                seatsInJury.add(seat);
             }
         }
-        // TODO seats organization needs improvement!
-        start += jury.getGroup().getRound().getGroups().indexOf(jury.getGroup()) * jury.getGroup().getRound().getJurySize();
-        return seats.subList(start, start + jury.getGroup().getRound().getJurySize());
+        return seatsInJury;
     }
 
     private List<Seat> getSeats(Round round) {
-        int rSize = round.getGroups().size() * round.getJurySize();
-        return seats.subList((round.getNumber() - 1) * rSize, round.getNumber() * rSize);
-    }
-
-    public void setSeats(List<Seat> seats) {
-        this.seats = new ArrayList<>(seats);
+        List<Seat> seatsInRound = new ArrayList<>();
+        for (Seat seat : seats) {
+            if (seat.getJury().getGroup().getRound().equals(round)) {
+                seatsInRound.add(seat);
+            }
+        }
+        return seatsInRound;
     }
 
     public void clear() {
@@ -467,7 +465,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
             return false;
         }
 
-        ArrayList<Seat> newSeats = new ArrayList<>(seats.size());
+        SortedSet<Seat> newSeats = new TreeSet<>();
         for (Jury jury : juries) {
             if (jury.getGroup().getRound().equals(round)) {
                 // copy old seats up to min{old size, new size}

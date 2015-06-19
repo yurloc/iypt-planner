@@ -7,7 +7,7 @@ import java.util.List;
  *
  * @author jlocker
  */
-public class Round {
+public class Round implements Comparable<Round> {
 
     private final int number;
     private final List<Group> groups;
@@ -108,4 +108,8 @@ public class Round {
         return true;
     }
 
+    @Override
+    public int compareTo(Round other) {
+        return number - other.number;
+    }
 }

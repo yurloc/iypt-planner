@@ -8,7 +8,7 @@ import java.util.List;
  *
  * @author jlocker
  */
-public final class Group {
+public final class Group implements Comparable<Group> {
 
     private String name;
     private List<Team> teams;
@@ -120,5 +120,13 @@ public final class Group {
      */
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public int compareTo(Group other) {
+        if (round.equals(other.round)) {
+            return name.compareTo(other.name);
+        }
+        return round.compareTo(other.round);
     }
 }
