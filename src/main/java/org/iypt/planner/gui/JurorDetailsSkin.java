@@ -168,7 +168,7 @@ class JurorDetailsSkin extends ContainerSkin implements JurorDetailsListener {
 
         // load
         JurorLoad load = jurorInfo.getLoad();
-        loadMeter.setPercentage(load.getLoad());
+        loadMeter.setPercentage(Math.min(load.getLoad(), 1d));
         loadMeter.setText(String.format("%.2f", load.getLoad()));
         Component.StyleDictionary loadStyles = loadMeter.getStyles();
         if (load.isExcessive()) {
