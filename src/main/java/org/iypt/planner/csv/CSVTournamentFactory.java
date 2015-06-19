@@ -44,7 +44,7 @@ public class CSVTournamentFactory {
     private static final Logger LOG = LoggerFactory.getLogger(CSVTournamentFactory.class);
     private static final CsvPreference PREFERENCE = CsvPreference.EXCEL_NORTH_EUROPE_PREFERENCE;
     private final State state = new State();
-    private Map<Integer, Round> rounds;
+    private final Map<Integer, Round> rounds = new HashMap<>(5);
     private Map<CountryCode, Team> teams;
     private Map<String, Juror> jurors;
     private Map<String, Double> biases;
@@ -168,7 +168,6 @@ public class CSVTournamentFactory {
 
     private void readTeams(Source src) throws IOException {
         // initialize collections
-        rounds = new HashMap<>(5);
         teams = new HashMap<>(30);
 
         int ln = 1; // line number
@@ -286,7 +285,14 @@ public class CSVTournamentFactory {
 
                         try {
                             int roundNumber = Integer.parseInt(line.get(i));
-                            absences.add(new Absence(juror, rounds.get(roundNumber)));
+
+                            // get round by number or create a new one
+                            if (!rounds.containsKey(roundNumber)) {
+                                rounds.put(roundNumber, new Round(roundNumber));
+                            }
+                            Round round = rounds.get(roundNumber);
+
+                            absences.add(new Absence(juror, round));
                             readingAbsences = true;
                         } catch (NumberFormatException ex) {
                             if (readingAbsences) {

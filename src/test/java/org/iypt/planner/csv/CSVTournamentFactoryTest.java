@@ -1,6 +1,9 @@
 package org.iypt.planner.csv;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Tournament;
 import org.junit.Test;
@@ -64,5 +67,21 @@ public class CSVTournamentFactoryTest {
             assertThat(round.getJurySize()).as(round.toString()).isEqualTo(jurySizes[i]);
             assertThat(round.getMaxJurySize()).as(round.toString()).isEqualTo(maxJurySizes[i]);
         }
+    }
+
+    @Test
+    public void reading_bias_jurors_teams_should_not_fail() throws IOException {
+        CSVTournamentFactory factory = new CSVTournamentFactory();
+        factory.readBiasData(CSVTournamentFactoryTest.class, "bias_IYPT2012.csv");
+        factory.readJuryData(CSVTournamentFactoryTest.class, "jury_data.csv");
+        factory.readTeamData(CSVTournamentFactoryTest.class, "team_data.csv");
+        Tournament tournament = factory.newTournament();
+        List<Juror> zeroBiasJurors = new ArrayList<>(10);
+        for (Juror juror : tournament.getJurors()) {
+            if (juror.getBias() == 0) {
+                zeroBiasJurors.add(juror);
+            }
+        }
+        assertThat(zeroBiasJurors).hasSize(4);
     }
 }
