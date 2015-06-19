@@ -1,6 +1,7 @@
 package org.iypt.planner.csv;
 
 import java.io.IOException;
+import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Tournament;
 import org.junit.Test;
 
@@ -37,5 +38,31 @@ public class CSVTournamentFactoryTest {
         tu.verifyJuror(tu.getJuror(0, 4, 0), "Ilya Martchenko", INDEPENDENT, true, CH, RU);
         // Raimund;Girwidz;I;Germany;1;2;3;4
         tu.verifyJuror(tu.getJuror(4, 7, 1), "Raimund Girwidz", INDEPENDENT, false, DE, 1, 2, 3, 4);
+    }
+
+    @Test
+    public void when_new_schedule_read_then_jury_sizes_updated() throws IOException {
+        CSVTournamentFactory factory = new CSVTournamentFactory();
+        factory.readDataFromClasspath("/org/iypt/planner/csv/", "team_data.csv", "jury_data.csv", "schedule2012.csv");
+        Tournament tournament = factory.newTournament();
+
+        int maxJurySizes[] = {7, 7, 8, 7, 7};
+        for (int i = 0; i < 5; i++) {
+            Round round = tournament.getRounds().get(i);
+            assertThat(round.getNumber()).as(round.toString()).isEqualTo(i + 1);
+            assertThat(round.getJurySize()).as(round.toString()).isEqualTo(6);
+            assertThat(round.getMaxJurySize()).as(round.toString()).isEqualTo(maxJurySizes[i]);
+        }
+
+        factory.readSchedule(CSVTournamentFactoryTest.class, "schedule2012_variable.csv");
+        tournament = factory.newTournament();
+
+        int jurySizes[] = {1, 6, 3, 4, 2};
+        for (int i = 0; i < 5; i++) {
+            Round round = tournament.getRounds().get(i);
+            assertThat(round.getNumber()).as(round.toString()).isEqualTo(i + 1);
+            assertThat(round.getJurySize()).as(round.toString()).isEqualTo(jurySizes[i]);
+            assertThat(round.getMaxJurySize()).as(round.toString()).isEqualTo(maxJurySizes[i]);
+        }
     }
 }

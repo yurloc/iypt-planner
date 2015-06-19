@@ -314,6 +314,10 @@ public class CSVTournamentFactory {
             throw new IllegalStateException("Not ready to read schedule. Teams and jurors must be read first.");
         }
         juries = new HashMap<>();
+        // reset jury sizes
+        for (Map.Entry<Integer, Round> roundEntry : rounds.entrySet()) {
+            roundEntry.getValue().setJurySize(0);
+        }
 
         int ln = 1;
 
