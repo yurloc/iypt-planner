@@ -784,8 +784,9 @@ public class PlannerWindow extends Window implements Bindable {
 
     void loadExample() {
         try {
-            factory.readDataFromClasspath("/org/iypt/planner/csv/", "team_data.csv", "jury_data.csv", "bias_IYPT2012.csv", "schedule2012.csv");
-            setTournament(factory.newTournament());
+            CSVTournamentFactory f = new CSVTournamentFactory();
+            f.readDataFromClasspath("/org/iypt/planner/csv/", "team_data.csv", "jury_data.csv", "bias_IYPT2012.csv", "schedule2012.csv");
+            setTournament(f.newTournament());
         } catch (Exception ex) {
             wlog.error("Failed to load example", ex);
         }
