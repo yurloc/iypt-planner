@@ -42,6 +42,8 @@ import org.apache.pivot.wtk.Label;
 import org.apache.pivot.wtk.ListButton;
 import org.apache.pivot.wtk.ListButtonSelectionListener;
 import org.apache.pivot.wtk.ListView;
+import org.apache.pivot.wtk.MessageType;
+import org.apache.pivot.wtk.Prompt;
 import org.apache.pivot.wtk.PushButton;
 import org.apache.pivot.wtk.Rollup;
 import org.apache.pivot.wtk.Sheet;
@@ -706,18 +708,38 @@ public class PlannerWindow extends Window implements Bindable {
             @Override
             public void sheetClosed(Sheet sheet) {
                 if (sheet.getResult()) {
-                    File f = fileBrowserSheet.getSelectedFile();
-                    // TODO check if the file exists and ask to overwrite
-                    try {
-                        OutputStreamWriter os = new OutputStreamWriter(new FileOutputStream(f), StandardCharsets.UTF_8);
-                        new ScheduleWriter(solver.getTournament()).write(os);
-                        log.info("Schedule written to '{}'", f.getAbsolutePath());
-                    } catch (RuntimeException | IOException ex) {
-                        wlog.error("Error writing schedule file", ex);
+                    final File f = fileBrowserSheet.getSelectedFile();
+                    if (f.exists()) {
+                        ArrayList<String> options = new ArrayList<>();
+                        options.add("Yes");
+                        options.add("No");
+                        Prompt prompt = new Prompt(MessageType.QUESTION, "File '" + f.getName()
+                                + "' already exists. Do you want to overwrite it?", options);
+                        prompt.open(PlannerWindow.this, new SheetCloseListener() {
+                            @Override
+                            public void sheetClosed(Sheet sheet) {
+                                Prompt prompt = (Prompt) sheet;
+                                if ("Yes".equals(prompt.getSelectedOption())) {
+                                    writeSchedule(f);
+                                }
+                            }
+                        });
+                    } else {
+                        writeSchedule(f);
                     }
                 }
             }
         });
+    }
+
+    void writeSchedule(File f) {
+        try {
+            OutputStreamWriter os = new OutputStreamWriter(new FileOutputStream(f), StandardCharsets.UTF_8);
+            new ScheduleWriter(solver.getTournament()).write(os);
+            log.info("Schedule written to '{}'", f.getAbsolutePath());
+        } catch (RuntimeException | IOException ex) {
+            wlog.error("Error writing schedule file", ex);
+        }
     }
 
     void exportPdf() {
