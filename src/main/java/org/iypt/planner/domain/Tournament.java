@@ -233,14 +233,8 @@ public class Tournament implements Solution<HardAndSoftScore> {
             if (round.getGroups().isEmpty()) {
                 throw new IllegalStateException(round + " has no groups");
             }
-            int inexperienced = 0;
-            for (Juror juror : jurors) {
-                if (!juror.isExperienced() && juror.getFirstAvailable() == round.getNumber()) {
-                    inexperienced++;
-                }
-            }
             assert absencesPerRoundMap.get(round) != null;
-            int availableJurors = jurors.size() - absencesPerRoundMap.get(round).size() - inexperienced;
+            int availableJurors = jurors.size() - absencesPerRoundMap.get(round).size();
             round.setMaxJurySize(availableJurors / round.getGroups().size());
             if (setJurySizeToMax && round.getJurySize() == 0) {
                 changeJurySize(round, round.getMaxJurySize());
