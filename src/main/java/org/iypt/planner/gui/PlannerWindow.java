@@ -59,8 +59,10 @@ import org.iypt.planner.Constants;
 import org.iypt.planner.csv.CSVTournamentFactory;
 import org.iypt.planner.csv.ScheduleWriter;
 import org.iypt.planner.domain.Juror;
-import org.iypt.planner.domain.Seat;
 import org.iypt.planner.domain.Tournament;
+import org.iypt.planner.gui.swap.IdleSwap;
+import org.iypt.planner.gui.swap.SeatSwap;
+import org.iypt.planner.gui.swap.SwapQueue;
 import org.iypt.planner.pdf.PdfCreator;
 import org.iypt.planner.solver.TournamentSolver;
 import org.slf4j.Logger;
@@ -102,11 +104,10 @@ public class PlannerWindow extends Window implements Bindable {
     // build info
     @BXML private Label buildInfoLabel;
     // other
+    private final SwapQueue swapQueue = new SwapQueue();
     private TournamentSchedule tournamentSchedule;
     private SolverTask solverTask;
     private TournamentSolver solver;
-    private Juror juror1;
-    private Juror juror2;
     private CSVTournamentFactory factory;
     protected static final Filter<File> CSV_FILE_FILTER = new Filter<File>() {
         @Override
@@ -165,7 +166,8 @@ public class PlannerWindow extends Window implements Bindable {
                     // TODO improve this mess
                     JurorInfo jurorInfo = tournamentSchedule.getSchedule().getJurorInfo(seatInfo.getJuror());
                     if (jurorInfo.getSchedule().get(tournamentSchedule.getSelectedRound().getNumber() - 1).getCurrentStatus() == JurorAssignment.Status.IDLE) {
-                        prepareSwap(seatInfo.getJuror());
+                        swapQueue.add(new IdleSwap(seatInfo.getJuror()));
+                        displaySwapQueue(swapQueue);
                     }
                 }
             }
@@ -212,15 +214,8 @@ public class PlannerWindow extends Window implements Bindable {
             @Override
             public void buttonPressed(Button button) {
                 Tournament t = solver.getTournament();
-                for (Seat seat : t.getSeats()) {
-                    if (seat.getJury().getGroup().getRound() == tournamentSchedule.getSelectedRound().getRound()) {
-                        if (seat.getJuror() == juror1) {
-                            seat.setJuror(juror2);
-                        } else if (seat.getJuror() == juror2) {
-                            seat.setJuror(juror1);
-                        }
-                    }
-                }
+                swapQueue.execute();
+                displaySwapQueue(swapQueue);
                 solutionChanged(solver.setTournament(t));
             }
         });
@@ -295,7 +290,8 @@ public class PlannerWindow extends Window implements Bindable {
             public void seatSelected(SeatInfo seatInfo) {
                 if (seatInfo != null) {
                     showJurorDetails(seatInfo.getJuror());
-                    prepareSwap(seatInfo.getJuror());
+                    swapQueue.add(new SeatSwap(seatInfo));
+                    displaySwapQueue(swapQueue);
                 }
             }
 
@@ -454,36 +450,23 @@ public class PlannerWindow extends Window implements Bindable {
         }
     }
 
-    private void prepareSwap(Juror juror) {
-        if (juror1 == null) {
-            juror1 = juror;
-        } else if (juror2 == null) {
-            if (juror != juror1) {
-                juror2 = juror;
-            }
-        } else if (juror != juror2 && juror != juror1) {
-            juror1 = juror2;
-            juror2 = juror;
+    private void displaySwapQueue(SwapQueue q) {
+        if (q.getSource() != null) {
+            swap1TableView.setTableData(new ArrayList<>(SeatInfo.newInstance(q.getSource().getJuror())));
+        } else {
+            swap1TableView.getTableData().clear();
         }
-
-        if (juror1 != null) {
-            swap1TableView.setTableData(new ArrayList<>(SeatInfo.newInstance(juror1)));
+        if (q.getTarget() != null) {
+            swap2TableView.setTableData(new ArrayList<>(SeatInfo.newInstance(q.getTarget().getJuror())));
+        } else {
+            swap2TableView.getTableData().clear();
         }
-        if (juror2 != null) {
-            swap2TableView.setTableData(new ArrayList<>(SeatInfo.newInstance(juror2)));
-            if (!solver.isSolving()) {
-                swapButton.setEnabled(true);
-            }
-        }
-
+        swapButton.setEnabled(q.isReady());
     }
 
     private void clearSwap() {
-        juror1 = null;
-        juror2 = null;
-        swap1TableView.getTableData().clear();
-        swap2TableView.getTableData().clear();
-        swapButton.setEnabled(false);
+        swapQueue.clear();
+        displaySwapQueue(swapQueue);
     }
 
     //--------------------------------------------------------------------------------------------------------------------------
