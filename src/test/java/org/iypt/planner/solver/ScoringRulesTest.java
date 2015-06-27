@@ -3,7 +3,6 @@ package org.iypt.planner.solver;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -511,9 +510,11 @@ public class ScoringRulesTest {
     }
 
     private void assignJurors(Tournament t, Juror... jurors) {
-        Iterator<Seat> it = t.getSeats().iterator();
-        for (int i = 0; i < jurors.length; i++) {
-            it.next().setJuror(jurors[i]);
+        int j = 0;
+        for (Seat seat : t.getSeats()) {
+            if (seat.isVoting()) {
+                seat.setJuror(jurors[j++]);
+            }
         }
     }
 
