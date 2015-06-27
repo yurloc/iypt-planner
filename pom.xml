@@ -158,7 +158,7 @@
       <id>fastTests</id>
       <activation>
         <property>
-          <name>!allTests</name>
+          <name>skipSolverTests</name>
         </property>
       </activation>
       <build>
