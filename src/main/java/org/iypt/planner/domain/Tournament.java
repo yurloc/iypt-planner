@@ -12,7 +12,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import org.drools.planner.api.domain.solution.PlanningEntityCollectionProperty;
-import org.drools.planner.core.score.buildin.hardandsoft.HardAndSoftScore;
+import org.drools.planner.core.score.buildin.hardsoft.HardSoftScore;
 import org.drools.planner.core.solution.Solution;
 import org.iypt.planner.solver.DefaultWeightConfig;
 import org.iypt.planner.solver.WeightConfig;
@@ -23,10 +23,10 @@ import org.slf4j.LoggerFactory;
  *
  * @author jlocker
  */
-public class Tournament implements Solution<HardAndSoftScore> {
+public class Tournament implements Solution<HardSoftScore> {
 
     private static final Logger log = LoggerFactory.getLogger(Tournament.class);
-    private HardAndSoftScore score;
+    private HardSoftScore score;
     // planning entity
     private SortedSet<Seat> seats;
     private Set<Seat> locked;
@@ -68,12 +68,12 @@ public class Tournament implements Solution<HardAndSoftScore> {
     }
 
     @Override
-    public HardAndSoftScore getScore() {
+    public HardSoftScore getScore() {
         return score;
     }
 
     @Override
-    public void setScore(HardAndSoftScore score) {
+    public void setScore(HardSoftScore score) {
         this.score = score;
     }
 
@@ -98,8 +98,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
         return facts;
     }
 
-    @Override
-    public Solution<HardAndSoftScore> cloneSolution() {
+    public Solution<HardSoftScore> cloneSolution() {
         Tournament clone = new Tournament();
         clone.score = score;
         clone.rounds = rounds;

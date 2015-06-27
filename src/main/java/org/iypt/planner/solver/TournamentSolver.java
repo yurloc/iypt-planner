@@ -91,10 +91,10 @@ public class TournamentSolver {
                     ConstraintOccurrence co;
                     switch (type) {
                         case CONSTRAINT_TYPE_HARD:
-                            co = new UnweightedConstraintOccurrence(rule.getName(), ConstraintType.NEGATIVE_HARD);
+                            co = new UnweightedConstraintOccurrence(rule.getName(), ConstraintType.HARD);
                             break;
                         case CONSTRAINT_TYPE_SOFT:
-                            co = new IntConstraintOccurrence(rule.getName(), ConstraintType.NEGATIVE_SOFT);
+                            co = new IntConstraintOccurrence(rule.getName(), ConstraintType.SOFT);
                             break;
                         default:
                             throw new AssertionError();

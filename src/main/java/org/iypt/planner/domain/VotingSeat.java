@@ -1,9 +1,9 @@
 package org.iypt.planner.domain;
 
 import org.drools.planner.api.domain.entity.PlanningEntity;
+import org.drools.planner.api.domain.value.ValueRange;
+import org.drools.planner.api.domain.value.ValueRangeType;
 import org.drools.planner.api.domain.variable.PlanningVariable;
-import org.drools.planner.api.domain.variable.ValueRange;
-import org.drools.planner.api.domain.variable.ValueRangeType;
 import org.iypt.planner.solver.LockedSeatSelectionFilter;
 
 @PlanningEntity(movableEntitySelectionFilter = LockedSeatSelectionFilter.class)

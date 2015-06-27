@@ -29,14 +29,12 @@ public class ConstraintComparator implements Comparator<ConstraintOccurrence>, S
         // if the constrait types are different, sort as hard < soft < positive
         if (o1.getConstraintType() != o2.getConstraintType()) {
             switch (o1.getConstraintType()) {
-                case NEGATIVE_HARD:
+                case HARD:
                     return BEFORE;
-                case NEGATIVE_SOFT:
-                    if (o2.getConstraintType() == ConstraintType.NEGATIVE_HARD) {
+                case SOFT:
+                    if (o2.getConstraintType() == ConstraintType.HARD) {
                         return AFTER;
                     }
-                    return BEFORE;
-                case POSITIVE:
                     return BEFORE;
                 default:
                     throw new AssertionError();

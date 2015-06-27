@@ -69,7 +69,7 @@ public class ConstraintsConfig extends Container {
         weightConfig = solver.getWeightConfig();
         constraints = new ArrayList<>();
         for (ConstraintOccurrence co : solver.getConstraints()) {
-            constraints.add(new Constraint(co.getRuleId(), co.getConstraintType() == ConstraintType.NEGATIVE_HARD));
+            constraints.add(new Constraint(co.getRuleId(), co.getConstraintType() == ConstraintType.HARD));
         }
         constraintsConfigListeners.constraintsChanged(this);
     }

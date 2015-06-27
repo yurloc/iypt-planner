@@ -25,8 +25,8 @@ public class Constraint {
 
     public Constraint(ConstraintOccurrence co) {
         name = co.getRuleId();
-        hard = co.getConstraintType() == ConstraintType.NEGATIVE_HARD;
-        type = co.getConstraintType().toString().replaceFirst("NEGATIVE_", "");
+        hard = co.getConstraintType() == ConstraintType.HARD;
+        type = co.getConstraintType().toString();
         if (co instanceof UnweightedConstraintOccurrence) {
             intWeight = 0;
             weight = "";

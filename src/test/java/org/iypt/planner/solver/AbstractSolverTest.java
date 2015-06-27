@@ -108,7 +108,7 @@ public abstract class AbstractSolverTest {
 
     private static List<ConstraintOccurrence> getConstraintList(Solver solver, Solution<?> solution) {
         ScoreDirector scoreDirector = solver.getScoreDirectorFactory().buildScoreDirector();
-        scoreDirector.setWorkingSolution(solution.cloneSolution());
+        scoreDirector.setWorkingSolution(((Tournament) solution).cloneSolution());
         scoreDirector.calculateScore();
 
         WorkingMemory workingMemory = ((DroolsScoreDirector) scoreDirector).getWorkingMemory();

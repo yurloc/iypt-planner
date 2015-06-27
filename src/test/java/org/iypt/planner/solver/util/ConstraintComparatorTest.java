@@ -17,23 +17,19 @@ public class ConstraintComparatorTest {
 
     @Test
     public void testCompareByType() {
-        ConstraintOccurrence hard = new IntConstraintOccurrence(null, NEGATIVE_HARD);
-        ConstraintOccurrence soft = new IntConstraintOccurrence(null, NEGATIVE_SOFT);
-        ConstraintOccurrence positive = new IntConstraintOccurrence(null, POSITIVE);
+        ConstraintOccurrence hard = new IntConstraintOccurrence(null, HARD);
+        ConstraintOccurrence soft = new IntConstraintOccurrence(null, SOFT);
         ConstraintComparator comp = new ConstraintComparator();
         assertThat(comp.compare(hard, soft)).isLessThan(0);
-        assertThat(comp.compare(soft, positive)).isLessThan(0);
-        assertThat(comp.compare(hard, positive)).isLessThan(0);
         assertThat(comp.compare(hard, hard)).isEqualTo(0);
         assertThat(comp.compare(soft, soft)).isEqualTo(0);
-        assertThat(comp.compare(positive, positive)).isEqualTo(0);
     }
 
     @Test
     public void testCompareByRuleId() {
-        ConstraintOccurrence softConstraintA = new IntConstraintOccurrence("a", NEGATIVE_SOFT);
-        ConstraintOccurrence softConstraintB = new IntConstraintOccurrence("b", NEGATIVE_SOFT);
-        ConstraintOccurrence hardConstraintC = new IntConstraintOccurrence("c", NEGATIVE_HARD);
+        ConstraintOccurrence softConstraintA = new IntConstraintOccurrence("a", SOFT);
+        ConstraintOccurrence softConstraintB = new IntConstraintOccurrence("b", SOFT);
+        ConstraintOccurrence hardConstraintC = new IntConstraintOccurrence("c", HARD);
         ConstraintComparator comp = new ConstraintComparator();
         assertThat(comp.compare(softConstraintA, softConstraintB)).isLessThan(0);
         assertThat(comp.compare(hardConstraintC, softConstraintB)).isLessThan(0);
@@ -42,9 +38,9 @@ public class ConstraintComparatorTest {
     @Test
     public void testCompareByScore() {
         Object[] causes = new Object[]{};
-        ConstraintOccurrence unweighted = new UnweightedConstraintOccurrence("", NEGATIVE_HARD, causes);
-        ConstraintOccurrence hard1 = new IntConstraintOccurrence("", NEGATIVE_HARD, 1, causes);
-        ConstraintOccurrence hard0 = new IntConstraintOccurrence("", NEGATIVE_HARD, 0, causes);
+        ConstraintOccurrence unweighted = new UnweightedConstraintOccurrence("", HARD, causes);
+        ConstraintOccurrence hard1 = new IntConstraintOccurrence("", HARD, 1, causes);
+        ConstraintOccurrence hard0 = new IntConstraintOccurrence("", HARD, 0, causes);
         ConstraintComparator comp = new ConstraintComparator();
         assertThat(comp.compare(hard1, hard0)).isLessThan(0);
         try {

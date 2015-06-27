@@ -16,8 +16,8 @@ import org.drools.definition.rule.Rule;
 import org.drools.event.rule.AfterActivationFiredEvent;
 import org.drools.event.rule.DefaultAgendaEventListener;
 import org.drools.io.ResourceFactory;
-import org.drools.planner.core.score.buildin.hardandsoft.HardAndSoftScore;
-import org.drools.planner.core.score.buildin.hardandsoft.HardAndSoftScoreHolder;
+import org.drools.planner.core.score.buildin.hardsoft.HardSoftScore;
+import org.drools.planner.core.score.buildin.hardsoft.HardSoftScoreHolder;
 import org.drools.planner.core.score.holder.ScoreHolder;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.iypt.planner.csv.CSVTournamentFactory;
@@ -546,7 +546,7 @@ public class ScoringRulesTest {
         }
 
         // set global score holder
-        ksession.setGlobal(SCORE_HOLDER_NAME, new HardAndSoftScoreHolder());
+        ksession.setGlobal(SCORE_HOLDER_NAME, new HardSoftScoreHolder());
 
         // register activation listener, ignoring the score accumulation rules
         ksession.addEventListener(activationListener);
@@ -637,7 +637,7 @@ public class ScoringRulesTest {
     private static class ScoringResult {
 
         private ActivationListener activationListener;
-        private HardAndSoftScore score;
+        private HardSoftScore score;
 
         public int getTotalFireCount() {
             return activationListener.getTotalFireCount();
@@ -651,7 +651,7 @@ public class ScoringRulesTest {
             return activationListener.getRuleActivations();
         }
 
-        public HardAndSoftScore getScore() {
+        public HardSoftScore getScore() {
             return score;
         }
 
@@ -661,7 +661,7 @@ public class ScoringRulesTest {
 
         public void setKnowledgeSession(StatefulKnowledgeSession ksession) {
             ScoreHolder holder = (ScoreHolder) ksession.getGlobal(SCORE_HOLDER_NAME);
-            score = (HardAndSoftScore) holder.extractScore();
+            score = (HardSoftScore) holder.extractScore();
             LOG.debug(score.toString());
         }
     }
