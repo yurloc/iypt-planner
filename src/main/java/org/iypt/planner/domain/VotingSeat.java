@@ -14,6 +14,11 @@ public class VotingSeat extends AbstractSeat {
         super(jury, position, juror);
     }
 
+    @Override
+    public boolean isVoting() {
+        return true;
+    }
+
     @PlanningVariable(valueRangeProviderRefs = {"jurors"})
     @Override
     public Juror getJuror() {

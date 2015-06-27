@@ -66,7 +66,7 @@ public class TournamentTest {
         // getJuries
         assertThat(t.getJuries()).hasSameSizeAs(t.getGroups());
         // getSeats
-        assertThat(t.getSeats()).hasSize(origSize * t.getJuries().size());
+        assertThat(t.getSeats()).hasSize((origSize + Tournament.NON_VOTING_SEAT_BUFFER) * t.getJuries().size());
 
         // setJuryCapacity
         int r1size = origSize - 1;
@@ -74,7 +74,7 @@ public class TournamentTest {
         assertThat(t.changeJurySize(r1, r1size)).isTrue();
         assertThat(t.changeJurySize(r2, r2size)).isTrue();
         assertThat(t.getJuries()).hasSameSizeAs(t.getGroups());
-        assertThat(t.getSeats()).hasSize((r1size + r2size) * r1.getGroups().size());
+        assertThat(t.getSeats()).hasSize((r1size + r2size + 2 * Tournament.NON_VOTING_SEAT_BUFFER) * r1.getGroups().size());
 
         assertThat(t.getProblemFacts()).hasSize(
                 t.getRounds().size()
@@ -90,7 +90,7 @@ public class TournamentTest {
         int newSize = 2;
         t.changeJurySize(r1, newSize);
         t.changeJurySize(r2, newSize);
-        assertThat(t.getSeats()).hasSize(newSize * t.getJuries().size());
+        assertThat(t.getSeats()).hasSize((newSize + Tournament.NON_VOTING_SEAT_BUFFER) * t.getJuries().size());
 
         t.addJurors(jA1, jA2, jA3);
         assertThat(t.isFeasibleSolutionPossible()).isFalse();
@@ -142,7 +142,7 @@ public class TournamentTest {
         assertThat(t.getGroups()).hasSize(6);
         assertThat(t.getTeams()).contains(tA, tB, tC, tD, tE, tF);
         assertThat(t.getJuries()).hasSize(t.getGroups().size());
-        assertThat(t.getSeats()).hasSize(newSize * t.getJuries().size());
+        assertThat(t.getSeats()).hasSize((newSize + Tournament.NON_VOTING_SEAT_BUFFER) * t.getJuries().size());
     }
 
     @Test
@@ -270,8 +270,8 @@ public class TournamentTest {
         r.createGroup("B").addTeams(tE, tF, tG);
         Tournament t = new Tournament();
         t.addRounds(r);
-        assertThat(t.getSeats()).hasSize(4);
-        assertThat(t.getSeats()).hasSize(r.getGroups().size() * jurySize);
+        assertThat(t.getSeats()).hasSize(8);
+        assertThat(t.getSeats()).hasSize(r.getGroups().size() * (jurySize + Tournament.NON_VOTING_SEAT_BUFFER));
 
         t.addJurors(jA1, jA2, jA3, jA4);
         assertThat(t.isFeasibleSolutionPossible()).isTrue();

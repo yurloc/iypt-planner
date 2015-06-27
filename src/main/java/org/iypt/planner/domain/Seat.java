@@ -2,8 +2,6 @@ package org.iypt.planner.domain;
 
 public interface Seat extends Comparable<Seat> {
 
-    Juror getJuror();
-
     /**
      * Get the jury this seat belongs to.
      *
@@ -32,12 +30,16 @@ public interface Seat extends Comparable<Seat> {
      */
     boolean isOccupied();
 
+    public boolean isVoting();
+
     /**
      * Assign a juror to this seat.
      *
      * @param juror juror that will occupy this seat
      */
     void setJuror(Juror juror);
+
+    Juror getJuror();
 
     Seat clone();
 }

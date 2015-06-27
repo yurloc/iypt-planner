@@ -228,6 +228,7 @@ public class PdfCreator {
     private PdfPTable getRoomJuryTable(Tournament t, Group g) {
         Font fChair = new Font(bf, 28, Font.BOLD);
         Font fJuror = new Font(bf, 28);
+        Font fNonVoting = new Font(bf, 28, Font.NORMAL, BaseColor.DARK_GRAY);
 
         PdfPTable table = new PdfPTable(new float[]{1, 4});
         table.setWidthPercentage(100);
@@ -241,13 +242,17 @@ public class PdfCreator {
         int count = 1;
         for (Seat s : t.getSeats(g.getJury())) {
             table.addCell(getNumberCell(count++, fJuror));
-            Phrase pJuror;
+            Phrase pJuror = null;
             if (s.isChair()) {
                 pJuror = new Phrase(String.format("%s (chair)", s.getJuror().fullName()), fChair);
-            } else {
+            } else if (s.isVoting()) {
                 pJuror = new Phrase(s.getJuror().fullName(), fJuror);
+            } else if (s.getJuror() != null) {
+                pJuror = new Phrase("[" + s.getJuror().fullName() + "]", fNonVoting);
             }
-            table.addCell(pJuror);
+            if (pJuror != null) {
+                table.addCell(pJuror);
+            }
         }
         return table;
     }

@@ -17,11 +17,13 @@ import org.iypt.planner.domain.JurorLoad;
 import org.iypt.planner.domain.JurorType;
 import org.iypt.planner.domain.Jury;
 import org.iypt.planner.domain.Lock;
+import org.iypt.planner.domain.NonVotingSeat;
 import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Seat;
 import org.iypt.planner.domain.Team;
 import org.iypt.planner.domain.Tournament;
 import org.iypt.planner.domain.Tournament.Statistics;
+import org.iypt.planner.domain.VotingSeat;
 import org.iypt.planner.solver.WeightConfig;
 import static java.lang.Math.abs;
 
@@ -55,7 +57,7 @@ end
 rule "emptySeat"
 @ConstraintType(hard)
 when
-    $seat : Seat( juror == Juror.NULL )
+    $seat : VotingSeat( juror == Juror.NULL )
 then
     insertLogical( new IntConstraintOccurrence(
         drools.getRule().getName(),
@@ -68,7 +70,7 @@ rule "invalidChair"
 @ConstraintType(hard)
 when
     $juror : Juror( !chairCandidate )
-    $seat  : Seat( chair, juror == $juror )
+    $seat  : VotingSeat( chair, juror == $juror )
 then
     insertLogical( new IntConstraintOccurrence(
         drools.getRule().getName(),
@@ -80,7 +82,7 @@ end
 rule "teamAndJurorSameCountry"
 @ConstraintType(hard)
 when
-    $seat : Seat( $jury : jury, $juror : juror )
+    $seat : VotingSeat( $jury : jury, $juror : juror )
     $team : Team( $jury.group.teams contains this )
     $c    : Conflict( juror == $juror, country == $team.country )
     // or $jury.group.countries.contains($juror.country) ?
@@ -96,8 +98,8 @@ rule "absentJuror"
 @ConstraintType(hard)
 when
     $r : Round()
-    // TODO Seat( round == $r )
-    $s : Seat( jury.group.round == $r, $juror : juror )
+    // TODO VotingSeat( round == $r )
+    $s : VotingSeat( jury.group.round == $r, $juror : juror )
     $absence : Absence( juror == $juror, round == $r )
 then
     insertLogical( new IntConstraintOccurrence(
@@ -127,12 +129,27 @@ when
     $team  : Team()
     // collection of all chair seats occupied by $juror and judging $team
     $c     : Collection( size > 2 )
-             from collect( Seat( chair, juror == $juror, jury.group.teams contains $team ) )
+             from collect( VotingSeat( chair, juror == $juror, jury.group.teams contains $team ) )
 then
     insertLogical( new IntConstraintOccurrence(
         drools.getRule().getName(),
         ConstraintType.HARD, -1,
         $team, $c, $juror
+    ));
+end
+
+// Experienced jurors are only allowed to sit on voting seats, exp.j. on non-voting seat breaks HARD constraint
+// TODO planner should not touch non-voting seats (besides construction phase)
+rule "experiencedJurorOnNonVotingVotingSeat"
+@ConstraintType(hard)
+when
+    $j : Juror( experienced )
+    $s : NonVotingSeat( juror == $j )
+then
+    insertLogical( new IntConstraintOccurrence(
+        drools.getRule().getName(),
+        ConstraintType.HARD, -1,
+        $s, $j
     ));
 end
 
@@ -148,7 +165,7 @@ when
     $team  : Team()
     // collection of all chair seats occupied by $juror and judging $team
     $c     : Collection( size == 2 )
-             from collect( Seat( chair, juror == $juror, jury.group.teams contains $team ) )
+             from collect( VotingSeat( chair, juror == $juror, jury.group.teams contains $team ) )
 then
     insertLogical( new IntConstraintOccurrence(
         drools.getRule().getName(),
@@ -162,7 +179,7 @@ salience 1 // calculate these facts before other rules
 when
     $stats : Statistics()
     $juror : Juror()
-    accumulate( Seat( juror == $juror );
+    accumulate( VotingSeat( juror == $juror );
                 $seats : count() )
     accumulate( Absence( juror == $juror );
                 $absences: count() )
@@ -193,7 +210,7 @@ when
     $team  : Team()
     // collection of all seats occupied by $juror and judging $team
     $seats : Collection( size > 1 )
-             from collect( Seat( juror == $juror, jury.group.teams contains $team ) )
+             from collect( VotingSeat( juror == $juror, jury.group.teams contains $team ) )
 then
     insertLogical( new IntConstraintOccurrence(
         drools.getRule().getName(),
@@ -210,8 +227,8 @@ when
     $c1 : Conflict( $j1 : juror, $country : country )
     $c2 : Conflict( $j2 : juror, country == $country )
     // those two jurors meet in the same jury
-    $s1 : Seat( $jury : jury, juror == $j1 )
-    $s2 : Seat( jury == $jury, juror == $j2, position > $s1.position )
+    $s1 : VotingSeat( $jury : jury, juror == $j1 )
+    $s2 : VotingSeat( jury == $jury, juror == $j2, position > $s1.position )
 then
     insertLogical( new IntConstraintOccurrence(
         drools.getRule().getName(),
@@ -224,7 +241,7 @@ rule "calculateIndependentRatio"
 salience 1 // calculate these facts before other rules
 when
     $jury : Jury()
-    accumulate( Seat( jury == $jury, juror != null, juror.type == JurorType.INDEPENDENT );
+    accumulate( VotingSeat( jury == $jury, juror != null, juror.type == JurorType.INDEPENDENT );
                 $i : count() )
 then
     insertLogical( new IndependentRatio($jury, $i) );
@@ -248,7 +265,7 @@ rule "accumulatedBias"
 when
     $wc   : WeightConfig()
     $jury : Jury()
-    accumulate( Seat( jury == $jury, $juror : juror != null );
+    accumulate( VotingSeat( jury == $jury, $juror : juror != null );
                 $bias : sum( $juror.getBias() ) )
 then
     insertLogical( new IntConstraintOccurrence(
@@ -264,7 +281,7 @@ when
     $wc : WeightConfig()
     $j  : Juror()
     $c  : Collection( size > 1 )
-              from collect( Seat( juror == $j, jury.group.size == 4 ) )
+              from collect( VotingSeat( juror == $j, jury.group.size == 4 ) )
 then
     insertLogical( new IntConstraintOccurrence(
         drools.getRule().getName(),
@@ -279,7 +296,7 @@ when
     $wc    : WeightConfig()
     $juror : Juror( !experienced, $firstRound : firstAvailable )
     $round : Round( number == $firstRound )
-    $seat  : Seat( juror == $juror, jury.group.round == $round )
+    $seat  : VotingSeat( juror == $juror, jury.group.round == $round )
 then
     insertLogical( new IntConstraintOccurrence(
         drools.getRule().getName(),

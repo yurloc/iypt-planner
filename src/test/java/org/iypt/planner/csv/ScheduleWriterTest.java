@@ -42,8 +42,10 @@ public class ScheduleWriterTest {
         for (Round round : tournament.getRounds()) {
             for (Group group : round.getGroups()) {
                 for (Seat seat : tournament.getSeats(group.getJury())) {
-                    seat.setJuror(jurors.get(i));
-                    i = (++i) % jurors.size();
+                    if (seat.isVoting()) {
+                        seat.setJuror(jurors.get(i));
+                        i = (++i) % jurors.size();
+                    }
                 }
             }
         }

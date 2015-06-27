@@ -722,6 +722,7 @@ public class ScoringRulesTest {
         teamAndChairMeetOften(HARD),
         absentJuror(HARD),
         brokenLock(HARD),
+        experiencedJurorOnNonVotingVotingSeat(HARD),
         // soft constraints
         // * across rounds
         teamAndChairMeetTwice(SOFT, 200),

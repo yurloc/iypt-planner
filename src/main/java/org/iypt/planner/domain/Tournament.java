@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 @PlanningSolution
 public class Tournament implements Solution<HardSoftScore> {
 
+    public static final int NON_VOTING_SEAT_BUFFER = 2;
     private static final Logger log = LoggerFactory.getLogger(Tournament.class);
     private HardSoftScore score;
     // planning entity
@@ -178,7 +179,8 @@ public class Tournament implements Solution<HardSoftScore> {
     private double calculateOptimalLoad() {
         if (jurors.size() > 0 && rounds.size() > 0 && absences.size() != jurors.size() * rounds.size()) {
             // TODO minus number of inexperienced jurors!
-            return ((double) seats.size()) / (jurors.size() * rounds.size() - absences.size());
+            double totalSeats = seats.size() - NON_VOTING_SEAT_BUFFER * juries.size();
+            return totalSeats / (jurors.size() * rounds.size() - absences.size());
         }
         return 0.0;
     }
@@ -278,6 +280,11 @@ public class Tournament implements Solution<HardSoftScore> {
 
                 for (int i = 0; i < r.getJurySize(); i++) {
                     Seat seat = new VotingSeat(jury, i, null);
+                    seats.add(seat);
+                }
+
+                for (int i = 0; i < NON_VOTING_SEAT_BUFFER; i++) {
+                    NonVotingSeat seat = new NonVotingSeat(jury, i + 100, null);
                     seats.add(seat);
                 }
             }
@@ -469,12 +476,15 @@ public class Tournament implements Solution<HardSoftScore> {
         SortedSet<Seat> newSeats = new TreeSet<>();
         for (Jury jury : juries) {
             if (jury.getGroup().getRound().equals(round)) {
+                List<Seat> j = getSeats(jury);
                 // copy old seats up to min{old size, new size}
-                newSeats.addAll(getSeats(jury).subList(0, Math.min(round.getJurySize(), newSize)));
+                newSeats.addAll(j.subList(0, Math.min(round.getJurySize(), newSize)));
                 // add empty seats (if the size was increased)
                 for (int i = round.getJurySize(); i < newSize; i++) {
                     newSeats.add(new VotingSeat(jury, i, null));
                 }
+                // add non-voting seats (which excess jury size)
+                newSeats.addAll(j.subList(round.getJurySize(), j.size()));
             } else {
                 newSeats.addAll(getSeats(jury));
             }
