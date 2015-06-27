@@ -2,10 +2,10 @@ package org.iypt.planner.gui;
 
 import org.apache.pivot.collections.ArrayList;
 import org.apache.pivot.collections.List;
-import org.drools.planner.core.score.constraint.ConstraintOccurrence;
-import org.drools.planner.core.score.constraint.ConstraintType;
-import org.drools.planner.core.score.constraint.IntConstraintOccurrence;
-import org.drools.planner.core.score.constraint.UnweightedConstraintOccurrence;
+import org.optaplanner.core.impl.score.constraint.ConstraintOccurrence;
+import org.optaplanner.core.impl.score.constraint.ConstraintType;
+import org.optaplanner.core.impl.score.constraint.IntConstraintOccurrence;
+import org.optaplanner.core.impl.score.constraint.UnweightedConstraintOccurrence;
 
 /**
  *

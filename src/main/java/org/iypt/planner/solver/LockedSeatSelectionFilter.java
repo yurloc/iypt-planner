@@ -1,9 +1,9 @@
 package org.iypt.planner.solver;
 
-import org.drools.planner.core.heuristic.selector.common.decorator.SelectionFilter;
-import org.drools.planner.core.score.director.ScoreDirector;
 import org.iypt.planner.domain.Seat;
 import org.iypt.planner.domain.Tournament;
+import org.optaplanner.core.impl.heuristic.selector.common.decorator.SelectionFilter;
+import org.optaplanner.core.impl.score.director.ScoreDirector;
 
 /**
  *

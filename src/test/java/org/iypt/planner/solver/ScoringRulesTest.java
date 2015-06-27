@@ -16,9 +16,6 @@ import org.drools.definition.rule.Rule;
 import org.drools.event.rule.AfterActivationFiredEvent;
 import org.drools.event.rule.DefaultAgendaEventListener;
 import org.drools.io.ResourceFactory;
-import org.drools.planner.core.score.buildin.hardsoft.HardSoftScore;
-import org.drools.planner.core.score.buildin.hardsoft.HardSoftScoreHolder;
-import org.drools.planner.core.score.holder.ScoreHolder;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.iypt.planner.csv.CSVTournamentFactory;
 import org.iypt.planner.domain.Absence;
@@ -31,6 +28,9 @@ import org.iypt.planner.domain.Seat;
 import org.iypt.planner.domain.Tournament;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.optaplanner.core.api.score.buildin.hardsoft.HardSoftScore;
+import org.optaplanner.core.api.score.buildin.hardsoft.HardSoftScoreHolder;
+import org.optaplanner.core.api.score.holder.ScoreHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,8 +66,8 @@ public class ScoringRulesTest {
         // do some checks
         for (KnowledgePackage pkg : kbase.getKnowledgePackages()) {
             // check the ScoreHolder global name
-            assertThat(pkg.getGlobalVariables().iterator().next().getName()).as("Unexpected ScoreHolder global name")
-                    .isEqualTo(SCORE_HOLDER_NAME);
+//            assertThat(pkg.getGlobalVariables().iterator().next().getName()).as("Unexpected ScoreHolder global name")
+//                    .isEqualTo(SCORE_HOLDER_NAME);
 
             // enforce that each rule is enumerated in ScoreRules
             // for example this will make sure that each rule either has correct constraint type metadata
@@ -546,7 +546,7 @@ public class ScoringRulesTest {
         }
 
         // set global score holder
-        ksession.setGlobal(SCORE_HOLDER_NAME, new HardSoftScoreHolder());
+        ksession.setGlobal(SCORE_HOLDER_NAME, new HardSoftScoreHolder(false));
 
         // register activation listener, ignoring the score accumulation rules
         ksession.addEventListener(activationListener);

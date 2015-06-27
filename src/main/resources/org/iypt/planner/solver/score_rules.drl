@@ -3,9 +3,9 @@ package org.iypt.planner.solver;
 
 import java.util.Collection;
 
-import org.drools.planner.core.score.buildin.hardsoft.HardSoftScoreHolder;
-import org.drools.planner.core.score.constraint.IntConstraintOccurrence;
-import org.drools.planner.core.score.constraint.ConstraintType;
+import org.optaplanner.core.api.score.buildin.hardsoft.HardSoftScoreHolder;
+import org.optaplanner.core.impl.score.constraint.IntConstraintOccurrence;
+import org.optaplanner.core.impl.score.constraint.ConstraintType;
 
 import com.neovisionaries.i18n.CountryCode;
 import org.iypt.planner.domain.Absence;

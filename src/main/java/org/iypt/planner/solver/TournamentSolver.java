@@ -2,32 +2,19 @@ package org.iypt.planner.solver;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import org.drools.ClassObjectFilter;
 import org.drools.KnowledgeBase;
-import org.drools.WorkingMemory;
 import org.drools.builder.KnowledgeBuilder;
 import org.drools.builder.KnowledgeBuilderFactory;
 import org.drools.builder.ResourceType;
 import org.drools.definition.KnowledgePackage;
 import org.drools.definition.rule.Rule;
 import org.drools.io.ResourceFactory;
-import org.drools.planner.config.EnvironmentMode;
-import org.drools.planner.config.SolverFactory;
-import org.drools.planner.config.XmlSolverFactory;
-import org.drools.planner.core.Solver;
-import org.drools.planner.core.event.SolverEventListener;
-import org.drools.planner.core.score.constraint.ConstraintOccurrence;
-import org.drools.planner.core.score.constraint.ConstraintType;
-import org.drools.planner.core.score.constraint.IntConstraintOccurrence;
-import org.drools.planner.core.score.constraint.UnweightedConstraintOccurrence;
-import org.drools.planner.core.score.director.ScoreDirector;
-import org.drools.planner.core.score.director.drools.DroolsScoreDirector;
 import org.iypt.planner.domain.Absence;
 import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.JurorLoad;
@@ -41,6 +28,19 @@ import org.iypt.planner.gui.JurorInfo;
 import org.iypt.planner.gui.ScheduleModel;
 import org.iypt.planner.gui.SeatInfo;
 import org.iypt.planner.solver.util.ConstraintComparator;
+import org.kie.api.runtime.ClassObjectFilter;
+import org.kie.api.runtime.KieSession;
+import org.optaplanner.core.api.solver.Solver;
+import org.optaplanner.core.api.solver.SolverFactory;
+import org.optaplanner.core.config.solver.EnvironmentMode;
+import org.optaplanner.core.config.solver.XmlSolverFactory;
+import org.optaplanner.core.impl.event.SolverEventListener;
+import org.optaplanner.core.impl.score.constraint.ConstraintOccurrence;
+import org.optaplanner.core.impl.score.constraint.ConstraintType;
+import org.optaplanner.core.impl.score.constraint.IntConstraintOccurrence;
+import org.optaplanner.core.impl.score.constraint.UnweightedConstraintOccurrence;
+import org.optaplanner.core.impl.score.director.ScoreDirector;
+import org.optaplanner.core.impl.score.director.drools.DroolsScoreDirector;
 
 import static org.iypt.planner.Constants.CONSTRAINT_TYPE_HARD;
 import static org.iypt.planner.Constants.CONSTRAINT_TYPE_KEY;
@@ -161,14 +161,13 @@ public class TournamentSolver {
     private ScheduleModel updateDetails() {
         scoreDirector.setWorkingSolution(tournament);
         scoreDirector.calculateScore();
-        WorkingMemory workingMemory = ((DroolsScoreDirector) scoreDirector).getWorkingMemory();
-        Iterator<?> it;
+        KieSession kieSession = ((DroolsScoreDirector) scoreDirector).getKieSession();
 
         // collect juror loads (based on jury assignments)
+        Collection<JurorLoad> jurroLoad
+                = (Collection<JurorLoad>) kieSession.getObjects(new ClassObjectFilter(JurorLoad.class));
         Map<Juror, JurorLoad> loadMap = new HashMap<>();
-        it = workingMemory.iterateObjects(new ClassObjectFilter(JurorLoad.class));
-        while (it.hasNext()) {
-            JurorLoad load = (JurorLoad) it.next();
+        for (JurorLoad load : jurroLoad) {
             loadMap.put(load.getJuror(), load);
         }
 
@@ -179,9 +178,9 @@ public class TournamentSolver {
         }
 
         // collect constraint occurences
-        it = workingMemory.iterateObjects(new ClassObjectFilter(ConstraintOccurrence.class));
-        while (it.hasNext()) {
-            ConstraintOccurrence co = (ConstraintOccurrence) it.next();
+        Collection<ConstraintOccurrence> constraintOccurrences
+                = (Collection<ConstraintOccurrence>) kieSession.getObjects(new ClassObjectFilter(ConstraintOccurrence.class));
+        for (ConstraintOccurrence co : constraintOccurrences) {
             coMap.get(co.getRuleId()).add(new Constraint(co));
         }
 

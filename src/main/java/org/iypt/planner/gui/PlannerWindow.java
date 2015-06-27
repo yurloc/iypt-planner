@@ -53,8 +53,6 @@ import org.apache.pivot.wtk.TableViewSelectionListener;
 import org.apache.pivot.wtk.TaskAdapter;
 import org.apache.pivot.wtk.Window;
 import org.apache.pivot.wtk.content.ListItem;
-import org.drools.planner.core.event.BestSolutionChangedEvent;
-import org.drools.planner.core.event.SolverEventListener;
 import org.iypt.planner.Constants;
 import org.iypt.planner.csv.CSVTournamentFactory;
 import org.iypt.planner.csv.ScheduleWriter;
@@ -65,6 +63,8 @@ import org.iypt.planner.gui.swap.SeatSwap;
 import org.iypt.planner.gui.swap.SwapQueue;
 import org.iypt.planner.pdf.PdfCreator;
 import org.iypt.planner.solver.TournamentSolver;
+import org.optaplanner.core.impl.event.BestSolutionChangedEvent;
+import org.optaplanner.core.impl.event.SolverEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

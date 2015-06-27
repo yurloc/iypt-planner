@@ -3,10 +3,13 @@ package org.iypt.planner.domain;
 public abstract class AbstractSeat implements Seat {
 
     // fixed
-    protected final Jury jury;
-    protected final int position;
+    protected Jury jury;
+    protected int position;
     // planning variable
     protected Juror juror;
+
+    public AbstractSeat() {
+    }
 
     public AbstractSeat(Jury jury, int position, Juror juror) {
         this.jury = jury;

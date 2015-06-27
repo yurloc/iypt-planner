@@ -2,27 +2,27 @@ package org.iypt.planner.solver;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
-import org.drools.ClassObjectFilter;
-import org.drools.WorkingMemory;
-import org.drools.planner.config.EnvironmentMode;
-import org.drools.planner.config.SolverFactory;
-import org.drools.planner.config.XmlSolverFactory;
-import org.drools.planner.config.solver.SolverConfig;
-import org.drools.planner.config.termination.TerminationConfig;
-import org.drools.planner.core.Solver;
-import org.drools.planner.core.score.constraint.ConstraintOccurrence;
-import org.drools.planner.core.score.director.ScoreDirector;
-import org.drools.planner.core.score.director.drools.DroolsScoreDirector;
-import org.drools.planner.core.solution.Solution;
 import org.iypt.planner.domain.Tournament;
 import org.iypt.planner.solver.util.ConstraintComparator;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.experimental.categories.Category;
+import org.kie.api.runtime.ClassObjectFilter;
+import org.kie.api.runtime.KieSession;
+import org.optaplanner.core.api.solver.Solver;
+import org.optaplanner.core.api.solver.SolverFactory;
+import org.optaplanner.core.config.solver.EnvironmentMode;
+import org.optaplanner.core.config.solver.SolverConfig;
+import org.optaplanner.core.config.solver.XmlSolverFactory;
+import org.optaplanner.core.config.termination.TerminationConfig;
+import org.optaplanner.core.impl.score.constraint.ConstraintOccurrence;
+import org.optaplanner.core.impl.score.director.ScoreDirector;
+import org.optaplanner.core.impl.score.director.drools.DroolsScoreDirector;
+import org.optaplanner.core.impl.solution.Solution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,11 +111,12 @@ public abstract class AbstractSolverTest {
         scoreDirector.setWorkingSolution(((Tournament) solution).cloneSolution());
         scoreDirector.calculateScore();
 
-        WorkingMemory workingMemory = ((DroolsScoreDirector) scoreDirector).getWorkingMemory();
-        Iterator<?> it = workingMemory.iterateObjects(new ClassObjectFilter(ConstraintOccurrence.class));
+        KieSession kieSession = ((DroolsScoreDirector) scoreDirector).getKieSession();
+        Collection<ConstraintOccurrence> constraintOccurrences
+                = (Collection<ConstraintOccurrence>) kieSession.getObjects(new ClassObjectFilter(ConstraintOccurrence.class));
         ArrayList<ConstraintOccurrence> arrayList = new ArrayList<>();
-        while (it.hasNext()) {
-            arrayList.add((ConstraintOccurrence) it.next());
+        for (ConstraintOccurrence co : constraintOccurrences) {
+            arrayList.add(co);
         }
         return arrayList;
     }

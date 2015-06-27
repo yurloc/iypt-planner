@@ -2,12 +2,15 @@ package org.iypt.planner.solver.util;
 
 import java.io.Serializable;
 import java.util.Comparator;
-import org.drools.planner.core.score.constraint.ConstraintOccurrence;
-import org.drools.planner.core.score.constraint.ConstraintType;
-import org.drools.planner.core.score.constraint.DoubleConstraintOccurrence;
-import org.drools.planner.core.score.constraint.IntConstraintOccurrence;
-import org.drools.planner.core.score.constraint.LongConstraintOccurrence;
-import org.drools.planner.core.score.constraint.UnweightedConstraintOccurrence;
+import org.optaplanner.core.impl.score.constraint.ConstraintOccurrence;
+import org.optaplanner.core.impl.score.constraint.ConstraintType;
+import org.optaplanner.core.impl.score.constraint.DoubleConstraintOccurrence;
+import org.optaplanner.core.impl.score.constraint.IntConstraintOccurrence;
+import org.optaplanner.core.impl.score.constraint.LongConstraintOccurrence;
+import org.optaplanner.core.impl.score.constraint.UnweightedConstraintOccurrence;
+
+import static org.optaplanner.core.impl.score.constraint.ConstraintType.HARD;
+import static org.optaplanner.core.impl.score.constraint.ConstraintType.SOFT;
 
 /**
  *

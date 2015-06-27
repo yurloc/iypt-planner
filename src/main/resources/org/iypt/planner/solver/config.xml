@@ -9,7 +9,7 @@
 
   <!-- Score configuration -->
   <scoreDirectorFactory>
-    <scoreDefinitionType>HARD_AND_SOFT</scoreDefinitionType>
+    <scoreDefinitionType>HARD_SOFT</scoreDefinitionType>
     <!--<simpleScoreCalculatorClass>org.drools.planner.examples.cloudbalancing.solver.score.CloudBalancingSimpleScoreCalculator</simpleScoreCalculatorClass>-->
     <!--<incrementalScoreCalculatorClass>org.drools.planner.examples.cloudbalancing.solver.score.CloudBalancingIncrementalScoreCalculator</incrementalScoreCalculatorClass>-->
     <scoreDrl>/org/iypt/planner/solver/score_rules.drl</scoreDrl>
@@ -18,27 +18,67 @@
   <!-- Optimization algorithms configuration -->
   <termination>
   </termination>
+
   <constructionHeuristic>
-    <constructionHeuristicType>FIRST_FIT</constructionHeuristicType>
-    <!--<constructionHeuristicPickEarlyType>FIRST_LAST_STEP_SCORE_EQUAL_OR_IMPROVING</constructionHeuristicPickEarlyType>-->
+    <queuedEntityPlacer>
+      <entitySelector id="placerEntitySelector1">
+        <cacheType>PHASE</cacheType>
+        <entityClass>org.iypt.planner.domain.VotingSeat</entityClass>
+      </entitySelector>
+      <changeMoveSelector>
+        <entitySelector mimicSelectorRef="placerEntitySelector1"/>
+      </changeMoveSelector>
+    </queuedEntityPlacer>
   </constructionHeuristic>
+
+  <constructionHeuristic>
+    <queuedEntityPlacer>
+      <entitySelector id="placerEntitySelector2">
+        <cacheType>PHASE</cacheType>
+        <entityClass>org.iypt.planner.domain.NonVotingSeat</entityClass>
+      </entitySelector>
+      <changeMoveSelector>
+        <entitySelector mimicSelectorRef="placerEntitySelector2"/>
+      </changeMoveSelector>
+    </queuedEntityPlacer>
+  </constructionHeuristic>
+
+
   <localSearch>
     <termination>
       <scoreAttained>0hard/0soft</scoreAttained>
     </termination>
     <unionMoveSelector>
       <changeMoveSelector>
+        <entitySelector>
+          <entityClass>org.iypt.planner.domain.VotingSeat</entityClass>
+        </entitySelector>
+        <fixedProbabilityWeight>4.0</fixedProbabilityWeight>
+      </changeMoveSelector>
+      <swapMoveSelector>
+        <entitySelector>
+          <entityClass>org.iypt.planner.domain.VotingSeat</entityClass>
+        </entitySelector>
+        <fixedProbabilityWeight>1.0</fixedProbabilityWeight>
+      </swapMoveSelector>
+      <changeMoveSelector>
+        <entitySelector>
+          <entityClass>org.iypt.planner.domain.NonVotingSeat</entityClass>
+        </entitySelector>
         <fixedProbabilityWeight>1.0</fixedProbabilityWeight>
       </changeMoveSelector>
       <swapMoveSelector>
-        <fixedProbabilityWeight>4.0</fixedProbabilityWeight>
+        <entitySelector>
+          <entityClass>org.iypt.planner.domain.NonVotingSeat</entityClass>
+        </entitySelector>
+        <fixedProbabilityWeight>1.0</fixedProbabilityWeight>
       </swapMoveSelector>
     </unionMoveSelector>
     <acceptor>
-      <planningEntityTabuSize>7</planningEntityTabuSize>
+      <entityTabuSize>7</entityTabuSize>
     </acceptor>
     <forager>
-      <minimalAcceptedSelection>10000</minimalAcceptedSelection>
+      <acceptedCountLimit>10000</acceptedCountLimit>
       <pickEarlyType>FIRST_BEST_SCORE_IMPROVING</pickEarlyType>
     </forager>
   </localSearch>

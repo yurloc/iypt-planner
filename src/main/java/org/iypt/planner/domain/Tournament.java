@@ -11,11 +11,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import org.drools.planner.api.domain.solution.PlanningEntityCollectionProperty;
-import org.drools.planner.core.score.buildin.hardsoft.HardSoftScore;
-import org.drools.planner.core.solution.Solution;
 import org.iypt.planner.solver.DefaultWeightConfig;
 import org.iypt.planner.solver.WeightConfig;
+import org.optaplanner.core.api.domain.solution.PlanningEntityCollectionProperty;
+import org.optaplanner.core.api.domain.solution.PlanningSolution;
+import org.optaplanner.core.api.domain.value.ValueRangeProvider;
+import org.optaplanner.core.api.score.buildin.hardsoft.HardSoftScore;
+import org.optaplanner.core.impl.solution.Solution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +25,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author jlocker
  */
+@PlanningSolution
 public class Tournament implements Solution<HardSoftScore> {
 
     private static final Logger log = LoggerFactory.getLogger(Tournament.class);
@@ -289,6 +292,7 @@ public class Tournament implements Solution<HardSoftScore> {
     // Jurors
     //-------------------------------------------------------------------------
     //
+    @ValueRangeProvider(id = "jurors")
     public List<Juror> getJurors() {
         return Collections.unmodifiableList(jurors);
     }

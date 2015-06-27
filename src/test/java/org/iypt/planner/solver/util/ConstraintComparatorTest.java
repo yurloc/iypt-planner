@@ -1,13 +1,13 @@
 package org.iypt.planner.solver.util;
 
-import org.drools.planner.core.score.constraint.ConstraintOccurrence;
-import org.drools.planner.core.score.constraint.IntConstraintOccurrence;
-import org.drools.planner.core.score.constraint.UnweightedConstraintOccurrence;
 import org.junit.Test;
+import org.optaplanner.core.impl.score.constraint.ConstraintOccurrence;
+import org.optaplanner.core.impl.score.constraint.IntConstraintOccurrence;
+import org.optaplanner.core.impl.score.constraint.UnweightedConstraintOccurrence;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.drools.planner.core.score.constraint.ConstraintType.*;
+import static org.optaplanner.core.impl.score.constraint.ConstraintType.*;
 
 /**
  *
