@@ -7,16 +7,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.drools.KnowledgeBase;
-import org.drools.builder.KnowledgeBuilder;
-import org.drools.builder.KnowledgeBuilderFactory;
-import org.drools.builder.ResourceType;
-import org.drools.definition.KnowledgePackage;
-import org.drools.definition.rule.Rule;
-import org.drools.event.rule.AfterActivationFiredEvent;
-import org.drools.event.rule.DefaultAgendaEventListener;
-import org.drools.io.ResourceFactory;
-import org.drools.runtime.StatefulKnowledgeSession;
 import org.iypt.planner.csv.CSVTournamentFactory;
 import org.iypt.planner.domain.Absence;
 import org.iypt.planner.domain.Conflict;
@@ -28,6 +18,19 @@ import org.iypt.planner.domain.Seat;
 import org.iypt.planner.domain.Tournament;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.kie.api.KieServices;
+import org.kie.api.builder.KieBuilder;
+import org.kie.api.builder.KieFileSystem;
+import org.kie.api.builder.Message;
+import org.kie.api.builder.model.KieModuleModel;
+import org.kie.api.definition.KiePackage;
+import org.kie.api.definition.rule.Rule;
+import org.kie.api.event.rule.AfterMatchFiredEvent;
+import org.kie.api.event.rule.DefaultAgendaEventListener;
+import org.kie.api.io.ResourceType;
+import org.kie.api.runtime.KieContainer;
+import org.kie.api.runtime.KieSession;
+import org.kie.api.runtime.rule.Match;
 import org.optaplanner.core.api.score.buildin.hardsoft.HardSoftScore;
 import org.optaplanner.core.api.score.buildin.hardsoft.HardSoftScoreHolder;
 import org.optaplanner.core.api.score.holder.ScoreHolder;
@@ -51,30 +54,33 @@ public class ScoringRulesTest {
     private static final Logger LOG = LoggerFactory.getLogger(ScoringRulesTest.class);
     private static final String SCORE_DRL = "org/iypt/planner/solver/score_rules.drl";
     private static final String SCORE_HOLDER_NAME = "scoreHolder";
-    private static KnowledgeBase kbase;
+    private static KieContainer kieContainer;
     private static WeightConfig wconfig;
 
     @BeforeClass
     public static void setUpClass() {
 
-        // prepare knowledge base
-        KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
-        kbuilder.add(ResourceFactory.newClassPathResource(SCORE_DRL), ResourceType.DRL);
-        assertThat(kbuilder.hasErrors()).as(kbuilder.getErrors().toString()).isFalse();
-        kbase = kbuilder.newKnowledgeBase();
+        // prepare kie container
+        KieServices kieServices = KieServices.Factory.get();
+        KieModuleModel kieModuleModel = kieServices.newKieModuleModel();
+        KieFileSystem kfs = kieServices.newKieFileSystem();
+        kfs.writeKModuleXML(kieModuleModel.toXML());
+        kfs.write(kieServices.getResources().newClassPathResource(SCORE_DRL).setResourceType(ResourceType.DRL));
+        KieBuilder kieBuilder = kieServices.newKieBuilder(kfs).buildAll();
+        assertThat(kieBuilder.getResults().getMessages(Message.Level.ERROR)).isEmpty();
+        kieContainer = kieServices.newKieContainer(kieServices.getRepository().getDefaultReleaseId());
 
         // do some checks
-        for (KnowledgePackage pkg : kbase.getKnowledgePackages()) {
-            // check the ScoreHolder global name
-//            assertThat(pkg.getGlobalVariables().iterator().next().getName()).as("Unexpected ScoreHolder global name")
-//                    .isEqualTo(SCORE_HOLDER_NAME);
+        KiePackage pkg = kieContainer.getKieBase().getKiePackage("org.iypt.planner.solver");
+        // check the ScoreHolder global name
+        assertThat(pkg.getGlobalVariables().iterator().next().getName()).as("Unexpected ScoreHolder global name")
+                .isEqualTo(SCORE_HOLDER_NAME);
 
-            // enforce that each rule is enumerated in ScoreRules
-            // for example this will make sure that each rule either has correct constraint type metadata
-            // or is marked as auxiliary, no typos in rule names, etc.
-            for (Rule rule : pkg.getRules()) {
-                ScoringRule.valueOf(rule.getName());
-            }
+        // enforce that each rule is enumerated in ScoreRules
+        // for example this will make sure that each rule either has correct constraint type metadata
+        // or is marked as auxiliary, no typos in rule names, etc.
+        for (Rule rule : pkg.getRules()) {
+            ScoringRule.valueOf(rule.getName());
         }
 
         // prepare testing weight configuration
@@ -103,7 +109,7 @@ public class ScoringRulesTest {
      */
     @Test
     public void testMetadata() {
-        for (KnowledgePackage pkg : kbase.getKnowledgePackages()) {
+        for (KiePackage pkg : kieContainer.getKieBase().getKiePackages()) {
             for (Rule rule : pkg.getRules()) {
                 Map<String, Object> metaData = rule.getMetaData();
                 if (metaData.containsKey(CONSTRAINT_TYPE_KEY)) {
@@ -529,13 +535,13 @@ public class ScoringRulesTest {
             assertThat(result.getFireCount(firing.rule.toString())).isEqualTo(firing.count);
             total += firing.count;
         }
-        assertThat(result.getTotalFireCount()).isEqualTo(total);
-        assertThat(result.getScore().isFeasible()).isEqualTo(feasibile);
+        assertThat(result.getRuleActivations()).as("Total rules fired").hasSize(total);
+        assertThat(result.getScore().isFeasible()).as("Score feasibility").isEqualTo(feasibile);
     }
 
     private ScoringResult calculateScore(Tournament t, ActivationListener activationListener) {
         // create ksession
-        StatefulKnowledgeSession ksession = kbase.newStatefulKnowledgeSession();
+        KieSession ksession = kieContainer.newKieSession();
 
         // insert all problem facts and planning entities from the solution
         for (Object o : t.getProblemFacts()) {
@@ -608,13 +614,14 @@ public class ScoringRulesTest {
         }
 
         @Override
-        public void afterActivationFired(AfterActivationFiredEvent event) {
-            super.afterActivationFired(event);
-            String ruleName = event.getActivation().getRule().getName();
+        public void afterMatchFired(AfterMatchFiredEvent event) {
+            super.afterMatchFired(event);
+            Match match = event.getMatch();
+            String ruleName = match.getRule().getName();
             if (ignoredRules.contains(ruleName)) {
                 return; // ignore this rule
             }
-            RuleActivation activation = new RuleActivation(ruleName, event.getActivation().getObjects());
+            RuleActivation activation = new RuleActivation(ruleName, match.getObjects());
             ruleActivations.add(activation);
             Integer count = firedRules.get(ruleName);
             firedRules.put(ruleName, count == null ? 1 : ++count);
@@ -659,7 +666,7 @@ public class ScoringRulesTest {
             this.activationListener = activationListener;
         }
 
-        public void setKnowledgeSession(StatefulKnowledgeSession ksession) {
+        public void setKnowledgeSession(KieSession ksession) {
             ScoreHolder holder = (ScoreHolder) ksession.getGlobal(SCORE_HOLDER_NAME);
             score = (HardSoftScore) holder.extractScore();
             LOG.debug(score.toString());
