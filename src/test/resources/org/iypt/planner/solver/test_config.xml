@@ -5,7 +5,8 @@
 
   <!-- Domain model configuration -->
   <solutionClass>org.iypt.planner.domain.Tournament</solutionClass>
-  <planningEntityClass>org.iypt.planner.domain.Seat</planningEntityClass>
+  <planningEntityClass>org.iypt.planner.domain.VotingSeat</planningEntityClass>
+  <planningEntityClass>org.iypt.planner.domain.NonVotingSeat</planningEntityClass>
 
   <!-- Score configuration -->
   <scoreDirectorFactory>

@@ -275,7 +275,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
                 juries.add(jury);
 
                 for (int i = 0; i < r.getJurySize(); i++) {
-                    Seat seat = new Seat(jury, i, null);
+                    Seat seat = new VotingSeat(jury, i, null);
                     seats.add(seat);
                 }
             }
@@ -470,7 +470,7 @@ public class Tournament implements Solution<HardAndSoftScore> {
                 newSeats.addAll(getSeats(jury).subList(0, Math.min(round.getJurySize(), newSize)));
                 // add empty seats (if the size was increased)
                 for (int i = round.getJurySize(); i < newSize; i++) {
-                    newSeats.add(new Seat(jury, i, null));
+                    newSeats.add(new VotingSeat(jury, i, null));
                 }
             } else {
                 newSeats.addAll(getSeats(jury));
