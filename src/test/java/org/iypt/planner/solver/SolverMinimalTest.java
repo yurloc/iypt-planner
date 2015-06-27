@@ -48,7 +48,8 @@ public class SolverMinimalTest extends AbstractSolverTest {
         t.addAbsences(new Absence(jH1, r2), new Absence(jI1, r2));
 
         // just visualizing the numbers
-        assertThat(t.getSeats().size() / t.getRounds().size()).isEqualTo(18);
+        assertThat((t.getSeats().size() - Tournament.NON_VOTING_SEAT_BUFFER * t.getJuries().size())
+                / t.getRounds().size()).isEqualTo(18);
         assertThat(t.getJurors().size()).isEqualTo(28);
 
         return t;
