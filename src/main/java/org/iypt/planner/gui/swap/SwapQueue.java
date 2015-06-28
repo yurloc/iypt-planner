@@ -8,7 +8,7 @@ public class SwapQueue {
     public void add(SwapArgument arg) {
         if (source == null) {
             source = arg;
-        } else if (!source.getJuror().equals(arg.getJuror())) {
+        } else if (!source.equals(arg)) {
             target = source;
             source = arg;
         }

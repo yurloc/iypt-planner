@@ -1,5 +1,6 @@
 package org.iypt.planner.gui.swap;
 
+import java.util.Objects;
 import org.iypt.planner.domain.Juror;
 
 public class IdleSwap implements SwapArgument {
@@ -23,5 +24,27 @@ public class IdleSwap implements SwapArgument {
     @Override
     public boolean isTarget() {
         return false;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 29 * hash + Objects.hashCode(this.juror);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final IdleSwap other = (IdleSwap) obj;
+        if (!Objects.equals(this.juror, other.juror)) {
+            return false;
+        }
+        return true;
     }
 }
