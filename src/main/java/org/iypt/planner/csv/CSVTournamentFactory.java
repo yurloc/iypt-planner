@@ -12,6 +12,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.iypt.planner.domain.Absence;
@@ -354,17 +355,12 @@ public class CSVTournamentFactory {
             }
             assert round != null;
 
-            // set jury size
-            if (round.getJurySize() <= 0) {
-                int jurySize = line.size() - 2;
-                if (line.get(line.size() - 1) == null) {
-                    // don't break the jury size with trailing ';'
-                    LOG.trace("Ignoring trailing '{}' in {}[{}:{}]",
-                            new Object[]{(char) PREFERENCE.getDelimiterChar(), src.name, ln, line.size() - 1});
-                    jurySize--;
-                }
-                LOG.debug("{} jury size: {}.", round, jurySize);
-                round.setJurySize(jurySize);
+            int jurorCount = line.size() - 2;
+            if (line.get(line.size() - 1) == null) {
+                // don't break the jury size with trailing ';'
+                LOG.trace("Ignoring trailing '{}' in {}[{}:{}]",
+                        new Object[]{(char) PREFERENCE.getDelimiterChar(), src.name, ln, line.size() - 1});
+                jurorCount--;
             }
 
             // get group
@@ -381,14 +377,32 @@ public class CSVTournamentFactory {
 
             List<Juror> jurorList = new ArrayList<>();
             juries.put(jury, jurorList);
-            for (int i = 0; i < round.getJurySize(); i++) {
+            int jurySize = jurorCount;
+            for (int i = 0; i < jurorCount; i++) {
                 String name = line.get(i + 2);
-                Juror juror = jurors.get(name);
-                if (juror == null) {
-                    throwIOE("Unkown juror", name, src.name, ln, i + 2);
+                if (name != null) {
+                    // handle non-voting jurors
+                    if (name.startsWith("(") && name.endsWith(")")) {
+                        name = name.substring(1, name.length() - 1);
+                        jurySize--;
+                    }
+
+                    Juror juror = jurors.get(name);
+                    if (juror == null) {
+                        throwIOE("Unkown juror", name, src.name, ln, i + 2);
+                    }
+                    jurorList.add(juror);
+                } else {
+                    jurorList.add(null);
                 }
-                jurorList.add(juror);
             }
+
+            // set jury size
+            if (round.getJurySize() <= 0) {
+                LOG.debug("{} jury size: {}.", round, jurySize);
+                round.setJurySize(jurySize);
+            }
+
             ln++;
         }
         LOG.info("Schedule data loaded");
@@ -535,9 +549,9 @@ public class CSVTournamentFactory {
                 List<Juror> scheduledJury = juries.get(jury);
                 // don't fail if only partial jury schedule is provided
                 if (scheduledJury != null) {
-                    for (int i = 0; i < jury.getGroup().getRound().getJurySize(); i++) {
-                        Seat seat = tournament.getSeats(jury).get(i);
-                        seat.setJuror(scheduledJury.get(i));
+                    Iterator<Seat> seats = tournament.getSeats(jury).iterator();
+                    for (Juror juror : scheduledJury) {
+                        seats.next().setJuror(juror);
                     }
                 }
             }
