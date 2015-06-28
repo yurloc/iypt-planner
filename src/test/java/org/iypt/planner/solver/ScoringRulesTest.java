@@ -731,6 +731,7 @@ public class ScoringRulesTest {
         absentJuror(HARD),
         brokenLock(HARD),
         experiencedJurorOnNonVotingVotingSeat(HARD),
+        inexperiencedOnNonVotingVotingSeatNotInFirstRound(HARD),
         // soft constraints
         // * across rounds
         teamAndChairMeetTwice(SOFT, 200),
@@ -742,6 +743,7 @@ public class ScoringRulesTest {
         independentRatioDeltaExceeded(SOFT, 1),
         accumulatedBias(SOFT, 10),
         inexperiencedJurorVoting(SOFT, 500),
+        inexperiencedJurorObserving(SOFT),
         // * change penalties
         penalizeChairChange(SOFT, 5),
         penalizeJurorChange(SOFT, 5),

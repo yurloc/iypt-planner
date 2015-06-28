@@ -98,8 +98,8 @@ rule "absentJuror"
 @ConstraintType(hard)
 when
     $r : Round()
-    // TODO VotingSeat( round == $r )
-    $s : VotingSeat( jury.group.round == $r, $juror : juror )
+    // TODO Seat( round == $r )
+    $s : Seat( jury.group.round == $r, $juror : juror )
     $absence : Absence( juror == $juror, round == $r )
 then
     insertLogical( new IntConstraintOccurrence(
@@ -150,6 +150,19 @@ then
         drools.getRule().getName(),
         ConstraintType.HARD, -1,
         $s, $j
+    ));
+end
+
+rule "inexperiencedOnNonVotingVotingSeatNotInFirstRound"
+@ConstraintType(hard)
+when
+    $juror : Juror( !experienced, $firstRound : firstAvailable )
+    $seat  : NonVotingSeat( juror == $juror, jury.group.round.number != $firstRound )
+then
+    insertLogical( new IntConstraintOccurrence(
+        drools.getRule().getName(),
+        ConstraintType.HARD, -1,
+        $seat, $juror
     ));
 end
 
@@ -295,12 +308,25 @@ rule "inexperiencedJurorVoting"
 when
     $wc    : WeightConfig()
     $juror : Juror( !experienced, $firstRound : firstAvailable )
-    $round : Round( number == $firstRound )
-    $seat  : VotingSeat( juror == $juror, jury.group.round == $round )
+    $seat  : VotingSeat( juror == $juror, jury.group.round.number == $firstRound )
 then
     insertLogical( new IntConstraintOccurrence(
         drools.getRule().getName(),
         ConstraintType.SOFT, -$wc.getWeight(drools.getRule().getName()),
+        $seat
+    ));
+end
+
+rule "inexperiencedJurorObserving"
+@ConstraintType(soft)
+when
+    $juror : Juror( !experienced, $firstRound : firstAvailable )
+    $round : Round( number == $firstRound )
+    $seat  : NonVotingSeat( juror == $juror, jury.group.round == $round )
+then
+    insertLogical( new IntConstraintOccurrence(
+        drools.getRule().getName(),
+        ConstraintType.SOFT, 1,
         $seat
     ));
 end
