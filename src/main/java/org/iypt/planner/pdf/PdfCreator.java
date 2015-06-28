@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.iypt.planner.domain.Group;
+import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Seat;
 import org.iypt.planner.domain.Team;
@@ -122,6 +123,7 @@ public class PdfCreator {
         Font fRounds = new Font(bf, 10, Font.BOLD);
         Font fTeams = new Font(bf, 10);
         Font fJury = new Font(bf, 10);
+        Font fObs = new Font(bf, 10, Font.NORMAL, BaseColor.GRAY);
 
         PdfPTable table = new PdfPTable(t.getRounds().get(1).getGroups().size());
         table.setWidthPercentage(100);
@@ -129,7 +131,7 @@ public class PdfCreator {
 
         // Header with group names
         for (Group group : t.getRounds().get(1).getGroups()) {
-            PdfPCell cGroup = new PdfPCell(new Phrase(String.format("Group %s", group.getName()), fRounds));
+            PdfPCell cGroup = new PdfPCell(new Phrase(group.getName(), fRounds));
             cGroup.setPadding(10);
             cGroup.setHorizontalAlignment(Element.ALIGN_CENTER);
             cGroup.setBackgroundColor(BaseColor.LIGHT_GRAY);
@@ -153,14 +155,24 @@ public class PdfCreator {
         }
 
         // Jurors
-        int rows = r.getJurySize();
+        int rows = r.getJurySize() + Tournament.NON_VOTING_SEAT_BUFFER;
         for (int i = 0; i < rows; i++) {
             List<String> juryRow = new ArrayList<>();
             for (Group g : r.getGroups()) {
-                juryRow.add(t.getSeats(g.getJury()).get(i).getJuror().fullName());
+                Seat s = t.getSeats(g.getJury()).get(i);
+                Juror juror = s.getJuror();
+                if (juror != null) {
+                    if (s.isVoting()) {
+                        juryRow.add(juror.fullName());
+                    } else {
+                        juryRow.add(String.format("[%s]", juror.fullName()));
+                    }
+                } else {
+                    juryRow.add("");
+                }
             }
             for (String s : juryRow) {
-                Phrase pJury = new Phrase(s, fJury);
+                Phrase pJury = new Phrase(s, i < r.getJurySize() ? fJury : fObs);
                 PdfPCell cell = new PdfPCell(pJury);
                 cell.setFixedHeight(30f);
                 cell.setHorizontalAlignment(Element.ALIGN_CENTER);
