@@ -13,6 +13,7 @@ import java.text.DateFormat;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Map.Entry;
+import java.util.prefs.Preferences;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.pivot.beans.BXML;
 import org.apache.pivot.beans.BXMLSerializer;
@@ -104,6 +105,7 @@ public class PlannerWindow extends Window implements Bindable {
     // build info
     @BXML private Label buildInfoLabel;
     // other
+    private final Preferences prefs;
     private final SwapQueue swapQueue = new SwapQueue();
     private TournamentSchedule tournamentSchedule;
     private SolverTask solverTask;
@@ -118,6 +120,7 @@ public class PlannerWindow extends Window implements Bindable {
     private ScheduledCallback scoreChangedTimer;
 
     public PlannerWindow() {
+        prefs = Preferences.userNodeForPackage(PlannerWindow.class);
         Action.getNamedActions().put("quit", new Action() {
             @Override
             public void perform(Component source) {
@@ -578,14 +581,14 @@ public class PlannerWindow extends Window implements Bindable {
 
         @Override
         public void perform(Component source) {
-            // TODO set root folder to last selected file parent
-            final FileBrowserSheet fileBrowserSheet = new FileBrowserSheet();
+            final FileBrowserSheet fileBrowserSheet = new FileBrowserSheet(getLastDir());
             fileBrowserSheet.setDisabledFileFilter(CSV_FILE_FILTER);
             fileBrowserSheet.open(PlannerWindow.this, new SheetCloseListener() {
                 @Override
                 public void sheetClosed(Sheet sheet) {
                     if (sheet.getResult()) {
                         File f = fileBrowserSheet.getSelectedFile();
+                        setLastDir(f.getParent());
                         try {
                             processFile(f);
                         } catch (Exception ex) {
@@ -674,6 +677,14 @@ public class PlannerWindow extends Window implements Bindable {
         }
     };
 
+    private String getLastDir() {
+        return prefs.get("last_dir", ".");
+    }
+
+    private void setLastDir(String path) {
+        prefs.put("last_dir", path);
+    }
+
     void clearSchedule() {
         // FIXME find a way to detect changes in the schedule (better than solutionChanged())
 //        saveScheduleAction.setEnabled(false);
@@ -683,8 +694,7 @@ public class PlannerWindow extends Window implements Bindable {
 
     void saveSchedule() {
         // create new FileBrowser to make sure a fresh file list is displayed
-        // TODO set root folder
-        final FileBrowserSheet fileBrowserSheet = new FileBrowserSheet(FileBrowserSheet.Mode.SAVE_AS);
+        final FileBrowserSheet fileBrowserSheet = new FileBrowserSheet(FileBrowserSheet.Mode.SAVE_AS, getLastDir());
         fileBrowserSheet.setDisabledFileFilter(CSV_FILE_FILTER);
         fileBrowserSheet.setSelectedFile(new File(fileBrowserSheet.getRootDirectory(), "schedule.csv"));
         fileBrowserSheet.open(PlannerWindow.this, new SheetCloseListener() {
@@ -692,6 +702,7 @@ public class PlannerWindow extends Window implements Bindable {
             public void sheetClosed(Sheet sheet) {
                 if (sheet.getResult()) {
                     final File f = fileBrowserSheet.getSelectedFile();
+                    setLastDir(f.getParent());
                     if (f.exists()) {
                         ArrayList<String> options = new ArrayList<>();
                         options.add("Yes");
@@ -727,8 +738,7 @@ public class PlannerWindow extends Window implements Bindable {
 
     void exportPdf() {
         // create new FileBrowser to make sure a fresh file list is displayed
-        // TODO set root folder
-        final FileBrowserSheet fileBrowserSheet = new FileBrowserSheet(FileBrowserSheet.Mode.SAVE_TO);
+        final FileBrowserSheet fileBrowserSheet = new FileBrowserSheet(FileBrowserSheet.Mode.SAVE_TO, getLastDir());
         fileBrowserSheet.setDisabledFileFilter(new Filter<File>() {
             @Override
             public boolean include(File item) {
@@ -740,6 +750,7 @@ public class PlannerWindow extends Window implements Bindable {
             public void sheetClosed(Sheet sheet) {
                 if (sheet.getResult()) {
                     File dir = fileBrowserSheet.getSelectedFile();
+                    setLastDir(dir.getAbsolutePath());
                     try {
                         Date d = new Date();
                         String time = String.format("%ty%tm%te_%tH%tM%tS_", d, d, d, d, d, d);
