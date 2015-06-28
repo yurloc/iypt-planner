@@ -31,18 +31,18 @@ public class ScheduleWriterTest {
     @BeforeClass
     public static void setUp() throws IOException {
         Round r1 = RoundFactory.createRound(1, gABC, gDEF);
-        Round r2 = RoundFactory.createRound(2, gABC, gDEF);
+        Round r2 = RoundFactory.createRound(2, gAEI, gBDI);
         r1.setJurySize(3);
         r2.setJurySize(3);
         tournament = new Tournament();
         tournament.addRounds(r1, r2);
-        List<Juror> jurors = Arrays.asList(jA1, jA2, jB2, jB2, jC1, jC2, jD1, jD2);
+        List<Juror> jurors = Arrays.asList(jA1, jA2, jB3, jB4, jM5, jM6, jM7);
         tournament.addJurors(jurors);
         int i = 0;
         for (Round round : tournament.getRounds()) {
             for (Group group : round.getGroups()) {
                 for (Seat seat : tournament.getSeats(group.getJury())) {
-                    if (seat.isVoting()) {
+                    if (round.getNumber() == 1 || seat.isVoting()) {
                         seat.setJuror(jurors.get(i));
                         i = (++i) % jurors.size();
                     }
@@ -75,10 +75,10 @@ public class ScheduleWriterTest {
 
         // check the stored lines
         String[] expectedLines = {
-            "1;Group A;1, null;2, null;1, null",
-            "1;Group B;2, null;2, null;2, null",
-            "2;Group A;1, null;2, null;1, null",
-            "2;Group B;2, null;2, null;2, null"};
+            "1;Group A;1, null;2, null;3, null;(4, null);(5, null)",
+            "1;Group B;6, null;7, null;1, null;(2, null);(3, null)",
+            "2;Group A;4, null;5, null;6, null",
+            "2;Group B;7, null;1, null;2, null"};
         assertThat(actualLines).containsExactly(expectedLines);
     }
 
@@ -117,6 +117,6 @@ public class ScheduleWriterTest {
         ScheduleWriter writer = new ScheduleWriter(t);
         writer.write(sw);
         log.debug("[{}]", sw.toString());
-        assertThat(sw.toString()).isEqualTo("1;Group A;null, null;null, null\n");
+        assertThat(sw.toString()).isEqualTo("1;Group A\n");
     }
 }
