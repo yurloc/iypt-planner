@@ -193,7 +193,7 @@ public class PdfCreator {
     private PdfPTable getRoomHeaderTable(Group group) {
         Font fGroup = new Font(bf, 72, Font.BOLD);
         Font fRound = new Font(bf, 20);
-        Phrase pGroup = new Phrase(String.format("GROUP %s", group.getName()), fGroup);
+        Phrase pGroup = new Phrase(group.getName(), fGroup);
         Phrase pRound = new Phrase(group.getRound().toString(), fRound);
 
         PdfPTable header = new PdfPTable(1);
@@ -207,7 +207,7 @@ public class PdfCreator {
     }
 
     private PdfPTable getRoomTeamTable(Group g) {
-        Font fTeams = new Font(bf, 28);
+        Font fTeams = new Font(bf, 24);
 
         PdfPTable table = new PdfPTable(new float[]{1, 4});
         table.setWidthPercentage(100);
@@ -226,9 +226,9 @@ public class PdfCreator {
     }
 
     private PdfPTable getRoomJuryTable(Tournament t, Group g) {
-        Font fChair = new Font(bf, 28, Font.BOLD);
-        Font fJuror = new Font(bf, 28);
-        Font fNonVoting = new Font(bf, 28, Font.NORMAL, BaseColor.DARK_GRAY);
+        Font fChair = new Font(bf, 24, Font.BOLD);
+        Font fJuror = new Font(bf, 24);
+        Font fNonVoting = new Font(bf, 24, Font.NORMAL, BaseColor.GRAY);
 
         PdfPTable table = new PdfPTable(new float[]{1, 4});
         table.setWidthPercentage(100);
@@ -241,17 +241,21 @@ public class PdfCreator {
         table.getDefaultCell().setBackgroundColor(BaseColor.WHITE);
         int count = 1;
         for (Seat s : t.getSeats(g.getJury())) {
-            table.addCell(getNumberCell(count++, fJuror));
-            Phrase pJuror = null;
+            String title = null;
+            Font font = null;
             if (s.isChair()) {
-                pJuror = new Phrase(String.format("%s (chair)", s.getJuror().fullName()), fChair);
+                title = String.format("%s (chair)", s.getJuror().fullName());
+                font = fChair;
             } else if (s.isVoting()) {
-                pJuror = new Phrase(s.getJuror().fullName(), fJuror);
+                title = s.getJuror().fullName();
+                font = fJuror;
             } else if (s.getJuror() != null) {
-                pJuror = new Phrase("[" + s.getJuror().fullName() + "]", fNonVoting);
+                title = String.format("%s (obs.)", s.getJuror().fullName());
+                font = fNonVoting;
             }
-            if (pJuror != null) {
-                table.addCell(pJuror);
+            if (title != null) {
+                table.addCell(getNumberCell(count++, font));
+                table.addCell(new Phrase(title, font));
             }
         }
         return table;
