@@ -55,6 +55,10 @@ public class Juror {
         return row.getLast_name();
     }
 
+    public boolean isJuror() {
+        return row.isJuror();
+    }
+
     @Override
     public String toString() {
         return String.format("%s {averageBias=%+.2f, marksRecorded=%d}", getName(), getAverageBias(), biases.size());

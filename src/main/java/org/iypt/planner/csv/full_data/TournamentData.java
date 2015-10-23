@@ -5,11 +5,15 @@ import java.io.Reader;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.iypt.planner.csv.full_data.FightReader.FightRow;
 import org.iypt.planner.csv.full_data.JurorReader.JurorRow;
 import org.iypt.planner.csv.full_data.MarkReader.MarkRow;
 import org.iypt.planner.csv.full_data.PersonReader.PersonRow;
 import org.iypt.planner.csv.full_data.TournamentReader.TournamentRow;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -17,6 +21,7 @@ import org.iypt.planner.csv.full_data.TournamentReader.TournamentRow;
  */
 public class TournamentData {
 
+    private static final Logger LOG = LoggerFactory.getLogger(TournamentData.class);
     private final Map<Integer, Tournament> tournaments = new HashMap<>();
     private final Map<Integer, Fight> fights = new HashMap<>();
     private final Map<Integer, Juror> jurors = new HashMap<>();
@@ -39,18 +44,19 @@ public class TournamentData {
 
         // read jurors
         for (PersonRow row : new PersonReader().read(tables).values()) {
-            // don't care about other participants, only jurors
-            if (row.isJuror()) {
-                Juror juror = new Juror(row, tournaments);
-                jurors.put(row.getId(), juror);
-                juror.getTournament().addJuror(juror);
-            }
+            Juror juror = new Juror(row, tournaments);
+            jurors.put(row.getId(), juror);
+            juror.getTournament().addJuror(juror);
         }
 
         // assign jurors to fights
         for (JurorRow row : new JurorReader().read(tables).values()) {
             Fight fight = fights.get(row.getFight());
             Juror juror = jurors.get(row.getJuror());
+            if (!juror.isJuror()) {
+                LOG.warn("Person '{}' is not a juror but participates in a fight: {}",
+                        juror.getName(), ToStringBuilder.reflectionToString(row, ToStringStyle.SHORT_PREFIX_STYLE));
+            }
             fight.assignJuror(row.getJuror_number(), juror);
         }
 
