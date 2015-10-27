@@ -1,0 +1,33 @@
+= IYPT Jury Planner
+
+IYPT Jury Planner is a Java-based application with GUI that is used to fill juries for the *International
+Young Physicists’ Tournament*. It helps to quickly find a distribution of people to juries that not only complies
+to the tournament regulations but also satisfies various extra constraints without involving tedious manual work.
+
+== Jury rules
+
+There are a few basic rules for a jury that are implied by tournament
+http://iypt.org/Official_Documents/Tournament_Regulations[regulations]:
+
+1. Each jury has the same number of members.
+2. The role of jury chairman is occupied.
+3. Team leaders cannot be members of jury for a fight where their team participates.
+4. Any chairman cannot grade the same team more than twice.
+
+On top of that, there are additional soft requirements, i.e. some _nice-to-have_ properties of the distribution.
+For example:
+
+1. example one
+2. example two
+
+Satisfying these requirements makes the juries "better", therefore we aim to meet as much of them as possible.
+However many of them are contradictory so it is hard to meet one without breaking two others and it is usually
+impossible to meet all of them.
+
+== Jury optimization
+You have probably guessed that finding the best jury schedule is an
+https://en.wikipedia.org/wiki/Combinatorial_optimization[optimization problem]. The typical feature of such
+problems is that there is no effective algorithm for finding the best (optimal) solution. This is where
+https://en.wikipedia.org/wiki/Metaheuristic[metaheuristics] weigh in. IYPT Jury Planner is powered by
+http://www.optaplanner.org[OptaPlanner], a software library which allows to write applications for optimizing
+real planning problems without having to re-implement metaheuristic algorithms.
