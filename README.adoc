@@ -17,17 +17,20 @@ http://iypt.org/Official_Documents/Tournament_Regulations[regulations]:
 On top of that, there are additional soft requirements, i.e. some _nice-to-have_ properties of the distribution.
 For example:
 
-1. example one
-2. example two
+. No juror should remain idle during the whole tournament. Juror workloads should be balanced.
+. The rate of team leads and local jurors (provided by the Local Organizing Committee) should be balanced accross
+  all juries.
+. The sum of biases of jurors in each jury should be balanced across all juries. Bias is a statistic based on
+  historical data and describes a person’s tendency to be either nice or strict in grading the fighting teams.
 
-Satisfying these requirements makes the juries "better", therefore we aim to meet as much of them as possible.
+Satisfying these requirements makes the juries “better”, therefore we aim to meet as much of them as possible.
 However many of them are contradictory so it is hard to meet one without breaking two others and it is usually
 impossible to meet all of them.
 
 == Jury optimization
-You have probably guessed that finding the best jury schedule is an
+You may have guessed that finding the best jury schedule is an example of
 https://en.wikipedia.org/wiki/Combinatorial_optimization[optimization problem]. The typical feature of such
 problems is that there is no effective algorithm for finding the best (optimal) solution. This is where
 https://en.wikipedia.org/wiki/Metaheuristic[metaheuristics] weigh in. IYPT Jury Planner is powered by
 http://www.optaplanner.org[OptaPlanner], a software library which allows to write applications for optimizing
-real planning problems without having to re-implement metaheuristic algorithms.
+real-life planning problems without having to re-implement metaheuristic algorithms.
