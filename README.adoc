@@ -18,7 +18,7 @@ On top of that, there are additional soft requirements, i.e. some _nice-to-have_
 For example:
 
 . No juror should remain idle during the whole tournament. Juror workloads should be balanced.
-. The rate of team leads and local jurors (provided by the Local Organizing Committee) should be balanced accross
+. The rate of team leads and local jurors (provided by the Local Organizing Committee) should be balanced across
   all juries.
 . The sum of biases of jurors in each jury should be balanced across all juries. Bias is a statistic based on
   historical data and describes a person’s tendency to be either nice or strict in grading the fighting teams.
