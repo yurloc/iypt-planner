@@ -65,13 +65,14 @@ public class BiasComputationWizard extends Sheet implements Bindable {
         browseButton.getButtonPressListeners().add(new ButtonPressListener() {
             @Override
             public void buttonPressed(Button button) {
-                final FileBrowserSheet fileBrowserSheet = new FileBrowserSheet(FileBrowserSheet.Mode.OPEN);
+                final FileBrowserSheet fileBrowserSheet = new FileBrowserSheet(FileBrowserSheet.Mode.OPEN, PlannerWindow.getLastDir());
                 fileBrowserSheet.setDisabledFileFilter(PlannerWindow.CSV_FILE_FILTER);
                 fileBrowserSheet.open(BiasComputationWizard.this, new SheetCloseListener() {
                     @Override
                     public void sheetClosed(Sheet sheet) {
                         if (sheet.getResult()) {
                             File f = fileBrowserSheet.getSelectedFile();
+                            PlannerWindow.setLastDir(f.getParent());
                             try (FileReader fr = new FileReader(f)) {
                                 TournamentData data = new TournamentData();
                                 data.readData(fr);
@@ -109,7 +110,7 @@ public class BiasComputationWizard extends Sheet implements Bindable {
         exportButton.getButtonPressListeners().add(new ButtonPressListener() {
             @Override
             public void buttonPressed(Button button) {
-                final FileBrowserSheet fileBrowserSheet = new FileBrowserSheet(FileBrowserSheet.Mode.SAVE_AS);
+                final FileBrowserSheet fileBrowserSheet = new FileBrowserSheet(FileBrowserSheet.Mode.SAVE_AS, PlannerWindow.getLastDir());
                 fileBrowserSheet.setDisabledFileFilter(PlannerWindow.CSV_FILE_FILTER);
                 fileBrowserSheet.setSelectedFile(new File(fileBrowserSheet.getRootDirectory(), "biases.csv"));
                 fileBrowserSheet.open(BiasComputationWizard.this, new SheetCloseListener() {
@@ -118,6 +119,7 @@ public class BiasComputationWizard extends Sheet implements Bindable {
                         if (sheet.getResult()) {
                             File f = fileBrowserSheet.getSelectedFile();
                             if (f != null) {
+                                PlannerWindow.setLastDir(f.getParent());
                                 try (FileWriter fw = new FileWriter(f)){
                                     Tournament tmt = (Tournament) tournamentListView.getSelectedItem();
                                     TreeSet<Juror> jurors = new TreeSet<>(new Juror.BiasComparator());

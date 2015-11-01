@@ -105,7 +105,7 @@ public class PlannerWindow extends Window implements Bindable {
     // build info
     @BXML private Label buildInfoLabel;
     // other
-    private final Preferences prefs;
+    private static final Preferences prefs = Preferences.userNodeForPackage(PlannerWindow.class);;
     private final SwapQueue swapQueue = new SwapQueue();
     private TournamentSchedule tournamentSchedule;
     private SolverTask solverTask;
@@ -120,7 +120,6 @@ public class PlannerWindow extends Window implements Bindable {
     private ScheduledCallback scoreChangedTimer;
 
     public PlannerWindow() {
-        prefs = Preferences.userNodeForPackage(PlannerWindow.class);
         Action.getNamedActions().put("quit", new Action() {
             @Override
             public void perform(Component source) {
@@ -677,11 +676,11 @@ public class PlannerWindow extends Window implements Bindable {
         }
     };
 
-    private String getLastDir() {
+    static String getLastDir() {
         return prefs.get("last_dir", ".");
     }
 
-    private void setLastDir(String path) {
+    static void setLastDir(String path) {
         prefs.put("last_dir", path);
     }
 
