@@ -8,13 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import org.drools.KnowledgeBase;
-import org.drools.builder.KnowledgeBuilder;
-import org.drools.builder.KnowledgeBuilderFactory;
-import org.drools.builder.ResourceType;
-import org.drools.definition.KnowledgePackage;
-import org.drools.definition.rule.Rule;
-import org.drools.io.ResourceFactory;
 import org.iypt.planner.domain.Absence;
 import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.JurorLoad;
@@ -28,7 +21,16 @@ import org.iypt.planner.gui.JurorInfo;
 import org.iypt.planner.gui.ScheduleModel;
 import org.iypt.planner.gui.SeatInfo;
 import org.iypt.planner.solver.util.ConstraintComparator;
+import org.kie.api.KieServices;
+import org.kie.api.builder.KieBuilder;
+import org.kie.api.builder.KieFileSystem;
+import org.kie.api.builder.Message;
+import org.kie.api.builder.model.KieModuleModel;
+import org.kie.api.definition.KiePackage;
+import org.kie.api.definition.rule.Rule;
+import org.kie.api.io.ResourceType;
 import org.kie.api.runtime.ClassObjectFilter;
+import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 import org.optaplanner.core.api.solver.Solver;
 import org.optaplanner.core.api.solver.SolverFactory;
@@ -77,14 +79,21 @@ public class TournamentSolver {
         }
 
         solverFactory = new XmlSolverFactory(solverConfigResource);
-        KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
-        for (String string : solverFactory.getSolverConfig().getScoreDirectorFactoryConfig().getScoreDrlList()) {
-            kbuilder.add(ResourceFactory.newClassPathResource(string, getClass()), ResourceType.DRL);
-            // TODO process kbuilder errors
+        KieServices kieServices = KieServices.Factory.get();
+        KieModuleModel kieModuleModel = kieServices.newKieModuleModel();
+        KieFileSystem kfs = kieServices.newKieFileSystem();
+        kfs.writeKModuleXML(kieModuleModel.toXML());
+        for (String drlResource : solverFactory.getSolverConfig().getScoreDirectorFactoryConfig().getScoreDrlList()) {
+            kfs.write(kieServices.getResources().newClassPathResource(drlResource.replaceFirst("^/", "")).setResourceType(ResourceType.DRL));
         }
-        KnowledgeBase kbase = kbuilder.newKnowledgeBase();
+        KieBuilder kieBuilder = kieServices.newKieBuilder(kfs).buildAll();
+        List<Message> errors = kieBuilder.getResults().getMessages(Message.Level.ERROR);
+        if (!errors.isEmpty()) {
+            throw new IllegalStateException(errors.toString());
+        }
+        KieContainer kieContainer = kieServices.newKieContainer(kieServices.getRepository().getDefaultReleaseId());
         constraintRules = new ArrayList<>();
-        for (KnowledgePackage pkg : kbase.getKnowledgePackages()) {
+        for (KiePackage pkg : kieContainer.getKieBase().getKiePackages()) {
             for (Rule rule : pkg.getRules()) {
                 if (rule.getMetaData().containsKey(CONSTRAINT_TYPE_KEY)) {
                     String type = (String) rule.getMetaData().get(CONSTRAINT_TYPE_KEY);
