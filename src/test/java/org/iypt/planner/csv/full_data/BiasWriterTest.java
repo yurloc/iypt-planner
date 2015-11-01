@@ -40,7 +40,11 @@ public class BiasWriterTest {
         t.calculate();
 
         TreeSet<Juror> jurors = new TreeSet<>(new Juror.BiasComparator());
-        jurors.addAll(t.getJurors());
+        for (Juror juror : t.getJurors()) {
+            if (juror.isJuror()) {
+                jurors.add(juror);
+            }
+        }
         // +1 for the header line
         int totalLines = jurors.size() + 1;
 
