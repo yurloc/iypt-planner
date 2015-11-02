@@ -38,7 +38,6 @@ import org.optaplanner.core.api.solver.Solver;
 import org.optaplanner.core.api.solver.SolverFactory;
 import org.optaplanner.core.api.solver.event.SolverEventListener;
 import org.optaplanner.core.config.solver.EnvironmentMode;
-import org.optaplanner.core.config.solver.XmlSolverFactory;
 import org.optaplanner.core.impl.score.director.ScoreDirector;
 import org.optaplanner.core.impl.score.director.drools.DroolsScoreDirector;
 
@@ -76,13 +75,13 @@ public class TournamentSolver {
             throw new RuntimeException("Couldn't read weights.properties", ex);
         }
 
-        solverFactory = new XmlSolverFactory(solverConfigResource);
+        solverFactory = SolverFactory.createFromXmlResource(solverConfigResource);
         KieServices kieServices = KieServices.Factory.get();
         KieModuleModel kieModuleModel = kieServices.newKieModuleModel();
         KieFileSystem kfs = kieServices.newKieFileSystem();
         kfs.writeKModuleXML(kieModuleModel.toXML());
         for (String drlResource : solverFactory.getSolverConfig().getScoreDirectorFactoryConfig().getScoreDrlList()) {
-            kfs.write(kieServices.getResources().newClassPathResource(drlResource.replaceFirst("^/", "")).setResourceType(ResourceType.DRL));
+            kfs.write(kieServices.getResources().newClassPathResource(drlResource).setResourceType(ResourceType.DRL));
         }
         KieBuilder kieBuilder = kieServices.newKieBuilder(kfs).buildAll();
         List<Message> errors = kieBuilder.getResults().getMessages(Message.Level.ERROR);

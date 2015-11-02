@@ -15,7 +15,6 @@ import org.optaplanner.core.api.solver.Solver;
 import org.optaplanner.core.api.solver.SolverFactory;
 import org.optaplanner.core.config.solver.EnvironmentMode;
 import org.optaplanner.core.config.solver.SolverConfig;
-import org.optaplanner.core.config.solver.XmlSolverFactory;
 import org.optaplanner.core.config.solver.termination.TerminationConfig;
 import org.optaplanner.core.impl.score.director.ScoreDirector;
 import org.optaplanner.core.impl.solution.Solution;
@@ -33,7 +32,7 @@ public abstract class AbstractSolverTest {
 
     private static final Logger log = LoggerFactory.getLogger(AbstractSolverTest.class);
     private static WeightConfig weightConfig;
-    private String xmlConfig = "/org/iypt/planner/solver/test_config.xml";
+    private String xmlConfig = "org/iypt/planner/solver/test_config.xml";
     private Tournament solved;
 
     /**
@@ -66,7 +65,7 @@ public abstract class AbstractSolverTest {
     @Before
     public void solveInitialSolution() {
         // Build the Solver
-        SolverFactory solverFactory = new XmlSolverFactory(xmlConfig);
+        SolverFactory solverFactory = SolverFactory.createFromXmlResource(xmlConfig);
         SolverConfig solverConfig = solverFactory.getSolverConfig();
         solverConfig.setTerminationConfig(getTerminationConfig());
         // Do not allow production environment for tests
