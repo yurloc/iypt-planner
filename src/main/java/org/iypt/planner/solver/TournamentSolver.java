@@ -57,11 +57,11 @@ public class TournamentSolver {
     private SolverFactory solverFactory;
     private EnvironmentMode environmentMode;
     private Solver solver;
-    private SolverEventListener listener;
+    private SolverEventListener<Tournament> listener;
     private ScoreDirector scoreDirector;
     private boolean solving;
 
-    public TournamentSolver(String solverConfigResource, SolverEventListener listener) {
+    public TournamentSolver(String solverConfigResource, SolverEventListener<Tournament> listener) {
         this.listener = listener;
         weightConfig = new DefaultWeightConfig();
         // FIXME temporary solution for persistent weights configuration

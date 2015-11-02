@@ -519,16 +519,16 @@ public class PlannerWindow extends Window implements Bindable {
         }
     }
 
-    private class SolverListener implements SolverEventListener {
+    private class SolverListener implements SolverEventListener<Tournament> {
 
         @Override
-        public void bestSolutionChanged(BestSolutionChangedEvent event) {
+        public void bestSolutionChanged(BestSolutionChangedEvent<Tournament> event) {
             if (showChangesCheckbox.getState() == State.UNSELECTED) {
                 return;
             }
             // TODO cancel previous update if it hasn't yet started
             // 1. increment # of changes here
-            Tournament better = (Tournament) event.getNewBestSolution();
+            Tournament better = event.getNewBestSolution();
             final ScheduleModel sm = solver.setTournament(better);
             solver.setTournament(better);
             ApplicationContext.queueCallback(new Runnable() {
