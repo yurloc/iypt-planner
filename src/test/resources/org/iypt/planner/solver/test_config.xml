@@ -45,9 +45,9 @@
   <localSearch>
     <termination>
       <terminationCompositionStyle>OR</terminationCompositionStyle>
-      <maximumSecondsSpend>60</maximumSecondsSpend>
-      <!--<maximumUnimprovedStepCount>200</maximumUnimprovedStepCount>-->
-      <scoreAttained>0hard/-10000soft</scoreAttained>
+      <secondsSpentLimit>60</secondsSpentLimit>
+      <!--<unimprovedStepCountLimit>200</unimprovedStepCountLimit>-->
+      <bestScoreLimit>0hard/-10000soft</bestScoreLimit>
     </termination>
     <unionMoveSelector>
       <changeMoveSelector>

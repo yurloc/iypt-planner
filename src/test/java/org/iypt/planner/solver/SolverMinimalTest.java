@@ -5,7 +5,7 @@ import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.RoundFactory;
 import org.iypt.planner.domain.Tournament;
 import org.junit.Test;
-import org.optaplanner.core.config.termination.TerminationConfig;
+import org.optaplanner.core.config.solver.termination.TerminationConfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.iypt.planner.domain.SampleFacts.*;

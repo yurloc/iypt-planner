@@ -64,8 +64,8 @@ import org.iypt.planner.gui.swap.SeatSwap;
 import org.iypt.planner.gui.swap.SwapQueue;
 import org.iypt.planner.pdf.PdfCreator;
 import org.iypt.planner.solver.TournamentSolver;
-import org.optaplanner.core.impl.event.BestSolutionChangedEvent;
-import org.optaplanner.core.impl.event.SolverEventListener;
+import org.optaplanner.core.api.solver.event.BestSolutionChangedEvent;
+import org.optaplanner.core.api.solver.event.SolverEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
