@@ -82,8 +82,7 @@ public abstract class AbstractSolverTest {
         unsolved.setWeightConfig(weightConfig);
 
         // Solve the problem
-        solver.setPlanningProblem(unsolved);
-        solver.solve();
+        solver.solve(unsolved);
         solved = (Tournament) solver.getBestSolution();
         List<ConstraintMatchTotal> constraintList = getConstraintList(solver, solved);
 

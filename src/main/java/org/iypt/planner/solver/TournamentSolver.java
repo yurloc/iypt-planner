@@ -142,8 +142,7 @@ public class TournamentSolver {
         solverFactory.getSolverConfig().setEnvironmentMode(environmentMode);
         solver = solverFactory.buildSolver();
         solver.addEventListener(listener);
-        solver.setPlanningProblem(tournament);
-        solver.solve();
+        solver.solve(tournament);
         solving = false;
         return setTournament((Tournament) solver.getBestSolution());
     }
