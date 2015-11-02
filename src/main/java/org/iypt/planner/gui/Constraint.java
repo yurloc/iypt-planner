@@ -2,10 +2,8 @@ package org.iypt.planner.gui;
 
 import org.apache.pivot.collections.ArrayList;
 import org.apache.pivot.collections.List;
-import org.optaplanner.core.impl.score.constraint.ConstraintOccurrence;
-import org.optaplanner.core.impl.score.constraint.ConstraintType;
-import org.optaplanner.core.impl.score.constraint.IntConstraintOccurrence;
-import org.optaplanner.core.impl.score.constraint.UnweightedConstraintOccurrence;
+import org.iypt.planner.Constants;
+import org.optaplanner.core.api.score.constraint.ConstraintMatch;
 
 /**
  *
@@ -23,21 +21,14 @@ public class Constraint {
     public Constraint() {
     }
 
-    public Constraint(ConstraintOccurrence co) {
-        name = co.getRuleId();
-        hard = co.getConstraintType() == ConstraintType.HARD;
-        type = co.getConstraintType().toString();
-        if (co instanceof UnweightedConstraintOccurrence) {
-            intWeight = 0;
-            weight = "";
-        } else if (co instanceof IntConstraintOccurrence) {
-            intWeight = ((IntConstraintOccurrence) co).getWeight();
-            weight = Integer.toString(intWeight);
-        } else {
-            throw new UnsupportedOperationException("Constraint type (" + co.getClass() + ") not supported yet.");
-        }
+    public Constraint(ConstraintMatch cm) {
+        name = cm.getConstraintName();
+        hard = cm.getScoreLevel() < 1;
+        type = hard ? Constants.CONSTRAINT_TYPE_HARD : Constants.CONSTRAINT_TYPE_SOFT;
+        intWeight = cm.getWeightAsNumber().intValue();
+        weight = Integer.toString(intWeight);
         causes = new ArrayList<>();
-        for (Object cause : co.getCauses()) {
+        for (Object cause : cm.getJustificationList()) {
             causes.add(cause.toString());
         }
     }

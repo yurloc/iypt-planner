@@ -1,11 +1,9 @@
 package org.iypt.planner.solver;
     dialect "java"
 
-import java.util.Collection;
+import static java.lang.Math.abs;
 
-import org.optaplanner.core.api.score.buildin.hardsoft.HardSoftScoreHolder;
-import org.optaplanner.core.impl.score.constraint.IntConstraintOccurrence;
-import org.optaplanner.core.impl.score.constraint.ConstraintType;
+import java.util.Collection;
 
 import com.neovisionaries.i18n.CountryCode;
 import org.iypt.planner.domain.Absence;
@@ -25,11 +23,10 @@ import org.iypt.planner.domain.Tournament;
 import org.iypt.planner.domain.Tournament.Statistics;
 import org.iypt.planner.domain.VotingSeat;
 import org.iypt.planner.solver.WeightConfig;
-import static java.lang.Math.abs;
+import org.optaplanner.core.api.score.buildin.hardsoft.HardSoftScoreHolder;
 
 global HardSoftScoreHolder scoreHolder;
 
-// TODO really, really check the CO causes - they can avoid 5.4.8. Score trap
 // NOTE: remember, average calculation count per second should be definitely over 1000
 
 // ############################################################################
@@ -45,11 +42,7 @@ when
     $s2 : Seat( ( juror == $j && jury.group.round == $r )
                 && ( jury.group.name > $s1.jury.group.name || position > $s1.position ) )
 then
-    insertLogical( new IntConstraintOccurrence(
-        drools.getRule().getName(),
-        ConstraintType.HARD, -1,
-        $j, $s1, $s2
-    ));
+    scoreHolder.addHardConstraintMatch(kcontext, -1);
 end
 
 // No need to detect 'null' jurors. Planner does not insert uninitialized
@@ -59,11 +52,7 @@ rule "emptySeat"
 when
     $seat : VotingSeat( juror == Juror.NULL )
 then
-    insertLogical( new IntConstraintOccurrence(
-        drools.getRule().getName(),
-        ConstraintType.HARD, -1,
-        $seat
-    ));
+    scoreHolder.addHardConstraintMatch(kcontext, -1);
 end
 
 rule "invalidChair"
@@ -72,11 +61,7 @@ when
     $juror : Juror( !chairCandidate )
     $seat  : VotingSeat( chair, juror == $juror )
 then
-    insertLogical( new IntConstraintOccurrence(
-        drools.getRule().getName(),
-        ConstraintType.HARD, -1,
-        $seat
-    ));
+    scoreHolder.addHardConstraintMatch(kcontext, -1);
 end
 
 rule "teamAndJurorSameCountry"
@@ -87,11 +72,7 @@ when
     $c    : Conflict( juror == $juror, country == $team.country )
     // or $jury.group.countries.contains($juror.country) ?
 then
-    insertLogical( new IntConstraintOccurrence(
-        drools.getRule().getName(),
-        ConstraintType.HARD, -1,
-        $seat, $team, $c
-    ));
+    scoreHolder.addHardConstraintMatch(kcontext, -1);
 end
 
 rule "absentJuror"
@@ -102,11 +83,7 @@ when
     $s : Seat( jury.group.round == $r, $juror : juror )
     $absence : Absence( juror == $juror, round == $r )
 then
-    insertLogical( new IntConstraintOccurrence(
-        drools.getRule().getName(),
-        ConstraintType.HARD, -1,
-        $s, $absence
-    ));
+    scoreHolder.addHardConstraintMatch(kcontext, -1);
 end
 
 rule "brokenLock"
@@ -115,11 +92,7 @@ when
     $lock : Lock()
     Seat( jury == $lock.jury, position == $lock.position, $misfit : juror != $lock.juror )
 then
-    insertLogical( new IntConstraintOccurrence(
-        drools.getRule().getName(),
-        ConstraintType.HARD, -1,
-        $lock, $misfit
-    ));
+    scoreHolder.addHardConstraintMatch(kcontext, -1);
 end
 
 rule "teamAndChairMeetOften"
@@ -131,11 +104,7 @@ when
     $c     : Collection( size > 2 )
              from collect( VotingSeat( chair, juror == $juror, jury.group.teams contains $team ) )
 then
-    insertLogical( new IntConstraintOccurrence(
-        drools.getRule().getName(),
-        ConstraintType.HARD, -1,
-        $team, $c, $juror
-    ));
+    scoreHolder.addHardConstraintMatch(kcontext, -1);
 end
 
 // Experienced jurors are only allowed to sit on voting seats, exp.j. on non-voting seat breaks HARD constraint
@@ -146,11 +115,7 @@ when
     $j : Juror( experienced )
     $s : NonVotingSeat( juror == $j )
 then
-    insertLogical( new IntConstraintOccurrence(
-        drools.getRule().getName(),
-        ConstraintType.HARD, -1,
-        $s, $j
-    ));
+    scoreHolder.addHardConstraintMatch(kcontext, -1);
 end
 
 rule "inexperiencedOnNonVotingVotingSeatNotInFirstRound"
@@ -159,11 +124,7 @@ when
     $juror : Juror( !experienced, $firstRound : firstAvailable )
     $seat  : NonVotingSeat( juror == $juror, jury.group.round.number != $firstRound )
 then
-    insertLogical( new IntConstraintOccurrence(
-        drools.getRule().getName(),
-        ConstraintType.HARD, -1,
-        $seat, $juror
-    ));
+    scoreHolder.addHardConstraintMatch(kcontext, -1);
 end
 
 // ############################################################################
@@ -180,11 +141,7 @@ when
     $c     : Collection( size == 2 )
              from collect( VotingSeat( chair, juror == $juror, jury.group.teams contains $team ) )
 then
-    insertLogical( new IntConstraintOccurrence(
-        drools.getRule().getName(),
-        ConstraintType.SOFT, -$wc.getWeight(drools.getRule().getName()),
-        $team, $c, $juror
-    ));
+    scoreHolder.addSoftConstraintMatch(kcontext, -$wc.getWeight(drools.getRule().getName()));
 end
 
 rule "calculateJurorLoads"
@@ -208,11 +165,8 @@ when
     $wc   : WeightConfig()
     $load : JurorLoad( excessive )
 then
-    insertLogical( new IntConstraintOccurrence(
-        drools.getRule().getName(),
-        ConstraintType.SOFT, -Double.valueOf($load.getCost() * $wc.getWeight(drools.getRule().getName()) + 0.5).intValue(),
-        $load
-    ));
+    int weight = -Double.valueOf($load.getCost() * $wc.getWeight(drools.getRule().getName()) + 0.5).intValue();
+    scoreHolder.addSoftConstraintMatch(kcontext, weight);
 end
 
 rule "teamAndJurorAlreadyMet"
@@ -225,11 +179,7 @@ when
     $seats : Collection( size > 1 )
              from collect( VotingSeat( juror == $juror, jury.group.teams contains $team ) )
 then
-    insertLogical( new IntConstraintOccurrence(
-        drools.getRule().getName(),
-        ConstraintType.SOFT, -1 * $seats.size() * $seats.size() * $wc.getWeight(drools.getRule().getName()),
-        $team, $seats, $juror
-    ));
+    scoreHolder.addSoftConstraintMatch(kcontext, -1 * $seats.size() * $seats.size() * $wc.getWeight(drools.getRule().getName()));
 end
 
 rule "jurorAndJurorConflict"
@@ -243,11 +193,7 @@ when
     $s1 : VotingSeat( $jury : jury, juror == $j1 )
     $s2 : VotingSeat( jury == $jury, juror == $j2, position > $s1.position )
 then
-    insertLogical( new IntConstraintOccurrence(
-        drools.getRule().getName(),
-        ConstraintType.SOFT, -$wc.getWeight(drools.getRule().getName()),
-        $s1, $s2, $country
-    ));
+    scoreHolder.addSoftConstraintMatch(kcontext, -$wc.getWeight(drools.getRule().getName()));
 end
 
 rule "calculateIndependentRatio"
@@ -266,11 +212,7 @@ when
     $wc : WeightConfig()
     $i  : IndependentRatio( delta != 0 )
 then
-    insertLogical( new IntConstraintOccurrence(
-        drools.getRule().getName(),
-        ConstraintType.SOFT, -1 * $i.getDelta() * $i.getDelta() * $wc.getWeight(drools.getRule().getName()),
-        $i
-    ));
+    scoreHolder.addSoftConstraintMatch(kcontext, -1 * $i.getDelta() * $i.getDelta() * $wc.getWeight(drools.getRule().getName()));
 end
 
 rule "accumulatedBias"
@@ -281,11 +223,7 @@ when
     accumulate( VotingSeat( jury == $jury, $juror : juror != null );
                 $bias : sum( $juror.getBias() ) )
 then
-    insertLogical( new IntConstraintOccurrence(
-        drools.getRule().getName(),
-        ConstraintType.SOFT, -Math.round(abs($bias.floatValue() * $wc.getWeight(drools.getRule().getName()))),
-        $jury, $bias
-    ));
+    scoreHolder.addSoftConstraintMatch(kcontext, -Math.round(abs($bias.floatValue() * $wc.getWeight(drools.getRule().getName()))));
 end
 
 rule "jurorMeetsBigGroupOften"
@@ -296,11 +234,7 @@ when
     $c  : Collection( size > 1 )
               from collect( VotingSeat( juror == $j, jury.group.size == 4 ) )
 then
-    insertLogical( new IntConstraintOccurrence(
-        drools.getRule().getName(),
-        ConstraintType.SOFT, -($c.size() - 1) * $wc.getWeight(drools.getRule().getName()),
-        $c
-    ));
+    scoreHolder.addSoftConstraintMatch(kcontext, -($c.size() - 1) * $wc.getWeight(drools.getRule().getName()));
 end
 
 rule "inexperiencedJurorVoting"
@@ -310,11 +244,7 @@ when
     $juror : Juror( !experienced, $firstRound : firstAvailable )
     $seat  : VotingSeat( juror == $juror, jury.group.round.number == $firstRound )
 then
-    insertLogical( new IntConstraintOccurrence(
-        drools.getRule().getName(),
-        ConstraintType.SOFT, -$wc.getWeight(drools.getRule().getName()),
-        $seat
-    ));
+    scoreHolder.addSoftConstraintMatch(kcontext, -$wc.getWeight(drools.getRule().getName()));
 end
 
 rule "inexperiencedJurorObserving"
@@ -324,11 +254,7 @@ when
     $round : Round( number == $firstRound )
     $seat  : NonVotingSeat( juror == $juror, jury.group.round == $round )
 then
-    insertLogical( new IntConstraintOccurrence(
-        drools.getRule().getName(),
-        ConstraintType.SOFT, 1,
-        $seat
-    ));
+    scoreHolder.addSoftConstraintMatch(kcontext, 1);
 end
 
 // ############################################################################
@@ -344,11 +270,7 @@ when
     $s2 : Seat( !chair, $jury := jury, $p := position )
     $s1 : Seat( !chair, $jury := jury, $p := position, juror != $s2.juror ) from $t.getSeats()
 then
-    insertLogical( new IntConstraintOccurrence(
-        drools.getRule().getName(),
-        ConstraintType.SOFT, -$wc.getWeight(drools.getRule().getName()),
-        $s1, $s2
-    ));
+    scoreHolder.addSoftConstraintMatch(kcontext, -$wc.getWeight(drools.getRule().getName()));
 end
 
 rule "penalizeChairChange"
@@ -359,11 +281,7 @@ when
     $s2 : Seat( position == 0, $jury := jury )
     $s1 : Seat( position == 0, $jury := jury, juror != $s2.juror ) from $t.getSeats()
 then
-    insertLogical( new IntConstraintOccurrence(
-        drools.getRule().getName(),
-        ConstraintType.SOFT, -$wc.getWeight(drools.getRule().getName()),
-        $s1, $s2
-    ));
+    scoreHolder.addSoftConstraintMatch(kcontext, -$wc.getWeight(drools.getRule().getName()));
 end
 
 rule "penalizeJurorWithdraw"
@@ -376,37 +294,5 @@ when
     $s  : Seat( $juror := juror && $juror != null, jury.group.round == $r ) from $t.seats
     not( exists Seat( $juror := juror, jury.group.round == $r ) )
 then
-    insertLogical( new IntConstraintOccurrence(
-        drools.getRule().getName(),
-        ConstraintType.SOFT, -$wc.getWeight(drools.getRule().getName()),
-        $s
-    ));
-end
-
-// ############################################################################
-// Calculate score
-// ############################################################################
-
-// Accumulate hard constraints
-rule "hardConstraintsBroken"
-        salience -1 // Do the other rules first (optional, for performance)
-    when
-        $hardTotal : Number() from accumulate(
-            IntConstraintOccurrence(constraintType == ConstraintType.HARD, $weight : weight),
-            sum($weight)
-        )
-    then
-        scoreHolder.setHardScore($hardTotal.intValue());
-end
-
-// Accumulate soft constraints
-rule "softConstraintsBroken"
-        salience -1 // Do the other rules first (optional, for performance)
-    when
-        $softTotal : Number() from accumulate(
-            IntConstraintOccurrence(constraintType == ConstraintType.SOFT, $weight : weight),
-            sum($weight)
-        )
-    then
-        scoreHolder.setSoftScore($softTotal.intValue());
+    scoreHolder.addSoftConstraintMatch(kcontext, -$wc.getWeight(drools.getRule().getName()));
 end

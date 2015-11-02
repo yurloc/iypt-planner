@@ -5,10 +5,10 @@ import java.util.Collections;
 import java.util.List;
 import org.apache.pivot.util.ListenerList;
 import org.apache.pivot.wtk.Container;
+import org.iypt.planner.Constants;
+import org.iypt.planner.solver.ConstraintRule;
 import org.iypt.planner.solver.TournamentSolver;
 import org.iypt.planner.solver.WeightConfig;
-import org.optaplanner.core.impl.score.constraint.ConstraintOccurrence;
-import org.optaplanner.core.impl.score.constraint.ConstraintType;
 
 /**
  * This is a controller for constraint configuration model. It defines some beans ({@link Constraint}) to shield the skin from
@@ -68,8 +68,8 @@ public class ConstraintsConfig extends Container {
     public void setSolver(TournamentSolver solver) {
         weightConfig = solver.getWeightConfig();
         constraints = new ArrayList<>();
-        for (ConstraintOccurrence co : solver.getConstraints()) {
-            constraints.add(new Constraint(co.getRuleId(), co.getConstraintType() == ConstraintType.HARD));
+        for (ConstraintRule constraint : solver.getConstraints()) {
+            constraints.add(new Constraint(constraint.getName(), constraint.getType().equals(Constants.CONSTRAINT_TYPE_HARD)));
         }
         constraintsConfigListeners.constraintsChanged(this);
     }

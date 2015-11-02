@@ -32,15 +32,13 @@ import org.kie.api.io.ResourceType;
 import org.kie.api.runtime.ClassObjectFilter;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
+import org.optaplanner.core.api.score.constraint.ConstraintMatch;
+import org.optaplanner.core.api.score.constraint.ConstraintMatchTotal;
 import org.optaplanner.core.api.solver.Solver;
 import org.optaplanner.core.api.solver.SolverFactory;
 import org.optaplanner.core.config.solver.EnvironmentMode;
 import org.optaplanner.core.config.solver.XmlSolverFactory;
 import org.optaplanner.core.impl.event.SolverEventListener;
-import org.optaplanner.core.impl.score.constraint.ConstraintOccurrence;
-import org.optaplanner.core.impl.score.constraint.ConstraintType;
-import org.optaplanner.core.impl.score.constraint.IntConstraintOccurrence;
-import org.optaplanner.core.impl.score.constraint.UnweightedConstraintOccurrence;
 import org.optaplanner.core.impl.score.director.ScoreDirector;
 import org.optaplanner.core.impl.score.director.drools.DroolsScoreDirector;
 
@@ -56,7 +54,7 @@ public class TournamentSolver {
 
     private Tournament tournament;
     private WeightConfig weightConfig;
-    private List<ConstraintOccurrence> constraintRules;
+    private List<ConstraintRule> constraintRules;
     private SolverFactory solverFactory;
     private EnvironmentMode environmentMode;
     private Solver solver;
@@ -97,18 +95,10 @@ public class TournamentSolver {
             for (Rule rule : pkg.getRules()) {
                 if (rule.getMetaData().containsKey(CONSTRAINT_TYPE_KEY)) {
                     String type = (String) rule.getMetaData().get(CONSTRAINT_TYPE_KEY);
-                    ConstraintOccurrence co;
-                    switch (type) {
-                        case CONSTRAINT_TYPE_HARD:
-                            co = new UnweightedConstraintOccurrence(rule.getName(), ConstraintType.HARD);
-                            break;
-                        case CONSTRAINT_TYPE_SOFT:
-                            co = new IntConstraintOccurrence(rule.getName(), ConstraintType.SOFT);
-                            break;
-                        default:
-                            throw new AssertionError();
+                    if (!CONSTRAINT_TYPE_HARD.equals(type) && !CONSTRAINT_TYPE_SOFT.equals(type)) {
+                        throw new IllegalStateException("Unexpected constraint type: " + type);
                     }
-                    constraintRules.add(co);
+                    constraintRules.add(new ConstraintRule(rule.getName(), type));
                 }
             }
         }
@@ -134,7 +124,7 @@ public class TournamentSolver {
         return weightConfig;
     }
 
-    public List<ConstraintOccurrence> getConstraints() {
+    public List<ConstraintRule> getConstraints() {
         return Collections.unmodifiableList(constraintRules);
     }
 
@@ -182,15 +172,14 @@ public class TournamentSolver {
 
         // prepare ConstraintOccurence map (constraint rule -> occurences)
         HashMap<String, List<Constraint>> coMap = new HashMap<>();
-        for (ConstraintOccurrence constraintId : constraintRules) {
-            coMap.put(constraintId.getRuleId(), new ArrayList<Constraint>());
+        for (ConstraintRule constraintRule : constraintRules) {
+            coMap.put(constraintRule.getName(), new ArrayList<Constraint>());
         }
 
-        // collect constraint occurences
-        Collection<ConstraintOccurrence> constraintOccurrences
-                = (Collection<ConstraintOccurrence>) kieSession.getObjects(new ClassObjectFilter(ConstraintOccurrence.class));
-        for (ConstraintOccurrence co : constraintOccurrences) {
-            coMap.get(co.getRuleId()).add(new Constraint(co));
+        for (ConstraintMatchTotal cmt : scoreDirector.getConstraintMatchTotals()) {
+            for (ConstraintMatch cm : cmt.getConstraintMatchSet()) {
+                coMap.get(cm.getConstraintName()).add(new Constraint(cm));
+            }
         }
 
         return new ScheduleModel(tournament, coMap, loadMap);
