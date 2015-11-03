@@ -31,7 +31,6 @@ import org.kie.api.definition.rule.Rule;
 import org.kie.api.io.ResourceType;
 import org.kie.api.runtime.ClassObjectFilter;
 import org.kie.api.runtime.KieContainer;
-import org.kie.api.runtime.KieSession;
 import org.optaplanner.core.api.score.constraint.ConstraintMatch;
 import org.optaplanner.core.api.score.constraint.ConstraintMatchTotal;
 import org.optaplanner.core.api.solver.Solver;
@@ -154,17 +153,19 @@ public class TournamentSolver {
         return tournament;
     }
 
+    @SuppressWarnings("unchecked")
+    private Collection<JurorLoad> getLoads(DroolsScoreDirector scoreDirector) {
+        return (Collection<JurorLoad>) scoreDirector.getKieSession().getObjects(new ClassObjectFilter(JurorLoad.class));
+    }
+
     // TODO refactor me, duplicating some code from Tournament.toDisplayString()
     private ScheduleModel updateDetails() {
         scoreDirector.setWorkingSolution(tournament);
         scoreDirector.calculateScore();
-        KieSession kieSession = ((DroolsScoreDirector) scoreDirector).getKieSession();
 
         // collect juror loads (based on jury assignments)
-        Collection<JurorLoad> jurroLoad
-                = (Collection<JurorLoad>) kieSession.getObjects(new ClassObjectFilter(JurorLoad.class));
         Map<Juror, JurorLoad> loadMap = new HashMap<>();
-        for (JurorLoad load : jurroLoad) {
+        for (JurorLoad load : getLoads((DroolsScoreDirector) scoreDirector)) {
             loadMap.put(load.getJuror(), load);
         }
 
