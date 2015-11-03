@@ -9,7 +9,7 @@
   <packaging>jar</packaging>
 
   <name>IYPT Jury Planner</name>
-  <description>GUI tool that helps scheduling juries for the International Young Physicists' Tournament</description>
+  <description>GUI tool that helps scheduling juries for the International Young Physicists’ Tournament</description>
   <inceptionYear>2012</inceptionYear>
   <url>https://github.com/yurloc/iypt-planner/</url>
 
