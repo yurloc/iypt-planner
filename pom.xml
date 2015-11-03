@@ -330,6 +330,11 @@
     </dependency>
     <dependency>
       <groupId>org.optaplanner</groupId>
+      <artifactId>optaplanner-benchmark</artifactId>
+      <version>${drools.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.optaplanner</groupId>
       <artifactId>optaplanner-core</artifactId>
       <version>${drools.version}</version>
     </dependency>
