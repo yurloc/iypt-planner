@@ -19,6 +19,7 @@
   </properties>
 
   <modules>
+    <module>iypt-planner-api</module>
     <module>iypt-planner-gui-pivot</module>
   </modules>
 
