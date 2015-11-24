@@ -20,13 +20,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
+import org.iypt.planner.api.util.CountryCodeIO;
 import org.iypt.planner.domain.Group;
 import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Seat;
 import org.iypt.planner.domain.Team;
 import org.iypt.planner.domain.Tournament;
-import org.iypt.planner.domain.util.CountryCodeIO;
 
 public class PdfCreator {
 

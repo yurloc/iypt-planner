@@ -18,7 +18,7 @@ import org.apache.pivot.wtk.MenuHandler;
 import org.apache.pivot.wtk.TableView;
 import org.apache.pivot.wtk.TableViewSelectionListener;
 import org.apache.pivot.wtk.skin.ContainerSkin;
-import org.iypt.planner.domain.util.CountryCodeIO;
+import org.iypt.planner.api.util.CountryCodeIO;
 
 /**
  *

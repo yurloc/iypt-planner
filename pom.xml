@@ -21,6 +21,7 @@
   <modules>
     <module>iypt-planner-api</module>
     <module>iypt-planner-gui-pivot</module>
+    <module>iypt-planner-io-csv</module>
   </modules>
 
   <dependencyManagement>
@@ -65,6 +66,16 @@
         <groupId>org.apache.pivot</groupId>
         <artifactId>pivot-wtk-terra</artifactId>
         <version>${pivot.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.iypt</groupId>
+        <artifactId>iypt-planner-api</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.iypt</groupId>
+        <artifactId>iypt-planner-io-csv</artifactId>
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>org.kie</groupId>

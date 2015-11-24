@@ -1,0 +1,57 @@
+1;Group A;Switzerland;Korea;Thailand;Netherlands
+1;Group B;Georgia;Kenya;Chinese Taipei;
+1;Group C;New Zealand;Germany;Czech Republic;
+1;Group D;Belarus;Brazil;Slovenia;
+1;Group E;China;United Kingdom;Nigeria;
+1;Group F;Bulgaria;Poland;Indonesia;
+1;Group G;Sweden;Iran;Hungary;
+1;Group H;Slovakia;Austria;Singapore;
+1;Group K;France;Russia;Australia;
+
+
+
+2;Group A;Nigeria;Belarus;Russia;Korea
+2;Group B;Chinese Taipei;Poland;Slovakia;
+2;Group C;Australia;China;Germany;
+2;Group D;Thailand;New Zealand;Sweden;
+2;Group E;Singapore;Georgia;Brazil;
+2;Group F;Slovenia;Bulgaria;Kenya;
+2;Group G;Czech Republic;France;United Kingdom;
+2;Group H;Indonesia;Netherlands;Iran;
+2;Group K;Hungary;Switzerland;Austria;
+
+
+
+3;Group A;United Kingdom;Slovakia;Belarus;Hungary
+3;Group B;Kenya;Australia;Austria;
+3;Group C;Germany;Thailand;France;
+3;Group D;Sweden;Singapore;China;
+3;Group E;Russia;Czech Republic;Georgia;
+3;Group F;Brazil;Nigeria;Bulgaria;
+3;Group G;Korea;Indonesia;New Zealand;
+3;Group H;Poland;Slovenia;Netherlands;
+3;Group K;Iran;Chinese Taipei;Switzerland;
+
+
+
+4;Group A;Slovakia;Bulgaria;Russia;Sweden
+4;Group B;Czech Republic;Indonesia;Brazil;
+4;Group C;Singapore;Belarus;Germany;
+4;Group D;Iran;China;Korea;
+4;Group E;Chinese Taipei;Austria;New Zealand;
+4;Group F;Hungary;France;Slovenia;
+4;Group G;Thailand;Georgia;United Kingdom;
+4;Group H;Nigeria;Netherlands;Kenya;
+4;Group K;Australia;Switzerland;Poland;
+
+
+
+5;Group A;New Zealand;Iran;Australia;Nigeria
+5;Group B;Korea;Chinese Taipei;France;
+5;Group C;Germany;Hungary;Georgia;
+5;Group D;Indonesia;Sweden;Belarus;
+5;Group E;Austria;Slovenia;China;
+5;Group F;United Kingdom;Singapore;Bulgaria;
+5;Group G;Russia;Thailand;Poland;
+5;Group H;Brazil;Slovakia;Netherlands;
+5;Group K;Kenya;Czech Republic;Switzerland;

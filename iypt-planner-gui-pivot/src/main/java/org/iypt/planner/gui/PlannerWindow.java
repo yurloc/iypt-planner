@@ -13,6 +13,7 @@ import java.text.DateFormat;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Map.Entry;
+import java.util.ServiceLoader;
 import java.util.prefs.Preferences;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.pivot.beans.BXML;
@@ -55,7 +56,9 @@ import org.apache.pivot.wtk.TaskAdapter;
 import org.apache.pivot.wtk.Window;
 import org.apache.pivot.wtk.content.ListItem;
 import org.iypt.planner.Constants;
-import org.iypt.planner.csv.CSVTournamentFactory;
+import org.iypt.planner.api.domain.Schedule;
+import org.iypt.planner.api.io.InputSource;
+import org.iypt.planner.api.io.TournamentImporter;
 import org.iypt.planner.csv.ScheduleWriter;
 import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.Tournament;
@@ -105,12 +108,13 @@ public class PlannerWindow extends Window implements Bindable {
     // build info
     @BXML private Label buildInfoLabel;
     // other
-    private static final Preferences prefs = Preferences.userNodeForPackage(PlannerWindow.class);;
+    private static final Preferences prefs = Preferences.userNodeForPackage(PlannerWindow.class);
+    ;
     private final SwapQueue swapQueue = new SwapQueue();
     private TournamentSchedule tournamentSchedule;
     private SolverTask solverTask;
     private TournamentSolver solver;
-    private CSVTournamentFactory factory;
+    private TournamentImporter importer;
     protected static final Filter<File> CSV_FILE_FILTER = new Filter<File>() {
         @Override
         public boolean include(File item) {
@@ -602,41 +606,41 @@ public class PlannerWindow extends Window implements Bindable {
     private final LoadFileAction loadTeamsAction = new LoadFileAction("teams") {
         @Override
         void processFile(File f) throws Exception {
-            factory.readTeamData(f, StandardCharsets.UTF_8);
-            if (factory.canCreateTournament()) {
-                setTournament(factory.newTournament());
+            importer.readTeamData(f, StandardCharsets.UTF_8);
+            if (importer.canCreateTournament()) {
+                setTournament(importer.newTournament());
             }
-            loadScheduleAction.setEnabled(factory.canReadSchedule());
+            loadScheduleAction.setEnabled(importer.canReadSchedule());
             loadTeamsAction.setEnabled(false);
         }
     };
     private final LoadFileAction loadJurorsAction = new LoadFileAction("jurors") {
         @Override
         void processFile(File f) throws Exception {
-            factory.readJuryData(f, StandardCharsets.UTF_8);
-            if (factory.canCreateTournament()) {
-                setTournament(factory.newTournament());
+            importer.readJuryData(f, StandardCharsets.UTF_8);
+            if (importer.canCreateTournament()) {
+                setTournament(importer.newTournament());
             }
-            loadScheduleAction.setEnabled(factory.canReadSchedule());
+            loadScheduleAction.setEnabled(importer.canReadSchedule());
             loadJurorsAction.setEnabled(false);
         }
     };
     private final LoadFileAction loadBiasesAction = new LoadFileAction("biases") {
         @Override
         void processFile(File f) throws Exception {
-            factory.readBiasData(f, StandardCharsets.UTF_8);
-            if (factory.canCreateTournament()) {
-                setTournament(factory.newTournament());
+            importer.readBiasData(f, StandardCharsets.UTF_8);
+            if (importer.canCreateTournament()) {
+                setTournament(importer.newTournament());
             }
-            loadScheduleAction.setEnabled(factory.canReadSchedule());
+            loadScheduleAction.setEnabled(importer.canReadSchedule());
             loadBiasesAction.setEnabled(false);
         }
     };
     private final LoadFileAction loadScheduleAction = new LoadFileAction("schedule") {
         @Override
         void processFile(File f) throws Exception {
-            factory.readSchedule(f, StandardCharsets.UTF_8);
-            setTournament(factory.newTournament());
+            importer.readSchedule(f, StandardCharsets.UTF_8);
+            setTournament(importer.newTournament());
         }
     };
     private final Action clearScheduleAction = new Action() {
@@ -768,7 +772,7 @@ public class PlannerWindow extends Window implements Bindable {
     }
 
     void newTournament() {
-        factory = new CSVTournamentFactory();
+        importer = ServiceLoader.load(TournamentImporter.class).iterator().next();
         loadTeamsAction.setEnabled(true);
         loadJurorsAction.setEnabled(true);
         loadBiasesAction.setEnabled(true);
@@ -789,7 +793,7 @@ public class PlannerWindow extends Window implements Bindable {
             wizard.open(getDisplay(), getWindow(), new SheetCloseListener() {
                 @Override
                 public void sheetClosed(Sheet sheet) {
-                    factory.setBiases(wizard.getBiases());
+                    importer.setBiases(wizard.getBiases());
                 }
             });
         } catch (IOException | SerializationException ex) {
@@ -799,9 +803,13 @@ public class PlannerWindow extends Window implements Bindable {
 
     void loadExample() {
         try {
-            CSVTournamentFactory f = new CSVTournamentFactory();
-            f.readDataFromClasspath("/org/iypt/planner/csv/", "team_data.csv", "jury_data.csv", "bias_IYPT2012.csv", "schedule2012.csv");
-            setTournament(f.newTournament());
+            InputSource.ClasspathFactory f = InputSource.newClasspathFactory(PlannerWindow.class, "/org/iypt/planner/csv/");
+            org.iypt.planner.api.domain.Tournament t = importer.loadTournament(
+                    f.newInputSource("team_data.csv"),
+                    f.newInputSource("jury_data.csv"));
+            Schedule schedule = importer.loadSchedule(t, f.newInputSource("schedule2012.csv"));
+            importer.loadBiases(t, f.newInputSource("bias_IYPT2012.csv"));
+            setTournament(schedule);
         } catch (Exception ex) {
             wlog.error("Failed to load example", ex);
         }

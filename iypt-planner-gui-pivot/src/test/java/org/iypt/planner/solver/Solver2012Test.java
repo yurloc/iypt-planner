@@ -1,7 +1,6 @@
 package org.iypt.planner.solver;
 
 import java.io.IOException;
-import org.iypt.planner.csv.CSVTournamentFactory;
 import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Tournament;
 import org.junit.BeforeClass;

@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.iypt.planner.csv.CSVTournamentFactory;
 import org.iypt.planner.domain.Absence;
 import org.iypt.planner.domain.Conflict;
 import org.iypt.planner.domain.Juror;

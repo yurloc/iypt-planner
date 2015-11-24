@@ -1,0 +1,83 @@
+#Vorname;Name;Rolle;country;chair;conflict
+Philip;O'Neill;I;Australia;
+Christa;Deinlein;I;Austria;
+Xuewei;Cao;I;China;
+Stanislav;Panos;I;Czech Republic;
+George;Laskhishvili;I;Georgia;
+Horst;Bittner;I;Germany;
+Zsuzsanna;Rajkovits;I;Hungary;
+ByungHoon;Chung;I;Korea;
+Ye;Yeo;I;Singapore;
+Mattias;Andersson;I;Sweden;
+Andreas;Vaterlaus;I;Switzerland;
+Ricky;Regner;T;Austria;
+Rawlinson Medeiros;Ibiapina;T;Brazil;
+Daniela;Ivanova;T;Bulgaria;
+Dagmar;Panosova;T;Czech Republic;
+Florian;Ostermaier;T;Germany;
+Judit;Illy;T;Hungary;
+Kirsten;Stadermann;T;Netherlands;
+Joy;Tan;T;Singapore;
+Tomáš;Bzdušek;T;Slovakia;Austria
+Rok;Capuder;T;Slovenia;
+Ilana;Massarek;T;Switzerland;
+Chuanyong;Li;I;China;C;
+Martin;Plesch;I;Slovakia;C;Czech Republic
+John;Balcombe;I;United Kingdom;C;
+Ivan;Antsipau;I;Belarus;C;
+Assen;Kyuldjiev;I;Bulgaria;C;
+Gavin;Jennings;I;New Zealand;C;United Kingdom
+Władysław;Borgieł;I;Poland;C;
+Valentin;Lobyshev;I;Russia;C;
+František;Kundracik;I;Slovakia;C;
+Kim;Freimann;I;Sweden;C;
+Samuel;Byland;I;Switzerland;C;
+Feng;Song;T;China;C;
+Yung-Yuan;Hsu;T;Chinese Taipei;C;
+Nicolas;Chevalier;T;France;C;
+Francisco;Swaminathan;T;Kenya;C;
+Hong;Jung;T;Korea;C;
+Uno;Uno;T;Nigeria;C;
+Andrzej;Nadolny;T;Poland;C;
+Prapun;Manyum;T;Thailand;C;
+Alan;Allinson;I;Australia;
+Dina;Izadi;I;Iran;
+Chenghou;Tu;I;China;
+Patrick;Soudan;I;France;
+Chan Oong;Park;I;Korea;
+Francis;Ekwenta;I;Nigeria;
+Nirut;Pussadee;I;Thailand;
+Kathryn;Zealand;T;Australia;
+Teimuraz;Gachechiladze;T;Georgia;
+Jong;Tan;T;Indonesia;
+Kent;Hogan;T;New Zealand;
+Olga;Inisheva;T;Russia;
+Steve;Adams;T;United Kingdom;
+Nien;Cheng-Hsun;T;Chinese Taipei;
+Hsien-chung;Kao;T;Chinese Taipei;
+Kreso;Zadro;I;Croatia;C
+Ilya;Martchenko;I;Switzerland;Russia;C
+Metin;Tolan;I;Germany;
+Heinz;Kabelka;I;Austria;C
+Carsten;Geckeler;I;Germany
+Andreas;Kratzer;I;Germany;1
+Michael;Sinzinger;I;Germany;1
+Rita;Wodzinski;I;Germany;1;5
+Angela;Foesel;I;Germany;1;2
+Eugen;Voit;I;Germany;Switzerland;1;5
+David;Wharam;I;Germany;4;5
+Matthias;Theis;I;Germany;1;4;5
+Karl;Heller;I;Germany;1;4;5
+Raimund;Girwidz;I;Germany;1;2;3;4
+Juergen;Durst;I;Germany;1;2;3
+Benjamin;Obert;I;Germany;2;3;4;5
+Hermann;Klein;I;Germany
+Othmar;Marti;I;Germany;Switzerland
+Peter;Reineker;I;Germany;1;5
+Martin;Leonhard;I;Germany;1;2;3;4
+Michael;Gierling;I;Germany;1;2;3;5
+Davor;Stolcic;I;Germany;1;2;3;5
+Patrick;Kerner;I;Germany;4;5
+Klaus;Roeller;I;Germany;1
+Matthias;Mueller;I;Germany;4
+Fabian;Buehler;I;Germany

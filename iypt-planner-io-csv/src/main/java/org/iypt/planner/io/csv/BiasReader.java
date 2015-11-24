@@ -1,4 +1,4 @@
-package org.iypt.planner.csv;
+package org.iypt.planner.io.csv;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -73,6 +73,9 @@ public class BiasReader {
     }
 
     public double getBias(String jurorName) {
+        if (!rows.containsKey(jurorName)) {
+            return 0;
+        }
         return rows.get(jurorName);
     }
 }

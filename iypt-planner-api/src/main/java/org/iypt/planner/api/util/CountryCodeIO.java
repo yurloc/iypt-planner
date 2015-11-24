@@ -1,4 +1,4 @@
-package org.iypt.planner.domain.util;
+package org.iypt.planner.api.util;
 
 import com.neovisionaries.i18n.CountryCode;
 import java.util.HashMap;

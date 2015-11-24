@@ -1,4 +1,4 @@
-package org.iypt.planner.csv;
+package org.iypt.planner.io.csv;
 
 import java.io.IOException;
 import java.io.InputStreamReader;

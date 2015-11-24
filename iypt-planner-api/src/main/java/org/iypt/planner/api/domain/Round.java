@@ -4,8 +4,9 @@ import java.util.List;
 
 public class Round {
 
-    private int number;
-    private List<Group> groups;
+    private final int number;
+    private final List<Group> groups;
+    private int jurySize;
 
     public Round(int number, List<Group> groups) {
         this.number = number;
@@ -18,5 +19,13 @@ public class Round {
 
     public List<Group> getGroups() {
         return groups;
+    }
+
+    public int getJurySize() {
+        return jurySize;
+    }
+
+    public void setJurySize(int jurySize) {
+        this.jurySize = jurySize;
     }
 }
