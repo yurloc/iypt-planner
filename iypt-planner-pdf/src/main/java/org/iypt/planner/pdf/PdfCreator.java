@@ -17,87 +17,121 @@ import com.neovisionaries.i18n.CountryCode;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.commons.lang.StringUtils;
+import org.iypt.planner.api.domain.Assignment;
+import org.iypt.planner.api.domain.Group;
+import org.iypt.planner.api.domain.Juror;
+import org.iypt.planner.api.domain.Role;
+import org.iypt.planner.api.domain.Round;
+import org.iypt.planner.api.domain.Schedule;
+import org.iypt.planner.api.domain.Team;
+import org.iypt.planner.api.domain.Tournament;
+import org.iypt.planner.api.pdf.ExportException;
+import org.iypt.planner.api.pdf.ExportRequest;
+import org.iypt.planner.api.pdf.PdfExporter;
 import org.iypt.planner.api.util.CountryCodeIO;
-import org.iypt.planner.domain.Group;
-import org.iypt.planner.domain.Juror;
-import org.iypt.planner.domain.Round;
-import org.iypt.planner.domain.Seat;
-import org.iypt.planner.domain.Team;
-import org.iypt.planner.domain.Tournament;
 
-public class PdfCreator {
+public class PdfCreator implements PdfExporter {
 
-    private final Tournament t;
-    private final BaseFont bf;
-    private String filePrefix = "";
-    private File outputDir = null;
+    private final BaseFont bf = FontFactory.getFont(
+            "/ttf/DejaVuSans.ttf",
+            BaseFont.IDENTITY_H,
+            BaseFont.EMBEDDED).getBaseFont();
 
-    public PdfCreator(Tournament tournament) {
-        this.t = tournament;
-        bf = FontFactory.getFont("/ttf/DejaVuSans.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED).getBaseFont();
+    @Override
+    public void export(ExportRequest request) throws ExportException {
+        try {
+            printRooms(request);
+            printRounds(request);
+        } catch (DocumentException | IOException ex) {
+            throw new ExportException(ex);
+        }
     }
 
-    public void setOutputDir(File outputDir) {
-        this.outputDir = outputDir;
+    private File getOutputFile(ExportRequest request, String id) {
+        File outputDir = request.getOutputDir();
+        String format = request.getFormatString();
+
+        String fileName = format.replaceAll("%s", id);
+
+        if (format.contains("%t")) {
+            fileName = fileName.replaceAll("%t", new SimpleDateFormat(request.getDateFormat()).format(request.getDate()));
+        }
+
+        fileName += ".pdf";
+
+        if (outputDir == null) {
+            return new File(fileName);
+        }
+
+        if (!outputDir.exists()) {
+            if (!outputDir.mkdirs()) {
+                Logger.getLogger(PdfCreator.class.getName()).log(
+                        Level.INFO,
+                        "Can't create output directory '{0}'",
+                        outputDir.getAbsolutePath());
+            }
+        }
+
+        return new File(outputDir, fileName);
     }
 
-    public void setFilePrefix(String prefix) {
-        this.filePrefix = prefix;
-    }
-
-    private File getOutputFile(String id) {
-        String fileName = String.format("%s%s.pdf", filePrefix, id);
-        return outputDir == null ? new File(fileName) : new File(outputDir, fileName);
-    }
-
-    public void printRooms() throws DocumentException, IOException {
+    public void printRooms(ExportRequest request) throws DocumentException, IOException {
         // step 1
         Document document = new Document();
         // step 2
-        PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(getOutputFile("rooms")));
+        PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(getOutputFile(request, "rooms")));
         // step 3
         document.open();
         // step 4
         ColumnText column = new ColumnText(writer.getDirectContent());
-        for (Group group : t.getGroups()) {
-            // group header
-            PdfPTable header = getRoomHeaderTable(group);
-            document.add(header);
+        Schedule schedule = request.getSchedule();
+        for (Round round : schedule.getTournament().getRounds()) {
+            for (Group group : round.getGroups()) {
+                // group header
+                PdfPTable header = getRoomHeaderTable(round, group);
+                document.add(header);
 
-            // teams
-            PdfPTable teams = getRoomTeamTable(group);
-            column.addElement(teams);
-            column.setSimpleColumn(document.left(), document.bottom(), document.right(),
-                    document.top() - header.getTotalHeight() - 40);
-            column.go();
+                // teams
+                PdfPTable teams = getRoomTeamTable(group);
+                column.addElement(teams);
+                column.setSimpleColumn(document.left(), document.bottom(), document.right(),
+                        document.top() - header.getTotalHeight() - 40);
+                column.go();
 
-            // jury
-            column.addElement(getRoomJuryTable(t, group));
-            column.setSimpleColumn(document.left(), document.bottom(), document.right(),
-                    document.top() - header.getTotalHeight() - teams.getTotalHeight() - 80);
-            column.go();
-            document.newPage();
+                // jury
+                column.addElement(getRoomJuryTable(schedule, group));
+                column.setSimpleColumn(document.left(), document.bottom(), document.right(),
+                        document.top() - header.getTotalHeight() - teams.getTotalHeight() - 80);
+                column.go();
+                document.newPage();
+            }
         }
         // step 5
         document.close();
     }
 
-    public void printRounds() throws DocumentException, IOException {
+    private void printRounds(ExportRequest request) throws DocumentException, IOException {
         //step 1
         Document document = new Document(PageSize.A4.rotate());
         //step 2
-        PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(getOutputFile("rounds")));
+        PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(getOutputFile(request, "rounds")));
         //step 3
         document.open();
         //step 4
         ColumnText column = new ColumnText(writer.getDirectContent());
-        for (Round round : t.getRounds()) {
+        Schedule schedule = request.getSchedule();
+        for (Round round : schedule.getTournament().getRounds()) {
             PdfPTable header = getRoundHeaderTable(round);
             document.add(header);
-            column.addElement(getRoundTable(t, round));
+            column.addElement(getRoundTable(schedule, round));
             column.setSimpleColumn(document.left(), document.bottom(), document.right(),
                     document.top() - header.getTotalHeight() - 40);
             column.go();
@@ -119,12 +153,13 @@ public class PdfCreator {
         return header;
     }
 
-    private PdfPTable getRoundTable(Tournament t, Round r) {
+    private PdfPTable getRoundTable(Schedule sched, Round r) {
         Font fRounds = new Font(bf, 10, Font.BOLD);
         Font fTeams = new Font(bf, 10);
         Font fJury = new Font(bf, 10);
         Font fObs = new Font(bf, 10, Font.NORMAL, BaseColor.GRAY);
 
+        Tournament t = sched.getTournament();
         PdfPTable table = new PdfPTable(t.getRounds().get(1).getGroups().size());
         table.setWidthPercentage(100);
         table.getDefaultCell().setHorizontalAlignment(Element.ALIGN_CENTER);
@@ -155,17 +190,28 @@ public class PdfCreator {
         }
 
         // Jurors
+        Map<Group, List<Assignment>> map = new HashMap<>();
+        for (Group group : r.getGroups()) {
+            List<Assignment> jury = new ArrayList<>();
+            map.put(group, jury);
+            for (Assignment assignment : sched.getAssignments()) {
+                if (assignment.getGroup().equals(group)) {
+                    jury.add(assignment);
+                }
+            }
+        }
         int rows = r.getJurySize() + Tournament.NON_VOTING_SEAT_BUFFER;
         for (int i = 0; i < rows; i++) {
             List<String> juryRow = new ArrayList<>();
             for (Group g : r.getGroups()) {
-                Seat s = t.getSeats(g.getJury()).get(i);
-                Juror juror = s.getJuror();
-                if (juror != null) {
-                    if (s.isVoting()) {
-                        juryRow.add(juror.fullName());
+                List<Assignment> jury = map.get(g);
+                if (jury.size() > i) {
+                    Assignment a = jury.get(i);
+                    Juror juror = a.getJuror();
+                    if (a.getRole() == Role.VOTING) {
+                        juryRow.add(String.format("%s %s", juror.getFirstName(), juror.getLastName()));
                     } else {
-                        juryRow.add(String.format("[%s]", juror.fullName()));
+                        juryRow.add(String.format("[%s %s]", juror.getFirstName(), juror.getLastName()));
                     }
                 } else {
                     juryRow.add("");
@@ -202,11 +248,11 @@ public class PdfCreator {
         return cell;
     }
 
-    private PdfPTable getRoomHeaderTable(Group group) {
+    private PdfPTable getRoomHeaderTable(Round round, Group group) {
         Font fGroup = new Font(bf, 72, Font.BOLD);
         Font fRound = new Font(bf, 20);
         Phrase pGroup = new Phrase(group.getName(), fGroup);
-        Phrase pRound = new Phrase(group.getRound().toString(), fRound);
+        Phrase pRound = new Phrase(round.toString(), fRound);
 
         PdfPTable header = new PdfPTable(1);
         header.setWidthPercentage(100);
@@ -237,7 +283,7 @@ public class PdfCreator {
         return table;
     }
 
-    private PdfPTable getRoomJuryTable(Tournament t, Group g) {
+    private PdfPTable getRoomJuryTable(Schedule sched, Group g) {
         Font fChair = new Font(bf, 24, Font.BOLD);
         Font fJuror = new Font(bf, 24);
         Font fNonVoting = new Font(bf, 24, Font.NORMAL, BaseColor.GRAY);
@@ -252,22 +298,31 @@ public class PdfCreator {
         table.getDefaultCell().setVerticalAlignment(Element.ALIGN_BASELINE);
         table.getDefaultCell().setBackgroundColor(BaseColor.WHITE);
         int count = 1;
-        for (Seat s : t.getSeats(g.getJury())) {
-            String title = null;
-            Font font = null;
-            if (s.isChair()) {
-                title = String.format("%s (chair)", s.getJuror().fullName());
-                font = fChair;
-            } else if (s.isVoting()) {
-                title = s.getJuror().fullName();
-                font = fJuror;
-            } else if (s.getJuror() != null) {
-                title = String.format("%s (obs.)", s.getJuror().fullName());
-                font = fNonVoting;
-            }
-            if (title != null) {
-                table.addCell(getNumberCell(count++, font));
-                table.addCell(new Phrase(title, font));
+        for (Assignment a : sched.getAssignments()) {
+            if (a.getGroup().equals(g)) {
+                String name = String.format("%s %s", a.getJuror().getFirstName(), a.getJuror().getLastName());
+                String title = null;
+                Font font = null;
+                switch (a.getRole()) {
+                    case CHAIR:
+                        title = String.format("%s (chair)", name);
+                        font = fChair;
+                        break;
+                    case VOTING:
+                        title = name;
+                        font = fJuror;
+                        break;
+                    case NON_VOTING:
+                        title = String.format("%s (obs.)", name);
+                        font = fNonVoting;
+                        break;
+                    default:
+                        throw new AssertionError();
+                }
+                if (title != null) {
+                    table.addCell(getNumberCell(count++, font));
+                    table.addCell(new Phrase(title, font));
+                }
             }
         }
         return table;

@@ -1,6 +1,5 @@
 package org.iypt.planner.gui;
 
-import com.itextpdf.text.DocumentException;
 import com.jcabi.manifests.Manifests;
 import java.awt.Color;
 import java.io.File;
@@ -10,6 +9,7 @@ import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Map.Entry;
@@ -59,13 +59,15 @@ import org.iypt.planner.Constants;
 import org.iypt.planner.api.domain.Schedule;
 import org.iypt.planner.api.io.InputSource;
 import org.iypt.planner.api.io.TournamentImporter;
+import org.iypt.planner.api.pdf.ExportException;
+import org.iypt.planner.api.pdf.ExportRequest;
+import org.iypt.planner.api.pdf.PdfExporter;
 import org.iypt.planner.csv.ScheduleWriter;
 import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.Tournament;
 import org.iypt.planner.gui.swap.IdleSwap;
 import org.iypt.planner.gui.swap.SeatSwap;
 import org.iypt.planner.gui.swap.SwapQueue;
-import org.iypt.planner.pdf.PdfCreator;
 import org.iypt.planner.solver.TournamentSolver;
 import org.optaplanner.core.api.solver.event.BestSolutionChangedEvent;
 import org.optaplanner.core.api.solver.event.SolverEventListener;
@@ -755,15 +757,12 @@ public class PlannerWindow extends Window implements Bindable {
                     File dir = fileBrowserSheet.getSelectedFile();
                     setLastDir(dir.getAbsolutePath());
                     try {
-                        Date d = new Date();
-                        String time = String.format("%ty%tm%te_%tH%tM%tS_", d, d, d, d, d, d);
-                        PdfCreator pdf = new PdfCreator(solver.getTournament());
-                        pdf.setOutputDir(dir);
-                        pdf.setFilePrefix(time);
-                        pdf.printRooms();
-                        pdf.printRounds();
-                        log.info("Written PDFs with timestamp '{}'.", time);
-                    } catch (DocumentException | IOException ex) {
+                        ExportRequest request = new ExportRequest(schedule, dir, "%t_%s", "yyyyMMdd-HHmmss");
+                        PdfExporter exporter = ServiceLoader.load(PdfExporter.class).iterator().next();
+                        exporter.export(request);
+                        log.info("Written PDFs with timestamp '{}'.",
+                                new SimpleDateFormat(request.getDateFormat()).format(request.getDate()));
+                    } catch (ExportException ex) {
                         wlog.error("Error while exporting PDFs", ex);
                     }
                 }

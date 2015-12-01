@@ -22,6 +22,7 @@
     <module>iypt-planner-api</module>
     <module>iypt-planner-gui-pivot</module>
     <module>iypt-planner-io-csv</module>
+    <module>iypt-planner-pdf</module>
   </modules>
 
   <dependencyManagement>
@@ -75,6 +76,11 @@
       <dependency>
         <groupId>org.iypt</groupId>
         <artifactId>iypt-planner-io-csv</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.iypt</groupId>
+        <artifactId>iypt-planner-pdf</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
