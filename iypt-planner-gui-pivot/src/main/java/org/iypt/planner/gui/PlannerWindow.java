@@ -58,11 +58,11 @@ import org.apache.pivot.wtk.content.ListItem;
 import org.iypt.planner.Constants;
 import org.iypt.planner.api.domain.Schedule;
 import org.iypt.planner.api.io.InputSource;
+import org.iypt.planner.api.io.ScheduleExporter;
 import org.iypt.planner.api.io.TournamentImporter;
 import org.iypt.planner.api.pdf.ExportException;
 import org.iypt.planner.api.pdf.ExportRequest;
 import org.iypt.planner.api.pdf.PdfExporter;
-import org.iypt.planner.csv.ScheduleWriter;
 import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.Tournament;
 import org.iypt.planner.gui.swap.IdleSwap;
@@ -734,7 +734,8 @@ public class PlannerWindow extends Window implements Bindable {
     void writeSchedule(File f) {
         try {
             OutputStreamWriter os = new OutputStreamWriter(new FileOutputStream(f), StandardCharsets.UTF_8);
-            new ScheduleWriter(solver.getTournament()).write(os);
+            ScheduleExporter exporter = ServiceLoader.load(ScheduleExporter.class).iterator().next();
+            exporter.write(os, schedule);
             log.info("Schedule written to '{}'", f.getAbsolutePath());
         } catch (RuntimeException | IOException ex) {
             wlog.error("Error writing schedule file", ex);

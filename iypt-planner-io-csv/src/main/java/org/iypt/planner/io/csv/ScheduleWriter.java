@@ -1,14 +1,16 @@
-package org.iypt.planner.csv;
+package org.iypt.planner.io.csv;
 
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
-import org.iypt.planner.domain.Group;
-import org.iypt.planner.domain.Juror;
-import org.iypt.planner.domain.Round;
-import org.iypt.planner.domain.Seat;
-import org.iypt.planner.domain.Tournament;
+import org.iypt.planner.api.domain.Assignment;
+import org.iypt.planner.api.domain.Group;
+import org.iypt.planner.api.domain.Juror;
+import org.iypt.planner.api.domain.Role;
+import org.iypt.planner.api.domain.Round;
+import org.iypt.planner.api.domain.Schedule;
+import org.iypt.planner.api.io.ScheduleExporter;
 import org.supercsv.io.CsvListWriter;
 import org.supercsv.io.ICsvListWriter;
 import org.supercsv.prefs.CsvPreference;
@@ -17,30 +19,25 @@ import org.supercsv.prefs.CsvPreference;
  *
  * @author jlocker
  */
-public class ScheduleWriter {
+public class ScheduleWriter implements ScheduleExporter {
 
-    public ScheduleWriter(Tournament tournament) {
-        this.tournament = tournament;
-    }
-
-    private final Tournament tournament;
-
-    public void write(Writer writer) throws IOException {
+    @Override
+    public void write(Writer writer, Schedule schedule) throws IOException {
         try (ICsvListWriter listWriter = new CsvListWriter(writer, CsvPreference.EXCEL_NORTH_EUROPE_PREFERENCE)) {
 
-            // for each group
-            for (Round round : tournament.getRounds()) {
+            // for each assignment
+            for (Round round : schedule.getTournament().getRounds()) {
                 for (Group group : round.getGroups()) {
-                    List<Object> data = new ArrayList<>(round.getJurySize() + 2);
+                    List<Object> data = new ArrayList<>(round.getJurySize() + 2); // +2 for round and group
                     // append round number and group name
                     data.add(round.getNumber());
                     data.add("Group " + group.getName());
                     // append all jurors
-                    for (Seat seat : tournament.getSeats(group.getJury())) {
-                        Juror juror = seat.getJuror();
-                        if (juror != null) {
+                    for (Assignment assignment : schedule.getAssignments()) {
+                        if (assignment.getGroup().equals(group) && assignment.getJuror() != null) {
+                            Juror juror = assignment.getJuror();
                             String fmt = "%s, %s";
-                            if (!seat.isVoting()) {
+                            if (assignment.getRole() == Role.NON_VOTING) {
                                 fmt = "(%s, %s)";
                             }
                             data.add(String.format(fmt, juror.getLastName(), juror.getFirstName()));
