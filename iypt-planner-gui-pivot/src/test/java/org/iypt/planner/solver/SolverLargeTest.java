@@ -2,13 +2,13 @@ package org.iypt.planner.solver;
 
 import org.iypt.planner.domain.Absence;
 import org.iypt.planner.domain.Round;
-import org.iypt.planner.domain.RoundFactory;
 import org.iypt.planner.domain.Tournament;
+import org.iypt.planner.test.util.RoundFactory;
 import org.junit.Test;
 import org.optaplanner.core.config.solver.termination.TerminationConfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.iypt.planner.domain.SampleFacts.*;
+import static org.iypt.planner.test.util.SampleFacts.*;
 
 /**
  *

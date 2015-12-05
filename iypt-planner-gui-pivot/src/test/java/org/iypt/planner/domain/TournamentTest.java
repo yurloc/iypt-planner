@@ -4,12 +4,13 @@ import com.neovisionaries.i18n.CountryCode;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import org.iypt.planner.test.util.RoundFactory;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
 import static org.iypt.planner.domain.JurorLoad.INFINITE_LOAD_VALUE;
-import static org.iypt.planner.domain.SampleFacts.*;
+import static org.iypt.planner.test.util.SampleFacts.*;
 
 /**
  *

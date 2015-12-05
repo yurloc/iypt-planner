@@ -291,6 +291,11 @@
       <scope>runtime</scope>
     </dependency>
     <dependency>
+      <groupId>org.iypt</groupId>
+      <artifactId>iypt-planner-test-util</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.kie</groupId>
       <artifactId>kie-api</artifactId>
     </dependency>

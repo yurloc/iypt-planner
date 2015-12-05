@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import org.iypt.planner.domain.Conflict;
 import org.iypt.planner.domain.JurorLoad;
-import org.iypt.planner.domain.SampleFacts;
+import org.iypt.planner.test.util.SampleFacts;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

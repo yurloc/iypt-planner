@@ -1,6 +1,12 @@
-package org.iypt.planner.domain;
+package org.iypt.planner.test.util;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+
+import org.iypt.planner.api.domain.Group;
+import org.iypt.planner.api.domain.Round;
+import org.iypt.planner.api.domain.Team;
 
 /**
  *
@@ -29,7 +35,8 @@ public class RoundFactory {
 
         int next = 0;
         for (int i = 0; i < caps.length; i++) {
-            Group group = new Group(Arrays.copyOfRange(teams, next, next + caps[i]));
+            Team[] teamsArr = Arrays.copyOfRange(teams, next, next + caps[i]);
+            Group group = new Group(null, Arrays.asList(teamsArr));
             groups[i] = group;
             next += caps[i];
         }
@@ -37,13 +44,11 @@ public class RoundFactory {
     }
 
     public static Round createRound(int number, Group... groups) {
-        Round r = new Round(number);
-        r.addGroups(groups);
+        List<Group> groupList = new ArrayList<>();
         char name = 65;
         for (Group group : groups) {
-            group.setName(String.valueOf(name++));
+            groupList.add(new Group(String.valueOf(name++), group.getTeams()));
         }
-        return r;
+        return new Round(number, groupList);
     }
-
 }

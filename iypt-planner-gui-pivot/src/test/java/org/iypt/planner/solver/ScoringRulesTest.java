@@ -11,9 +11,9 @@ import org.iypt.planner.domain.Conflict;
 import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.Lock;
 import org.iypt.planner.domain.Round;
-import org.iypt.planner.domain.RoundFactory;
 import org.iypt.planner.domain.Seat;
 import org.iypt.planner.domain.Tournament;
+import org.iypt.planner.test.util.RoundFactory;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.kie.api.KieServices;
@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
 import static org.iypt.planner.Constants.*;
-import static org.iypt.planner.domain.SampleFacts.*;
+import static org.iypt.planner.test.util.SampleFacts.*;
 import static org.iypt.planner.solver.ScoringRulesTest.RuleType.*;
 
 /**
