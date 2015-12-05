@@ -1,9 +1,10 @@
-package org.iypt.planner.csv.full_data;
+package org.iypt.planner.io.csv.full_data.model;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import org.iypt.planner.csv.full_data.MarkReader.MarkRow;
+import org.iypt.planner.io.csv.full_data.readers.FightReader;
+import org.iypt.planner.io.csv.full_data.readers.MarkReader;
 
 /**
  *
@@ -16,7 +17,7 @@ public class Fight {
     private final Map<Integer, Stage> stages = new HashMap<>();
     private final Map<Integer, Juror> jurors = new HashMap<>();
 
-    Fight(FightReader.FightRow row, Map<Integer, Tournament> tournaments) {
+    public Fight(FightReader.FightRow row, Map<Integer, Tournament> tournaments) {
         this.row = row;
         this.tournament = tournaments.get(row.getTournament());
         if (this.tournament == null) {
@@ -24,11 +25,11 @@ public class Fight {
         }
     }
 
-    Tournament getTournament() {
+    public Tournament getTournament() {
         return tournament;
     }
 
-    Stage getStage(int stageNumber) {
+    public Stage getStage(int stageNumber) {
         Stage stage = stages.get(stageNumber);
         if (stage == null) {
             stage = new Stage(this, stageNumber);
@@ -37,7 +38,7 @@ public class Fight {
         return stage;
     }
 
-    void assignJuror(int juror_number, Juror juror) {
+    public void assignJuror(int juror_number, Juror juror) {
         jurors.put(juror_number, juror);
     }
 
@@ -45,7 +46,7 @@ public class Fight {
         return jurors.values();
     }
 
-    void recordMark(MarkRow row) {
+    public void recordMark(MarkReader.MarkRow row) {
         Stage stage = getStage(row.getStage());
         Juror juror = jurors.get(row.getJuror_number());
         stage.markRole(juror, row.getRole(), row.getMark());

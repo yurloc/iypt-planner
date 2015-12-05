@@ -1,9 +1,10 @@
-package org.iypt.planner.csv.full_data;
+package org.iypt.planner.io.csv.full_data.readers;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import org.iypt.planner.io.csv.full_data.util.CsvTablesProcessor;
 import org.supercsv.cellprocessor.ift.CellProcessor;
 import org.supercsv.io.CsvBeanReader;
 import org.supercsv.io.ICsvBeanReader;
@@ -32,8 +33,8 @@ public abstract class AbstractTableReader<T extends HasIntId> {
             throw new UnsupportedOperationException("Repeated reading not supported.");
         }
         try (ICsvBeanReader beanReader = new CsvBeanReader(
-                        tablesProcessor.getTableReader(getTableName()),
-                        CsvPreference.STANDARD_PREFERENCE)) {
+                tablesProcessor.getTableReader(getTableName()),
+                CsvPreference.STANDARD_PREFERENCE)) {
 
             // the header elements are used to map the values to the bean (names must match)
             final String[] header = beanReader.getHeader(true);

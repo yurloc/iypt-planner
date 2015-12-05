@@ -1,12 +1,14 @@
-package org.iypt.planner.csv.full_data;
+package org.iypt.planner.io.csv.full_data;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import org.iypt.planner.csv.full_data.FightReader.FightRow;
-import org.iypt.planner.csv.full_data.JurorReader.JurorRow;
-import org.iypt.planner.csv.full_data.MarkReader.MarkRow;
-import org.iypt.planner.csv.full_data.PersonReader.PersonRow;
+import org.iypt.planner.io.csv.full_data.readers.FightReader;
+import org.iypt.planner.io.csv.full_data.readers.JurorReader;
+import org.iypt.planner.io.csv.full_data.readers.MarkReader;
+import org.iypt.planner.io.csv.full_data.readers.PersonReader;
+import org.iypt.planner.io.csv.full_data.readers.TournamentReader;
+import org.iypt.planner.io.csv.full_data.util.CsvTablesProcessor;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -37,7 +39,7 @@ public class ReadersTest {
     public void testPersonReader() throws Exception {
         PersonReader reader = new PersonReader();
         reader.read(processor);
-        PersonRow person = reader.getRows().get(9437);
+        PersonReader.PersonRow person = reader.getRows().get(9437);
         assertThat(person.getFull_name()).isEqualTo("Prapun Manyum");
         assertThat(person.isJuror()).isTrue();
 
@@ -50,8 +52,8 @@ public class ReadersTest {
     public void testFightReader() throws Exception {
         FightReader reader = new FightReader();
         reader.read(processor);
-        FightRow fight5K = reader.getRows().get(1452);
-        FightRow fightFinal = reader.getRows().get(1453);
+        FightReader.FightRow fight5K = reader.getRows().get(1452);
+        FightReader.FightRow fightFinal = reader.getRows().get(1453);
         assertThat(fight5K.getGroup_name()).isEqualTo("Group K");
         assertThat(fight5K.getRound()).isEqualTo(5);
         assertThat(fight5K.getTeam_4()).isNull();
@@ -68,7 +70,7 @@ public class ReadersTest {
         MarkReader reader = new MarkReader();
         reader.read(processor);
         // 55112,1453,3,1,3,8
-        MarkRow mark = reader.getRows().get(55112);
+        MarkReader.MarkRow mark = reader.getRows().get(55112);
         assertThat(mark.getFight()).isEqualTo(1453);
         assertThat(mark.getStage()).isEqualTo(3);
         assertThat(mark.getJuror_number()).isEqualTo(1);
@@ -81,7 +83,7 @@ public class ReadersTest {
         JurorReader reader = new JurorReader();
         reader.read(processor);
         // 7345,1453,9437,1
-        JurorRow juror = reader.getRows().get(7345);
+        JurorReader.JurorRow juror = reader.getRows().get(7345);
         assertThat(juror.getFight()).isEqualTo(1453);
         assertThat(juror.getJuror()).isEqualTo(9437);
         assertThat(juror.getJuror_number()).isEqualTo(1);

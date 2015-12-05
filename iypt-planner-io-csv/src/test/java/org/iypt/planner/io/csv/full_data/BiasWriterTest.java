@@ -1,4 +1,4 @@
-package org.iypt.planner.csv.full_data;
+package org.iypt.planner.io.csv.full_data;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,6 +11,9 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
+import org.iypt.planner.io.csv.full_data.model.Juror;
+import org.iypt.planner.io.csv.full_data.model.Tournament;
+import org.iypt.planner.io.csv.full_data.writers.BiasWriter;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;

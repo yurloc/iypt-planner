@@ -1,11 +1,11 @@
-package org.iypt.planner.csv.full_data;
+package org.iypt.planner.io.csv.full_data.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import org.iypt.planner.csv.full_data.PersonReader.PersonRow;
+import org.iypt.planner.io.csv.full_data.readers.PersonReader;
 
 /**
  *
@@ -13,12 +13,12 @@ import org.iypt.planner.csv.full_data.PersonReader.PersonRow;
  */
 public class Juror {
 
-    private final PersonRow row;
+    private final PersonReader.PersonRow row;
     private final Tournament tournament;
     private final List<Bias> biases = new ArrayList<>();
     private float accumulatedBias = 0;
 
-    Juror(PersonRow row, Map<Integer, Tournament> tournaments) {
+    public Juror(PersonReader.PersonRow row, Map<Integer, Tournament> tournaments) {
         this.row = row;
         this.tournament = tournaments.get(row.getTournament());
         if (this.tournament == null) {
@@ -26,7 +26,7 @@ public class Juror {
         }
     }
 
-    Tournament getTournament() {
+    public Tournament getTournament() {
         return tournament;
     }
 

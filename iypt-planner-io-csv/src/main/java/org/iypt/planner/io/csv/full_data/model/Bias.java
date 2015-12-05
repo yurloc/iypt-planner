@@ -1,4 +1,4 @@
-package org.iypt.planner.csv.full_data;
+package org.iypt.planner.io.csv.full_data.model;
 
 /**
  *

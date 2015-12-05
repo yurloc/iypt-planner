@@ -1,9 +1,13 @@
-package org.iypt.planner.csv.full_data;
+package org.iypt.planner.io.csv.full_data;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.TreeSet;
 import org.assertj.core.data.Offset;
+import org.iypt.planner.io.csv.full_data.model.Fight;
+import org.iypt.planner.io.csv.full_data.model.JudgingEvent;
+import org.iypt.planner.io.csv.full_data.model.Juror;
+import org.iypt.planner.io.csv.full_data.model.Tournament;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;

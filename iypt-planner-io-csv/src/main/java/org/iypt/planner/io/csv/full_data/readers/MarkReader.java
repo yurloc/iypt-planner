@@ -1,4 +1,4 @@
-package org.iypt.planner.csv.full_data;
+package org.iypt.planner.io.csv.full_data.readers;
 
 import org.supercsv.cellprocessor.ParseInt;
 import org.supercsv.cellprocessor.constraint.UniqueHashCode;
@@ -8,16 +8,18 @@ import org.supercsv.cellprocessor.ift.CellProcessor;
  *
  * @author jlocker
  */
-public class JurorReader extends AbstractTableReader<JurorReader.JurorRow> {
+public class MarkReader extends AbstractTableReader<MarkReader.MarkRow> {
 
-    public JurorReader() {
-        super(JurorRow.class);
+    public MarkReader() {
+        super(MarkRow.class);
     }
 
     @Override
     public CellProcessor[] getProcessors() {
         final CellProcessor[] processors = new CellProcessor[]{
             new UniqueHashCode(new ParseInt()),
+            new ParseInt(),
+            new ParseInt(),
             new ParseInt(),
             new ParseInt(),
             new ParseInt()
@@ -28,15 +30,17 @@ public class JurorReader extends AbstractTableReader<JurorReader.JurorRow> {
 
     @Override
     public String getTableName() {
-        return "Jurors";
+        return "Marks";
     }
 
-    public static class JurorRow implements HasIntId {
+    public static class MarkRow implements HasIntId {
 
         private int id;
         private int fight;
-        private int juror;
+        private int stage;
         private int juror_number;
+        private int role;
+        private int mark;
 
         @Override
         public int getId() {
@@ -55,12 +59,12 @@ public class JurorReader extends AbstractTableReader<JurorReader.JurorRow> {
             this.fight = fight;
         }
 
-        public int getJuror() {
-            return juror;
+        public int getStage() {
+            return stage;
         }
 
-        public void setJuror(int juror) {
-            this.juror = juror;
+        public void setStage(int stage) {
+            this.stage = stage;
         }
 
         public int getJuror_number() {
@@ -69,6 +73,22 @@ public class JurorReader extends AbstractTableReader<JurorReader.JurorRow> {
 
         public void setJuror_number(int juror_number) {
             this.juror_number = juror_number;
+        }
+
+        public int getRole() {
+            return role;
+        }
+
+        public void setRole(int role) {
+            this.role = role;
+        }
+
+        public int getMark() {
+            return mark;
+        }
+
+        public void setMark(int mark) {
+            this.mark = mark;
         }
     }
 }

@@ -1,4 +1,4 @@
-package org.iypt.planner.csv.full_data;
+package org.iypt.planner.io.csv.full_data.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.iypt.planner.csv.full_data.TournamentReader.TournamentRow;
+import org.iypt.planner.io.csv.full_data.readers.TournamentReader;
 
 /**
  *
@@ -19,7 +19,7 @@ public class Tournament {
     private final Map<String, Juror> jurors = new HashMap<>();
     private int marksRecorded = 0;
 
-    public Tournament(TournamentRow row) {
+    public Tournament(TournamentReader.TournamentRow row) {
         this.row = row;
     }
 
@@ -27,7 +27,7 @@ public class Tournament {
         return row.getTournament_name();
     }
 
-    boolean addFight(Fight fight) {
+    public boolean addFight(Fight fight) {
         return fights.add(fight);
     }
 
@@ -35,7 +35,7 @@ public class Tournament {
         return Collections.unmodifiableList(fights);
     }
 
-    void addJuror(Juror juror) {
+    public void addJuror(Juror juror) {
         jurors.put(juror.getName(), juror);
     }
 

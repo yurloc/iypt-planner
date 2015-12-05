@@ -1,9 +1,10 @@
-package org.iypt.planner.csv.full_data;
+package org.iypt.planner.io.csv.full_data.writers;
 
 import java.io.IOException;
 import java.io.Writer;
 import java.text.DecimalFormat;
 import java.util.Collection;
+import org.iypt.planner.io.csv.full_data.model.Juror;
 import org.supercsv.cellprocessor.FmtNumber;
 import org.supercsv.cellprocessor.constraint.NotNull;
 import org.supercsv.cellprocessor.ift.CellProcessor;
