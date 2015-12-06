@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.TreeSet;
 import org.assertj.core.data.Offset;
+import org.iypt.planner.io.csv.full_data.model.BiasComparator;
 import org.iypt.planner.io.csv.full_data.model.Fight;
 import org.iypt.planner.io.csv.full_data.model.JudgingEvent;
 import org.iypt.planner.io.csv.full_data.model.Juror;
@@ -23,19 +24,21 @@ import static org.assertj.core.api.Assertions.offset;
 public class TournamentDataTest {
 
     private static final Logger log = LoggerFactory.getLogger(TournamentDataTest.class);
-    private static TournamentData data;
     private static final Offset<Float> OFFSET = offset(0.005f);
+    private static TournamentDataImpl data;
 
     @BeforeClass
     public static void setUp() throws IOException {
-        data = new TournamentData();
-        data.readData(new InputStreamReader(ReadersTest.class.getResourceAsStream("full_data.csv")));
+        FullDataReaderImpl reader = new FullDataReaderImpl();
+        data = (TournamentDataImpl) reader.readData(new InputStreamReader(
+                ReadersTest.class.getResourceAsStream("full_data.csv")));
     }
 
     @Test
     public void testData() {
         Tournament t = data.getTournament(9);
         assertThat(t.getName()).isEqualTo("IYPT2012");
+        assertThat(data.getTournaments()).contains(t.getName());
 
         // check a few rows to see the data has been read correctly
         Juror jurorMP = data.getJuror(9420);
@@ -87,7 +90,7 @@ public class TournamentDataTest {
         assertThat(event2.getOthersAverage(jurorCL)).isEqualTo(7.8f, OFFSET);
         assertThat(event2.getBias(jurorCL)).isEqualTo(-0.8f, OFFSET);
 
-        TreeSet<Juror> jurors = new TreeSet<>(new Juror.BiasComparator());
+        TreeSet<Juror> jurors = new TreeSet<>(new BiasComparator());
 
         jurors.addAll(t.getJurors());
 

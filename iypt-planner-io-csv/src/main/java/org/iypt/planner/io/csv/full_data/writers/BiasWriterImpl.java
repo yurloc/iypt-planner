@@ -4,7 +4,8 @@ import java.io.IOException;
 import java.io.Writer;
 import java.text.DecimalFormat;
 import java.util.Collection;
-import org.iypt.planner.io.csv.full_data.model.Juror;
+import org.iypt.planner.api.io.bias.BiasWriter;
+import org.iypt.planner.api.io.bias.Juror;
 import org.supercsv.cellprocessor.FmtNumber;
 import org.supercsv.cellprocessor.constraint.NotNull;
 import org.supercsv.cellprocessor.ift.CellProcessor;
@@ -16,7 +17,7 @@ import org.supercsv.prefs.CsvPreference;
  *
  * @author jlocker
  */
-public class BiasWriter {
+public class BiasWriterImpl implements BiasWriter {
 
     public static class JurorBiasRow {
 
@@ -27,7 +28,7 @@ public class BiasWriter {
         }
 
         public String getGiven_name() {
-            return juror.getGivenName();
+            return juror.getFirstName();
         }
 
         public String getLast_name() {
@@ -35,7 +36,7 @@ public class BiasWriter {
         }
 
         public float getBias() {
-            float bias = juror.getAverageBias();
+            float bias = juror.getBias();
             return Float.isNaN(bias) ? 0 : bias;
         }
     }
@@ -46,12 +47,8 @@ public class BiasWriter {
         new FmtNumber(new DecimalFormat("#.####"))
     };
 
-    public BiasWriter(Collection<Juror> jurors) {
-        this.jurors = jurors;
-    }
-    private final Collection<Juror> jurors;
-
-    public void write(Writer writer) throws IOException {
+    @Override
+    public void write(Writer writer, Collection<Juror> jurors) throws IOException {
         try (ICsvBeanWriter beanWriter = new CsvBeanWriter(writer, CsvPreference.EXCEL_NORTH_EUROPE_PREFERENCE)) {
 
             // write the header

@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.ServiceLoader;
 import java.util.TreeSet;
 import org.apache.pivot.beans.BXML;
 import org.apache.pivot.beans.Bindable;
@@ -24,10 +25,11 @@ import org.apache.pivot.wtk.Sheet;
 import org.apache.pivot.wtk.SheetCloseListener;
 import org.apache.pivot.wtk.TableView;
 import org.apache.pivot.wtk.TextInput;
-import org.iypt.planner.csv.full_data.BiasWriter;
-import org.iypt.planner.csv.full_data.Juror;
-import org.iypt.planner.csv.full_data.Tournament;
-import org.iypt.planner.csv.full_data.TournamentData;
+import org.iypt.planner.api.io.bias.BiasComparator;
+import org.iypt.planner.api.io.bias.BiasWriter;
+import org.iypt.planner.api.io.bias.FullDataReader;
+import org.iypt.planner.api.io.bias.Juror;
+import org.iypt.planner.api.io.bias.TournamentData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,6 +51,7 @@ public class BiasComputationWizard extends Sheet implements Bindable {
     @BXML private ImageView tipImageView;
     private java.util.Map<String, Double> biases = new java.util.HashMap<>();
     private boolean loadEnabled;
+    private TournamentData data;
 
     @Override
     public void initialize(Map<String, Object> namespace, URL location, Resources resources) {
@@ -74,15 +77,10 @@ public class BiasComputationWizard extends Sheet implements Bindable {
                             File f = fileBrowserSheet.getSelectedFile();
                             PlannerWindow.setLastDir(f.getParent());
                             try (FileReader fr = new FileReader(f)) {
-                                TournamentData data = new TournamentData();
-                                data.readData(fr);
-                                ArrayList<Tournament> list = new ArrayList<>();
-                                list.addAll(data.getTournaments());
-                                for (Tournament tournament : list) {
-                                    tournament.calculate();
-                                }
+                                FullDataReader reader = ServiceLoader.load(FullDataReader.class).iterator().next();
+                                data = reader.readData(fr);
                                 fileTextInput.setText(f.getAbsolutePath());
-                                tournamentListView.setListData(new ListAdapter<>(list));
+                                tournamentListView.setListData(new ListAdapter<>(data.getTournaments()));
                             } catch (RuntimeException | IOException ex) {
                                 wlog.error("Failed to read tournament data", ex);
                             }
@@ -95,10 +93,10 @@ public class BiasComputationWizard extends Sheet implements Bindable {
             @Override
             public void selectedItemChanged(ListView listView, Object previousSelectedItem) {
                 if (listView.getSelectedIndex() >= 0) {
-                    Tournament tmt = (Tournament) listView.getSelectedItem();
-                    ArrayList<Juror> list = new ArrayList<>();
-                    list.addAll(tmt.getJurors());
-                    jurorsTableView.setTableData(new ListAdapter<>(list));
+                    String tournament = (String) listView.getSelectedItem();
+                    ArrayList<Juror> jurors = new ArrayList<>();
+                    jurors.addAll(data.getJurors(tournament));
+                    jurorsTableView.setTableData(new ListAdapter<>(jurors));
                     exportButton.setEnabled(true);
                     loadButton.setEnabled(loadEnabled);
                 } else {
@@ -120,12 +118,12 @@ public class BiasComputationWizard extends Sheet implements Bindable {
                             File f = fileBrowserSheet.getSelectedFile();
                             if (f != null) {
                                 PlannerWindow.setLastDir(f.getParent());
-                                try (FileWriter fw = new FileWriter(f)){
-                                    Tournament tmt = (Tournament) tournamentListView.getSelectedItem();
-                                    TreeSet<Juror> jurors = new TreeSet<>(new Juror.BiasComparator());
-                                    jurors.addAll(tmt.getJurors());
-                                    BiasWriter bw = new BiasWriter(jurors);
-                                    bw.write(fw);
+                                try (FileWriter fw = new FileWriter(f)) {
+                                    String tournament = (String) tournamentListView.getSelectedItem();
+                                    TreeSet<Juror> jurors = new TreeSet<>(new BiasComparator());
+                                    jurors.addAll(data.getJurors(tournament));
+                                    BiasWriter bw = ServiceLoader.load(BiasWriter.class).iterator().next();
+                                    bw.write(fw, jurors);
                                     wlog.info("Biases written to " + f.getAbsolutePath());
                                 } catch (Throwable t) {
                                     wlog.error("Error writing schedule file", t);
@@ -139,9 +137,9 @@ public class BiasComputationWizard extends Sheet implements Bindable {
         loadButton.getButtonPressListeners().add(new ButtonPressListener() {
             @Override
             public void buttonPressed(Button button) {
-                Tournament tmt = (Tournament) tournamentListView.getSelectedItem();
-                for (Juror juror : tmt.getJurors()) {
-                    biases.put(juror.getName(), Double.valueOf(juror.getAverageBias()));
+                String tournament = (String) tournamentListView.getSelectedItem();
+                for (Juror juror : data.getJurors(tournament)) {
+                    biases.put(juror.getFirstName() + " " + juror.getLastName(), Double.valueOf(juror.getBias()));
                 }
                 BiasComputationWizard.this.close();
             }

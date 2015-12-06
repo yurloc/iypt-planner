@@ -1,8 +1,6 @@
 package org.iypt.planner.io.csv.full_data.model;
 
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import org.iypt.planner.io.csv.full_data.readers.PersonReader;
@@ -62,19 +60,5 @@ public class Juror {
     @Override
     public String toString() {
         return String.format("%s {averageBias=%+.2f, marksRecorded=%d}", getName(), getAverageBias(), biases.size());
-    }
-
-    public static class BiasComparator implements Comparator<Juror>, Serializable {
-
-        private static final long serialVersionUID = 1L;
-
-        @Override
-        public int compare(Juror o1, Juror o2) {
-            int compare = Float.compare(o1.getAverageBias(), o2.getAverageBias());
-            if (compare != 0) {
-                return compare;
-            }
-            return o1.getLastName().compareTo(o2.getLastName());
-        }
     }
 }

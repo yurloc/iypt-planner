@@ -2,11 +2,12 @@ package org.iypt.planner.io.csv.full_data;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.iypt.planner.api.io.bias.FullDataReader;
+import org.iypt.planner.api.io.bias.TournamentData;
 import org.iypt.planner.io.csv.full_data.model.Fight;
 import org.iypt.planner.io.csv.full_data.model.Juror;
 import org.iypt.planner.io.csv.full_data.model.Tournament;
@@ -23,14 +24,16 @@ import org.slf4j.LoggerFactory;
  *
  * @author jlocker
  */
-public class TournamentData {
+public class FullDataReaderImpl implements FullDataReader {
 
-    private static final Logger LOG = LoggerFactory.getLogger(TournamentData.class);
-    private final Map<Integer, Tournament> tournaments = new HashMap<>();
-    private final Map<Integer, Fight> fights = new HashMap<>();
-    private final Map<Integer, Juror> jurors = new HashMap<>();
+    private static final Logger LOG = LoggerFactory.getLogger(FullDataReaderImpl.class);
 
-    public void readData(Reader reader) throws IOException {
+    @Override
+    public TournamentData readData(Reader reader) throws IOException {
+        Map<Integer, Tournament> tournaments = new HashMap<>();
+        Map<Integer, Fight> fights = new HashMap<>();
+        Map<Integer, Juror> jurors = new HashMap<>();
+
         CsvTablesProcessor tables = new CsvTablesProcessor();
         tables.process(reader);
 
@@ -69,21 +72,7 @@ public class TournamentData {
             Fight fight = fights.get(row.getFight());
             fight.recordMark(row);
         }
-    }
 
-    Tournament getTournament(int id) {
-        return tournaments.get(id);
-    }
-
-    Fight getFight(int id) {
-        return fights.get(id);
-    }
-
-    Juror getJuror(int id) {
-        return jurors.get(id);
-    }
-
-    public Collection<Tournament> getTournaments() {
-        return tournaments.values();
+        return new TournamentDataImpl(tournaments, fights, jurors);
     }
 }

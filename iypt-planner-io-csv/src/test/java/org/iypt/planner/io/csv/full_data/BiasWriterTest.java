@@ -11,9 +11,10 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
-import org.iypt.planner.io.csv.full_data.model.Juror;
-import org.iypt.planner.io.csv.full_data.model.Tournament;
-import org.iypt.planner.io.csv.full_data.writers.BiasWriter;
+import org.iypt.planner.api.io.bias.BiasComparator;
+import org.iypt.planner.api.io.bias.Juror;
+import org.iypt.planner.api.io.bias.TournamentData;
+import org.iypt.planner.io.csv.full_data.writers.BiasWriterImpl;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -33,17 +34,16 @@ public class BiasWriterTest {
 
     @BeforeClass
     public static void setUp() throws IOException {
-        data = new TournamentData();
-        data.readData(new InputStreamReader(ReadersTest.class.getResourceAsStream("full_data.csv"), StandardCharsets.UTF_8));
+        FullDataReaderImpl reader = new FullDataReaderImpl();
+        data = reader.readData(new InputStreamReader(
+                ReadersTest.class.getResourceAsStream("full_data.csv"),
+                StandardCharsets.UTF_8));
     }
 
     @Test
     public void testData() throws IOException {
-        Tournament t = data.getTournament(9);
-        t.calculate();
-
-        TreeSet<Juror> jurors = new TreeSet<>(new Juror.BiasComparator());
-        for (Juror juror : t.getJurors()) {
+        TreeSet<Juror> jurors = new TreeSet<>(new BiasComparator());
+        for (Juror juror : data.getJurors("IYPT2012")) {
             if (juror.isJuror()) {
                 jurors.add(juror);
             }
@@ -52,8 +52,8 @@ public class BiasWriterTest {
         int totalLines = jurors.size() + 1;
 
         StringWriter sw = new StringWriter();
-        BiasWriter writer = new BiasWriter(jurors);
-        writer.write(sw);
+        BiasWriterImpl writer = new BiasWriterImpl();
+        writer.write(sw, jurors);
 
         log.debug(sw.toString());
 
