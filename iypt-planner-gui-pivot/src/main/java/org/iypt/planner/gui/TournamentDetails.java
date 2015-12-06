@@ -2,7 +2,7 @@ package org.iypt.planner.gui;
 
 import org.apache.pivot.util.ListenerList;
 import org.apache.pivot.wtk.Container;
-import org.iypt.planner.domain.Tournament;
+import org.iypt.planner.opta.drools.domain.Tournament;
 
 public class TournamentDetails extends Container {
 

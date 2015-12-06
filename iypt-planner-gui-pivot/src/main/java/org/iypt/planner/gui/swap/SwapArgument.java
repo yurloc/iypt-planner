@@ -1,6 +1,6 @@
 package org.iypt.planner.gui.swap;
 
-import org.iypt.planner.domain.Juror;
+import org.iypt.planner.opta.drools.domain.Juror;
 
 public interface SwapArgument {
 

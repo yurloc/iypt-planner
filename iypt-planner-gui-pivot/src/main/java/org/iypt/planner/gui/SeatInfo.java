@@ -1,9 +1,9 @@
 package org.iypt.planner.gui;
 
 import org.apache.pivot.wtk.media.Image;
-import org.iypt.planner.domain.Juror;
-import org.iypt.planner.domain.JurorType;
-import org.iypt.planner.domain.Seat;
+import org.iypt.planner.opta.drools.domain.Juror;
+import org.iypt.planner.opta.drools.domain.JurorType;
+import org.iypt.planner.opta.drools.domain.Seat;
 
 /**
  *

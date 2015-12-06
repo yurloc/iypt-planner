@@ -5,12 +5,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.iypt.planner.domain.Absence;
-import org.iypt.planner.domain.Juror;
-import org.iypt.planner.domain.JurorLoad;
-import org.iypt.planner.domain.Round;
-import org.iypt.planner.domain.Seat;
-import org.iypt.planner.domain.Tournament;
+import org.iypt.planner.opta.drools.domain.Absence;
+import org.iypt.planner.opta.drools.domain.Juror;
+import org.iypt.planner.opta.drools.domain.JurorLoad;
+import org.iypt.planner.opta.drools.domain.Round;
+import org.iypt.planner.opta.drools.domain.Seat;
+import org.iypt.planner.opta.drools.domain.Tournament;
 
 public class ScheduleModel {
 

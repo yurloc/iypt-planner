@@ -24,6 +24,7 @@
     <module>iypt-planner-io-csv</module>
     <module>iypt-planner-pdf</module>
     <module>iypt-planner-test-util</module>
+    <module>iypt-planner-opta-drools</module>
   </modules>
 
   <dependencyManagement>

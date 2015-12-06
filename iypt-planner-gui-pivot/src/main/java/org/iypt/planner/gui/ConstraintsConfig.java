@@ -6,9 +6,9 @@ import java.util.List;
 import org.apache.pivot.util.ListenerList;
 import org.apache.pivot.wtk.Container;
 import org.iypt.planner.Constants;
-import org.iypt.planner.solver.ConstraintRule;
-import org.iypt.planner.solver.TournamentSolver;
-import org.iypt.planner.solver.WeightConfig;
+import org.iypt.planner.api.constraints.ConstraintRule;
+import org.iypt.planner.api.constraints.WeightConfig;
+import org.iypt.planner.opta.drools.solver.TournamentSolver;
 
 /**
  * This is a controller for constraint configuration model. It defines some beans ({@link Constraint}) to shield the skin from

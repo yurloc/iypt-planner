@@ -1,6 +1,6 @@
 package org.iypt.planner.gui;
 
-import org.iypt.planner.domain.Group;
+import org.iypt.planner.opta.drools.domain.Group;
 
 /**
  *

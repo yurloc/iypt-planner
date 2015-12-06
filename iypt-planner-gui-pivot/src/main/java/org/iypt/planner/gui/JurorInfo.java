@@ -1,9 +1,9 @@
 package org.iypt.planner.gui;
 
 import java.util.List;
-import org.iypt.planner.domain.Conflict;
-import org.iypt.planner.domain.Juror;
-import org.iypt.planner.domain.JurorLoad;
+import org.iypt.planner.opta.drools.domain.Conflict;
+import org.iypt.planner.opta.drools.domain.Juror;
+import org.iypt.planner.opta.drools.domain.JurorLoad;
 
 /**
  * Groups all information that may be need when displaying juror details.

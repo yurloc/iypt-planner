@@ -28,11 +28,11 @@ import org.apache.pivot.wtk.content.ListItem;
 import org.apache.pivot.wtk.content.ListViewItemRenderer;
 import org.apache.pivot.wtk.skin.ContainerSkin;
 import org.iypt.planner.api.util.CountryCodeIO;
-import org.iypt.planner.domain.Conflict;
-import org.iypt.planner.domain.Juror;
-import org.iypt.planner.domain.JurorLoad;
-import org.iypt.planner.domain.JurorType;
-import org.iypt.planner.domain.Team;
+import org.iypt.planner.opta.drools.domain.Conflict;
+import org.iypt.planner.opta.drools.domain.Juror;
+import org.iypt.planner.opta.drools.domain.JurorLoad;
+import org.iypt.planner.opta.drools.domain.JurorType;
+import org.iypt.planner.opta.drools.domain.Team;
 
 /**
  *

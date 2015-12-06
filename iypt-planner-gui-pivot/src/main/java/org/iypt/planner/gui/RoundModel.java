@@ -3,11 +3,11 @@ package org.iypt.planner.gui;
 import com.neovisionaries.i18n.CountryCode;
 import java.util.ArrayList;
 import java.util.List;
-import org.iypt.planner.domain.Group;
-import org.iypt.planner.domain.Round;
-import org.iypt.planner.domain.Seat;
-import org.iypt.planner.domain.Team;
-import org.iypt.planner.domain.Tournament;
+import org.iypt.planner.opta.drools.domain.Group;
+import org.iypt.planner.opta.drools.domain.Round;
+import org.iypt.planner.opta.drools.domain.Seat;
+import org.iypt.planner.opta.drools.domain.Team;
+import org.iypt.planner.opta.drools.domain.Tournament;
 
 public class RoundModel {
 
