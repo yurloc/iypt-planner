@@ -32,5 +32,6 @@ Any value defined here will override the pom.xml file value but is only applicab
         <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.importGroupsOrder>*;static *</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.importGroupsOrder>
         <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.preserveNewLinesInComments>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.preserveNewLinesInComments>
         <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.enableBlockCommentFormatting>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.enableBlockCommentFormatting>
+        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.wrapOneLineComment>false</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.wrapOneLineComment>
     </properties>
 </project-shared-configuration>
