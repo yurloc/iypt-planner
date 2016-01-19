@@ -1,8 +1,11 @@
+:hide-uri-scheme:
 = IYPT Jury Planner
 
 IYPT Jury Planner is a Java-based application with GUI that is used to fill juries for the *International
 Young Physicists’ Tournament*. It helps to quickly find a distribution of people to juries that not only complies
 to the tournament regulations but also satisfies various extra constraints without involving tedious manual work.
+
+To learn more about IYPT competition, visit http://iypt.org.
 
 == Jury rules
 
