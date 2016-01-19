@@ -65,7 +65,11 @@ public class BiasComputationWizard extends Sheet implements Bindable {
         browseButton.getButtonPressListeners().add(new ButtonPressListener() {
             @Override
             public void buttonPressed(Button button) {
-                final FileBrowserSheet fileBrowserSheet = new FileBrowserSheet(FileBrowserSheet.Mode.OPEN, PlannerWindow.getLastDir());
+                String lastDir = PlannerWindow.getLastDir();
+                // NOTE root dir must be passed in constructor, sheet.setRootFolder() is not propagated to skin (bug)
+                final FileBrowserSheet fileBrowserSheet = lastDir == null
+                        ? new FileBrowserSheet(FileBrowserSheet.Mode.OPEN)
+                        : new FileBrowserSheet(FileBrowserSheet.Mode.OPEN, lastDir);
                 fileBrowserSheet.setDisabledFileFilter(PlannerWindow.CSV_FILE_FILTER);
                 fileBrowserSheet.open(BiasComputationWizard.this, new SheetCloseListener() {
                     @Override
@@ -110,7 +114,10 @@ public class BiasComputationWizard extends Sheet implements Bindable {
         exportButton.getButtonPressListeners().add(new ButtonPressListener() {
             @Override
             public void buttonPressed(Button button) {
-                final FileBrowserSheet fileBrowserSheet = new FileBrowserSheet(FileBrowserSheet.Mode.SAVE_AS, PlannerWindow.getLastDir());
+                String lastDir = PlannerWindow.getLastDir();
+                final FileBrowserSheet fileBrowserSheet = lastDir == null
+                        ? new FileBrowserSheet(FileBrowserSheet.Mode.SAVE_AS)
+                        : new FileBrowserSheet(FileBrowserSheet.Mode.SAVE_AS, lastDir);
                 fileBrowserSheet.setDisabledFileFilter(PlannerWindow.CSV_FILE_FILTER);
                 fileBrowserSheet.setSelectedFile(new File(fileBrowserSheet.getRootDirectory(), "biases.csv"));
                 fileBrowserSheet.open(BiasComputationWizard.this, new SheetCloseListener() {
@@ -120,7 +127,7 @@ public class BiasComputationWizard extends Sheet implements Bindable {
                             File f = fileBrowserSheet.getSelectedFile();
                             if (f != null) {
                                 PlannerWindow.setLastDir(f.getParent());
-                                try (FileWriter fw = new FileWriter(f)){
+                                try (FileWriter fw = new FileWriter(f)) {
                                     Tournament tmt = (Tournament) tournamentListView.getSelectedItem();
                                     TreeSet<Juror> jurors = new TreeSet<>(new Juror.BiasComparator());
                                     jurors.addAll(tmt.getJurors());

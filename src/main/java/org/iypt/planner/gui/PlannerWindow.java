@@ -105,7 +105,7 @@ public class PlannerWindow extends Window implements Bindable {
     // build info
     @BXML private Label buildInfoLabel;
     // other
-    private static final Preferences prefs = Preferences.userNodeForPackage(PlannerWindow.class);;
+    private static final Preferences prefs = Preferences.userNodeForPackage(PlannerWindow.class);
     private final SwapQueue swapQueue = new SwapQueue();
     private TournamentSchedule tournamentSchedule;
     private SolverTask solverTask;
@@ -580,7 +580,10 @@ public class PlannerWindow extends Window implements Bindable {
 
         @Override
         public void perform(Component source) {
-            final FileBrowserSheet fileBrowserSheet = new FileBrowserSheet(getLastDir());
+            String lastDir = PlannerWindow.getLastDir();
+            final FileBrowserSheet fileBrowserSheet = lastDir == null
+                    ? new FileBrowserSheet()
+                    : new FileBrowserSheet(lastDir);
             fileBrowserSheet.setDisabledFileFilter(CSV_FILE_FILTER);
             fileBrowserSheet.open(PlannerWindow.this, new SheetCloseListener() {
                 @Override
@@ -677,10 +680,30 @@ public class PlannerWindow extends Window implements Bindable {
     };
 
     static String getLastDir() {
-        return prefs.get("last_dir", ".");
+        String lastDir = prefs.get("last_dir", "");
+        if (!lastDir.isEmpty()) {
+            return lastDir;
+        }
+        String home = System.getProperty("user.home");
+        if (home != null) {
+            return home;
+        }
+        try {
+            return new File(".").getCanonicalPath();
+        } catch (IOException ex) {
+            log.error("Failed to get canonical path for '.' directory.", ex);
+            File[] roots = File.listRoots();
+            if (roots.length > 0) {
+                return roots[0].getAbsolutePath();
+            }
+            return null;
+        }
     }
 
     static void setLastDir(String path) {
+        if (!new File(path).isAbsolute()) {
+            throw new IllegalArgumentException("Path must be absolute.");
+        }
         prefs.put("last_dir", path);
     }
 
@@ -693,7 +716,10 @@ public class PlannerWindow extends Window implements Bindable {
 
     void saveSchedule() {
         // create new FileBrowser to make sure a fresh file list is displayed
-        final FileBrowserSheet fileBrowserSheet = new FileBrowserSheet(FileBrowserSheet.Mode.SAVE_AS, getLastDir());
+        String lastDir = PlannerWindow.getLastDir();
+        final FileBrowserSheet fileBrowserSheet = lastDir == null
+                ? new FileBrowserSheet(FileBrowserSheet.Mode.SAVE_AS)
+                : new FileBrowserSheet(FileBrowserSheet.Mode.SAVE_AS, lastDir);
         fileBrowserSheet.setDisabledFileFilter(CSV_FILE_FILTER);
         fileBrowserSheet.setSelectedFile(new File(fileBrowserSheet.getRootDirectory(), "schedule.csv"));
         fileBrowserSheet.open(PlannerWindow.this, new SheetCloseListener() {
@@ -737,7 +763,10 @@ public class PlannerWindow extends Window implements Bindable {
 
     void exportPdf() {
         // create new FileBrowser to make sure a fresh file list is displayed
-        final FileBrowserSheet fileBrowserSheet = new FileBrowserSheet(FileBrowserSheet.Mode.SAVE_TO, getLastDir());
+        String lastDir = PlannerWindow.getLastDir();
+        final FileBrowserSheet fileBrowserSheet = lastDir == null
+                ? new FileBrowserSheet(FileBrowserSheet.Mode.SAVE_TO)
+                : new FileBrowserSheet(FileBrowserSheet.Mode.SAVE_TO, lastDir);
         fileBrowserSheet.setDisabledFileFilter(new Filter<File>() {
             @Override
             public boolean include(File item) {
