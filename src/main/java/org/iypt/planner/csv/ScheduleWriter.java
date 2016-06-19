@@ -38,11 +38,8 @@ public class ScheduleWriter {
                     // append all jurors
                     for (Seat seat : tournament.getSeats(group.getJury())) {
                         Juror juror = seat.getJuror();
-                        if (juror != null) {
+                        if (juror != null && seat.isVoting()) {
                             String fmt = "%s, %s";
-                            if (!seat.isVoting()) {
-                                fmt = "(%s, %s)";
-                            }
                             data.add(String.format(fmt, juror.getLastName(), juror.getFirstName()));
                         }
                     }

@@ -75,8 +75,8 @@ public class ScheduleWriterTest {
 
         // check the stored lines
         String[] expectedLines = {
-            "1;A;1, null;2, null;3, null;(4, null);(5, null)",
-            "1;B;6, null;7, null;1, null;(2, null);(3, null)",
+            "1;A;1, null;2, null;3, null",
+            "1;B;6, null;7, null;1, null",
             "2;A;4, null;5, null;6, null",
             "2;B;7, null;1, null;2, null"};
         assertThat(actualLines).containsExactly(expectedLines);
