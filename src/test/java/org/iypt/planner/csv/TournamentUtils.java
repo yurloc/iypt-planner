@@ -37,18 +37,19 @@ public class TournamentUtils {
         return t.getSeats(t.getRounds().get(round).getGroups().get(group).getJury()).get(seat).getJuror();
     }
 
-    public void verifyJuror(Juror juror, String fullName, JurorType type, boolean chair) {
+    private void verifyJuror(Juror juror, String fullName, JurorType type, boolean chair) {
         assertThat(juror.fullName()).isEqualTo(fullName);
         assertThat(juror.getType()).isEqualTo(type);
         assertThat(juror.isChairCandidate()).isEqualTo(chair);
     }
 
     public void verifyJuror(Juror juror, String fullName, JurorType type, boolean chair, CountryCode... countries) {
-        if (countries.length == 0) {
-            throw new IllegalArgumentException();
-        }
         verifyJuror(juror, fullName, type, chair);
-        assertThat(juror.getCountry()).isEqualTo(countries[0]);
+        if (countries.length > 0) {
+            assertThat(juror.getCountry()).isEqualTo(countries[0]);
+        } else {
+            assertThat(juror.getCountry()).isNull();
+        }
         assertThat(t.getConflicts(juror)).extracting("country").containsExactly((Object[]) countries);
 
     }

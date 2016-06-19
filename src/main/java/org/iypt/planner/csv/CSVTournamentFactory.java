@@ -254,19 +254,13 @@ public class CSVTournamentFactory {
                     throwIOE("Invalid juror type tag", line.get(2), src.name, ln, 2);
                 }
 
-                // get first country
-                CountryCode cc = CountryCodeIO.getByShortName(line.get(3));
-                if (cc == null) {
-                    throwIOE("Unknown country", line.get(3), src.name, ln, 3);
-                }
-
-                // create the juror
-                Juror juror = new Juror(line.get(0), line.get(1), cc, jt);
-                jurors.put(String.format("%s, %s", line.get(1), line.get(0)), juror);
-
                 // read country conflicts, absences, and optional chair tag
+                boolean chair = false;
+                boolean experienced = true;
                 boolean readingAbsences = false;
-                for (int i = 4; i < line.size(); i++) {
+                List<Round> absentRounds = new ArrayList<>();
+                List<CountryCode> countries = new ArrayList<>();
+                for (int i = 3; i < line.size(); i++) {
                     if (i == line.size() - 1 && line.get(i) == null) {
                         LOG.trace("Ignoring trailing '{}' in {}[{}:{}]",
                                 new Object[]{(char) PREFERENCE.getDelimiterChar(), src.name, ln, i});
@@ -275,13 +269,13 @@ public class CSVTournamentFactory {
 
                     // chair tag
                     if ("C".equals(line.get(i))) {
-                        if (juror.isChairCandidate()) {
+                        if (chair) {
                             throwIOE("Duplicate chair tag", src.name, ln, i);
                         }
-                        juror.setChairCandidate(true);
+                        chair = true;
                     } else if ("E0".equals(line.get(i))) {
-                        //experience tag
-                        juror.setExperienced(false);
+                        // experience tag
+                        experienced = false;
                     } else {
 
                         try {
@@ -291,9 +285,7 @@ public class CSVTournamentFactory {
                             if (!rounds.containsKey(roundNumber)) {
                                 rounds.put(roundNumber, new Round(roundNumber));
                             }
-                            Round round = rounds.get(roundNumber);
-
-                            absences.add(new Absence(juror, round));
+                            absentRounds.add(rounds.get(roundNumber));
                             readingAbsences = true;
                         } catch (NumberFormatException ex) {
                             if (readingAbsences) {
@@ -304,10 +296,26 @@ public class CSVTournamentFactory {
                             if (conflict == null) {
                                 throwIOE("Unknown country", line.get(i), src.name, ln, 3);
                             }
-                            LOG.debug("Juror with multiple conflicts: {} {}", conflict, juror);
-                            conflicts.add(new Conflict(juror, conflict));
+                            countries.add(conflict);
                         }
                     }
+                }
+
+                // create the juror
+                CountryCode primaryCountry = countries.size() > 0 ? countries.get(0) : null;
+                Juror juror = new Juror(line.get(0), line.get(1), primaryCountry, jt, chair, experienced);
+                jurors.put(String.format("%s, %s", line.get(1), line.get(0)), juror);
+
+                if (countries.isEmpty()) {
+                    LOG.debug("Juror with no conflicts: {}", juror);
+                } else if (countries.size() > 1) {
+                    LOG.debug("Juror with multiple conflicts: {} {}", countries, juror);
+                }
+                for (int i = 1; i < countries.size(); i++) {
+                    conflicts.add(new Conflict(juror, countries.get(i)));
+                }
+                for (Round round : absentRounds) {
+                    absences.add(new Absence(juror, round));
                 }
             }
             ln++;

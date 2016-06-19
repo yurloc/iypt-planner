@@ -1,5 +1,6 @@
 package org.iypt.planner.csv;
 
+import com.neovisionaries.i18n.CountryCode;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +18,7 @@ import static com.neovisionaries.i18n.CountryCode.RU;
 import static com.neovisionaries.i18n.CountryCode.SK;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.iypt.planner.domain.JurorType.INDEPENDENT;
+import static org.iypt.planner.domain.JurorType.TEAM_LEADER;
 
 /**
  *
@@ -41,6 +43,8 @@ public class CSVTournamentFactoryTest {
         tu.verifyJuror(tu.getJuror(0, 4, 0), "Ilya Martchenko", INDEPENDENT, true, CH, RU);
         // Raimund;Girwidz;I;Germany;1;2;3;4
         tu.verifyJuror(tu.getJuror(4, 7, 1), "Raimund Girwidz", INDEPENDENT, false, DE, 1, 2, 3, 4);
+        // Ricky;Regner;T;C;4
+        tu.verifyJuror(tu.getJuror(0, 0, 1), "Ricky Regner", TEAM_LEADER, true, new CountryCode[]{});
     }
 
     @Test

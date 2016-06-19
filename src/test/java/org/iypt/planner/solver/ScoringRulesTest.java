@@ -10,6 +10,7 @@ import org.iypt.planner.csv.CSVTournamentFactory;
 import org.iypt.planner.domain.Absence;
 import org.iypt.planner.domain.Conflict;
 import org.iypt.planner.domain.Juror;
+import org.iypt.planner.domain.JurorType;
 import org.iypt.planner.domain.Lock;
 import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.RoundFactory;
@@ -366,6 +367,21 @@ public class ScoringRulesTest {
                 new Conflict(jN1, jM3.getCountry())
         );
         checkSolution(t, true, ScoringRule.jurorAndJurorConflict, 1); // only jN1-jM3
+    }
+
+    @Test
+    public void testZeroConflictJuror() {
+        Tournament t = new Tournament();
+        Round r1 = RoundFactory.createRound(1, tA, tB, tC);
+        r1.setJurySize(3);
+        t.addRounds(r1);
+        Juror j01 = new Juror("A", "1", null, JurorType.INDEPENDENT, true, true);
+        Juror j02 = new Juror("B", "2", null, JurorType.INDEPENDENT, true, true);
+        t.addJurors(j01, j02, jM1);
+
+        assignJurors(t, j01, jM1, j02);
+        checkSolution(t, true, ScoringRule.jurorAndJurorConflict, 0);
+        checkSolution(t, true, ScoringRule.teamAndJurorSameCountry, 0);
     }
 
     @Test

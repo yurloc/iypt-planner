@@ -25,6 +25,7 @@ public class Images {
         for (CountryCode cc : CountryCode.values()) {
             flags.put(cc, Images.class.getResource(String.format("img/flags/%s.png", cc.getAlpha2().toLowerCase())));
         }
+        flags.put(null, Images.class.getResource("img/flags/null.png"));
     }
 
     public static Image getImage(String imageName) {

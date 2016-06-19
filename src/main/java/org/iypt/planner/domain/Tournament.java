@@ -318,10 +318,12 @@ public class Tournament implements Solution<HardSoftScore> {
     public void addJurors(Collection<Juror> jurors) {
         for (Juror juror : jurors) {
             this.jurors.add(juror);
-            Conflict conflict = new Conflict(juror, juror.getCountry());
-            conflicts.add(conflict);
             List<Conflict> jurorConflicts = new ArrayList<>(1);
-            jurorConflicts.add(conflict);
+            if (juror.getCountry() != null) {
+                Conflict conflict = new Conflict(juror, juror.getCountry());
+                conflicts.add(conflict);
+                jurorConflicts.add(conflict);
+            }
             this.conflictMap.put(juror, jurorConflicts);
             this.absencesPerJurorMap.put(juror, new ArrayList<Absence>());
         }
