@@ -34,7 +34,7 @@ public class ScheduleWriter {
                     List<Object> data = new ArrayList<>(round.getJurySize() + 2);
                     // append round number and group name
                     data.add(round.getNumber());
-                    data.add("Group " + group.getName());
+                    data.add(group.getName());
                     // append all jurors
                     for (Seat seat : tournament.getSeats(group.getJury())) {
                         Juror juror = seat.getJuror();

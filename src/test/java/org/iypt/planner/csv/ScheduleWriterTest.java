@@ -75,10 +75,10 @@ public class ScheduleWriterTest {
 
         // check the stored lines
         String[] expectedLines = {
-            "1;Group A;1, null;2, null;3, null;(4, null);(5, null)",
-            "1;Group B;6, null;7, null;1, null;(2, null);(3, null)",
-            "2;Group A;4, null;5, null;6, null",
-            "2;Group B;7, null;1, null;2, null"};
+            "1;A;1, null;2, null;3, null;(4, null);(5, null)",
+            "1;B;6, null;7, null;1, null;(2, null);(3, null)",
+            "2;A;4, null;5, null;6, null",
+            "2;B;7, null;1, null;2, null"};
         assertThat(actualLines).containsExactly(expectedLines);
     }
 
@@ -99,7 +99,8 @@ public class ScheduleWriterTest {
 
         // read the source file
         InputStreamReader isr = new InputStreamReader(ScheduleWriterTest.class.getResourceAsStream("/org/iypt/planner/csv/schedule2012.csv"));
-        String expected = new BufferedReader(isr).readLine();
+        String expected = new BufferedReader(isr).readLine()
+                .replaceFirst(";Group ", ";"); // Group prefix was removed from export as requested in #46
 
         // verify that what has been written is exactly what has been read (first line only)
         log.info("Comparing input/output:\n[{}]\n[{}]", expected, actual);
@@ -117,6 +118,6 @@ public class ScheduleWriterTest {
         ScheduleWriter writer = new ScheduleWriter(t);
         writer.write(sw);
         log.debug("[{}]", sw.toString());
-        assertThat(sw.toString()).isEqualTo("1;Group A\n");
+        assertThat(sw.toString()).isEqualTo("1;A\n");
     }
 }
