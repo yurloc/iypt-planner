@@ -20,12 +20,21 @@
 
     <TableView.Column name="type" width="-1" headerData="Type">
       <cellRenderer>
+        <!-- TODO create renderer that wil render I/T OR house/flag-->
         <content:TableViewBooleanCellRenderer/>
       </cellRenderer>
     </TableView.Column>
 
     <TableView.Column name="chair" width="-1" headerData="Chair">
       <cellRenderer>
+        <!-- TODO create renderer that wil render black or light grey C -->
+        <content:TableViewBooleanCellRenderer/>
+      </cellRenderer>
+    </TableView.Column>
+
+    <TableView.Column name="experienced" width="-1" headerData="Chair">
+      <cellRenderer>
+        <!-- TODO create renderer that wil render black or light grey E OR grey/yellow star -->
         <content:TableViewBooleanCellRenderer/>
       </cellRenderer>
     </TableView.Column>

@@ -17,6 +17,7 @@ public class SeatInfo {
     private final String name;
     private final boolean type;
     private final boolean chair;
+    private final boolean experienced;
     private Image icon;
     private boolean locked;
 
@@ -33,6 +34,7 @@ public class SeatInfo {
         this.name = null;
         this.type = false;
         this.chair = false;
+        this.experienced = false;
         this.locked = false;
     }
 
@@ -53,6 +55,7 @@ public class SeatInfo {
         this.name = toDisplayName2(juror);
         this.type = juror.getType() == JurorType.INDEPENDENT;
         this.chair = juror.isChairCandidate();
+        this.experienced = juror.isExperienced();
     }
 
     public static SeatInfo newInstance(Juror juror) {
@@ -111,6 +114,10 @@ public class SeatInfo {
 
     public boolean isChair() {
         return chair;
+    }
+
+    public boolean isExperienced() {
+        return experienced;
     }
 
     public boolean isLocked() {
