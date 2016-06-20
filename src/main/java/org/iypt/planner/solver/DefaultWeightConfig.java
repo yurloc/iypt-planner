@@ -26,4 +26,9 @@ public class DefaultWeightConfig implements WeightConfig {
         }
         return weights.get(ruleId);
     }
+
+    @Override
+    public String toString() {
+        return "weights";
+    }
 }
