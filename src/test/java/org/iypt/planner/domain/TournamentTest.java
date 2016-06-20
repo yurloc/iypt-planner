@@ -147,23 +147,23 @@ public class TournamentTest {
 
     @Test
     public void testJurorLoad() {
-        testLoad(new JurorLoad(jA1, 0, 5, 0, .77), .00, -.77, true);
-        testLoad(new JurorLoad(jA1, 0, 5, 1, .77), .00, -.77, true);
-        testLoad(new JurorLoad(jA1, 0, 5, 2, .77), .00, -.77, true);
-        testLoad(new JurorLoad(jA1, 0, 5, 3, .77), .00, -.77, true);
-        testLoad(new JurorLoad(jA1, 0, 5, 4, .77), .00, -.77, true);
-        testLoad(new JurorLoad(jA1, 0, 5, 5, .77), .00, -.77, true);
+        testLoad(new JurorLoad(jA1, false, 0, 5, 0, .77), .00, -.77, true);
+        testLoad(new JurorLoad(jA1, false, 0, 5, 1, .77), .00, -.77, true);
+        testLoad(new JurorLoad(jA1, false, 0, 5, 2, .77), .00, -.77, true);
+        testLoad(new JurorLoad(jA1, false, 0, 5, 3, .77), .00, -.77, true);
+        testLoad(new JurorLoad(jA1, false, 0, 5, 4, .77), .00, -.77, true);
+        testLoad(new JurorLoad(jA1, false, 0, 5, 5, .77), .00, -.77, true);
 
-        testLoad(new JurorLoad(jA1, 1, 5, 0, .77), .20, -.57, true);
-        testLoad(new JurorLoad(jA1, 1, 5, 1, .77), .25, -.52, true);
-        testLoad(new JurorLoad(jA1, 1, 5, 2, .77), .33, -.44, true);
-        testLoad(new JurorLoad(jA1, 1, 5, 3, .77), .50, -.27, false);
-        testLoad(new JurorLoad(jA1, 1, 5, 4, .77), 1.0, +.23, false);
-        testLoad(new JurorLoad(jA1, 1, 5, 5, .77), INFINITE_LOAD_VALUE, INFINITE_LOAD_VALUE - .77, true);
+        testLoad(new JurorLoad(jA1, false, 1, 5, 0, .77), .20, -.57, true);
+        testLoad(new JurorLoad(jA1, false, 1, 5, 1, .77), .25, -.52, true);
+        testLoad(new JurorLoad(jA1, false, 1, 5, 2, .77), .33, -.44, true);
+        testLoad(new JurorLoad(jA1, false, 1, 5, 3, .77), .50, -.27, false);
+        testLoad(new JurorLoad(jA1, false, 1, 5, 4, .77), 1.0, +.23, false);
+        testLoad(new JurorLoad(jA1, false, 1, 5, 5, .77), INFINITE_LOAD_VALUE, INFINITE_LOAD_VALUE - .77, true);
 
-        testLoad(new JurorLoad(jA1, 4, 5, 0, .77), .80, +.03, false);
-        testLoad(new JurorLoad(jA1, 4, 5, 1, .77), 1.0, +.23, false);
-        testLoad(new JurorLoad(jA1, 4, 5, 2, .77), 1.33, +.56, true);
+        testLoad(new JurorLoad(jA1, false, 4, 5, 0, .77), .80, +.03, false);
+        testLoad(new JurorLoad(jA1, false, 4, 5, 1, .77), 1.0, +.23, false);
+        testLoad(new JurorLoad(jA1, false, 4, 5, 2, .77), 1.33, +.56, true);
     }
 
     @Test
@@ -208,6 +208,52 @@ public class TournamentTest {
         jurySizeTotal = 5.0;
         assertThat(clone.getStatistics().getOptimalLoad())
                 .isEqualTo(jurySizeTotal * numberOfGroups / (18 - 2), offset(Double.MIN_VALUE));
+    }
+
+    @Test
+    public void testChairBalance() {
+        Tournament t = new Tournament();
+        assertThat(t.getStatistics().getOptimalChairLoad()).isEqualTo(0.0, offset(Double.MIN_VALUE));
+
+        double rounds = 1;
+        double groups = 2;
+        double chairs = 2;
+        Round r1 = new Round(1, 2);
+        r1.createGroup("A").addTeams(tA, tB, tC);
+        r1.createGroup("B").addTeams(tD, tE, tF);
+        assertThat(t.getStatistics().getOptimalChairLoad()).isEqualTo(0.0, offset(Double.MIN_VALUE));
+
+        t.addJurors(jA1, jA2, jB1, jB2);
+        assertThat(t.getStatistics().getOptimalChairLoad()).isEqualTo(0.0, offset(Double.MIN_VALUE));
+        t.addRounds(r1);
+        assertThat(t.getStatistics().getRounds()).isEqualTo(1);
+        assertThat(t.getStatistics().getOptimalChairLoad()).isEqualTo(1.0, offset(Double.MIN_VALUE));
+
+        t.addJurors(jA3, jA4, jC1, jC2, jC3);
+        chairs++;
+        assertThat(t.getStatistics().getOptimalChairLoad()).isEqualTo(groups / chairs, offset(Double.MIN_VALUE));
+
+        t.changeJurySize(r1, 3);
+        assertThat(t.getStatistics().getOptimalChairLoad()).isEqualTo(groups / chairs, offset(Double.MIN_VALUE));
+
+        Round r2 = new Round(2, 4);
+        rounds++;
+        r2.createGroup("A").addTeams(tA, tB, tC);
+        r2.createGroup("B").addTeams(tD, tE, tF);
+        t.addRounds(r2);
+        assertThat(t.getStatistics().getRounds()).isEqualTo(2);
+        assertThat(t.getStatistics().getOptimalChairLoad())
+                .isEqualTo(groups * rounds / (chairs * rounds), offset(Double.MIN_VALUE));
+
+        t.addAbsences(new Absence(jA1, r1), new Absence(jB1, r1), new Absence(jA2, r1), new Absence(jB2, r2));
+        assertThat(t.getStatistics().getOptimalChairLoad())
+                .isEqualTo(groups * rounds / (chairs * rounds - 2), offset(Double.MIN_VALUE));
+
+        // check that cloned solution calculates statistics correctly
+        Tournament clone = (Tournament) t.cloneSolution();
+        clone.changeJurySize(r2, 2);
+        assertThat(clone.getStatistics().getOptimalChairLoad())
+                .isEqualTo(groups * rounds / (chairs * rounds - 2), offset(Double.MIN_VALUE));
     }
 
     @Test

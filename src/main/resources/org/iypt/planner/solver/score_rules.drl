@@ -154,7 +154,7 @@ when
     accumulate( Absence( juror == $juror );
                 $absences: count() )
 then
-    JurorLoad load = new JurorLoad($juror, $seats, $stats.getRounds(), $absences, $stats.getOptimalLoad());
+    JurorLoad load = new JurorLoad($juror, false, $seats, $stats.getRounds(), $absences, $stats.getOptimalLoad());
     insertLogical( load );
 end
 
@@ -163,7 +163,32 @@ rule "loadDeltaExceeded"
 enabled true
 when
     $wc   : WeightConfig()
-    $load : JurorLoad( excessive )
+    $load : JurorLoad( !chair, excessive )
+then
+    int weight = -Double.valueOf($load.getCost() * $wc.getWeight(drools.getRule().getName()) + 0.5).intValue();
+    scoreHolder.addSoftConstraintMatch(kcontext, weight);
+end
+
+rule "calculateChairLoads"
+salience 1 // calculate these facts before other rules
+when
+    $stats : Statistics()
+    $juror : Juror( chairCandidate )
+    accumulate( VotingSeat( juror == $juror, chair == true );
+                $seats : count() )
+    accumulate( Absence( juror == $juror );
+                $absences: count() )
+then
+    JurorLoad load = new JurorLoad($juror, true, $seats, $stats.getRounds(), $absences, $stats.getOptimalChairLoad());
+    insertLogical( load );
+end
+
+rule "chairLoadDeltaExceeded"
+@ConstraintType(soft)
+enabled true
+when
+    $wc   : WeightConfig()
+    $load : JurorLoad( chair, excessive )
 then
     int weight = -Double.valueOf($load.getCost() * $wc.getWeight(drools.getRule().getName()) + 0.5).intValue();
     scoreHolder.addSoftConstraintMatch(kcontext, weight);

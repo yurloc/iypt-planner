@@ -37,7 +37,7 @@ public class JurorDetailsTest {
                 SampleFacts.jA1,
                 Collections.<Conflict>emptyList(),
                 Arrays.asList(assignment),
-                new JurorLoad(SampleFacts.jA1, 1, 5, 0, 1)
+                new JurorLoad(SampleFacts.jA1, false, 1, 5, 0, 1)
         );
         details = new JurorDetails();
     }

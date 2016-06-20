@@ -133,13 +133,15 @@ public class ScoringRulesTest {
         Tournament t = factory.newTournament();
         t.setWeightConfig(wconfig);
 
-        LOG.debug("Optimal load for IYPT2012: {}", t.getStatistics().getOptimalLoad());
+        LOG.debug("Optimal juror load for IYPT2012: {}", t.getStatistics().getOptimalLoad());
+        LOG.debug("Optimal chair load for IYPT2012: {}", t.getStatistics().getOptimalChairLoad());
         checkSolution(t, true, true,
                 new RuleFiring(ScoringRule.accumulatedBias, 45),
                 new RuleFiring(ScoringRule.independentRatioDeltaExceeded, 2),
                 new RuleFiring(ScoringRule.jurorAndJurorConflict, 8),
                 new RuleFiring(ScoringRule.jurorMeetsBigGroupOften, 4),
                 new RuleFiring(ScoringRule.loadDeltaExceeded, 19),
+                new RuleFiring(ScoringRule.chairLoadDeltaExceeded, 4),
                 new RuleFiring(ScoringRule.teamAndJurorAlreadyMet, 110));
     }
 
@@ -346,6 +348,28 @@ public class ScoringRulesTest {
         // jM2 is overloaded, jM3 and jM4 are unused
         assignJurors(t, jI1, jM2, jJ1, jM2, jK1, jM2, jL1, jM2, jM1, jM2);
         checkSolution(t, true, ScoringRule.loadDeltaExceeded, 3);
+        // TODO add absences
+    }
+
+    @Test
+    public void testChairBalance() {
+        Tournament t = new Tournament();
+        Round r1 = RoundFactory.createRound(1, tA, tB, tC, tD, tE, tF);
+        Round r2 = RoundFactory.createRound(2, tA, tD, tE, tD, tE, tF);
+        Round r3 = RoundFactory.createRound(3, tA, tB, tC, tD, tE, tF);
+        r1.setJurySize(2);
+        r2.setJurySize(2);
+        r3.setJurySize(2);
+        t.addRounds(r1, r2, r3);
+        t.addJurors(jI1, jJ1, jK1, jL1, jM1); // chairs
+        t.addJurors(jM2, jM3, jM4);
+        assertThat(t.getStatistics().getOptimalChairLoad()).isEqualTo(2.0 / 5, offset(Double.MIN_VALUE));
+
+        // jI1 is overloaded (100%), jJ1 and jK1 are within tolerance, jL1 and jM1 are unused (0%)
+        //              1A        1B       2A        2B        3A       3B
+        assignJurors(t, jI1, jM2, jJ1, jM3, jK1, jM4, jI1, jM3, jI1, jM2, jK1, jM4);
+        checkSolutionFeasible(t);
+        checkSolution(t, true, ScoringRule.chairLoadDeltaExceeded, 3);
         // TODO add absences
     }
 
@@ -737,6 +761,7 @@ public class ScoringRulesTest {
         softConstraintsBroken(AUX),
         // fact calculations
         calculateJurorLoads(AUX),
+        calculateChairLoads(AUX),
         calculateIndependentRatio(AUX),
         // hard constraints
         emptySeat(HARD),
@@ -753,6 +778,7 @@ public class ScoringRulesTest {
         teamAndChairMeetTwice(SOFT, 200),
         teamAndJurorAlreadyMet(SOFT, 1),
         loadDeltaExceeded(SOFT, 100),
+        chairLoadDeltaExceeded(SOFT, 150),
         jurorMeetsBigGroupOften(SOFT, 10),
         // * inside jury
         jurorAndJurorConflict(SOFT, 10),

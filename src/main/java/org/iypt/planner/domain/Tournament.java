@@ -185,6 +185,26 @@ public class Tournament implements Solution<HardSoftScore> {
         return 0.0;
     }
 
+    private double calculateOptimalChairLoad() {
+        if (jurors.size() > 0 && rounds.size() > 0 && absences.size() != jurors.size() * rounds.size()) {
+            double totalSeats = groups.size();
+            int chairCandidates = 0;
+            int absentChairs = 0;
+            for (Juror juror : jurors) {
+                if (juror.isChairCandidate()) {
+                    chairCandidates++;
+                }
+            }
+            for (Absence absence : absences) {
+                if (absence.getJuror().isChairCandidate()) {
+                    absentChairs++;
+                }
+            }
+            return totalSeats / (chairCandidates * rounds.size() - absentChairs);
+        }
+        return 0.0;
+    }
+
     private void calculateIndependentRatio() {
         for (Round round : rounds) {
             double i = 0;
@@ -292,6 +312,7 @@ public class Tournament implements Solution<HardSoftScore> {
             absencesPerRoundMap.put(r, new ArrayList<Absence>());
         }
         stats.setOptimalLoad(calculateOptimalLoad());
+        stats.setOptimalChairLoad(calculateOptimalChairLoad());
         calculateIndependentRatio();
     }
 
@@ -328,6 +349,7 @@ public class Tournament implements Solution<HardSoftScore> {
             this.absencesPerJurorMap.put(juror, new ArrayList<Absence>());
         }
         stats.setOptimalLoad(calculateOptimalLoad());
+        stats.setOptimalChairLoad(calculateOptimalChairLoad());
         calculateIndependentRatio();
         calculateMaxJurySize(false);
     }
@@ -373,6 +395,7 @@ public class Tournament implements Solution<HardSoftScore> {
             this.absences.add(absence);
         }
         stats.setOptimalLoad(calculateOptimalLoad());
+        stats.setOptimalChairLoad(calculateOptimalChairLoad());
         calculateIndependentRatio();
         calculateFirstAvailableRounds();
         calculateMaxJurySize(true);
@@ -388,6 +411,7 @@ public class Tournament implements Solution<HardSoftScore> {
             this.absences.remove(absence);
         }
         stats.setOptimalLoad(calculateOptimalLoad());
+        stats.setOptimalChairLoad(calculateOptimalChairLoad());
         calculateIndependentRatio();
         calculateFirstAvailableRounds();
         calculateMaxJurySize(true);
@@ -494,6 +518,7 @@ public class Tournament implements Solution<HardSoftScore> {
         seats = newSeats;
         round.setJurySize(newSize);
         stats.setOptimalLoad(calculateOptimalLoad());
+        stats.setOptimalChairLoad(calculateOptimalChairLoad());
         calculateIndependentRatio();
         return true;
     }
@@ -626,12 +651,14 @@ public class Tournament implements Solution<HardSoftScore> {
         sb.append("Total jury seats:    ").append(this.getSeats().size()).append('\n');
         sb.append("Total juror mandays: ").append(md).append('\n');
         sb.append(String.format("Optimal juror load:  %.4f%n", stats.getOptimalLoad()));
+        sb.append(String.format("Optimal chair load:  %.4f%n", stats.getOptimalChairLoad()));
         return sb.toString();
     }
 
     public static class Statistics {
 
         private double optimalLoad = 0.0;
+        private double optimalChairLoad = 0.0;
         private int rounds = 0;
 
         public void setOptimalLoad(double optimalLoad) {
@@ -640,6 +667,14 @@ public class Tournament implements Solution<HardSoftScore> {
 
         public double getOptimalLoad() {
             return optimalLoad;
+        }
+
+        public void setOptimalChairLoad(double optimalChairLoad) {
+            this.optimalChairLoad = optimalChairLoad;
+        }
+
+        public double getOptimalChairLoad() {
+            return optimalChairLoad;
         }
 
         public void setRounds(int rounds) {

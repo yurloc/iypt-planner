@@ -8,17 +8,19 @@ public class JurorLoad {
 
     public static final double INFINITE_LOAD_VALUE = 2.0;
     private final Juror juror;
+    private final boolean chair;
     private final double load;
     private final double delta;
     private final double cost;
     private final boolean excessive;
 
-    public JurorLoad(Juror juror, Number seats, int rounds, Number absences, double optimal) {
-        this(juror, seats.intValue(), rounds, absences.intValue(), optimal);
+    public JurorLoad(Juror juror, boolean chair, Number seats, int rounds, Number absences, double optimal) {
+        this(juror, chair, seats.intValue(), rounds, absences.intValue(), optimal);
     }
 
-    public JurorLoad(Juror juror, int seats, int rounds, int absences, double optimal) {
+    public JurorLoad(Juror juror, boolean chair, int seats, int rounds, int absences, double optimal) {
         this.juror = juror;
+        this.chair = chair;
         double allowed = 0;
         if (rounds == absences) {
             // avoid division by zero
@@ -46,6 +48,10 @@ public class JurorLoad {
         return juror;
     }
 
+    public boolean isChair() {
+        return chair;
+    }
+
     public double getLoad() {
         return load;
     }
@@ -64,6 +70,6 @@ public class JurorLoad {
 
     @Override
     public String toString() {
-        return String.format("%s's load: %.2f(%+.2f)", juror, load, delta);
+        return String.format("%s's %sload: %.2f(%+.2f)", juror, chair ? "chair " : "", load, delta);
     }
 }
