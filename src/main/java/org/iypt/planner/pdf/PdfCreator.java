@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.iypt.planner.domain.Group;
@@ -32,6 +33,7 @@ public class PdfCreator {
 
     private final Tournament t;
     private final BaseFont bf;
+    private final Date date = new Date();
     private String filePrefix = "";
     private File outputDir = null;
 
@@ -58,6 +60,7 @@ public class PdfCreator {
         Document document = new Document();
         // step 2
         PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(getOutputFile("rooms")));
+        writer.setPageEvent(new TimestampFooter(date));
         // step 3
         document.open();
         // step 4
@@ -90,6 +93,7 @@ public class PdfCreator {
         Document document = new Document(PageSize.A4.rotate());
         //step 2
         PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(getOutputFile("rounds")));
+        writer.setPageEvent(new TimestampFooter(date));
         //step 3
         document.open();
         //step 4
