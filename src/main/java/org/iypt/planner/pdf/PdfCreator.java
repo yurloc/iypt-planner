@@ -153,12 +153,12 @@ public class PdfCreator {
         Font fJury = new Font(bf, 10);
         Font fObs = new Font(bf, 10, Font.NORMAL, BaseColor.GRAY);
 
-        PdfPTable table = new PdfPTable(t.getRounds().get(1).getGroups().size());
+        PdfPTable table = new PdfPTable(r.getGroups().size());
         table.setWidthPercentage(100);
         table.getDefaultCell().setHorizontalAlignment(Element.ALIGN_CENTER);
 
         // Header with group names
-        for (Group group : t.getRounds().get(1).getGroups()) {
+        for (Group group : r.getGroups()) {
             PdfPCell cGroup = new PdfPCell(new Phrase(group.getName(), fRounds));
             cGroup.setPadding(10);
             cGroup.setHorizontalAlignment(Element.ALIGN_CENTER);
