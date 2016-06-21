@@ -29,5 +29,6 @@ public class PdfTest {
 
         c.printRooms();
         c.printRounds();
+        c.printIdleJurors();
     }
 }

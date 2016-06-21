@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
+import org.iypt.planner.domain.Absence;
 import org.iypt.planner.domain.Group;
 import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.Round;
@@ -111,6 +112,29 @@ public class PdfCreator {
         document.close();
     }
 
+    public void printIdleJurors() throws DocumentException, IOException {
+        //step 1
+        Document document = new Document(PageSize.A4);
+        //step 2
+        PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(getOutputFile("idle")));
+        writer.setPageEvent(new TimestampFooter(date));
+        //step 3
+        document.open();
+        //step 4
+        ColumnText column = new ColumnText(writer.getDirectContent());
+        for (Round round : t.getRounds()) {
+            PdfPTable header = getRoundHeaderTable(round);
+            document.add(header);
+            column.addElement(getRoundIdleJurorsTable(t, round));
+            column.setSimpleColumn(document.left(), document.bottom(), document.right(),
+                    document.top() - header.getTotalHeight() - 40);
+            column.go();
+            document.newPage();
+        }
+        //step 5
+        document.close();
+    }
+
     private PdfPTable getRoundHeaderTable(Round round) {
         Phrase pGroup = new Phrase(round.toString(), new Font(bf, 60));
 
@@ -184,6 +208,38 @@ public class PdfCreator {
             }
         }
 
+        return table;
+    }
+
+    private Element getRoundIdleJurorsTable(Tournament t, Round round) {
+        Font fJuror = new Font(bf, 24);
+
+        PdfPTable table = new PdfPTable(1);
+        table.setWidthPercentage(100);
+        table.getDefaultCell().setBorderColor(BaseColor.WHITE);
+
+        // header
+        table.addCell(getHeaderCell("Not scheduled jurors"));
+
+        table.getDefaultCell().setVerticalAlignment(Element.ALIGN_BASELINE);
+        table.getDefaultCell().setBackgroundColor(BaseColor.WHITE);
+        ArrayList<Juror> idle = new ArrayList<Juror>(t.getJurors());
+        for (Group g : round.getGroups()) {
+            for (Seat s : t.getSeats(g.getJury())) {
+                idle.remove(s.getJuror());
+            }
+        }
+        for (Juror juror : idle) {
+            boolean absent = false;
+            for (Absence a : t.getAbsences(juror)) {
+                if (a.getRound().equals(round)) {
+                    absent = true;
+                }
+            }
+            if (!absent) {
+                table.addCell(new Phrase(juror.fullName(), fJuror));
+            }
+        }
         return table;
     }
 

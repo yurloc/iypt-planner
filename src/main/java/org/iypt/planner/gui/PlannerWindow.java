@@ -787,6 +787,7 @@ public class PlannerWindow extends Window implements Bindable {
                         pdf.setFilePrefix(time);
                         pdf.printRooms();
                         pdf.printRounds();
+                        pdf.printIdleJurors();
                         log.info("Written PDFs with timestamp '{}'.", time);
                     } catch (DocumentException | IOException ex) {
                         wlog.error("Error while exporting PDFs", ex);
