@@ -764,9 +764,10 @@ public class PlannerWindow extends Window implements Bindable {
     void exportPdf() {
         // create new FileBrowser to make sure a fresh file list is displayed
         String lastDir = PlannerWindow.getLastDir();
-        final FileBrowserSheet fileBrowserSheet = lastDir == null
-                ? new FileBrowserSheet(FileBrowserSheet.Mode.SAVE_TO)
-                : new FileBrowserSheet(FileBrowserSheet.Mode.SAVE_TO, lastDir);
+        final FileBrowserSheet fileBrowserSheet = new FileBrowserSheet(FileBrowserSheet.Mode.SAVE_TO);
+        if (lastDir != null) {
+            fileBrowserSheet.setSelectedFile(new File(lastDir));
+        }
         fileBrowserSheet.setDisabledFileFilter(new Filter<File>() {
             @Override
             public boolean include(File item) {
