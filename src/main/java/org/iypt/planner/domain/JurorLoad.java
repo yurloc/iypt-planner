@@ -29,8 +29,8 @@ public class JurorLoad {
         if (roundsAvailable == 0) {
             // avoid division by zero
             if (seats == 0) {
-                load = 0;
-                allowed = optimal; // will be never excessive
+                load = 1; // utilized at 100% even though not used
+                allowed = 1 - optimal; // will be never excessive
             } else {
                 load = INFINITE_LOAD_VALUE;
             }
@@ -39,7 +39,8 @@ public class JurorLoad {
             allowed = 1.0 / roundsAvailable;
         }
         delta = load - optimal;
-        if (seats == 0) {
+        if (seats == 0 && roundsAvailable > 0) {
+            // juror that is available for at least 1 round and not used must be always penalized
             cost = 1.0;
             excessive = true;
         } else {

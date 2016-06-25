@@ -152,7 +152,8 @@ public class TournamentTest {
         testLoad(new JurorLoad(jA1, false, 0, 5, 2, .77), .00, -.77, true);
         testLoad(new JurorLoad(jA1, false, 0, 5, 3, .77), .00, -.77, true);
         testLoad(new JurorLoad(jA1, false, 0, 5, 4, .77), .00, -.77, true);
-        testLoad(new JurorLoad(jA1, false, 0, 5, 5, .77), .00, -.77, true);
+        // not used but because of absences utilized at 100% => not excessive
+        testLoad(new JurorLoad(jA1, false, 0, 5, 5, .77), 1.0, +.23, false);
 
         testLoad(new JurorLoad(jA1, false, 1, 5, 0, .77), .20, -.57, true);
         testLoad(new JurorLoad(jA1, false, 1, 5, 1, .77), .25, -.52, true);
@@ -174,10 +175,10 @@ public class TournamentTest {
         testLoad(new JurorLoad(jM7, false, 5, 5, 0, .77), 1.25, +.48, true);
 
         // with absences
-        testLoad(new JurorLoad(jM7, false, 0, 5, 4, .77), .00, -.77, true);
-        testLoad(new JurorLoad(jM7, false, 1, 5, 2, .77), .50, -.27, false);
-        testLoad(new JurorLoad(jM7, false, 2, 5, 2, .77), 1.0, +.23, false);
+        testLoad(new JurorLoad(jM7, false, 0, 5, 4, .77), 1.0, +.23, false);
         testLoad(new JurorLoad(jM7, false, 1, 5, 3, .77), 1.0, +.23, false);
+        testLoad(new JurorLoad(jM7, false, 2, 5, 2, .77), 1.0, +.23, false);
+        testLoad(new JurorLoad(jM7, false, 1, 5, 2, .77), .50, -.27, false);
     }
 
     @Test
@@ -502,8 +503,8 @@ public class TournamentTest {
     }
 
     private void testLoad(JurorLoad load, double expectedLoad, double expectedDelta, boolean excessive) {
-        assertThat(load.getLoad()).as(load.toString()).isEqualTo(expectedLoad, offset(.005));
-        assertThat(load.getDelta()).as(load.toString()).isEqualTo(expectedDelta, offset(.005));
-        assertThat(load.isExcessive()).as(load.toString()).isEqualTo(excessive);
+        assertThat(load.getLoad()).as(load.toString() + " load").isEqualTo(expectedLoad, offset(.005));
+        assertThat(load.getDelta()).as(load.toString() + " delta").isEqualTo(expectedDelta, offset(.005));
+        assertThat(load.isExcessive()).as(load.toString() + " excessive").isEqualTo(excessive);
     }
 }
