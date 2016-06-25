@@ -164,6 +164,20 @@ public class TournamentTest {
         testLoad(new JurorLoad(jA1, false, 4, 5, 0, .77), .80, +.03, false);
         testLoad(new JurorLoad(jA1, false, 4, 5, 1, .77), 1.0, +.23, false);
         testLoad(new JurorLoad(jA1, false, 4, 5, 2, .77), 1.33, +.56, true);
+
+        // inexperienced, no absences
+        testLoad(new JurorLoad(jM7, false, 0, 5, 0, .77), .00, -.77, true);
+        testLoad(new JurorLoad(jM7, false, 1, 5, 0, .77), .25, -.52, true);
+        testLoad(new JurorLoad(jM7, false, 2, 5, 0, .77), .50, -.27, true);
+        testLoad(new JurorLoad(jM7, false, 3, 5, 0, .77), .75, -.02, false);
+        testLoad(new JurorLoad(jM7, false, 4, 5, 0, .77), 1.0, +.23, false);
+        testLoad(new JurorLoad(jM7, false, 5, 5, 0, .77), 1.25, +.48, true);
+
+        // with absences
+        testLoad(new JurorLoad(jM7, false, 0, 5, 4, .77), .00, -.77, true);
+        testLoad(new JurorLoad(jM7, false, 1, 5, 2, .77), .50, -.27, false);
+        testLoad(new JurorLoad(jM7, false, 2, 5, 2, .77), 1.0, +.23, false);
+        testLoad(new JurorLoad(jM7, false, 1, 5, 3, .77), 1.0, +.23, false);
     }
 
     @Test

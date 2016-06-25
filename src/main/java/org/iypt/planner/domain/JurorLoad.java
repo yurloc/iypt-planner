@@ -22,7 +22,11 @@ public class JurorLoad {
         this.juror = juror;
         this.chair = chair;
         double allowed = 0;
-        if (rounds == absences) {
+        int roundsAvailable = rounds - absences;
+        if (!juror.isExperienced() && roundsAvailable > 0) {
+            roundsAvailable--;
+        }
+        if (roundsAvailable == 0) {
             // avoid division by zero
             if (seats == 0) {
                 load = 0;
@@ -31,8 +35,8 @@ public class JurorLoad {
                 load = INFINITE_LOAD_VALUE;
             }
         } else {
-            load = ((double) seats) / (rounds - absences);
-            allowed = 1.0 / (rounds - absences);
+            load = ((double) seats) / roundsAvailable;
+            allowed = 1.0 / roundsAvailable;
         }
         delta = load - optimal;
         if (seats == 0) {
