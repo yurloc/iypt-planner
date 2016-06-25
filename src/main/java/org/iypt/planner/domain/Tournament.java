@@ -178,9 +178,19 @@ public class Tournament implements Solution<HardSoftScore> {
     //
     private double calculateOptimalLoad() {
         if (jurors.size() > 0 && rounds.size() > 0 && absences.size() != jurors.size() * rounds.size()) {
-            // TODO minus number of inexperienced jurors!
-            double totalSeats = seats.size() - NON_VOTING_SEAT_BUFFER * juries.size();
-            return totalSeats / (jurors.size() * rounds.size() - absences.size());
+            double jurorsNeeded = 0;
+            for (Seat seat : seats) {
+                if (seat.isVoting()) {
+                    jurorsNeeded++;
+                }
+            }
+            int jurorsReadyToVote = jurors.size() * rounds.size() - absences.size();
+            for (Juror j : jurors) {
+                if (!j.isExperienced()) {
+                    jurorsReadyToVote--;
+                }
+            }
+            return jurorsNeeded / jurorsReadyToVote;
         }
         return 0.0;
     }

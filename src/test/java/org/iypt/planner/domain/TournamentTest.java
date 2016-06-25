@@ -211,6 +211,39 @@ public class TournamentTest {
     }
 
     @Test
+    public void testOptimalLoadWithInexperiencedJurors() {
+        int jurySize = 2;
+        Round r1 = new Round(1, jurySize);
+        r1.createGroup("A").addTeams(tA, tB, tC);
+        r1.createGroup("B").addTeams(tD, tE, tF);
+        Round r2 = new Round(2, jurySize);
+        r2.createGroup("A").addTeams(tD, tE, tF);
+        r2.createGroup("B").addTeams(tA, tB, tC);
+
+        Tournament t = new Tournament();
+        t.addRounds(r1, r2);
+
+        assertThat(t.getSeats()).hasSize((jurySize + Tournament.NON_VOTING_SEAT_BUFFER) * 2 * 2);
+
+        //                                   E0
+        t.addJurors(jA1, jA2, jA3, jA4, jA5, jM7);
+        t.addAbsences(new Absence(jA2, round2));
+
+        int rounds = t.getRounds().size();
+        int jurors = t.getJurors().size();
+        int absences = t.getAbsences().size();
+        int jurorsNeeded = t.getSeats().size() - t.getJuries().size() * Tournament.NON_VOTING_SEAT_BUFFER;
+        int jurorsReadyToVote = jurors * rounds - absences - 1; //e0
+        double load = jurorsNeeded / (double) jurorsReadyToVote;
+
+        assertThat(jurorsNeeded).isEqualTo(8);
+        assertThat(jurorsReadyToVote).isEqualTo(10);
+        assertThat(load).isEqualTo(0.8, offset(Double.MIN_VALUE));
+
+        assertThat(t.getStatistics().getOptimalLoad()).isEqualTo(load, offset(Double.MIN_VALUE));
+    }
+
+    @Test
     public void testChairBalance() {
         Tournament t = new Tournament();
         assertThat(t.getStatistics().getOptimalChairLoad()).isEqualTo(0.0, offset(Double.MIN_VALUE));
