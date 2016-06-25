@@ -5,6 +5,7 @@ import com.jcabi.manifests.Manifests;
 import java.awt.Color;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.URL;
@@ -570,9 +571,9 @@ public class PlannerWindow extends Window implements Bindable {
     //
     private abstract class LoadFileAction extends Action {
 
-        private final String fileType;
+        private final InputFile fileType;
 
-        public LoadFileAction(String fileType) {
+        public LoadFileAction(InputFile fileType) {
             this.fileType = fileType;
         }
 
@@ -584,6 +585,18 @@ public class PlannerWindow extends Window implements Bindable {
             final FileBrowserSheet fileBrowserSheet = lastDir == null
                     ? new FileBrowserSheet()
                     : new FileBrowserSheet(lastDir);
+            if (lastDir != null) {
+                File[] candidates = new File(lastDir).listFiles(new FilenameFilter() {
+                    @Override
+                    public boolean accept(File dir, String name) {
+                        return fileType.matches(name);
+                    }
+                });
+                if (candidates.length == 1) {
+                    fileBrowserSheet.setSelectedFile(candidates[0]);
+                }
+            }
+
             fileBrowserSheet.setDisabledFileFilter(CSV_FILE_FILTER);
             fileBrowserSheet.open(PlannerWindow.this, new SheetCloseListener() {
                 @Override
@@ -602,7 +615,7 @@ public class PlannerWindow extends Window implements Bindable {
             });
         }
     }
-    private final LoadFileAction loadTeamsAction = new LoadFileAction("teams") {
+    private final LoadFileAction loadTeamsAction = new LoadFileAction(InputFile.TEAMS) {
         @Override
         void processFile(File f) throws Exception {
             factory.readTeamData(f, StandardCharsets.UTF_8);
@@ -613,7 +626,7 @@ public class PlannerWindow extends Window implements Bindable {
             loadTeamsAction.setEnabled(false);
         }
     };
-    private final LoadFileAction loadJurorsAction = new LoadFileAction("jurors") {
+    private final LoadFileAction loadJurorsAction = new LoadFileAction(InputFile.JURORS) {
         @Override
         void processFile(File f) throws Exception {
             factory.readJuryData(f, StandardCharsets.UTF_8);
@@ -624,7 +637,7 @@ public class PlannerWindow extends Window implements Bindable {
             loadJurorsAction.setEnabled(false);
         }
     };
-    private final LoadFileAction loadBiasesAction = new LoadFileAction("biases") {
+    private final LoadFileAction loadBiasesAction = new LoadFileAction(InputFile.BIASES) {
         @Override
         void processFile(File f) throws Exception {
             factory.readBiasData(f, StandardCharsets.UTF_8);
@@ -635,7 +648,7 @@ public class PlannerWindow extends Window implements Bindable {
             loadBiasesAction.setEnabled(false);
         }
     };
-    private final LoadFileAction loadScheduleAction = new LoadFileAction("schedule") {
+    private final LoadFileAction loadScheduleAction = new LoadFileAction(InputFile.SCHEDULE) {
         @Override
         void processFile(File f) throws Exception {
             factory.readSchedule(f, StandardCharsets.UTF_8);
