@@ -183,7 +183,7 @@ public class PdfCreator {
         }
 
         // Jurors
-        int rows = r.getJurySize() + Tournament.NON_VOTING_SEAT_BUFFER;
+        int rows = t.getSeats(r.getGroups().get(0).getJury()).size();
         for (int i = 0; i < rows; i++) {
             List<String> juryRow = new ArrayList<>();
             for (Group g : r.getGroups()) {

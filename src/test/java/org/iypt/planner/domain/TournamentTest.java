@@ -2,6 +2,7 @@ package org.iypt.planner.domain;
 
 import com.neovisionaries.i18n.CountryCode;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import org.junit.Test;
@@ -66,7 +67,7 @@ public class TournamentTest {
         // getJuries
         assertThat(t.getJuries()).hasSameSizeAs(t.getGroups());
         // getSeats
-        assertThat(t.getSeats()).hasSize((origSize + Tournament.NON_VOTING_SEAT_BUFFER) * t.getJuries().size());
+        assertThat(t.getSeats()).hasSize((origSize) * t.getJuries().size());
 
         // setJuryCapacity
         int r1size = origSize - 1;
@@ -74,7 +75,7 @@ public class TournamentTest {
         assertThat(t.changeJurySize(r1, r1size)).isTrue();
         assertThat(t.changeJurySize(r2, r2size)).isTrue();
         assertThat(t.getJuries()).hasSameSizeAs(t.getGroups());
-        assertThat(t.getSeats()).hasSize((r1size + r2size + 2 * Tournament.NON_VOTING_SEAT_BUFFER) * r1.getGroups().size());
+        assertThat(t.getSeats()).hasSize((r1size + r2size) * r1.getGroups().size());
 
         assertThat(t.getProblemFacts()).hasSize(
                 t.getRounds().size()
@@ -90,7 +91,7 @@ public class TournamentTest {
         int newSize = 2;
         t.changeJurySize(r1, newSize);
         t.changeJurySize(r2, newSize);
-        assertThat(t.getSeats()).hasSize((newSize + Tournament.NON_VOTING_SEAT_BUFFER) * t.getJuries().size());
+        assertThat(t.getSeats()).hasSize((newSize) * t.getJuries().size());
 
         t.addJurors(jA1, jA2, jA3);
         assertThat(t.isFeasibleSolutionPossible()).isFalse();
@@ -142,7 +143,7 @@ public class TournamentTest {
         assertThat(t.getGroups()).hasSize(6);
         assertThat(t.getTeams()).contains(tA, tB, tC, tD, tE, tF);
         assertThat(t.getJuries()).hasSize(t.getGroups().size());
-        assertThat(t.getSeats()).hasSize((newSize + Tournament.NON_VOTING_SEAT_BUFFER) * t.getJuries().size());
+        assertThat(t.getSeats()).hasSize((newSize) * t.getJuries().size());
     }
 
     @Test
@@ -238,7 +239,7 @@ public class TournamentTest {
         Tournament t = new Tournament();
         t.addRounds(r1, r2);
 
-        assertThat(t.getSeats()).hasSize((jurySize + Tournament.NON_VOTING_SEAT_BUFFER) * 2 * 2);
+        assertThat(t.getSeats()).hasSize((jurySize) * 2 * 2);
 
         //                                   E0
         t.addJurors(jA1, jA2, jA3, jA4, jA5, jM7);
@@ -247,7 +248,8 @@ public class TournamentTest {
         int rounds = t.getRounds().size();
         int jurors = t.getJurors().size();
         int absences = t.getAbsences().size();
-        int jurorsNeeded = t.getSeats().size() - t.getJuries().size() * Tournament.NON_VOTING_SEAT_BUFFER;
+        int nonVotingBuffer = 1 * r1.getGroups().size();
+        int jurorsNeeded = t.getSeats().size() - nonVotingBuffer;
         int jurorsReadyToVote = jurors * rounds - absences - 1; //e0
         double load = jurorsNeeded / (double) jurorsReadyToVote;
 
@@ -364,8 +366,8 @@ public class TournamentTest {
         r.createGroup("B").addTeams(tE, tF, tG);
         Tournament t = new Tournament();
         t.addRounds(r);
-        assertThat(t.getSeats()).hasSize(8);
-        assertThat(t.getSeats()).hasSize(r.getGroups().size() * (jurySize + Tournament.NON_VOTING_SEAT_BUFFER));
+        assertThat(t.getSeats()).hasSize(4);
+        assertThat(t.getSeats()).hasSize(r.getGroups().size() * jurySize);
 
         t.addJurors(jA1, jA2, jA3, jA4);
         assertThat(t.isFeasibleSolutionPossible()).isTrue();
@@ -469,6 +471,52 @@ public class TournamentTest {
         assertThat(r2.getMaxJurySize()).isEqualTo(2);
     }
 
+    @Test
+    public void testNonVotingBuffer() {
+        Tournament t = new Tournament();
+        int jurySize = 5;
+        int rounds = 2;
+        int groups = 2;
+        Round r1 = new Round(1, jurySize);
+        Round r2 = new Round(2, jurySize);
+        Group g1A = r1.createGroup("A");
+        r1.createGroup("B");
+        r2.createGroup("A");
+        r2.createGroup("B");
+        t.addRounds(r1, r2);
+        Juror i1 = new Juror("_", "1", CountryCode.IN, JurorType.INDEPENDENT, false, false);
+        Juror i2 = new Juror("_", "2", CountryCode.IN, JurorType.INDEPENDENT, false, false);
+        Juror i3 = new Juror("_", "3", CountryCode.IN, JurorType.INDEPENDENT, false, false);
+        Juror i4 = new Juror("_", "4", CountryCode.IN, JurorType.INDEPENDENT, false, false);
+        t.addJurors(i1, i2, i3, i4);
+
+        Juror[] jurors = new Juror[t.getSeats().size()];
+        Arrays.fill(jurors, 0, jurors.length, jZ1);
+        jurors[0] = jA1;
+        jurors[1] = jA2;
+        jurors[2] = jA3;
+        jurors[3] = jA4;
+        jurors[4] = jA5;
+        jurors[5] = i1;
+        jurors[6] = i2;
+        assignJurors(t, jurors);
+        assertThat(t.getSeats(g1A.getJury())).extracting("juror").containsExactly(jA1, jA2, jA3, jA4, jA5, i1, i2);
+
+        assertThat(t.getSeats()).hasSize(jurySize * groups * rounds + 2 * groups);
+
+        // i1 is absent in round 1 => buffer is added to round 2
+        t.addAbsences(new Absence(i1, r1));
+        assertThat(t.getSeats()).hasSize(jurySize * groups * rounds + 2 * groups + 1 * groups);
+
+        // the assignments shouldn't change
+        assertThat(t.getSeats(g1A.getJury())).extracting("juror").containsExactly(jA1, jA2, jA3, jA4, jA5, i1, i2);
+
+        // change jury size
+        t.changeJurySize(r1, 1);
+        // non-voting assignments shouldn't change
+        assertThat(t.getSeats(g1A.getJury())).extracting("juror").containsExactly(jA1, i1, i2);
+    }
+
     private void testClone(Tournament t) {
         Tournament clone = (Tournament) t.cloneSolution();
 
@@ -506,5 +554,12 @@ public class TournamentTest {
         assertThat(load.getLoad()).as(load.toString() + " load").isEqualTo(expectedLoad, offset(.005));
         assertThat(load.getDelta()).as(load.toString() + " delta").isEqualTo(expectedDelta, offset(.005));
         assertThat(load.isExcessive()).as(load.toString() + " excessive").isEqualTo(excessive);
+    }
+
+    private void assignJurors(Tournament t, Juror... jurors) {
+        int j = 0;
+        for (Seat seat : t.getSeats()) {
+            seat.setJuror(jurors[j++]);
+        }
     }
 }

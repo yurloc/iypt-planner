@@ -59,8 +59,7 @@ public class SolverLargeTest extends AbstractSolverTest {
 
         // visualizing the numbers
         assertThat(t.getJurors().size()).isEqualTo(38);
-        assertThat((t.getSeats().size() - Tournament.NON_VOTING_SEAT_BUFFER * t.getJuries().size())
-                / t.getRounds().size()).isEqualTo(32);
+        assertThat(t.getSeats().size() / t.getRounds().size()).isEqualTo(32);
 
         assertThat(t.getAbsencesPerRound(r1)).isEqualTo(5);
         assertThat(t.getAbsencesPerRound(r2)).isEqualTo(3);

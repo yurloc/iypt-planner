@@ -1,5 +1,7 @@
 package org.iypt.planner.domain;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -28,7 +30,6 @@ import org.slf4j.LoggerFactory;
 @PlanningSolution
 public class Tournament implements Solution<HardSoftScore> {
 
-    public static final int NON_VOTING_SEAT_BUFFER = 2;
     private static final Logger log = LoggerFactory.getLogger(Tournament.class);
     private HardSoftScore score;
     // planning entity
@@ -312,11 +313,6 @@ public class Tournament implements Solution<HardSoftScore> {
                     Seat seat = new VotingSeat(jury, i, null);
                     seats.add(seat);
                 }
-
-                for (int i = 0; i < NON_VOTING_SEAT_BUFFER; i++) {
-                    NonVotingSeat seat = new NonVotingSeat(jury, i + 100, null);
-                    seats.add(seat);
-                }
             }
 
             absencesPerRoundMap.put(r, new ArrayList<Absence>());
@@ -324,6 +320,7 @@ public class Tournament implements Solution<HardSoftScore> {
         stats.setOptimalLoad(calculateOptimalLoad());
         stats.setOptimalChairLoad(calculateOptimalChairLoad());
         calculateIndependentRatio();
+        updateNonVotingBuffers();
     }
 
     //-------------------------------------------------------------------------
@@ -361,6 +358,7 @@ public class Tournament implements Solution<HardSoftScore> {
         stats.setOptimalLoad(calculateOptimalLoad());
         stats.setOptimalChairLoad(calculateOptimalChairLoad());
         calculateIndependentRatio();
+        updateNonVotingBuffers();
         calculateMaxJurySize(false);
     }
 
@@ -408,6 +406,7 @@ public class Tournament implements Solution<HardSoftScore> {
         stats.setOptimalChairLoad(calculateOptimalChairLoad());
         calculateIndependentRatio();
         calculateFirstAvailableRounds();
+        updateNonVotingBuffers();
         calculateMaxJurySize(true);
     }
 
@@ -424,6 +423,7 @@ public class Tournament implements Solution<HardSoftScore> {
         stats.setOptimalChairLoad(calculateOptimalChairLoad());
         calculateIndependentRatio();
         calculateFirstAvailableRounds();
+        updateNonVotingBuffers();
         calculateMaxJurySize(true);
     }
 
@@ -472,6 +472,35 @@ public class Tournament implements Solution<HardSoftScore> {
     public boolean unlock(Round round) {
         lockedRounds.remove(round);
         return locked.removeAll(getSeats(round));
+    }
+
+    private void updateNonVotingBuffers() {
+        int[] nonVoting = new int[rounds.size()];
+        Arrays.fill(nonVoting, 0);
+        for (Juror juror : jurors) {
+            if (!juror.isExperienced() && juror.getFirstAvailable() - 1 < nonVoting.length) {
+                nonVoting[juror.getFirstAvailable() - 1]++;
+            }
+        }
+
+        SortedSet<Seat> newSeats = new TreeSet<>();
+        for (Jury jury : juries) {
+            Round round = jury.getGroup().getRound();
+
+            BigDecimal totalNonVoting = BigDecimal.valueOf(nonVoting[round.getNumber() - 1]);
+            int bufferSize = totalNonVoting.divide(BigDecimal.valueOf(round.getGroups().size()), 0, RoundingMode.CEILING).intValue();
+
+            List<Seat> j = getSeats(jury);
+            // copy existing seats
+            newSeats.addAll(j.subList(0, Math.min(j.size(), round.getJurySize() + bufferSize)));
+
+            // add empty non-voting seats if the buffer has increased
+            for (int i = j.size(); i < round.getJurySize() + bufferSize; i++) {
+                NonVotingSeat seat = new NonVotingSeat(jury, i + 100, null);
+                newSeats.add(seat);
+            }
+        }
+        seats = newSeats;
     }
 
     /**
