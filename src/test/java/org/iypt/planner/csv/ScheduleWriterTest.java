@@ -42,10 +42,8 @@ public class ScheduleWriterTest {
         for (Round round : tournament.getRounds()) {
             for (Group group : round.getGroups()) {
                 for (Seat seat : tournament.getSeats(group.getJury())) {
-                    if (round.getNumber() == 1 || seat.isVoting()) {
-                        seat.setJuror(jurors.get(i));
-                        i = (++i) % jurors.size();
-                    }
+                    seat.setJuror(jurors.get(i));
+                    i = (++i) % jurors.size();
                 }
             }
         }
@@ -59,6 +57,7 @@ public class ScheduleWriterTest {
         ScheduleWriter writer = new ScheduleWriter(tournament);
         writer.write(sw);
 
+        log.debug("{}", tournament.toDisplayString());
         log.debug("\n[{}]", sw.toString());
 
         List<String> actualLines = new ArrayList<>();
@@ -75,10 +74,10 @@ public class ScheduleWriterTest {
 
         // check the stored lines
         String[] expectedLines = {
-            "1;A;1, null;2, null;3, null",
-            "1;B;6, null;7, null;1, null",
-            "2;A;4, null;5, null;6, null",
-            "2;B;7, null;1, null;2, null"};
+            "1;A;1, null;2, null;3, null", // jB4 is sitting on non-voting => not printed
+            "1;B;5, null;6, null;7, null", // jA1 is sitting on non-voting => not printed
+            "2;A;2, null;3, null;4, null", // no non-voting seats in round 2
+            "2;B;5, null;6, null;7, null"};
         assertThat(actualLines).containsExactly(expectedLines);
     }
 
