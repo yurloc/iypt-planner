@@ -25,6 +25,7 @@ public class CountryCodeIO {
         nameToCountryMap.put("Iran", CountryCode.IR);
         nameToCountryMap.put("Korea", CountryCode.KR);
         nameToCountryMap.put("Russia", CountryCode.RU);
+        nameToCountryMap.put("UK", CountryCode.GB);
         nameToCountryMap.put("United States of America", CountryCode.US);
         nameToCountryMap.put("USA", CountryCode.US);
     }
