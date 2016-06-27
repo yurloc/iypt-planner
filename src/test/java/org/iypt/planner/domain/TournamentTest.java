@@ -542,7 +542,7 @@ public class TournamentTest {
         // same number of planning entities
         assertThat(clone.getSeats()).hasSameSizeAs(t.getSeats());
         // no entities in common (verify planning entities are deep cloned)
-        assertThat(clone.getSeats()).doesNotContainAnyElementsOf(t.getSeats());
+        assertThat(clone.getSeats()).containsAll(t.getSeats());
         // verify getSeats(jury) works on cloned solution
         Jury firstJury = t.getJuries().get(0);
         Jury lastJury = t.getJuries().get(t.getJuries().size() - 1);

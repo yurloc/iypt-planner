@@ -1,5 +1,7 @@
 package org.iypt.planner.domain;
 
+import java.util.Objects;
+
 public abstract class AbstractSeat implements Seat {
 
     // fixed
@@ -80,5 +82,34 @@ public abstract class AbstractSeat implements Seat {
             return position - other.getPosition();
         }
         return jury.getGroup().compareTo(other.getJury().getGroup());
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 73 * hash + Objects.hashCode(this.jury);
+        hash = 73 * hash + this.position;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final AbstractSeat other = (AbstractSeat) obj;
+        if (this.position != other.position) {
+            return false;
+        }
+        if (!Objects.equals(this.jury, other.jury)) {
+            return false;
+        }
+        return true;
     }
 }
