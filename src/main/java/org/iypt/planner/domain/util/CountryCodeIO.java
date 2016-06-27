@@ -26,6 +26,7 @@ public class CountryCodeIO {
         nameToCountryMap.put("Korea", CountryCode.KR);
         nameToCountryMap.put("Russia", CountryCode.RU);
         nameToCountryMap.put("United States of America", CountryCode.US);
+        nameToCountryMap.put("USA", CountryCode.US);
     }
 
     public static CountryCode getByShortName(String name) {
