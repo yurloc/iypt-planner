@@ -11,7 +11,6 @@ import org.iypt.planner.domain.Absence;
 import org.iypt.planner.domain.Conflict;
 import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.JurorType;
-import org.iypt.planner.domain.Lock;
 import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.RoundFactory;
 import org.iypt.planner.domain.Seat;
@@ -233,20 +232,6 @@ public class ScoringRulesTest {
         assignJurors(t, jD1);
         t.addAbsences(new Absence(jD1, r1));
         checkSolution(t, false, ScoringRule.absentJuror, 1);
-    }
-
-    @Test
-    public void testBrokenLock() {
-        Round r1 = RoundFactory.createRound(1, tA, tB, tC);
-        r1.setJurySize(2);
-        Tournament t = new Tournament();
-        t.addRounds(r1);
-        t.addJurors(jD1, jE1, jF1);
-
-        assignJurors(t, jD1, jE1);
-        t.addLock(new Lock(jF1, t.getJuries().get(0), 0));
-        t.addLock(new Lock(jE1, t.getJuries().get(0), 1));
-        checkSolution(t, false, ScoringRule.brokenLock, 1);
     }
 
     @Test
@@ -770,7 +755,6 @@ public class ScoringRulesTest {
         teamAndJurorSameCountry(HARD),
         teamAndChairMeetOften(HARD),
         absentJuror(HARD),
-        brokenLock(HARD),
         experiencedJurorOnNonVotingVotingSeat(HARD),
         inexperiencedOnNonVotingVotingSeatNotInFirstRound(HARD),
         // soft constraints

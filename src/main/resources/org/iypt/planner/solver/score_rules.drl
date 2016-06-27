@@ -86,15 +86,6 @@ then
     scoreHolder.addHardConstraintMatch(kcontext, -1);
 end
 
-rule "brokenLock"
-@ConstraintType(hard)
-when
-    $lock : Lock()
-    Seat( jury == $lock.jury, position == $lock.position, $misfit : juror != $lock.juror )
-then
-    scoreHolder.addHardConstraintMatch(kcontext, -1);
-end
-
 rule "teamAndChairMeetOften"
 @ConstraintType(hard)
 when
