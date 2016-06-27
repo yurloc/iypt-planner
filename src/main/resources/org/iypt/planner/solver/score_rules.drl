@@ -283,7 +283,7 @@ when
     $wc : WeightConfig()
     $t  : Tournament() // original schedule
     $s2 : Seat( !chair, $jury := jury, $p := position )
-    $s1 : Seat( !chair, $jury := jury, $p := position, juror != $s2.juror ) from $t.getSeats()
+    $s1 : Seat( !chair, $jury := jury, $p := position, juror != null, juror != $s2.juror ) from $t.getSeats()
 then
     scoreHolder.addSoftConstraintMatch(kcontext, -$wc.getWeight(drools.getRule().getName()));
 end
@@ -294,7 +294,7 @@ when
     $wc : WeightConfig()
     $t  : Tournament() // original schedule
     $s2 : Seat( position == 0, $jury := jury )
-    $s1 : Seat( position == 0, $jury := jury, juror != $s2.juror ) from $t.getSeats()
+    $s1 : Seat( position == 0, $jury := jury, juror != null, juror != $s2.juror ) from $t.getSeats()
 then
     scoreHolder.addSoftConstraintMatch(kcontext, -$wc.getWeight(drools.getRule().getName()));
 end
