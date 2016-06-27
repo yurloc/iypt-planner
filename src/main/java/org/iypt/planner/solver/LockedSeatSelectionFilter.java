@@ -12,8 +12,8 @@ import org.optaplanner.core.impl.score.director.ScoreDirector;
 public class LockedSeatSelectionFilter implements SelectionFilter<Seat> {
 
     @Override
-    public boolean accept(ScoreDirector scoreDirector, Seat selection) {
+    public boolean accept(ScoreDirector scoreDirector, Seat seat) {
         Tournament t = (Tournament) scoreDirector.getWorkingSolution();
-        return !t.isLocked(selection);
+        return !t.isLocked(seat) && (seat.isVoting() || !seat.isOccupied());
     }
 }
