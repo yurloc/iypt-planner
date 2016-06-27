@@ -219,7 +219,7 @@ public class TournamentTest {
                 .isEqualTo(jurySizeTotal * numberOfGroups / (18 - 2), offset(Double.MIN_VALUE));
 
         // check that cloned solution calculates statistics correctly
-        Tournament clone = (Tournament) t.cloneSolution();
+        Tournament clone = (Tournament) t.makeBackup();
         clone.changeJurySize(r2, 2);
         jurySizeTotal = 5.0;
         assertThat(clone.getStatistics().getOptimalLoad())
@@ -300,7 +300,7 @@ public class TournamentTest {
                 .isEqualTo(groups * rounds / (chairs * rounds - 2), offset(Double.MIN_VALUE));
 
         // check that cloned solution calculates statistics correctly
-        Tournament clone = (Tournament) t.cloneSolution();
+        Tournament clone = (Tournament) t.makeBackup();
         clone.changeJurySize(r2, 2);
         assertThat(clone.getStatistics().getOptimalChairLoad())
                 .isEqualTo(groups * rounds / (chairs * rounds - 2), offset(Double.MIN_VALUE));
@@ -518,7 +518,7 @@ public class TournamentTest {
     }
 
     private void testClone(Tournament t) {
-        Tournament clone = (Tournament) t.cloneSolution();
+        Tournament clone = (Tournament) t.makeBackup();
 
         // check ordinary getters
         assertThat(clone.getRounds()).isEqualTo(t.getRounds());

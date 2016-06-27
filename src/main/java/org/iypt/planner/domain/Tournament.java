@@ -103,7 +103,12 @@ public class Tournament implements Solution<HardSoftScore> {
         return facts;
     }
 
-    public Solution<HardSoftScore> cloneSolution() {
+    /**
+     * Clones this solution to create a backup that is used to penalize changes when one ore more rounds are locked.
+     *
+     * @return backup solution
+     */
+    public Solution<HardSoftScore> makeBackup() {
         Tournament clone = new Tournament();
         clone.score = score;
         clone.rounds = rounds;

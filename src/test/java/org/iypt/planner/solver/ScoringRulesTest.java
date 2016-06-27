@@ -448,7 +448,7 @@ public class ScoringRulesTest {
         tOld.addRounds(r1, r2);
         tOld.addJurors(jK1, jL1, jM1, jN1);
         assignJurors(tOld, jK1, jL1);
-        Tournament tNew = (Tournament) tOld.cloneSolution();
+        Tournament tNew = (Tournament) tOld.makeBackup();
         tNew.setOriginal(tOld);
 
         assignJurors(tNew, jK1, jL1);
@@ -472,7 +472,7 @@ public class ScoringRulesTest {
         tOld.addRounds(r1);
         tOld.addJurors(jL1, jM1, jM2, jM3, jN1, jN2, jN3);
         assignJurors(tOld, jM1, jM2, jM3, jN1, jN2, jL1);
-        Tournament tNew = (Tournament) tOld.cloneSolution();
+        Tournament tNew = (Tournament) tOld.makeBackup();
         tNew.setOriginal(tOld);
 
         // no change, no penalty
@@ -510,7 +510,7 @@ public class ScoringRulesTest {
         tOld.addRounds(r1, r2);
         tOld.addJurors(jM1, jM2, jM3, jN1, jN2, jN3);
         assignJurors(tOld, jM1, jM2, jN1, jN2, jM1, jM2, jN1, jN2);
-        Tournament tNew = (Tournament) tOld.cloneSolution();
+        Tournament tNew = (Tournament) tOld.makeBackup();
         tNew.setOriginal(tOld);
 
         // no change, no penalty

@@ -238,7 +238,7 @@ public class TournamentSolver {
                     tournament.lock(r);
                 }
             }
-            tournament.setOriginal((Tournament) tournament.cloneSolution());
+            tournament.setOriginal((Tournament) tournament.makeBackup());
         } else {
             // unlock all rounds
             for (Round r : tournament.getRounds()) {

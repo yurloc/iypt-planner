@@ -99,7 +99,7 @@ public abstract class AbstractSolverTest {
 
     private static List<ConstraintMatchTotal> getConstraintList(Solver solver, Solution<?> solution) {
         ScoreDirector scoreDirector = solver.getScoreDirectorFactory().buildScoreDirector();
-        scoreDirector.setWorkingSolution(((Tournament) solution).cloneSolution());
+        scoreDirector.setWorkingSolution(((Tournament) solution).makeBackup());
         scoreDirector.calculateScore();
         List<ConstraintMatchTotal> constraintMatchTotalList = new ArrayList<>(scoreDirector.getConstraintMatchTotals());
         Collections.sort(constraintMatchTotalList);
