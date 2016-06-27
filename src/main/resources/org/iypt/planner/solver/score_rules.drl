@@ -14,7 +14,6 @@ import org.iypt.planner.domain.Juror;
 import org.iypt.planner.domain.JurorLoad;
 import org.iypt.planner.domain.JurorType;
 import org.iypt.planner.domain.Jury;
-import org.iypt.planner.domain.Lock;
 import org.iypt.planner.domain.NonVotingSeat;
 import org.iypt.planner.domain.Round;
 import org.iypt.planner.domain.Seat;

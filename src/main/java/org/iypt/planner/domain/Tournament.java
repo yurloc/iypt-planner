@@ -45,7 +45,6 @@ public class Tournament implements Solution<HardSoftScore> {
     private List<Absence> absences;
     private List<Conflict> conflicts;
     private Map<Juror, List<Conflict>> conflictMap;
-    private List<Lock> locks;
     private Tournament original = null;
 
     private Statistics stats;
@@ -64,7 +63,6 @@ public class Tournament implements Solution<HardSoftScore> {
         locked = new HashSet<>();
         lockedRounds = new HashSet<>();
         absences = new ArrayList<>();
-        locks = new ArrayList<>();
         absencesPerRoundMap = new HashMap<>();
         absencesPerJurorMap = new HashMap<>();
         conflicts = new ArrayList<>();
@@ -92,7 +90,6 @@ public class Tournament implements Solution<HardSoftScore> {
         facts.addAll(jurors);
         facts.addAll(absences);
         facts.addAll(conflicts);
-        facts.addAll(locks);
         facts.add(stats);
         facts.add(config);
         if (original != null) {
@@ -122,7 +119,6 @@ public class Tournament implements Solution<HardSoftScore> {
         clone.absencesPerJurorMap = absencesPerJurorMap;
         clone.conflictMap = conflictMap;
         clone.conflicts = conflicts;
-        clone.locks = locks;
         clone.stats = stats;
         clone.config = config;
         clone.original = original;
@@ -441,18 +437,6 @@ public class Tournament implements Solution<HardSoftScore> {
     // Locking
     //-------------------------------------------------------------------------
     //
-    public List<Lock> getLocks() {
-        return Collections.unmodifiableList(locks);
-    }
-
-    public void addLock(Lock lock) {
-        locks.add(lock);
-    }
-
-    public void removeLock(Lock lock) {
-        locks.remove(lock);
-    }
-
     public boolean isLocked(Seat seat) {
         return locked.contains(seat);
     }

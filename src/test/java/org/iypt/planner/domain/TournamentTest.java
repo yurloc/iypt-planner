@@ -398,7 +398,6 @@ public class TournamentTest {
 
         t.addJurors(jA1, jB1, jC1);
         t.addAbsences(new Absence(jA1, r1), new Absence(jB1, r2));
-        t.addLock(new Lock(jA1, t.getJuries().get(0), 0));
 
         t.addConflicts(
                 new Conflict(jA1, tF.getCountry()),
@@ -528,7 +527,6 @@ public class TournamentTest {
         assertThat(clone.getJurors()).isEqualTo(t.getJurors());
         assertThat(clone.getAbsences()).isEqualTo(t.getAbsences());
         assertThat(clone.getConflicts()).isEqualTo(t.getConflicts());
-        assertThat(clone.getLocks()).isEqualTo(t.getLocks());
         assertThat(clone.getStatistics()).isEqualTo(t.getStatistics());
         assertThat(clone.getWeightConfig()).isEqualTo(t.getWeightConfig());
 
